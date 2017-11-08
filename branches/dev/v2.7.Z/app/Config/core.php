@@ -418,6 +418,9 @@ Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
+Configure::write('maxUplaodFileSize', 10*1024*1024);
+ini_set('upload_max_filesize', '10.1M');
+ini_set('post_max_size', '16M');
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LOGIN & PASSWORD

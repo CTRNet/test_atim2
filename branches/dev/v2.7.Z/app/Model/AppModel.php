@@ -136,7 +136,7 @@ class AppModel extends Model
         if (! is_array($data)) {
             return $moveFiles;
         }
-        
+
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
         
@@ -151,8 +151,19 @@ class AppModel extends Model
                     if (isset($value['name'])) {
                         if (! $value['size']) {
                             // no file
-                            $data[$modelName][$fieldName] = '';
+                            $data[$modelName][$fieldName] = $value['name'];
                             continue;
+                        }
+                        $maxUplaodFileSize = Configure::read('maxUplaodFileSize');
+                        if ($value['size']>$maxUplaodFileSize){
+                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('The file size should be less than %d bytes', Configure::read('maxUplaodFileSize')))));
+                            unlink($value['tmp_name']);
+                            if ($prevData[$modelName][$fieldName]){
+                                $data[$modelName][$fieldName]=$prevData[$modelName][$fieldName];
+                            }else{
+                                $data[$modelName][$fieldName]=null;
+                            }
+                            return null;
                         }
                         if (! file_exists($value['tmp_name'])) {
                             die('Error with temporary file');
@@ -183,7 +194,7 @@ class AppModel extends Model
         
         // Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $this->data = $thisDataTmpBackup;
-        
+
         return $moveFiles;
     }
 
@@ -234,7 +245,7 @@ class AppModel extends Model
             // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
             $data[$this->name]['-'] = "foo";
         }
-        
+
         $moveFiles = $this->filterMoveFiles($data);
         $result = parent::save($data, $validate, $fieldList);
         $this->moveFiles($moveFiles);

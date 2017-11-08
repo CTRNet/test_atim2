@@ -917,7 +917,7 @@ class StructuresHelper extends Helper
                                 
                                 if ($tableRowPart['type'] == 'textarea') {
                                     $display[0] .= '<span>' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix);
-                                } else {
+                                } else {                                
                                     $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
                                 }
                                 
@@ -1158,11 +1158,13 @@ class StructuresHelper extends Helper
                 $currentValue = str_replace('\n', "\n", $currentValue);
             } elseif ($tableRowPart['type'] == 'file') {
                 if ($currentValue) {
-                    $display = $this->getOpenFileLink($currentValue);
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
-                    $display .= ' ';
+                    if (!is_array($currentValue)){
+                        $display = $this->getOpenFileLink($currentValue);
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
+                        $display .= ' ';
+                    }
                 }
             }
             $display .= $tableRowPart['format']; // might contain hidden field if the current one is disabled
@@ -3280,6 +3282,7 @@ $confirmationMsg); // confirmation message
                 }
             }
         }
+          
         return $currentValue;
     }
 
