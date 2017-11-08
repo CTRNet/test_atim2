@@ -1866,6 +1866,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
+            ).delegate("input.upload", "change", checkBrowseFile
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
@@ -1901,6 +1902,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
+}
+
+function checkBrowseFile()
+{
+    if (this.files.length===1){
+        if (this.files[0].size> maxUplaodFileSize){
+            alert(maxUplaodFileSizeError);
+            this.value="";
+            return false;
+        }
+    }
+    return true;
 }
 
 function saveSqlLogAjax(data){
