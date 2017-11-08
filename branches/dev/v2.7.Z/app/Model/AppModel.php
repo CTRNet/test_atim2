@@ -462,6 +462,30 @@ class AppModel extends Model
         }
     }
 
+    private function deleteUploadedFile($data, $modelName)
+    {
+        foreach ($data[$modelName] as $field => $value) {
+            preg_match('/('.$modelName.'.)('.$field.'.)([0-9]+.)(.+)/', $value, $matches, PREG_OFFSET_CAPTURE);
+            if (!empty($matches)){
+                $dir=Configure::read('uploadDirectory');
+                if (file_exists($dir.DS.$matches[0][0])){
+                    unlink($dir.DS.$matches[0][0]);
+                }
+            }
+        }
+    }
+    
+/**
+ * Run atimDelete which use soft delete.
+ *
+ * @param int|string $id ID of record to delete
+ * @param bool $cascade Set to true to delete records that depend on this record
+ * @return bool True on success
+  */    
+    public function delete($modelId = null, $cascade = true) {
+        $this->atimDelete($modelId, $cascade);
+    }
+
     /*
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
@@ -474,16 +498,20 @@ class AppModel extends Model
     public function atimDelete($modelId, $cascade = true)
     {
         $this->id = $modelId;
+        $data=$this->read();
+        
         $this->registerModelsToCheck();
         
         // delete DATA as normal
         $this->addWritableField('deleted');
-        $this->delete($modelId, $cascade);
         
+        parent::delete($modelId, $cascade);
+
         // do a FIND of the same DATA, return FALSE if found or TRUE if not found
         if ($this->read()) {
             return false;
         }
+        $this->deleteUploadedFile($data, $this->name);
         $this->updateRegisteredModels();
         return true;
     }
