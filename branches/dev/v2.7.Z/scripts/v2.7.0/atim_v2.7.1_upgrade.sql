@@ -38,6 +38,17 @@ VALUES(
 	"La taille de fichier dois être mois que %d octets");
 
 -- -------------------------------------------------------------------------------------
+--	upload directory permission incorrect
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES(
+	'The permission of "upload" directory is not correct.', 
+	'The permission of "upload" directory is not correct.', 
+	'L\'autorisation du répertoire "upload" n\'est pas correcte.');
+
+-- -------------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;

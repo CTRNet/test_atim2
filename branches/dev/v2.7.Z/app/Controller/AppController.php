@@ -1403,9 +1403,15 @@ class AppController extends Controller
         // *** 1 *** regen permissions
         $this->PermissionManager->buildAcl();
         AppController::addWarningMsg(__('permissions have been regenerated'));
-        
+
+        // *** 1.5 *** Check the upload, temp and local directory permission
+        $uploadDirectory=Configure::read('uploadDirectory');
+        $permission = substr(sprintf('%o', fileperms($uploadDirectory)), -4);
+        if ($permission!='0777'){
+            AppController::addWarningMsg(__('The permission of "upload" directory is not correct.'));
+        }
+
         // *** 2 *** update the i18n string for version
-        
         $storageControlModel = AppModel::getInstance('StorageLayout', 'StorageControl', true);
         $isTmaBlock = $storageControlModel->find('count', array(
             'condition' => array(
@@ -1848,7 +1854,7 @@ class AppController extends Controller
         $storageCtrlModel = AppModel::getInstance('Administrate', 'StorageCtrl', true);
         $storageCtrlModel->validatesAllStorageControls();
         
-        // *** 12 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
+        // *** 13 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
         
         $tmpSql = "SELECT DISTINCT `flag_detail`
 			FROM structure_formats
