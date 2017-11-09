@@ -1907,8 +1907,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 function checkBrowseFile()
 {
     if (this.files.length===1){
-        if (this.files[0].size> maxUplaodFileSize){
-            alert(maxUplaodFileSizeError);
+        if (this.files[0].size> maxUploadFileSize){
+            alert(maxUploadFileSizeError);
             this.value="";
             return false;
         }

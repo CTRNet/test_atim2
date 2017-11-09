@@ -154,9 +154,9 @@ class AppModel extends Model
                             $data[$modelName][$fieldName] = $value['name'];
                             continue;
                         }
-                        $maxUplaodFileSize = Configure::read('maxUplaodFileSize');
-                        if ($value['size']>$maxUplaodFileSize){
-                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('The file size should be less than %d bytes', Configure::read('maxUplaodFileSize')))));
+                        $maxUploadFileSize = Configure::read('maxUploadFileSize');
+                        if ($value['size']>$maxUploadFileSize){
+                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('The file size should be less than %d bytes', Configure::read('maxUploadFileSize')))));
                             unlink($value['tmp_name']);
                             if ($prevData[$modelName][$fieldName]){
                                 $data[$modelName][$fieldName]=$prevData[$modelName][$fieldName];
@@ -464,12 +464,26 @@ class AppModel extends Model
 
     private function deleteUploadedFile($data, $modelName)
     {
+        $ifDelete=Configure::read('deleteUploadedFilePhysically');
+        $dir=Configure::read('uploadDirectory');
+        
         foreach ($data[$modelName] as $field => $value) {
-            preg_match('/('.$modelName.'.)('.$field.'.)([0-9]+.)(.+)/', $value, $matches, PREG_OFFSET_CAPTURE);
+            preg_match('/('.$modelName.')\.('.$field.')\.([0-9]+)\.(.+)/', $value, $matches, PREG_OFFSET_CAPTURE);
             if (!empty($matches)){
-                $dir=Configure::read('uploadDirectory');
                 if (file_exists($dir.DS.$matches[0][0])){
-                    unlink($dir.DS.$matches[0][0]);
+                    $fileName=$matches[0][0];
+                    if (!$ifDelete){
+                        $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                        if (!is_dir($deleteDirectory)) {
+                            mkdir($deleteDirectory);
+                        }
+                        copy($dir.DS.$fileName, $deleteDirectory.DS.$fileName);
+                        unlink($dir.DS.$fileName);
+                        
+                        move_uploaded_file($matches[0][0], $deleteDirectory.DS.$fileName);
+                    }else{
+                        unlink($dir.DS.$fileName);
+                    }
                 }
             }
         }
