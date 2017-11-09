@@ -28,6 +28,22 @@ if (! headers_sent()) {
 <!DOCTYPE html>
 <html>
 <head>
+ <noscript>
+ <style>
+     body *{
+         display: none;
+     }
+     .noJavaScript{
+         color: red;
+         font-weight: bold;
+         text-align: center;
+         display: block;
+     }
+ </style>
+<p class="noJavaScript">
+    This page needs Javascript activated to work.
+</p>
+ </noscript>	
 	<?php
 $header = $this->Shell->header(array(
     'atim_menu_for_header' => $atimMenuForHeader,
@@ -105,7 +121,7 @@ echo $this->Html->css('iehacks');
 	<![endif]-->
 </head>
 <body>
-	
+
 <?php
 echo $header;
 
