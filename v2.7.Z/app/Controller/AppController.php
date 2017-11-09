@@ -203,17 +203,44 @@ class AppController extends Controller
         }
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
-        
-        if (isset($this->request->query['file'])) {
-            pr($this->request->query['file']);
-        }
-        
+
+        $this->checkIfDownloadFile();
+      
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
             AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
         }
         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
         $this->Auth->authError = __('You are not authorized to access that location.');
+    }
+
+    private function checkIfDownloadFile() {
+        if (isset($this->request->query['file']) && $this->Auth->isAuthorized()) {
+            $plugin = $this->request->params['plugin'];
+            $modelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
+            $fileName = $this->request->query['file'];
+            if (!$this->Session->read('flag_show_confidential')) {
+                preg_match('/(' . $modelName . ')\.(.+)\.([0-9]+)\.(.+)/', $fileName, $matches, PREG_OFFSET_CAPTURE);
+                if (!empty($matches)) {
+                    if ($matches[1][0] == $modelName) {
+                        $model = AppModel::getInstance($plugin, $modelName, true);
+                        $fields = $model->schema();
+                        if (isset($fields[$matches[2][0]])) {
+                            $this->atimFlashError(__('You are not authorized to access that location.'), '/Menus');
+                        }
+                    }
+                }
+            }
+            $file = Configure::read('uploadDirectory') . DS . $fileName;
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($file));
+            readfile($file);
+        }
     }
 
     /**

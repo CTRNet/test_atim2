@@ -93,8 +93,8 @@ if (__('clin_english') == "Anglais") {
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
 			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
 			var csvWarning = "<?php echo __('csv file warning') ?>";
-			var maxUplaodFileSize = "<?php echo Configure::read('maxUplaodFileSize'); ?>";
-			var maxUplaodFileSizeError = "<?php echo __('The file size should be less than %d bytes', Configure::read('maxUplaodFileSize')) ?>";
+			var maxUploadFileSize = "<?php echo Configure::read('maxUploadFileSize'); ?>";
+			var maxUploadFileSizeError = "<?php echo __('The file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
                         
 		</script>
 <!--[if IE 7]>
