@@ -416,8 +416,7 @@ Cache::config('default', array(
 
 Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
-
-Configure::write('uploadDirectory', './atimUploadDirectory');
+Configure::write('uploadDirectory', substr(APP, 0, strlen(APP) -4).'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
 Configure::write('deleteUploadedFilePhysically', true);
 Configure::write('maxUploadFileSize', 10*1024*1024);
