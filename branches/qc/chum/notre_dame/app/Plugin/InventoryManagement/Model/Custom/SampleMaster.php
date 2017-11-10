@@ -189,6 +189,7 @@ class SampleMasterCustom extends SampleMaster
             case 'pleural fluid supernatant':
             case 'pericardial fluid cell':
             case 'pericardial fluid supernatant':
+            case 'tumor infiltrating lymphocyte':
                 $newSampleLabel = $qcNdSampleTypeCode . ' ' . $initialSpecimenLabel;
                 break;
             
