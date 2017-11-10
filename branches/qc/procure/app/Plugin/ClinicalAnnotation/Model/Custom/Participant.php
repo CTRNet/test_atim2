@@ -57,12 +57,6 @@ class ParticipantCustom extends Participant {
 			//Field 'procure_transferred_participant' has to be set
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		if(isset($this->data['Participant']['procure_patient_withdrawn'])) {
-			if(!$this->data['Participant']['procure_patient_withdrawn'] && (strlen($this->data['Participant']['procure_patient_withdrawn_date']) || strlen(trim($this->data['Participant']['procure_patient_withdrawn_reason'])))) {
-				$result = false;
-				$this->validationErrors['participant_identifier'][] = "please check the patient withdrawn checkbox if required";
-			}
-		}
 		if(array_key_exists('date_of_death', $this->data['Participant'])) {
 			if(($this->data['Participant']['date_of_death'] || $this->data['Participant']['procure_cause_of_death']) && $this->data['Participant']['vital_status'] != 'deceased') {
 				$this->data['Participant']['vital_status'] = 'deceased';
