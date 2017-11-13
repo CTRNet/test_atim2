@@ -1867,6 +1867,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
             ).delegate("input.upload", "change", checkBrowseFile
+            ).delegate("p.bottom_button_load", "click", loadClearSearchData
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
@@ -1902,6 +1903,70 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
+    initPostData();
+}
+
+function loadClearSearchData()
+{
+    var flag = $(this).data('bottom_button_load');
+    $(this).data('bottom_button_load', 1 - flag);
+    var message=loadSearchDataMessage[flag];
+    $(this).find('span.button_load_text').html(message);
+    $(this).find('span.icon16').toggleClass('load').toggleClass('reset');
+    var form=$(this).parents('form')[0];
+    form.reset();
+    $(form).find('a.btn_rmv_or').each(function(){
+        $(this).click();
+    });
+    if (flag === 1) {
+        if (typeof jsPostData !== 'undefined' && jsPostData.constructor === Object) {
+            if (typeof jsPostData['exact_search'] === 'undefined'){
+                $("input[type='checkbox'][name*='data[exact_search']").prop('checked', false);
+            }
+            var model = "", modelValues = "", value = "", field = "";
+            //$("input[name*='data[Participant][participant_identifier][]']");
+            for (model in jsPostData) {
+                modelValues = jsPostData[model];
+                if (modelValues.constructor === Object) {
+                    for (field in modelValues) {
+                        value = modelValues[field];
+                        if (value.constructor === Array) {
+                            $("[name*='data[" + model + "][" + field + "][]']").eq(0).val(value[0]);
+                            if (value.length > 1) {
+                                for (var i = 1; i < value.length; i++) {
+                                    $("[name*='data[" + model + "][" + field + "][]']").first().parent().siblings(".btn_add_or").click();
+                                    $("[name*='data[" + model + "][" + field + "][]']").eq(i).val(value[i]);
+                                }
+                            }
+                        } else if (value.constructor === Object) {
+                            for (var i in value) {
+                                $("[name*='data[" + model + "][" + field + "][" + i + "]']").val(value[i]);
+                            }
+                        } else if (value.constructor === String) {
+                            $("[name*='data[" + model + "][" + field + "]']").val(value);
+                        }
+                    }
+                } else if (modelValues.constructor === String) {
+                    if (modelValues === "on") {
+                        $("input[type='checkbox'][name*='data[" + model + "]']").prop('checked', true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+function initPostData(){
+    if (typeof jsPostData === 'undefined' || jsPostData.constructor !== Object) {
+        $this=$('p.bottom_button_load');
+        $this.bind('click', function(e){
+                e.preventDefault();
+                return false;
+        });
+        $this.find('span.untranslated').css('color', 'rgb(192, 192, 192)');
+        $this.find('span.button_load_text').css('color', 'rgb(192, 192, 192)');
+        $this.find('span.icon16').css('display', 'none');
+    }
 }
 
 function checkBrowseFile()

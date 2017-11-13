@@ -119,6 +119,15 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 
 
 
+-- -------------------------------------------------------------------------------------
+--	Load search data & clear form
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES(
+	('Previous search', 'Previous search', 'Recherche précédente'),
+	('Reset', 'Reset', 'Réinitialiser'));
 
 
 

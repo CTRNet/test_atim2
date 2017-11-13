@@ -253,3 +253,9 @@ function dc($number=0)
         array_splice($_SESSION['debug']['dl'], 0, $number);
     }
 }
+
+function convertArrayToJavaScript($phpArray=array(), $jsArray){
+    if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray)){
+        $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
+    }
+}
