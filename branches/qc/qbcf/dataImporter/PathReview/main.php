@@ -15,6 +15,15 @@ require_once 'system.php';
 // Main Code
 //==============================================================================================
 
+$commit_all = true;
+if(isset($argv[1])) {
+    if($argv[1] == 'test') {
+        $commit_all = false;
+    } else {
+        die('ERR ARG : '.$argv[1].' (should be test or nothing)');
+    }
+}
+
 $tmp_files_names_list = array();
 
 foreach($excel_files_names as $file_data) {
@@ -255,7 +264,8 @@ foreach($excel_files_names as $file_data) {
 									'aliquot_review_masters' => array(
 										'aliquot_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_control_id'],
 										'specimen_review_master_id' => $specimen_review_master_id,
-										'aliquot_master_id' => $slide_aliquot_master_id),
+										'aliquot_master_id' => $slide_aliquot_master_id,
+                                        'review_code' => '-1'),
 									$aliquot_review_detail_tablename => array('notes' => $excel_line_data['comments']));
 								
 								$fields_data = array(
@@ -330,7 +340,7 @@ dislayErrorAndMessage(false, 'Migration Errors/Warnings/Messages');
 
 $import_summary = $creation_update_summary;
 
-dislayErrorAndMessage(true, 'Creation/Update Summary');
+dislayErrorAndMessage($commit_all, 'Creation/Update Summary');
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
