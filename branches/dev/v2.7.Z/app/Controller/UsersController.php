@@ -165,6 +165,7 @@ class UsersController extends AppController
     public function logout()
     {
         $this->Acl->flushCache();
+        $this->Session->destroy();
         $this->redirect($this->Auth->logout());
     }
 

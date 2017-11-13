@@ -136,6 +136,14 @@ class BrowserController extends DatamartAppController
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
+        if ($controlId!=0 && isset($_SESSION['postData'])){
+            $plugin=$this->request->params['plugin'];
+            $controller=$this->request->params['controller'];
+            $action=$this->request->params['action'];
+            if (isset($_SESSION['postData'][$plugin][$controller][$action])){
+                convertArrayToJavaScript($_SESSION['postData'][$plugin][$controller][$action], 'jsPostData');
+            }
+        }
         $this->BrowsingResult->checkWritableFields = false;
         $this->BrowsingIndex->checkWritableFields = false;
         $this->Structures->set("empty", "empty");
@@ -262,7 +270,8 @@ class BrowserController extends DatamartAppController
             $this->Browser->initDataLoad($browsing, $mergeTo, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
             
             if (! $this->Browser->validPermission) {
-                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+//                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             }
             
             $browsingModel = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -312,7 +321,8 @@ class BrowserController extends DatamartAppController
             $this->set('csvMergeData', $csvMergeData);
         } elseif ($browsing) {
             if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+//                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             }
             // search screen
             $tmpModel = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -421,7 +431,8 @@ class BrowserController extends DatamartAppController
         $browsing = $this->BrowsingResult->findById($nodeId);
         
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+//            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return;
         }
         
@@ -478,7 +489,8 @@ class BrowserController extends DatamartAppController
             foreach ($browsingResults as $browsingResult) {
                 // permissions
                 if (! AppController::checkLinkPermission($browsingResult['DatamartStructure']['index_link'])) {
-                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+                    $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+//                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                     return;
                 }
                 
@@ -535,7 +547,8 @@ class BrowserController extends DatamartAppController
             $this->Browser->InitDataLoad($browsing, $config['redundancy'] == 'same' ? 0 : $mergeTo, $ids);
             
             if (! $this->Browser->validPermission) {
-                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+//                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 return;
             }
             

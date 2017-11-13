@@ -417,6 +417,11 @@ $parameters);
         
         // parse DATA to generate SQL conditions
         // use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
+        $plugin=$this->controller->request->params['plugin'];
+        $controller=$this->controller->request->params['controller'];
+        $action=$this->controller->request->params['action'];
+        $_SESSION['postData'][$plugin][$controller][$action]=$this->controller->data;
+
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {
                 foreach ($fields as $key => $data) {

@@ -255,6 +255,66 @@ div.bottom_button a.search_results {
 	top: 0px;
 }
 
+p.bottom_button_load {
+	background: url(../img/btnBack.png);
+	border-color: #999999;
+	border-style: solid;
+	border-width: 1px;
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 5px;
+	display: inline-block;
+	height: 25px;
+	position: relative;
+	text-shadow: #AAA 2px 2px 2px;
+}
+
+p.bottom_button_load:first-child {
+	border-radius: 5px 0 0 5px;
+}
+
+p.bottom_button_load:last-child {
+	border-radius: 0 5px 5px 0;
+}
+
+p.bottom_button_load:only-of-type, div.actions.split div.bottom_button {
+	border-radius: 5px;
+	margin: 0 3px 0 3px;
+}
+
+p.bottom_button_load a {
+	font-size: 12px;
+	text-decoration: none;
+	background-position: 8px center;
+	padding: 5px 6px 4px 6px;
+	color: #000;
+	line-height: 15px;
+	border-radius: 3px;
+}
+
+p.bottom_button_load a:focus {
+	text-decoration: underline;
+}
+
+p.bottom_button_load:not (.not_allowed ):hover, div.bottom_button_load:not (.not_allowed
+ ):focus {
+	border-color: #000;
+	background-image: url("../img/btnBackSel.png");
+}
+
+p.bottom_button_load a.not_allowed {
+	color: #aad;
+}
+
+p.bottom_button_load a.search_results {
+	background-position: 7px center;
+	padding: 5px 10px 5px 25px;
+	min-height: 15px;
+	position: relative;
+	left: 0px;
+	top: 0px;
+}
+
 a.not_allowed.treeButton {
 	display: inline-block;
 	width: 16px;
@@ -1571,6 +1631,14 @@ a.icon16.search {
 	color: #000;
 }
 
+.icon16.load {
+	background-position: -32px -160px;
+}
+
+.icon16.reset {
+	background-position: -16px -160px;
+}
+
 /* -=toolbox*/
 .icon32.login {
 	background-position: -32px 0;
@@ -2449,6 +2517,10 @@ a.btn_add_or {
 }
 
 .bottom_button span.icon16 {
+	margin-right: 5px;
+}
+
+.bottom_button_load span.icon16 {
 	margin-right: 5px;
 }
 
