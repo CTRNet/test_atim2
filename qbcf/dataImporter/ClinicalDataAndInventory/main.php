@@ -26,6 +26,15 @@ $atim_drugs = array();
 // Main Code
 //==============================================================================================
 
+$commit_all = true;
+if(isset($argv[1])) {
+    if($argv[1] == 'test') {
+        $commit_all = false;
+    } else {
+        die('ERR ARG : '.$argv[1].' (should be test or nothing)');
+    }
+}
+
 $tmp_files_names_list = array();
 
 foreach($excel_files_names as $file_data) {
@@ -1513,7 +1522,7 @@ dislayErrorAndMessage(false, 'Migration Errors/Warnings/Messages');
 
 $import_summary = $creation_update_summary;
 
-dislayErrorAndMessage(true, 'Creation/Update Summary');
+dislayErrorAndMessage($commit_all, 'Creation/Update Summary');
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS

@@ -61,7 +61,7 @@ class Drug extends DrugAppModel {
 		}
 		
 		$ProtocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
-		$returned_nbr = $ProtocolExtendMaster->find('count', array('conditions' => array('$ProtocolExtendMaster.drug_id' => $drug_id), 'recursive' => '1'));
+		$returned_nbr = $ProtocolExtendMaster->find('count', array('conditions' => array('ProtocolExtendMaster.drug_id' => $drug_id), 'recursive' => '1'));
 		if($returned_nbr > 0) {
 			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one protocol');
 		}

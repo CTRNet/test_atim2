@@ -2247,3 +2247,12 @@ ALTER TABLE participants_revs ADD COLUMN qbcf_study_exclusion_reason VARCHAR(150
 UPDATE structure_fields SET tablename = 'participants' WHERE `model`='Participant' AND `tablename`='' AND `field`='qbcf_study_exclusion_reason';
 
 UPDATE versions SET branch_build_number = '6901' WHERE version_number = '2.6.8';
+
+-- ----------------------------------------------------------------------------------------------------
+-- 2017-11-13
+-- ----------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '4', '60', 'notes', '0', '0', '', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '6922'  WHERE version_number = '2.6.8';
