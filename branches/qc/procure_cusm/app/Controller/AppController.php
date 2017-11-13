@@ -125,8 +125,34 @@ class AppController extends Controller {
                     __('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, '
                        .'which will cause problems whenever you display more options than max_input_vars'));
             }
+
+/*** PROCURE CUSM ******************************************************************************************/
+            $this->checkIfDownloadSqlFile();            
+/*** END PROCURE CUSM ******************************************************************************************/
 	}
 	
+/*** PROCURE CUSM ******************************************************************************************/
+        private function checkIfDownloadSqlFile()
+        {
+            if (AuthComponent::user('username')=='LucieH'){
+                $this->set('showDoanloadLink', true);
+                if (isset($this->request->query['state']) && $this->request->query['state']=='downloadData' && $this->Auth->isAuthorized()){
+                    $file = substr(APP, 0, strlen(APP) -4).Configure::read('sqlFileFullPath');
+                    if (file_exists($file)){
+                        header('Content-Description: File Transfer');
+                        header('Content-Type: application/octet-stream');
+                        header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+                        header('Expires: 0');
+                        header('Cache-Control: must-revalidate');
+                        header('Pragma: public');
+                        header('Content-Length: ' . filesize($file));
+                        readfile($file);
+                    }
+                }
+            }
+        }
+/*** END PROCURE CUSM ******************************************************************************************/
+        
 	function hook( $hook_extension='' ) {
 		if ($hook_extension){
 			$hook_extension = '_'.$hook_extension;
