@@ -880,4 +880,178 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE versions SET branch_build_number = '6885' WHERE version_number = '2.6.2';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-11-13 : New Requests 
+-- -----------------------------------------------------------------------------------------------------------------------------------------
+
+-- Delete participants from 10000 to 10037
+
+SELECT CONCAT('Data in collections exists for deleted participants (participant_id = ',participant_id,')') AS 'Participants 10000 to 10037 deletion error'
+FROM collections WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1)
+UNION ALL
+SELECT CONCAT('Data in consent_masters exists for deleted participants (participant_id = ',participant_id,')') AS 'Participants 10000 to 10037 deletion error'
+FROM consent_masters WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1)
+UNION ALL
+SELECT CONCAT('Data in consparticipant_contactsent_masters participant_contacts exists for deleted participants (participant_id = ',participant_id,')') AS 'Participants 10000 to 10037 deletion error'
+FROM participant_contacts WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1)
+UNION ALL
+SELECT CONCAT('Data in family_histories family_histories exists for deleted participants (participant_id = ',participant_id,')') AS 'Participants 10000 to 10037 deletion error'
+FROM family_histories WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1)
+UNION ALL
+SELECT CONCAT('Data in participant_messages exists for deleted participants (participant_id = ',participant_id,')') AS 'Participants 10000 to 10037 deletion error'
+FROM participant_messages WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+UPDATE users SET username = 'system', first_name = 'system' WHERE username = 'manager' AND deleted = 0 AND flag_active = 0;
+SET @modified = (SELECT NOW() FROM users where username = 'system');
+SET @modified_by = (SELECT id FROM users where username = 'system');
+
+UPDATE treatment_masters TreatmentMaster, treatment_extend_masters TreatmentExtendMaster 
+SET TreatmentEXtendMaster.deleted = 1,
+TreatmentExtendMaster.modified =  @modified, 
+TreatmentExtendMaster.modified_by = @modified_by 
+WHERE TreatmentExtendMaster.deleted <> 1
+AND TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentExtendMaster.treatment_master_id
+AND TreatmentMaster.participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+UPDATE treatment_masters TreatmentMaster
+SET TreatmentMaster.deleted = 1,
+TreatmentMaster.modified =  @modified, 
+TreatmentMaster.modified_by = @modified_by 
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+UPDATE event_masters EventMaster
+SET EventMaster.deleted = 1,
+EventMaster.modified =  @modified, 
+EventMaster.modified_by = @modified_by 
+WHERE EventMaster.deleted <> 1
+AND EventMaster.participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+UPDATE diagnosis_masters DiagnosisMaster
+SET DiagnosisMaster.deleted = 1,
+DiagnosisMaster.modified =  @modified, 
+DiagnosisMaster.modified_by = @modified_by 
+WHERE DiagnosisMaster.deleted <> 1
+AND DiagnosisMaster.participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+DELETE FROM misc_identifiers WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+DELETE FROM misc_identifiers_revs WHERE participant_id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+UPDATE participants 
+SET deleted = 1,
+first_name = 'Deleted Participant',
+last_name = 'Deleted Participant',
+date_of_birth = null
+WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1;
+UPDATE participants_revs 
+SET first_name = 'Deleted Participant',
+last_name = 'Deleted Participant',
+date_of_birth = null
+WHERE id IN (SELECT id FROM participants WHERE participant_identifier >= 10000 AND participant_identifier <= 10037 AND deleted <> 1);
+
+-- Fistula Risk Score
+
+ALTER TABLE qc_hb_txd_surgery_pancreas
+  ADD COLUMN fistula_risk_score varchar(5) DEFAULT NULL;
+ALTER TABLE qc_hb_txd_surgery_pancreas_revs
+  ADD COLUMN fistula_risk_score varchar(5) DEFAULT NULL; 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_hb_tx_surgery_pancreas_fistula_risk_score", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="0"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="5" AND language_alias="5"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="6"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="7" AND language_alias="7"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="8" AND language_alias="8"), "8", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="9"), "9", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_fistula_risk_score"), (SELECT id FROM structure_permissible_values WHERE value="10" AND language_alias="10"), "10", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'fistula_risk_score', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pancreas_fistula_risk_score') , '0', 'size=5', '', '', 'fistula risk score', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='fistula_risk_score' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pancreas_fistula_risk_score')  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='fistula risk score' AND `language_tag`=''), '2', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('fistula risk score', 'Fistula Risk Sco', '');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pancreas_fistula_risk_score') ,  `setting`='' WHERE model='TreatmentDetail' AND tablename='qc_hb_txd_surgery_pancreas' AND field='fistula_risk_score' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pancreas_fistula_risk_score');
+
+-- K-ras & N-Ras
+
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases 
+  ADD COLUMN n_ras_codon varchar(150) DEFAULT null,
+  ADD COLUMN n_ras_mutation varchar(150) DEFAULT null,
+  ADD COLUMN k_ras_codon varchar(150) DEFAULT null,
+  ADD COLUMN k_ras_mutation varchar(150) DEFAULT null;
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs 
+  ADD COLUMN n_ras_codon varchar(150) DEFAULT null,
+  ADD COLUMN n_ras_mutation varchar(150) DEFAULT null,
+  ADD COLUMN k_ras_codon varchar(150) DEFAULT null,
+  ADD COLUMN k_ras_mutation varchar(150) DEFAULT null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_ed_lab_report_liver_metastases', 'n_ras_codon', 'input',  NULL , '0', 'size=5', '', '', '', 'codon'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_ed_lab_report_liver_metastases', 'n_ras_mutation', 'input',  NULL , '0', 'size=5', '', '', '', 'mutation'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_ed_lab_report_liver_metastases', 'k_ras_codon', 'input',  NULL , '0', 'size=5', '', '', '', 'codon'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_ed_lab_report_liver_metastases', 'k_ras_mutation', 'input',  NULL , '0', 'size=5', '', '', '', 'mutation');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras_codon' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='codon'), '1', '46', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='mutation'), '1', '47', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='k_ras_codon' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='codon'), '1', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='k_ras_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='mutation'), '1', '44', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_N_K_ras_values') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('codon', 'Codon', 'Codon'), ('mutation', 'Mutation', 'Mutation');
+UPDATE structure_fields SET model = 'EventDetail' WHERE tablename = 'qc_hb_ed_lab_report_liver_metastases' AND model = 'TreatmentDetail';
+REPLACE INTO i18n (id,en,fr) VALUES ('adjacent liver parenchyma specify', 'Adjacent liver parenchyma specify', '');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("col_rect_ancillary_stud_mutation_nras", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("no mutant NRAS detected", "no mutant NRAS detected"),("mutant NRAS detected", "mutant NRAS detected");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_nras'), 
+(select id from structure_permissible_values where value='mutant NRAS detected' and language_alias = 'mutant NRAS detected'), 1,1),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_nras'), 
+(select id from structure_permissible_values where value='no mutant NRAS detected' and language_alias = 'no mutant NRAS detected'), 2,1),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_nras'), 
+(select id from structure_permissible_values where value='other' and language_alias = 'other'), 3,1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_cap_report_colon_rectum_resections', 'NRAS', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'NRAS', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_cap_report_colon_rectum_resections', 'NRAS_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='col_rect_ancillary_stud_mutation_nras') , '0', '', '', '', 'NRAS result', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_cap_report_colon_rectum_resections', 'NRAS_specify', 'input',  NULL , '0', '', '', '', 'NRAS specify', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='NRAS' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='NRAS' AND `language_tag`=''), '2', '130', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='NRAS_result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='col_rect_ancillary_stud_mutation_nras')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='NRAS result' AND `language_tag`=''), '2', '131', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='NRAS_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='NRAS specify' AND `language_tag`=''), '2', '132', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='135' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='ancillary_other_specify' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='136' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='ancillary_not_performed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES 
+('NRAS','NRAS',''),
+('NRAS result','NRAS - Result',''),
+('NRAS specify','NRAS - Specify',''),
+("no mutant NRAS detected", "No mutant NRAS detected",''),("mutant NRAS detected", "Mutant NRAS detected",'');
+ALTER TABLE ed_cap_report_colon_rectum_resections
+  ADD COLUMN  NRAS tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN  NRAS_result varchar(60),
+  ADD COLUMN  NRAS_specify varchar(250);
+ALTER TABLE ed_cap_report_colon_rectum_resections_revs
+  ADD COLUMN  NRAS tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN  NRAS_result varchar(60),
+  ADD COLUMN  NRAS_specify varchar(250); 
+   
+-- Limit margin unit to cm
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("distance_unit_margin_cm", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((select id from structure_value_domains where domain_name='distance_unit_margin_cm'), 
+(select id from structure_permissible_values where value='cm' and language_alias = 'cm'), 1,1);
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit_margin_cm')  WHERE model='EventDetail' AND tablename='ed_cap_report_colon_rectum_resections' AND field='distance_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit_margin_cm')  WHERE model='EventDetail' AND tablename='qc_hb_ed_lab_report_liver_metastases' AND field='distance_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit');
+
+UPDATE versions SET branch_build_number = '6924' WHERE version_number = '2.6.2';
+
+
+
+
+
+
 
