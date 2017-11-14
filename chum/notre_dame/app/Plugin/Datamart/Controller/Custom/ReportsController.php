@@ -5,19 +5,11 @@ class ReportsControllerCustom extends ReportsController
 
     public function participantIdentifiersSummary($parameters)
     {
-        $empty=array(
-            'header' => null,
-            'data' => array(),
-            'columns_names' => null,
-            'error_msg' => null
-        );
         if (!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
-            return $empty;
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         if (!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
-            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
-            return $empty;
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;
@@ -145,19 +137,11 @@ class ReportsControllerCustom extends ReportsController
 
     public function participantIdentifiersRamqError($parameters)
     {
-        $empty=array(
-            'header' => null,
-            'data' => array(),
-            'columns_names' => null,
-            'error_msg' => null
-        );
+
         if (!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
-            return $empty;
-        }
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));        }
         if (!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
-            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
-            return $empty;
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
 
         $header = null;
@@ -305,10 +289,12 @@ class ReportsControllerCustom extends ReportsController
             'error_msg' => null
         );
     }
-    
-    
+        
     public function ctrnetCatalogueSubmissionFile($parameters)
     {
+        if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+        }
         
         // 1- Build Header
         $header = array(
@@ -832,6 +818,9 @@ class ReportsControllerCustom extends ReportsController
 
     public function getAllSpecimens($parameters)
     {
+        if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+        }
         $header = null;
         $conditions = array(
             "SampleMaster.id != SampleMaster.initial_specimen_sample_id"
@@ -933,6 +922,9 @@ class ReportsControllerCustom extends ReportsController
 
     public function getAllDerivatives($parameters)
     {
+        if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+        }
         $header = null;
         $conditions = array();
         // Get Parameters
