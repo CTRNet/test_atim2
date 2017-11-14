@@ -1963,9 +1963,10 @@ function initPostData(){
                 e.preventDefault();
                 return false;
         });
-        $this.find('span.untranslated').css('color', 'rgb(192, 192, 192)');
-        $this.find('span.button_load_text').css('color', 'rgb(192, 192, 192)');
-        $this.find('span.icon16').css('display', 'none');
+        $this.css('display', 'none');
+//        $this.find('span.untranslated').css('color', 'rgb(192, 192, 192)');
+//        $this.find('span.button_load_text').css('color', 'rgb(192, 192, 192)');
+//        $this.find('span.icon16').css('display', 'none');
     }
 }
 
