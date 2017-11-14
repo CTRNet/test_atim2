@@ -104,7 +104,9 @@ class Collection extends InventoryManagementAppModel
     public function summary($variables = array())
     {
         $return = false;
-        
+        pr('la');
+        pr($variables);
+        exit;
         return $return;
     }
 
