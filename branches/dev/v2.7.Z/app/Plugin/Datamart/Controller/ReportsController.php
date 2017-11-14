@@ -31,7 +31,6 @@ class ReportsController extends DatamartAppController
      */
     public function compareToBatchSetOrNode($typeOfObjectToCompare, $batchSetOrNodeIdToCompare, $csvCreation = false, $previousCurrentNodeId = null)
     {
-        
         // Get data of object to compare
         $comparedObjectDatamartStructureId = null;
         $comparedObjectElementIds = array();
@@ -505,10 +504,10 @@ class ReportsController extends DatamartAppController
     public function bankActiviySummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         // 1- Build Header
@@ -587,7 +586,7 @@ class ReportsController extends DatamartAppController
     public function sampleAndDerivativeCreationSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         // 1- Build Header
@@ -742,10 +741,10 @@ class ReportsController extends DatamartAppController
     public function bankActiviySummaryPerPeriod($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         if (empty($parameters[0]['report_date_range_period'])) {
@@ -875,7 +874,7 @@ class ReportsController extends DatamartAppController
     public function ctrnetCatalogueSubmissionFile($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         // 1- Build Header
@@ -1259,10 +1258,10 @@ class ReportsController extends DatamartAppController
     public function participantIdentifiersSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;
@@ -1350,7 +1349,7 @@ class ReportsController extends DatamartAppController
     public function getAllDerivatives($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;
@@ -1445,7 +1444,7 @@ class ReportsController extends DatamartAppController
     public function getChildrenSamples($viewSampleModel, $parentSampleIds = array())
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         if (! empty($parentSampleIds)) {
@@ -1478,7 +1477,7 @@ class ReportsController extends DatamartAppController
     public function getAllSpecimens($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;
@@ -1582,7 +1581,7 @@ class ReportsController extends DatamartAppController
     public function getAllChildrenStorage($parameters)
     {
         if (! AppController::checkLinkPermission('/StorageLayout/StorageMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;
@@ -1674,7 +1673,7 @@ class ReportsController extends DatamartAppController
     public function getAllRelatedDiagnosis($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
         }
         
         $header = null;

@@ -14,7 +14,12 @@ INSERT
 INTO 
 	`structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
 VALUES 
-	(NULL, '898', 'notBlank', '', 'password is required');
+	(NULL, 
+	(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='confirm_password' AND `type`='password' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_confirmpassword' AND `language_tag`='')
+	, 'notBlank', '', 'password is required'),
+	(NULL, 
+	(SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='field1' AND `type`='input' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='')
+	, 'notBlank', '', 'password is required');
 	
 -- -------------------------------------------------------------------------------------
 --	The warning for CSV file
@@ -125,14 +130,14 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
-VALUES(
+VALUES
 	('Previous search', 'Previous search', 'Recherche précédente'),
-	('Reset', 'Reset', 'Réinitialiser'));
+	('Reset', 'Reset', 'Réinitialiser');
 
 
 
 
-------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
