@@ -214,7 +214,8 @@ class AppController extends Controller
         $this->Auth->authError = __('You are not authorized to access that location.');
     }
 
-    private function checkIfDownloadFile() {
+    private function checkIfDownloadFile() 
+    {
         if (isset($this->request->query['file']) && $this->Auth->isAuthorized()) {
             $plugin = $this->request->params['plugin'];
             $modelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
@@ -427,7 +428,7 @@ class AppController extends Controller
             $this->set('url', Router::url($url));
             $this->set('message', $message);
             $this->set('pageTitle', $message);
-            $this->render(false, "Flash");
+            $this->render(false, "flash");
         }
     }
 
