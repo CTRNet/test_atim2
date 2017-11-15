@@ -134,6 +134,17 @@ VALUES
 	('Previous search', 'Previous search', 'Recherche précédente'),
 	('Reset', 'Reset', 'Réinitialiser');
 
+	
+-- -------------------------------------------------------------------------------------
+--	Change <br><br> to <br>
+-- -------------------------------------------------------------------------------------
+UPDATE i18n
+SET 
+	en = REPLACE (en, '<br><br>', '<br>'),
+	fr = REPLACE (fr, '<br><br>', '<br>')
+WHERE 
+	en LIKE '%<br><br>%' OR
+	fr LIKE '%<br><br>%';
 
 
 
