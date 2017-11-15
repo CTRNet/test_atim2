@@ -131,7 +131,7 @@ class TemplateController extends AppController
         
         if (! empty($this->request->data)) {
             // correct owner/visibility if needed
-            
+
             // record the tree
             if ($this->request->is('ajax')) {
                 // ajax request are made to save the template info
@@ -145,12 +145,15 @@ class TemplateController extends AppController
                 array_shift($tree); // remove root
                 $nodesMapping = array(); // for new nodes, key is the received node id, value is the db node
                 $foundNodes = array(); // already in db found nodes
-                
+
                 $this->TemplateNode->checkWritableFields = false;
                 foreach ($tree as $node) {
                     if ($node->nodeId <= 0) {
                         // create the node in Db
                         $parentId = null;
+                        if (is_numeric($node->parentId) && is_string($node->parentId)) {
+                            $node->parentId = (int) $node->parentId;
+                        }
                         if (isset ($node->parentId) && !is_string($node->parentId)){
                             if ($node->parentId <= 0) {
                                 $parentId = $nodesMapping[$node->parentId];
