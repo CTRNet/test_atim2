@@ -1406,7 +1406,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1614,7 +1614,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -2041,7 +2041,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -2067,7 +2067,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -2694,7 +2694,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
-
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
@@ -2710,6 +2709,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
             $("#csvPopup form").attr("action", root_url + target);
             $("#csvPopup a.submit").click(function () {
+                $("#csvPopup form input[type=hidden]").remove();
+                $("form:first input[type=checkbox]:checked").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
+                });
+                $(".databrowser .selectableNode.selected").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="data[0][singleLineNodes][]" value="' + $(this).parent("a").data("nodeId") + '"/>');
+                });
+            });
+
+            $("#csvPopup form").submit(function () {
                 $("#csvPopup form input[type=hidden]").remove();
                 $("form:first input[type=checkbox]:checked").each(function () {
                     $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
