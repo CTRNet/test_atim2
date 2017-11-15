@@ -2435,7 +2435,14 @@ class StructuresHelper extends Helper
                                     if ($setting[0] == 'class' && isset($settings['class'])) {
                                         $settings['class'] .= ' ' . $setting[1];
                                     } else {
-                                        $settings[$setting[0]] = $setting[1];
+                                        if(!array_key_exists(1, $setting)) {
+                                            $settings[$setting[0]] = '';
+                                            if (Configure::read('debug') > 0) {
+                                                AppController::addWarningMsg(__("missing value for the setting [%s] of the structure field [%s]", $setting[0], $fieldName));
+                                            }
+                                        } else {
+                                            $settings[$setting[0]] = $setting[1];
+                                        }
                                     }
                                 }
                             }
