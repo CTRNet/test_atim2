@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Hook :: Generate participant_identifier. 
+ *
+ * @author Nicolas Luc
+ *
+ * @package ATiM CUSM
+ */
+
 // --------------------------------------------------------------------------------
 // Save Participant Identifier
 // --------------------------------------------------------------------------------
