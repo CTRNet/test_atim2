@@ -290,7 +290,7 @@ if (isset($isAjax)) {
 		setLoading();
 		$.get(root_url + 'InventoryManagement/Collections/templateInit/' + collectionId + '/' + wizard_id + "/noActions:/?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
-			saveSqlLogAjax(data);
+			saveSqlLogAjax(jsonData);
 			$(".ajaxContent").html(jsonData.page);
 			globalInit(".ajaxContent");
 			templateInitId = $("input[type=hidden][name=data\\\[template_init_id\\\]]").val();
