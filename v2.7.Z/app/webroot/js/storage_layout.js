@@ -25,6 +25,9 @@ function initStorageLayout(mode){
 	ctrls = $("#firstStorageRow").data("ctrls");
         if (typeof $("#firstStorageRow").data("storageUrl") !=='undefined'){
             $.get($("#firstStorageRow").data("storageUrl") + '/1/ctrls:' + ctrls, function(data){
+                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    saveSqlLogAjax(ajaxSqlLog);
+                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
@@ -50,6 +53,10 @@ function initStorageLayout(mode){
         if (mode!=='detail'){
             //handle the "pick a storage to drag and drop to" button and popup
             $.post(root_url + 'StorageLayout/StorageMasters/search/', function(data){
+                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    saveSqlLogAjax(ajaxSqlLog);
+                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                
                     var isVisible = $("#default_popup:visible").length;
                     $("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
                     $("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
@@ -85,6 +92,10 @@ function initStorageLayout(mode){
                                                     $("#secondStorageRow").data("storageId", id);
                                                     $("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
                                                     $.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
+                                                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                                                            saveSqlLogAjax(ajaxSqlLog);
+                                                            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                                                        
                                                             data = $.parseJSON(data);
                                                             if(data.valid){
                                                                     initRow($("#secondStorageRow"), data, true);
@@ -355,6 +366,10 @@ function moveUlTo(scope, sourceClass, destinationClass){
 function showInPopup(link){
 	$("#otherPopup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
 	$.get(link + "?t=" + new Date().getTime(), {}, function(data){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                saveSqlLogAjax(ajaxSqlLog);
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            
 		 $("#otherPopup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 }
