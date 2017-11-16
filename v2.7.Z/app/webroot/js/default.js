@@ -1956,17 +1956,10 @@ function loadClearSearchData()
     }
 }
 
-function initPostData(){
-    if (typeof jsPostData === 'undefined' || jsPostData.constructor !== Object) {
-        $this=$('p.bottom_button_load');
-        $this.bind('click', function(e){
-                e.preventDefault();
-                return false;
-        });
-        $this.css('display', 'none');
-//        $this.find('span.untranslated').css('color', 'rgb(192, 192, 192)');
-//        $this.find('span.button_load_text').css('color', 'rgb(192, 192, 192)');
-//        $this.find('span.icon16').css('display', 'none');
+function initPostData() {
+    if (typeof jsPostData !== 'undefined' && jsPostData.constructor === Object) {
+        $this = $('p.bottom_button_load');
+        $this.css('display', 'inline-block');
     }
 }
 
