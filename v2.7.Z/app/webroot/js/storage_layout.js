@@ -74,6 +74,9 @@ function initStorageLayout(mode){
                             $(".tmpSearchForm").append($("#default_popup .wrapper"));
                             $("#default_popup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
                             $.post($(".tmpSearchForm form").attr("action") + '/1', $(".tmpSearchForm form").serialize(), function(data){
+                                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                                    saveSqlLogAjax(ajaxSqlLog);
+                                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                                     data = $.parseJSON(data);
                                     var isVisible = $("#default_popup:visible").length;
                                     $("#default_popup").html('<div class="wrapper"><div class="frame">' + data.page + '</div></div>');
