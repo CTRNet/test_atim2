@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Class ViewCollectionCustom
+ *
+ * @author Nicolas Luc
+ *
+ * @package ATiM CUSM
+ */
 class ViewCollectionCustom extends ViewCollection
 {
 
@@ -27,9 +34,10 @@ Bank.name AS cusm_collection_bank_name,
 MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+LEFT JOIN banks As Bank 
+    ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier 
+    ON Collection.bank_id = MiscIdentifier.cusm_bank_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.cusm_is_main_bank_participant_identifier = 1 AND MiscIdentifier.deleted <> 1
         WHERE Collection.deleted <> 1 %%WHERE%%';
 
     public function summary($variables = array())

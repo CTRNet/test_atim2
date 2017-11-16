@@ -1,6 +1,13 @@
 <?php
 
-class ViewAliquotCustom extends ViewAliquot
+/**
+ * Class ViewAliquotCustom
+ *
+ * @author Nicolas Luc
+ *
+ * @package ATiM CUSM
+ */
+ class ViewAliquotCustom extends ViewAliquot
 {
 
     var $name = 'ViewAliquot';
@@ -78,9 +85,10 @@ MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
-LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+LEFT JOIN banks As Bank 
+    ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier 
+    ON Collection.bank_id = MiscIdentifier.cusm_bank_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.cusm_is_main_bank_participant_identifier = 1 AND MiscIdentifier.deleted <> 1
         WHERE AliquotMaster.deleted != 1 %%WHERE%%';
     
 }

@@ -1,6 +1,13 @@
 <?php
 
-class ViewAliquotUseCustom extends ViewAliquotUse
+/**
+ * Class ViewAliquotUse
+ *
+ * @author Nicolas Luc
+ *
+ * @package ATiM CUSM
+ */
+ class ViewAliquotUseCustom extends ViewAliquotUse
 {
 
     var $baseModel = "AliquotInternalUse";
