@@ -259,3 +259,18 @@ function convertArrayToJavaScript($phpArray=array(), $jsArray){
         $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
     }
 }
+function removeEmptySubArray($data){
+    if (is_array($data)) {
+        $data = is_integer(key($data)) ? array_values(array_filter($data, 'removeEmptyStringArray')) : array_filter($data, 'removeEmptyStringArray');
+
+        foreach ($data as &$v) {
+            $v = removeEmptySubArray($v);
+        }
+        $data = is_integer(key($data)) ? array_values(array_filter($data, 'removeEmptyStringArray')) : array_filter($data, 'removeEmptyStringArray');
+    }
+    return $data;
+}
+
+function removeEmptyStringArray($value){
+    return ($value!="" && $value!=array());
+}
