@@ -33,7 +33,7 @@ $this->Structures->build($atimStructure, array(
     )
 ));
 
-$canDelete = (! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete'])) || AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
+$canDelete = (! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete'])) && AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
 $this->Structures->build($atimStructure, array(
     'type' => 'index',
     'data' => $this->request->data,
@@ -44,7 +44,7 @@ $this->Structures->build($atimStructure, array(
                 'icon' => 'detail jsApplyPreset',
                 'json' => '%%PermissionsPreset.json%%'
             ),
-            'delete' => $canDelete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'
+            'delete' => $canDelete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : false
         ),
         'bottom' => array(
             __('save preset') => array(
