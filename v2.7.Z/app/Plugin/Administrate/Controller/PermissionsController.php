@@ -379,7 +379,9 @@ class PermissionsController extends AdministrateAppController
         foreach ($this->request->data as &$unit) {
             $unit['PermissionsPreset']['json'] = json_encode(unserialize($unit['PermissionsPreset']['serialized_data']));
         }
-        $this->request->data[0]['PermissionsPreset']['delete']='/Administrate/Permissions/deletePreset/';
+        if (!empty($this->request->data)){
+            $this->request->data[0]['PermissionsPreset']['delete']='/Administrate/Permissions/deletePreset/';
+        }
     }
 
     /**
