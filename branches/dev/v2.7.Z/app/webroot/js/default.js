@@ -1344,6 +1344,26 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             });
         }
     });
+    
+    $(scope).find("input[type=checkbox]").each(function(){
+        $(this).click(function(){
+            $currentCheckBox=$(this);            
+            $parent=$currentCheckBox.parent();
+            $checkBoxesChildren = $parent.children('input[type=checkbox]');
+
+            $required=false;
+            $checkBoxesChildren.each(function () {
+                if ($(this).prop('required')) {
+                    $required=true;
+                    $(this).prop('required', false);
+                }
+            });
+            
+            if ($required){
+                $currentCheckBox.prop('required', true);
+            }
+        });
+    });
 }
 
 function initAccuracy(scope) {
