@@ -1120,7 +1120,7 @@ class StorageMastersController extends StorageLayoutAppController
         // query the database
         $term = trim(str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']));
         $conditions = array(
-            'StorageMaster.Selection_label LIKE' => $term . '%'
+            'StorageMaster.Selection_label LIKE' => '%' . $term . '%'
         );
         $rpos = strripos($term, "[");
         if ($rpos) {
@@ -1137,7 +1137,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'StorageMaster.code LIKE' => $term2b . '%'
             );
         }
-        
+
         $storageMasters = $this->StorageMaster->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
@@ -1152,7 +1152,7 @@ class StorageMastersController extends StorageLayoutAppController
             'recursive' => 0,
             'limit' => 10
         ));
-        
+
         $storageTypesFromId = $this->StorageControl->getStorageTypePermissibleValues();
         
         // build javascript textual array
