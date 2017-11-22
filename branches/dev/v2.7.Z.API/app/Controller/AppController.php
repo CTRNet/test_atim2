@@ -2220,7 +2220,8 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
         if (!API::isAPIMode()){
             parent::redirect($url, $status, $exit);
         }else{
-            parent::redirect($url, $status, $exit);
+            API::addToBundle(array('url' => $url, 'status' => $status, 'exit' => $exit), 'redirect');
+            API::sendDataAndClear();
         }
     }    
 }

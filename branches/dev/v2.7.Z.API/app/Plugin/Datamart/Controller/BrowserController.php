@@ -197,7 +197,7 @@ class BrowserController extends DatamartAppController
                     'last' => $lastControlId == $controlId,
                     'parent_child' => $parentChild
                 );
-                if (! $createdNode = $this->Browser->createNode($params, $this->referer())) {
+                if (! $createdNode = $this->Browser->createNode($params)) {
                     // something went wrong. A flash screen has been called.
                     return;
                 }
@@ -801,7 +801,7 @@ class BrowserController extends DatamartAppController
                 'adv_search_conditions' => isset($searchParams['adv_search_conditions']) ? $searchParams['adv_search_conditions'] : array(),
                 'parent_child' => $step['parent_children']
             );
-            if (! $createdNode = $this->Browser->createNode($params, $this->referer())) {
+            if (! $createdNode = $this->Browser->createNode($params)) {
                 // something went wrong. A flash screen has been called.
                 return;
             }
