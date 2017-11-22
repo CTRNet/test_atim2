@@ -96,7 +96,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
      */
     public function add($participantId, $consentControlId)
     {
-        
+
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -105,11 +105,8 @@ class ConsentMastersController extends ClinicalAnnotationAppController
             'Participant.id' => $participantId,
             'ConsentControl.id' => $consentControlId
         ));
-        $consentControlData = $this->ConsentControl->find('first', array(
-            'conditions' => array(
-                'ConsentControl.id' => $consentControlId
-            )
-        ));
+        $consentControlData = $this->ConsentControl->getOrRedirect($consentControlId);
+
         $this->Structures->set($consentControlData['ConsentControl']['form_alias']);
         $this->Structures->set('empty', 'emptyStructure');
         
