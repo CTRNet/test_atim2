@@ -111,7 +111,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
     /**
      * @param null $participantId
      */
-    public function add($participantId = null)
+    public function add($participantId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);

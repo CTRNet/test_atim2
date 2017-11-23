@@ -177,14 +177,7 @@ class API
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
-                $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array(
-//                    'errors' => array(),
-//                    'warnings' => array(),
-//                    'informations' => array(),
-//                    'actions' => array(),
-//                    'confirms' => array(),
-//                    'data' => array()
-                );
+                $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
                 unset($data['data_put_options']);
             } 
         }
@@ -197,7 +190,8 @@ class API
     public static function sendDataToAPI($data) 
     {
         if (self::isAPIMode()) {
-            if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), array('view', 'profile', 'detail', 'listall', 'search'))) {
+            $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug');
+            if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), $actionsList)) {
                 self::addToBundle(array('Model, Action' => self::getModelName() . ', ' . self::getAction(), $data), 'data');
             }
             self::sendDataAndClear();

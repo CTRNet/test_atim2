@@ -134,9 +134,16 @@ function json_encode_js($data, $level=3, $formattage=0)
     if (isAssoc($data)){
         foreach ($data as $key1 => $value1) {
             if (is_array($value1)) {
-                $s.= str_repeat($tab, $level) . "'" . $key1 . "': [" . $newLine;
-                $s.=json_encode_js($value1, $level + 1);
-                $s.= str_repeat($tab, $level) . "]," . $newLine;
+                if(isAssoc($value1)){
+                    $open = '{';
+                    $close='}';
+                }else{
+                    $open = '[';
+                    $close=']';
+                }
+                    $s.= str_repeat($tab, $level) . "'" . $key1 . "': ".$open. $newLine;
+                    $s.=json_encode_js($value1, $level + 1);
+                    $s.= str_repeat($tab, $level) .$close. "," . $newLine;
             } else {
                 if (( $value1 == 'true' ) || ( $value1 == 'false' ) || ( is_numeric($value1) )) {
                     $s.= str_repeat($tab, $level) . "'" . $key1 . "' : '" . $value1 . "'," . $newLine;
@@ -149,9 +156,17 @@ function json_encode_js($data, $level=3, $formattage=0)
     }else{
         foreach ($data as $value1) {
             if (is_array($value1)) {
-                $s.= str_repeat($tab, $level) . "[" . $newLine;
+                if(isAssoc($value1)){
+                    $open = '{';
+                    $close='}';
+                }else{
+                    $open = '[';
+                    $close=']';
+                }
+
+                $s.= str_repeat($tab, $level) . $open . $newLine;
                 $s.=json_encode_js($value1, $level + 1);
-                $s.= str_repeat($tab, $level) . "]," . $newLine;
+                $s.= str_repeat($tab, $level) .$close. "," . $newLine;
             } else {
                 
                 if (( $value1 == 'true' ) || ( $value1 == 'false' ) || ( is_numeric($value1) )) {
