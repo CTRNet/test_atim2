@@ -3566,7 +3566,6 @@ $confirmationMsg); // confirmation message
      */
     private function APICreateStructure($tableIndex, $structures, $option)
     {
-//        API::sendTo($tableIndex);
         if (empty($tableIndex)){
             return null;
         }
@@ -3598,7 +3597,7 @@ $confirmationMsg); // confirmation message
             }
         }
         $response['phpArray']= "[".convertJSONtoArray($response['example'])."]";
-        $response['jsArray']= "[".json_encode_js($response['example'])."]";
+        $response['jsArray']= (isAssoc($response['example']))?"{".json_encode_js($response['example'])."}":"[".json_encode_js($response['example'])."]";
         return $response; 
     }
 
