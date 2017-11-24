@@ -54,7 +54,12 @@ VALUES
 ("Aya Siblini", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ("Emma Lee", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ("Julie Breau", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
-("Jonathan Spicer", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+("Jonathan Spicer", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Ioana Nicolau", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Faisal Rashid", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Sara N.", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Mehdi", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Dong", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 
 -- Breast
 
@@ -186,6 +191,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '21', '', '0', '1', 'witness', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 UPDATE structure_formats SET `flag_override_type`='1', `type`='input' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_status' 
+AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0'), 'notBlank', '');
+
 -- Lung Consent
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, cusm_bank_id) VALUES
@@ -222,34 +231,21 @@ VALUES
 ('with restriction', 'With Restriction', 'Avec restriction'),
 ('witness', 'Witness', 'Témoin');
 
+-- ....
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- SOP
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE sop_controls SET sop_group = 'bank', type = 'lung' WHERE id = 1;
+UPDATE sop_controls SET flag_active = '0' WHERE id = 2;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL ,  `setting`='size=20' WHERE model='SopMaster' AND tablename='sop_masters' AND field='version' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_sop_verisons');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_groups') ,  `language_label`='sop' WHERE model='SopControl' AND tablename='sop_controls' AND field='sop_group' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sop_groups');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_types') ,  `language_label`='' WHERE model='SopControl' AND tablename='sop_controls' AND field='type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sop_types');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Inventory
@@ -258,7 +254,7 @@ VALUES
 -- Collection Bank
 
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
-((SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id'), 'notEmpty', '');
+((SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id'), 'notBlank', '');
 
 -- Collection Site
 
@@ -298,15 +294,57 @@ INSERT INTO i18n (id,en,fr)
 VALUES
 ('participant bank number', 'Bank - Participant#', 'Banque - Patient#');
 
--- Sample Master : Is Problematic
+-- Sample Master : Is Problematic & SOP
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
 
 -- Aliquot View Header
 
 UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
+
+-- Aliquot
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+
+-- Tissues
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topography_categories')  WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_source' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues');
+
+ALTER TABLE sd_spe_tissues ADD COLUMN cusm_tissue_nature varchar(50) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN cusm_tissue_nature varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_tissue_natures", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Natures\')"));
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ("Tissue Natures", 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Tissue Natures");
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+('benign','Benign', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('tumor','Tumor', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('metastatic','Metastatic', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('normal','Normal', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('unknown','Unknown', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'cusm_tissue_nature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_natures') , '0', '', '', '', 'nature', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_tissue_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_natures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Blood
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_blood_types", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Blood Types\')"));
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ("Blood Types", 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Blood Types");
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+('edta','EDTA', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('serum','Serum', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('paxgen','Paxgen', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_types') 
+WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type';
+
+
 
 
 
@@ -318,7 +356,7 @@ UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SEL
 
 
 -- -------------------------------------------------------------------------------------
--- 
+-- SOP
 -- -------------------------------------------------------------------------------------
 
 
