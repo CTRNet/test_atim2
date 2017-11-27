@@ -136,6 +136,19 @@ class BrowserController extends DatamartAppController
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
+        if ($controlId!=0){
+            $browsing=$this->DatamartStructure->findById($controlId);
+            if (isset($browsing['DatamartStructure']['index_link']) && !AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+                $url= Router::url(null, true);
+                $plugin = $this->request->params['plugin'];
+                $controller = $this->request->params['controller'];
+                $action = $this->request->params['action'];
+                $pca = '/'.$plugin.'/'.$controller.'/'.$action.'/';
+                $index = strpos($url, $pca);
+                $url = substr($url, 0, $index + strlen($pca));
+                $this->atimFlashError(__("You are not authorized to access that location."), $url);
+            }
+        }
         if ($controlId!=0 && isset($_SESSION['postData'])){
             $plugin=$this->request->params['plugin'];
             $controller=$this->request->params['controller'];
