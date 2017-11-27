@@ -1707,7 +1707,6 @@ class Browser extends DatamartAppModel
         $nodeId = $params['node_id'];
         $save = array();
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-            echo $browsing['DatamartStructure']['index_link'];
             $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return false;
         }
