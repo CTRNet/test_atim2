@@ -28,6 +28,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
      */
     public function listall($participantId, $treatmentControlId = null)
     {
+        if (API::isAPIMode()){
+            $treatmentControlId = -1;
+        }
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -80,7 +83,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         
         // MANAGE DATA
         $this->request->data = $treatmentControlId ? $this->paginate($this->TreatmentMaster, $searchCriteria) : array();
-        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenuVariables', array(
             'Participant.id' => $participantId
