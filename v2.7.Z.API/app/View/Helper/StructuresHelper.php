@@ -3371,7 +3371,7 @@ $confirmationMsg); // confirmation message
      */
     public function ajaxIndex($indexUrl)
     {
-        API::addToBundle($indexUrl, 'urls');
+        API::addToBundle($indexUrl, 'ajaxUrl');
         return AppController::checkLinkPermission($indexUrl) ? '
 		<div class="indexZone" data-url="' . $indexUrl . '">
 		</div>
