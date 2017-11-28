@@ -136,7 +136,7 @@ class BrowserController extends DatamartAppController
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
-        if ($controlId>0){
+        if ($controlId!=0){
             $browsing=$this->DatamartStructure->findById($controlId);
             if (isset($browsing['DatamartStructure']['index_link']) && !AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
                 $url= Router::url(null, true);
@@ -166,7 +166,7 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        
+
         // data handling will redirect to a straight page
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
@@ -265,7 +265,7 @@ class BrowserController extends DatamartAppController
                 }
             }
         }
-        
+     
         // handle display data
         $render = 'browse_checklist';
         if ($checkList) {
@@ -825,5 +825,60 @@ class BrowserController extends DatamartAppController
         
         // done, render the proper node.
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
+    }
+    
+    public function getBrowserSearchlist()
+    {
+        if (API::isStructMode()){
+            API::addToBundle($this->Browser->getBrowserDropdownOptions(0, 0, null, null, null, null, null, null));
+            API::sendDataAndClear();
+        }else{
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+    }
+    
+    public function getControlList()
+    {
+        if (API::isStructMode()){
+            $browsings=$this->DatamartStructure->find('all');
+            $response=array();
+            foreach ($browsings as $browsing) {
+                $browsing= current($browsing);
+                $plugin=isset($browsing['plugin'])?$browsing['plugin']:null;
+                $model=isset($browsing['model'])?$browsing['model']:null;
+                $id=$browsing['id'];
+                $mainModel = AppModel::getInstance($plugin, $model, true);
+                $conditions=array();
+                $ctrlName = $mainModel->getControlName();
+                if (!empty($ctrlName)){
+                    $controlModel = AppModel::getInstance($plugin, $ctrlName, true);
+                    $values=array();
+                    $fields = array($ctrlName . '.id', $ctrlName . '.databrowser_label');
+                    $conditions = $controlModel->hasField('flag_active')?array($ctrlName.'.flag_active' => 1):array();
+                    
+                    $idsFilter=null;
+                    if ($ctrlName == "SampleControl") {
+                        $parentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+                        $idsFilter = $parentToDerivativeSampleControl->getActiveSamples();
+                    }
+
+                    if ($idsFilter != null) {
+                        $idsFilter[] = 0;
+                        $conditions[] = $controlModel->name . '.id IN(' . implode(", ", $idsFilter) . ')';
+                    }
+                    
+                    $values = $controlModel->find('list', array(
+                        'conditions'=>$conditions, 
+                        'fields' =>$fields,
+                        'recursive' => 0
+                    ));
+                    $response[$model]=$values;
+                }
+            }
+            API::addToBundle($response);
+            API::sendDataAndClear();
+        }else{
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
     }
 }

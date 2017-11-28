@@ -199,7 +199,7 @@ class Browser extends DatamartAppModel
                 }
             }
         } else {
-            
+
             $activeStructuresIds = $this->getActiveStructuresIds();
             $data = $datamartStructure->find('all', array(
                 'conditions' => array(
@@ -225,8 +225,8 @@ class Browser extends DatamartAppModel
                     $children = self::getSubModels($dataUnit, $dataUnit['DatamartStructure']['id'], $ids);
                     if (! empty($children)) {
                         array_unshift($children, array(
-                            'label' => __('all'),
-                            'value' => $dataUnit['DatamartStructure']['id']
+                            'value' => $dataUnit['DatamartStructure']['id'],
+                            'label' => __('all')
                         ));
                         $tmpResult['children'] = $children;
                     }
@@ -438,7 +438,9 @@ class Browser extends DatamartAppModel
             'conditions' => $conditions,
             'recursive' => 0
         ));
+
         $tmpChildrenArr = array();
+
         foreach ($childrenData as $childData) {
             $label = self::getTranslatedDatabrowserLabel($childData[$controlModel->name]['databrowser_label']);
             $tmpChildrenArr[$label] = array(
