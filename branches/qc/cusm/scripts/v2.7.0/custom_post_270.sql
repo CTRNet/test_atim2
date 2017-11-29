@@ -187,49 +187,125 @@ ALTER TABLE consent_controls
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_consent_from_verisons') AND `flag_confidential`='0');
 UPDATE structure_permissible_values_custom_controls SET flag_active = '0' WHERE name = 'Consent Form Versions';
 
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '21', '', '0', '1', 'witness', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `flag_override_type`='1', `type`='input' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
 ((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_status' 
 AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0'), 'notBlank', '');
+
+ALTER TABLE consent_masters 
+  ADD COLUMN `cusm_with_restriction` char(1) DEFAULT '';
+ALTER TABLE consent_masters_revs
+  ADD COLUMN `cusm_with_restriction` char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'cusm_with_restriction', 'yes_no',  NULL , '0', '', '', '', 'with restriction', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_with_restriction' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='with restriction' AND `language_tag`=''), '2', '201', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('with restriction', 'With Restriction', 'Avec restriction');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='reason_denied' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='22', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_with_restriction' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Lung Consent
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, cusm_bank_id) VALUES
 (null, 'lung bank consent', 1, 'cusm_cd_lungs', 'cusm_cd_lungs', 0, 'lung bank consent', (SELECT id FROM banks WHERE name = 'Lung/Poumon'));
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('lung bank consent', 'Lung Bank - Consent', 'Banque Poumon - Consentement');
+INSERT INTO structures(`alias`) VALUES ('cusm_cd_lungs');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_lung_consent_from_versions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Lung - Consent Form Versions\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Lung - Consent Form Versions', 1, 50, 'clinical - consent');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Lung - Consent Form Versions');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+("2017-09-05", "05 September 2017", "05 Septembre 2017", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'consent_person', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff') , '0', '', '', '', 'witness', ''),
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'form_version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions') , '0', '', '', '', 'form_version', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form_version' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_cd_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff') AND `flag_confidential`='0');
+Replace INTO i18n (id,en,fr)
+VALUES
+('witness', 'Witness', 'Témoin');
 
 CREATE TABLE `cusm_cd_lungs` (
   `consent_master_id` int(11) NOT NULL,
-  `with_restriction` char(1) DEFAULT '',
+  `questionnaires` char(1) DEFAULT '',
+  `blood_sampling` char(1) DEFAULT '',
+  `tissue_sampling` char(1) DEFAULT '',
+  `muscle_biopsy` char(1) DEFAULT '',
+  `access_dossier` char(1) DEFAULT '',
+  `additional_sampling_followup` char(1) DEFAULT '',
+  `future_specific_research` char(1) DEFAULT '',
+  `any_relevant_information` char(1) DEFAULT '',
   KEY `consent_master_id` (`consent_master_id`),
   CONSTRAINT `CUSM_FK_cusm_cd_lungs_consent_masters` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 CREATE TABLE `cusm_cd_lungs_revs` (
   `consent_master_id` int(11) NOT NULL,
-  `with_restriction` char(1) DEFAULT '',
+  `questionnaires` char(1) DEFAULT '',
+  `blood_sampling` char(1) DEFAULT '',
+  `tissue_sampling` char(1) DEFAULT '',
+  `muscle_biopsy` char(1) DEFAULT '',
+  `access_dossier` char(1) DEFAULT '',
+  `additional_sampling_followup` char(1) DEFAULT '',
+  `future_specific_research` char(1) DEFAULT '',
+  `any_relevant_information` char(1) DEFAULT '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO structures(`alias`) VALUES ('cusm_cd_lungs');
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_lung_consent_from_versions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Lung - Consent Form Versions\')");
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Lung - Consent Form Versions', 1, 50, 'clinical - consent');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'form_version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions') , '0', '', '', '', 'form_version', ''), 
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_cd_lungs', 'with_restriction', 'yes_no',  NULL , '0', '', '', '', 'with restriction', ''), 
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'consent_person', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff') , '0', '', '', '', 'witness', '');
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'questionnaires', 'yes_no',  NULL , '0', '', '', '', 'questionnaires', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'blood_sampling', 'yes_no',  NULL , '0', '', '', '', 'blood sampling', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'tissue_sampling', 'yes_no',  NULL , '0', '', '', '', 'tissue sampling', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'muscle_biopsy', 'yes_no',  NULL , '0', '', '', '', 'muscle biopsy', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'access_dossier', 'yes_no',  NULL , '0', '', '', 'cusm_help_cd_access_dossier', 'access to clinical file', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'additional_sampling_followup', 'yes_no',  NULL , '0', '', '', 'cusm_help_cd_additional_sampling_followup', 'additional sampling and followup', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'future_specific_research', 'yes_no',  NULL , '0', '', '', 'cusm_help_cd_future_specific_research', 'future research', ''), 
+('ClinicalAnnotation', 'ConsentMaster', 'cusm_cd_lungs', 'any_relevant_information', 'yes_no',  NULL , '0', '', '', 'cusm_help_cd_any_relevant_information', 'relevant discover', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form_version' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_cd_lungs' AND `field`='with_restriction' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='with restriction' AND `language_tag`=''), '2', '201', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='questionnaires' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='questionnaires' AND `language_tag`=''), '2', '40', 'agreements', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='blood_sampling' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blood sampling' AND `language_tag`=''), '2', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='tissue_sampling' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue sampling' AND `language_tag`=''), '2', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='muscle_biopsy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='muscle biopsy' AND `language_tag`=''), '2', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='access_dossier' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='cusm_help_cd_access_dossier' AND `language_label`='access to clinical file' AND `language_tag`=''), '2', '50', 'dossier de sante du quebec - french label', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='additional_sampling_followup' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='cusm_help_cd_additional_sampling_followup' AND `language_label`='additional sampling and followup' AND `language_tag`=''), '2', '60', 're-contact', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='future_specific_research' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='cusm_help_cd_future_specific_research' AND `language_label`='future research' AND `language_tag`=''), '2', '61', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='cusm_cd_lungs' AND `field`='any_relevant_information' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='cusm_help_cd_any_relevant_information' AND `language_label`='relevant discover' AND `language_tag`=''), '2', '62', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('lung bank consent', 'Lung Bank - Consent', 'Banque Poumon - Consentement'),
-('with restriction', 'With Restriction', 'Avec restriction'),
-('witness', 'Witness', 'Témoin');
+('agreements', 'Agreements', "Autorisations"),
+('questionnaires', 'Questionnaires', "Questionnaires"),
+('blood sampling', 'Blood Sampling', "Prélèvement sanguin"),
+('tissue sampling', 'tissue Sampling', "Prélèvement de tissus"),
+('muscle biopsy', 'Muscle Biopsy', "Biopsie musculaire"),
+('dossier de sante du quebec - french label', 'Dossier de Santé du Quebec', "Dossier de Santé du Quebec"),
+('access to clinical file', 'Access to Clinical File', "Accès au dossier clinique"),
+('re-contact', 'Re-contact', "Re-Contact"),
+('additional sampling and followup', 'Additional Sampling and Followup', "Prélevement et suivi supplémentaires"),
+('future research', 'Future Research', "Recherche future"),
+('relevant discover', 'Relevant Discover', "Découverte pertinente");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("cusm_help_cd_access_dossier",
+"I authorize the research team access to my dossier de Santé du Quebec to obtain clinical, laboratory, and radiological data.",
+"J'autorise l'équipe de recherche d'accéder mon dossier Santé Québec pour obtenir des données cliniques, de laboratoire et radiologiques."),
+("cusm_help_cd_additional_sampling_followup",
+"I agree to be re-contacted for additional blood sampling and/or follow-up data.",
+"J'accepte d'être recontacté pour des nouveaux prélevements sanguins et / ou des suivis supplémentaires."),
+("cusm_help_cd_future_specific_research",
+"I agree to be re-contacted for future specific research projects if deemed warranted by the project’s principal investigator / clinician.",
+"J'accepte d'être recontacté pour de futurs projets de recherche spécifiques si jugés nécessaires par le chercheur principal et/ou le clinicien du projet."),
+("cusm_help_cd_any_relevant_information",
+"I agree to be re-contacted if any relevant information regarding my care is discovered through research conducted using the Bank’s biological material.",
+"J'accepte d'être recontacté si des informations pertinentes concernant ma maladie sont découvertes grâce à des recherches menées à l'aide du matériel biologique de la Banque.");
+UPDATE structure_fields SET model = 'ConsentDetail' WHERE tablename = 'cusm_cd_lungs';
 
 -- ....
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -249,6 +325,9 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Inventory
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Collection
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- Collection Bank
@@ -294,10 +373,35 @@ INSERT INTO i18n (id,en,fr)
 VALUES
 ('participant bank number', 'Bank - Participant#', 'Banque - Patient#');
 
+-- Collection Tree View
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Generated', '', 'cusm_collection_specimens', 'input',  NULL , '0', 'size=20', '', '', 'collection specimens', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='cusm_collection_specimens' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='collection specimens' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- Sample - All
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 -- Sample Master : Is Problematic & SOP
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
+
+-- aliquot label
+
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats 
+SET display_order = (display_order+1)
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode' AND model IN ('ViewAliquot', 'AliquotMaster', 'AliquotMasterChildren', 'Generated'));
+UPDATE structure_formats 
+SET display_order = (display_order-1)
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model IN ('ViewAliquot', 'AliquotMaster', 'AliquotMasterChildren', 'Generated'));
+
+-- Aliquot - All
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- Aliquot View Header
 
@@ -306,11 +410,14 @@ UPDATE structure_formats SET `language_heading`='aliquot' WHERE structure_id=(SE
 UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
 
 -- Aliquot
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
 
--- Tissues
+-- Tissue
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topography_categories')  WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_source' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topography_categories')  
+WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_source' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list');
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues');
 
@@ -331,7 +438,52 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_tissue_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_natures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+ALTER TABLE ad_tubes
+  ADD COLUMN cusm_storage_method VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_storage_solution VARCHAR(100) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN cusm_storage_method VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_storage_solution VARCHAR(100) DEFAULT NULL;
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',cusm_ad_tissue_tubes') 
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue') 
+AND aliquot_type = 'tube';
+INSERT INTO structures(`alias`) VALUES ('cusm_ad_tissue_tubes');
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("cusm_tissue_tube_storage_methods", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Methods\')")),
+("cusm_tissue_tube_storage_solutions", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Solutions\')"));
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+("Tissue Tube Storage Methods", 1, 50, 'inventory'),
+("Tissue Tube Storage Solutions", 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Tissue Tube Storage Methods");
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+('flash freeze','Flash Freeze', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Tissue Tube Storage Solutions");
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+('OCT','', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+('DMSO','', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_methods') , '0', '', '', '', 'storage method', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_solutions') , '0', '', '', '', 'storage solution', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '75', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_solutions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '76', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('storage method', 'Storage Method', "Méthode d'entreposage"),
+('storage solution', 'Storage Solution', "Solution d'entreposage");
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_tissue_nature'), '0', '6', '', '0', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_types') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='#' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- Blood
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_blood_types", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Blood Types\')"));
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ("Blood Types", 1, 30, 'inventory');
@@ -344,6 +496,25 @@ VALUES
 UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_types') 
 WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type';
 
+-- buffy coat
+
+UPDATE parent_to_derivative_sample_controls 
+SET flag_active=true 
+WHERE derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
+UPDATE parent_to_derivative_sample_controls 
+SET flag_active=true 
+WHERE parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat')
+AND derivative_sample_control_id != (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+UPDATE aliquot_controls 
+SET flag_active=true
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat') 
+AND aliquot_type = 'tube';
+UPDATE realiquoting_controls SET flag_active=true 
+WHERE parent_aliquot_control_id = (
+	SELECT id FROM aliquot_controls 
+	WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat') 
+	AND aliquot_type = 'tube'
+);
 
 
 
@@ -351,8 +522,19 @@ WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type';
 
 
 
+# Label of the aliquots (labelled from 1 to n)
+     - Buffy coat :: JS-00-0000 BC
+     - Serum :: JS-00-0000 S
+     - Plasma :: JS-00-0000 P
+     - Tissue in OCT :: JS-00-0000 OCT T/N (all tissues in the initial .xls are in OCT) 
+     - Flash Frozen Tissue :: JS-00-0000 FF T/N
+     - Tissue in DMSO :: JS-00-0000 CC T/N 
+     
+Plus generate label into the code 
 
+lab people into colelction
 
+format des boites et racks
 
 
 -- -------------------------------------------------------------------------------------
