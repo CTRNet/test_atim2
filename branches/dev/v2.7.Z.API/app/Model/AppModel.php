@@ -224,7 +224,7 @@ class AppModel extends Model
         $modelName= strtolower($this->name);
 
         //Check the $validate for not consodering Delete function here
-        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation']) && $validate){
+        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation', 'browsingresult', 'browsingindex']) && $validate){
             if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
                 $message=[];
                 $message['message']='Pkey safeguard on model ' . $this->name;
