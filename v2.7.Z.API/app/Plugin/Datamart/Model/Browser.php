@@ -1539,12 +1539,65 @@ class Browser extends DatamartAppModel
      * @param unknown_type $chunkSize            
      * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
      */
-    public function getDataChunk($chunkSize)
+    public function getDataChunk($chunkSize, $passedArgs)
     {
-        $this->fillBuffer($chunkSize);
-        if (empty($this->rowsBuffer)) {
-            $chunk = array();
+        if (!API::isAPIMode()){
+            $this->fillBuffer($chunkSize);
+            if (empty($this->rowsBuffer)) {
+                $chunk = array();
+            } else {
+                $chunk = array_fill(0, count($this->rowsBuffer), array());
+                $node = null;
+                $count = 0;
+                foreach ($this->modelsBuffer as $modelIndex => $modelIds) {
+                    $node = $this->nodes[$modelIndex];
+                    $prefix = '';
+                    if ($count) {
+                        // set a prefix when model != 0 (the first one cannot be prefixed because of links and checkboxes)
+                        $prefix = $node[self::NODE_ID] . '_';
+                    }
+                    $modelDataTmp = $node[self::MODEL]->find('all', array(
+                        'fields' => '*',
+                        'conditions' => array(
+                            $node[self::MODEL]->name . "." . $node[self::USE_KEY] => $modelIds
+                        ),
+                        'recursive' => 0
+                    ));
+
+                    if ($prefix) {
+                        $modelData = array();
+                        while ($models = array_shift($modelDataTmp)) {
+                            foreach ($models as $modelName => $data) {
+                                $tmpArr[$prefix . $modelName] = $data;
+                            }
+                            $modelData[] = $tmpArr;
+                        }
+                        unset($modelDataTmp);
+                    } else {
+                        $modelData = $modelDataTmp;
+                    }
+                    $modelData = AppController::defineArrayKey($modelData, $prefix . $node[self::MODEL]->name, $node[self::USE_KEY]);
+                    foreach ($this->rowsBuffer as $rowIndex => $rowData) {
+                        if (! empty($rowData[$modelIndex])) {
+                            $chunk[$rowIndex] = array_merge($modelData[$rowData[$modelIndex]][0], $chunk[$rowIndex]);
+                        }
+                    }
+                    ++ $count;
+                }
+            }
         } else {
+            extract($passedArgs); //Limit, page, direction, order
+            
+            $chunkSize = isset($limit)?$limit:PAGINATION_AMOUNT;
+            $page = isset($page)?$page:1;
+            $this->offset=($page-1)*$chunkSize;
+            if ($this->offset>=$this->count){
+                $this->offset = $this->count-$limit;
+            }
+                
+            $this->fillBuffer($chunkSize);
+
+
             $chunk = array_fill(0, count($this->rowsBuffer), array());
             $node = null;
             $count = 0;
@@ -1562,7 +1615,7 @@ class Browser extends DatamartAppModel
                     ),
                     'recursive' => 0
                 ));
-                
+
                 if ($prefix) {
                     $modelData = array();
                     while ($models = array_shift($modelDataTmp)) {
@@ -1577,11 +1630,11 @@ class Browser extends DatamartAppModel
                 }
                 $modelData = AppController::defineArrayKey($modelData, $prefix . $node[self::MODEL]->name, $node[self::USE_KEY]);
                 foreach ($this->rowsBuffer as $rowIndex => $rowData) {
-                    if (! empty($rowData[$modelIndex])) {
+                    if (!empty($rowData[$modelIndex])) {
                         $chunk[$rowIndex] = array_merge($modelData[$rowData[$modelIndex]][0], $chunk[$rowIndex]);
                     }
                 }
-                ++ $count;
+                ++$count;
             }
         }
         return $chunk;

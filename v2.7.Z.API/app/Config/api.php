@@ -190,7 +190,7 @@ class API
     public static function sendDataToAPI($data) 
     {
         if (self::isAPIMode()) {
-            $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug');
+            $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug', 'browse');
             if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), $actionsList)) {
                 self::addToBundle(array('Model, Action' => self::getModelName() . ', ' . self::getAction(), $data), 'data');
             }
