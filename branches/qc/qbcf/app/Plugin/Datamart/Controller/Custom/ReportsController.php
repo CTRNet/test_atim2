@@ -736,4 +736,315 @@ class ReportsControllerCustom extends ReportsController {
 		return $months;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	function buildQbcfCostRecoverySummary($parameters) {
+	
+	    $conditions = array();
+	    $participant_conditions_only = array();
+	    $include_tma_core = false;
+	    $warnings = array();
+	
+	    if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'no') {
+	        $warnings[] = __('only exact search is supported');
+	    }
+	
+	    // *********** Get Conditions from parameters ***********
+	
+	    $user_bank_id = ($_SESSION['Auth']['User']['group_id'] == '1')?
+    	    'all' :
+    	    (empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);
+	    $limit_to_bank = false;
+	
+	    if(isset($parameters['Browser'])) {
+	        	
+	        // 0-REPORT LAUNCHED FROM DATA BROWSER
+	
+	        if(isset($parameters['Participant']['id'])) {
+	            if(($parameters['Participant']['id'] != 'all')) {
+	                $conditions[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+	                $participant_conditions_only[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+	            }
+	        } else {
+	            pr($parameters);
+	            die('ERR 9900303');
+	        }
+	        	
+	    } else {
+	        	
+	        // 1-BANKS
+	        	
+	        $bank_ids = array();
+	        if(isset($parameters['Participant']['qbcf_bank_id'])) {
+	            $bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
+	            if($bank_ids) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+	                $participant_conditions_only[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+	                $limit_to_bank = true;
+	            }
+	        } else if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
+	            $bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
+	            $include_tma_core = true;
+	            if($bank_ids) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+	                $limit_to_bank = true;
+	            }
+	        }
+	        	
+	        // 2-PARTICIPANT IDENTIFIERS
+	        	
+	        if(isset($parameters['Participant']['participant_identifier_start'])) {
+	            if(strlen($parameters['Participant']['participant_identifier_start'])) {
+	                $conditions[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+	                $participant_conditions_only[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+	            }
+	            if(strlen($parameters['Participant']['participant_identifier_end'])) {
+	                $conditions[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+	                $participant_conditions_only[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+	            }
+	        } else if(isset($parameters['Participant']['participant_identifier'])) {
+	            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
+	            if($participant_identifiers) {
+	                $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	                $participant_conditions_only[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	            }
+	        }
+	        	
+	        if(isset($parameters['Participant']['qbcf_bank_participant_identifier'])) {
+	            $participant_identifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
+	            if($participant_identifiers) {
+	                $conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	                $participant_conditions_only[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	                $limit_to_bank = true;
+	            }
+	        }	
+	    }
+	
+	    if($limit_to_bank && $user_bank_id != 'all') {
+	        $conditions[] = "Participant.qbcf_bank_id = $user_bank_id";
+	        if($participant_conditions_only) $participant_conditions_only[] = "Participant.qbcf_bank_id = $user_bank_id";
+	        $warnings[] = __('your search will be limited to your bank');
+	    }
+	
+	    $conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
+	
+	    // *********** Get Control Data & all ***********
+	
+	    $tx_controls = array();
+	    $query = "SELECT id, tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1";
+	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
+	        $tx_controls[$new_ctr['treatment_controls']['tx_method']] = $new_ctr['treatment_controls'];
+	    }
+	    
+	    $tissue_aliquot_control_ids = array();
+	    $query = "SELECT AliquotControl.id, aliquot_type, AliquotControl.sample_control_id
+    	    FROM sample_controls SampleControl INNER JOIN aliquot_controls AliquotControl ON AliquotControl.sample_control_id = SampleControl.id
+    	    WHERE AliquotControl.flag_active = 1
+    	    AND SampleControl.sample_type = 'tissue'
+	        AND AliquotControl.aliquot_type IN ('block', 'slide');";
+	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
+	        $tissue_aliquot_control_ids[$new_ctr['AliquotControl']['aliquot_type']] = $new_ctr['AliquotControl']['id'];
+	    }
+	    
+	    $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+	    $aliquot_review_warnings = $StructurePermissibleValuesCustom->getCustomDropdown(array('Tissue Review Warnings'));
+	    $aliquot_review_warnings = array_merge($aliquot_review_warnings['defined'], $aliquot_review_warnings['previously_defined']);
+	    
+	    // *********** Get Participants Count Matching Criteria  ***********
+	
+        $sql = "SELECT COUNT(*) AS Nbr_of_participants
+            FROM participants AS Participant
+            WHERE Participant.deleted <> 1
+			AND ($conditions_str)";
+        $nbr_of_participants_matching_criteria = $this->Report->tryCatchQuery($sql);
+        $nbr_of_participants_matching_criteria = $nbr_of_participants_matching_criteria[0][0]['Nbr_of_participants'];
+
+        // *********** Get Participant Blocks  ***********
+        
+	    $blocks_details = array();
+	    $participants_blocks_counter = array();
+	    $samples_blocks_slides_reviews_counter = array();
+	    $sql =
+    	    "SELECT DISTINCT
+        	    Participant.id,
+    			Participant.participant_identifier,
+    			Participant.qbcf_bank_id,
+    			Participant.vital_status,
+    			Participant.qbcf_bank_participant_identifier,
+    			Participant.qbcf_study_exclusion,
+    			IF(TreatmentMaster.id = NULL, 'n', 'y') AS breast_diagnosis_found,
+                AliquotMaster.collection_id,
+                AliquotMaster.sample_master_id,
+    			AliquotMaster.id,
+    			AliquotMaster.barcode,
+    			AliquotMaster.aliquot_label,
+    			AliquotMaster.in_stock,
+    			AliquotInternalUse.type as aliquot_event
+    			FROM participants Participant
+    			INNER JOIN collections Collection 
+    	           ON Participant.id = Collection.participant_id 
+    	           AND Collection.deleted <> 1
+    			INNER JOIN aliquot_masters AliquotMaster 
+    	           ON Collection.id = AliquotMaster.collection_id 
+    	           AND AliquotMaster.deleted <> 1 
+    	           AND AliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['block']."
+    			LEFT JOIN aliquot_internal_uses AliquotInternalUse 
+	               ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id 
+	               AND AliquotInternalUse.deleted <> 1 
+	               AND AliquotInternalUse.type IN ('cost recovery paid', 'returned to bank')
+    			LEFT JOIN treatment_masters AS TreatmentMaster 
+	               ON Participant.id = TreatmentMaster.participant_id 
+	               AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." 
+	               AND TreatmentMaster.deleted <> 1			
+    			WHERE Participant.deleted <> 1
+    		    AND ($conditions_str)";
+	    foreach($this->Report->tryCatchQuery($sql) as $new_result) {
+	        $participant_id = $new_result['Participant']['id'];
+	        $sample_master_id = $new_result['AliquotMaster']['sample_master_id'];
+	        $aliquot_master_id = $new_result['AliquotMaster']['id'];
+	        if(!isset($blocks_details[$aliquot_master_id])) {
+	           // Recrod New Block Data
+	            $blocks_details[$aliquot_master_id] = array(
+	               'Participant' => $new_result['Participant'],
+	                'AliquotMaster' => $new_result['AliquotMaster'],
+	                'ViewAliquot' => array(
+	                    'collection_id' => $new_result['AliquotMaster']['collection_id'],
+	                    'sample_master_id' => $sample_master_id,
+	                    'aliquot_master_id' => $aliquot_master_id
+	                ),
+	                '0' =>  array(
+	                    'qbcf_generated_paid_block' => 'n',
+	                    'qbcf_generated_paid_returned' => 'n',
+	                    
+	                    'qbcf_generated_breast_diagnosis_found' => $new_result['0']['breast_diagnosis_found'],
+	                    'qbcf_generated_patient_blocks_number' => '',
+	                    'qbcf_generated_patient_paid_blocks_number' => '',
+	                    'qbcf_generated_patient_returned_blocks_number' => '',
+	                    
+	                    'qbcf_generated_sample_blocks_number' => '',
+	                    'qbcf_generated_sample_slide_number' => '',
+	                    'qbcf_generated_sample_path_reviews_number' => '',
+	                    'qbcf_generated_sample_path_reviews_warnings_number' => '',
+	                    'bcf_generated_sample_path_reviews_warnings' => ''
+	                )
+	            );
+	        }
+	        // Counter and flag management
+	        if(!isset($participants_blocks_counter[$participant_id])) {
+	            $participants_blocks_counter[$participant_id] = array(
+	                'qbcf_generated_patient_blocks_number' => array(), 
+	                'qbcf_generated_patient_paid_blocks_number' => array(), 
+	                'qbcf_generated_patient_returned_blocks_number' => array());
+	        }
+            $participants_blocks_counter[$participant_id]['qbcf_generated_patient_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            if(!isset($samples_blocks_slides_reviews_counter[$sample_master_id])) {
+	            $samples_blocks_slides_reviews_counter[$sample_master_id] = array(
+	                'qbcf_generated_sample_blocks_number' => array(), 
+	                'qbcf_generated_sample_slide_number' => array(), 
+	                'qbcf_generated_sample_path_reviews_number' => array(), 
+	                'qbcf_generated_sample_path_reviews_warnings_number' => array(), 
+	                'bcf_generated_sample_path_reviews_warnings' => array());
+            }
+            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            if($new_result['AliquotInternalUse']['aliquot_event'] == 'cost recovery paid') {
+                $blocks_details[$aliquot_master_id]['0']['qbcf_generated_paid_block'] = 'y';
+                $participants_blocks_counter[$participant_id]['qbcf_generated_patient_paid_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            }
+            if($new_result['AliquotInternalUse']['aliquot_event'] == 'returned to bank') {
+                $blocks_details[$aliquot_master_id]['0']['qbcf_generated_paid_returned'] = 'y';
+                $participants_blocks_counter[$participant_id]['qbcf_generated_patient_returned_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            }
+	    }
+	    // Slide Review
+	    $sql =
+	       "SELECT DISTINCT
+                Collection.participant_id,
+                AliquotMaster.id,
+                AliquotMaster.sample_master_id,
+    	        AliquotReviewMaster.id AS aliquot_review_master_id,
+    			AliquotReviewDetail.qbcf_warnings
+    			FROM aliquot_masters AliquotMaster
+    			INNER JOIN collections Collection 
+    	           ON Collection.id = AliquotMaster.collection_id 
+    	           AND Collection.deleted <> 1
+    			LEFT JOIN aliquot_review_masters AliquotReviewMaster 
+                    ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id 
+                    AND AliquotReviewMaster.deleted <> 1
+    			LEFT JOIN qbcf_ar_tissue_blocks AliquotReviewDetail 
+                    ON AliquotReviewMaster.id = AliquotReviewDetail.aliquot_review_master_id
+    			WHERE AliquotMaster.deleted <> 1 
+                AND AliquotMaster.sample_master_id IN (".implode(',',array_keys(empty($samples_blocks_slides_reviews_counter)? array('-1' => '') : $samples_blocks_slides_reviews_counter)).")
+                AND AliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['slide'];
+	    foreach($this->Report->tryCatchQuery($sql) as $new_result) {
+	        $participant_id = $new_result['Collection']['participant_id'];
+	        $sample_master_id = $new_result['AliquotMaster']['sample_master_id'];
+	        $aliquot_master_id = $new_result['AliquotMaster']['id'];
+	        $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_slide_number'][$aliquot_master_id] = $aliquot_master_id;
+	        if($new_result['AliquotReviewMaster']['aliquot_review_master_id']) {
+	            $aliquot_review_master_id = $new_result['AliquotReviewMaster']['aliquot_review_master_id'];
+	            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_path_reviews_number'][$aliquot_review_master_id] = $aliquot_review_master_id;
+	        }
+	        if(strlen($new_result['AliquotReviewDetail']['qbcf_warnings'])) {
+	            $aliquot_review_master_id = $new_result['AliquotReviewMaster']['aliquot_review_master_id'];
+	            $qbcf_warnings = $new_result['AliquotReviewDetail']['qbcf_warnings'];
+	            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_path_reviews_warnings_number'][$aliquot_review_master_id] = $aliquot_review_master_id;
+	            $samples_blocks_slides_reviews_counter[$sample_master_id]['bcf_generated_sample_path_reviews_warnings'][$qbcf_warnings] = isset($aliquot_review_warnings[$qbcf_warnings])? $aliquot_review_warnings[$qbcf_warnings] : $qbcf_warnings;;
+	        }
+	    }
+	    // Merge Information
+	    foreach($blocks_details as $aliquot_master_id => &$block_data) {
+            $participant_id = $block_data['Participant']['id'];
+	        $sample_master_id = $block_data['AliquotMaster']['sample_master_id'];
+	        $aliquot_master_id = $block_data['AliquotMaster']['id'];
+	        foreach($block_data[0] as $block_data_field => &$block_data_field_value) {
+	            if(array_key_exists($block_data_field, $participants_blocks_counter[$participant_id])) {
+	                $block_data_field_value = sizeof($participants_blocks_counter[$participant_id][$block_data_field]);
+	            }
+	            if(array_key_exists($block_data_field, $samples_blocks_slides_reviews_counter[$sample_master_id])) {
+	                $block_data_field_value = ($block_data_field == 'bcf_generated_sample_path_reviews_warnings')?
+                        implode(' & ', $samples_blocks_slides_reviews_counter[$sample_master_id][$block_data_field]) :
+                        sizeof($samples_blocks_slides_reviews_counter[$sample_master_id][$block_data_field]);
+	            }
+	        }
+	        
+	        $confidential_record  = ($user_bank_id != 'all' && $new_block['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
+	        if($confidential_record) {
+	            $new_block['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
+	            $new_block['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+	        }
+	    }
+	
+	    foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
+	
+	    $array_to_return = array(
+	        'header' => array(),
+	        'data' => $blocks_details,
+	        'columns_names' => null,
+	        'error_msg' => null);
+	
+	    return $array_to_return;
+	}
 }
