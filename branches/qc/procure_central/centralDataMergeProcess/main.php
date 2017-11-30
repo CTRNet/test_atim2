@@ -359,7 +359,7 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		foreach($sites_atim_controls['central']['consent_controls'] as $control_type => $control_data) {
 			$detail_table_name = $control_data['detail_tablename'];
 			if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
-				magicSelectInsert($site_schema, $detail_table_name, array('consent_master_id' => 'consent_masters'));
+				magicSelectInsert($site_schema, $detail_table_name, array('consent_master_id' => 'consent_masters'), array(), true);
 				$detail_table_names_already_imported[] = $detail_table_name;
 			}
 		}
@@ -893,7 +893,7 @@ $batch_set_queries[] = "INSERT INTO datamart_batch_ids (`set_id`, `lookup_id`)
 	INNER JOIN participants ON participants.participant_identifier = procure_tmp_datamart_batch_ids.participant_identifier
 	INNER JOIN datamart_structures ON datamart_structures.id = datamart_batch_sets.datamart_structure_id
 	WHERE datamart_structures.model = 'Participant'
-	AND Participants.deleted <> 1);";
+	AND participants.deleted <> 1);";
 $batch_set_queries[] = "INSERT INTO datamart_batch_ids (`set_id`, `lookup_id`)
 	(SELECT datamart_batch_sets.id, aliquot_masters.id
 	FROM datamart_batch_sets

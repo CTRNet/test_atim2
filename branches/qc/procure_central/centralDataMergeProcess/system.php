@@ -823,9 +823,21 @@ function getSelectQueryResult($query) {
 	return $select_result;
 }
 
-function magicSelectInsert($bank_schema, $table_name, $table_foreign_keys = array(), $specific_select_field_rules = array()) {
-	$table_information = getTablesInformation($table_name);
-    
+function magicSelectInsert($bank_schema, $table_name, $table_foreign_keys = array(), $specific_select_field_rules = array(), $compare_table_fields = false) {
+	$table_information = getTablesInformation($table_name);    
+
+    if($compare_table_fields) {
+        $bank_schema_table_fields = array();
+        foreach(getSelectQueryResult("SHOW columns FROM $bank_schema.$table_name;") as $new_field_data) {
+            $bank_schema_table_fields[] = $new_field_data['Field'];
+        }
+        foreach($table_information['fields'] as $field_key => $field) {
+            if(!in_array($field, $bank_schema_table_fields)) {
+                unset($table_information['fields'][$field_key]);
+            }
+        }
+    }
+
 	//Get fields of table
 	$insert_table_fields = $select_table_fields = $table_information['fields'];
 
