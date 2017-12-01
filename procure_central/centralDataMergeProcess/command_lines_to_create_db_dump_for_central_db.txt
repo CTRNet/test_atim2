@@ -3,5 +3,13 @@ mysql -u root -p{password} -e "drop database if exists atim_procure_dump_for_cen
 mysql -u root -p{password} -e "create database atim_procure_dump_for_central"
 mysql -u root -p{password} atim_procure_dump_for_central --default-character-set=utf8 < atim_procure_dump_for_central.sql
 mysql -u root -p{password} atim_procure_dump_for_central --default-character-set=utf8 < sql_statments_to_create_db_dump_for_central_db.sql
-mysqldump -u root -p{password} atim_procure_dump_for_central > atim_procure_dump_for_central.sql
+mysqldump -u root -p{password} atim_procure_dump_for_central > atim_procure_ps{1,2,3,4}_dump_for_central.sql
 mysql -u root -p{password} -e "drop database if exists atim_procure_dump_for_central"
+
+
+
+
+
+
+mysqldump -u {username} -p{password} atim_procure_dump_for_central > atim_procure_ps3_dump_for_central.sql
+mysql -u {username} -p{password} -e "drop database if exists atim_procure_dump_for_central"
