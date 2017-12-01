@@ -43,27 +43,22 @@ UPDATE versions SET permissions_regenerated = 0;
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-ALTER TABLE `study_summaries` (
+ALTER TABLE `study_summaries`
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chum` `procure_site_ethics_committee_convenience_ps1` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chus` `procure_site_ethics_committee_convenience_ps4` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chuq` `procure_site_ethics_committee_convenience_ps2` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_cusm` `procure_site_ethics_committee_convenience_ps3` char(1) DEFAULT '';
 
-ALTER TABLE `study_summaries_revs` (
+ALTER TABLE `study_summaries_revs`
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chum` `procure_site_ethics_committee_convenience_ps1` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chus` `procure_site_ethics_committee_convenience_ps4` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chuq` `procure_site_ethics_committee_convenience_ps2` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_cusm` `procure_site_ethics_committee_convenience_ps3` char(1) DEFAULT '';
 
-UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_chum' WHERE field = 'procure_site_ethics_committee_convenience_ps1' char(1) DEFAULT '';
-UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_chus' WHERE field = 'procure_site_ethics_committee_convenience_ps4' char(1) DEFAULT '';
-UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_chuq' WHERE field = 'procure_site_ethics_committee_convenience_ps2' char(1) DEFAULT '';
-UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_cusm' WHERE field = 'procure_site_ethics_committee_convenience_ps3` char(1) DEFAULT ''; 
-
-UPDATE structure_fields SET field = 'PS1' WHERE field = 'chum';
-UPDATE structure_fields SET field = 'PS2' WHERE field = 'chuq';
-UPDATE structure_fields SET field = 'PS3' WHERE field = 'cusm';
-UPDATE structure_fields SET field = 'PS4' WHERE field = 'chus';
+UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_ps1', language_label = 'PS1' WHERE field = 'procure_site_ethics_committee_convenience_chum';
+UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_ps2', language_label = 'PS2' WHERE field = 'procure_site_ethics_committee_convenience_chuq';
+UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_ps3', language_label = 'PS3' WHERE field = 'procure_site_ethics_committee_convenience_cusm';
+UPDATE structure_fields SET field = 'procure_site_ethics_committee_convenience_ps4', language_label = 'PS4' WHERE field = 'procure_site_ethics_committee_convenience_chus';
 
 DELETE FROM i18n WHERE id IN ('chum', 'cusm', 'chuq', 'chus');
 
