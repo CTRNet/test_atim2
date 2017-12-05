@@ -166,6 +166,52 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
+        if(API::isAPIMode() && isset($this->request->data)){
+            $data = $this->request->data;
+            foreach ($data as $modelName=>$values){
+                $browsingData = $this->DatamartStructure->findByModel($modelName);
+                $save=null;
+                if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])){
+                    $saveIds = implode(",", array_unique(array_filter($values['id'])));
+                    $save1 = array(
+                        'BrowsingResult' => array(
+                            'user_id' => $this->Session->read('Auth.User.id'),
+                            'parent_id' => 0,                            
+                            'parent_children' => '',
+                            'browsing_structures_id' => $browsingData['DatamartStructure']['id'],
+                            'id_csv' => $saveIds,
+                            'raw' => 1,
+                            'browsing_type' => 'search'
+                        )
+                    );
+                    $save = $this->BrowsingResult->save($save1);
+					$this->BrowsingResult->id = null;
+					$this->BrowsingResult->data = array();
+
+                    if ($save){
+                        unset($this->request->data[$modelName]);
+                        $save2 = array(
+                            'BrowsingResult' => array(
+                                'user_id' => $this->Session->read('Auth.User.id'),
+                                'parent_id' => $save['BrowsingResult']['id'],        
+                                'parent_children' => '',
+                                'browsing_structures_id' => $browsingData['DatamartStructure']['id'],
+                                'id_csv' => $saveIds,
+                                'raw' => 0,
+                                'browsing_type' => 'drilldown'
+                            )
+                        );
+                        $save = $this->BrowsingResult->save($save2);
+                        if ($save){
+                            $nodeId=$save['BrowsingResult']['id'];
+							$this->BrowsingResult->id = null;
+							$this->BrowsingResult->data = array();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         // data handling will redirect to a straight page
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
@@ -188,9 +234,9 @@ class BrowserController extends DatamartAppController
             $directIdArr = explode(Browser::$modelSeparatorStr, $controlId);
             
             $this->Browser->buildDrillDownIfNeeded($this->request->data, $nodeId);
-            
+
             $lastControlId = $directIdArr[count($directIdArr) - 1];
-            if (! $checkList) {
+            if (! $checkList && !API::isAPIMode()) {
                 // going to a search screen, remove the last direct_id to avoid saving it as direct access
                 array_pop($directIdArr);
             }
@@ -214,7 +260,7 @@ class BrowserController extends DatamartAppController
                     // something went wrong. A flash screen has been called.
                     return;
                 }
-
+                
                 $nodeId = $createdNode['browsing']['BrowsingResult']['id'];
             }
             
@@ -223,21 +269,27 @@ class BrowserController extends DatamartAppController
                 $browsing = $createdNode['browsing'];
                 unset($createdNode);
             }
-            
+
             if(API::isAPIMode()){
-                if ($checkList) {
-                    $this->apiDatamartSearch($this->passedArgs, $nodeId);
+                $browsing = $this->BrowsingResult->getOrRedirect($nodeId);
+                if ($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')) {
+                    $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                if ($subStructureId) {
-                    $this->apiDatamartSearch($this->passedArgs, $nodeId, $lastControlId . $parentChild, $subStructureId);
+
+                $this->Browser->initDataLoad($browsing, $mergeTo, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
+                if (! $this->Browser->validPermission) {
+                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 }
-                $this->apiDatamartSearch($this->passedArgs, $nodeId, $lastControlId . $parentChild);
+
+                $this->request->data = $this->Browser->getDataChunk(0, $this->passedArgs);
+
+                API::sendDataToAPI($this->request->data);                
             }
             // all nodes saved, now load the proper form
             if ($checkList) {
                 $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
             }
-            
+
             if ($subStructureId) {
                 $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/' . $lastControlId . $parentChild . Browser::$subModelSeparatorStr . $subStructureId);
             }
@@ -276,6 +328,7 @@ class BrowserController extends DatamartAppController
      
         // handle display data
         $render = 'browse_checklist';
+
         if ($checkList) {
             $order = null;
             if (isset($this->passedArgs["sort"])) {
@@ -311,7 +364,7 @@ class BrowserController extends DatamartAppController
             
             $this->set("dropdownOptions", $dropdownOptions);
             $this->Structures->set("empty");
-            
+
             if ($this->Browser->checklistModel->name != $browsing['DatamartStructure']['model']) {
                 $browsing['DatamartStructure']['index_link'] = str_replace($browsing['DatamartStructure']['model'], $this->Browser->checklistModel->name, str_replace($browsing['DatamartStructure']['model'] . "." . $browsingModel->primaryKey, $this->Browser->checklistModel->name . "." . $this->Browser->checklistUseKey, $browsing['DatamartStructure']['index_link']));
             }
@@ -888,74 +941,5 @@ class BrowserController extends DatamartAppController
         }else{
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
-    }
-    
-    private function apiDatamartSearch($passedArgs = array(), $nodeId = 0, $controlId = 0, $mergeTo = 0)
-    {
-        if ($controlId!=0){
-            $browsing=$this->DatamartStructure->findById($controlId);
-            if (isset($browsing['DatamartStructure']['index_link']) && !AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
-                $url= Router::url(null, true);
-                $plugin = $this->request->params['plugin'];
-                $controller = $this->request->params['controller'];
-                $action = $this->request->params['action'];
-                $pca = '/'.$plugin.'/'.$controller.'/'.$action.'/';
-                $index = strpos($url, $pca);
-                $url = substr($url, 0, $index + strlen($pca));
-                $this->atimFlashError(__("You are not authorized to access that location."), $url);
-            }
-        }
-
-        $this->BrowsingResult->checkWritableFields = false;
-        $this->BrowsingIndex->checkWritableFields = false;
-        $this->Structures->set("empty", "empty");
-        $browsing = null;
-        $checkList = false;
-        $lastControlId = 0;
-        $parentChild = false;
-        $this->set('controlId', (int) $controlId); // cast as it might end with c(child) or p(parent)
-        $this->set('mergeTo', $mergeTo);
-        $this->Browser; // lazy laod
-        $helpUrl = $this->ExternalLink->find('first', array(
-            'conditions' => array(
-                'name' => 'databrowser_help'
-            )
-        ));
-        $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        // data handling will redirect to a straight page
-                    // direct node access
-        $this->set('nodeId', $nodeId);
-        $browsing = $this->BrowsingResult->getOrRedirect($nodeId);
-        if ($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')) {
-            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        }
-     
-        // handle display data
-        $order = null;
-        if (isset($this->passedArgs["sort"])) {
-            $order = $this->passedArgs["sort"] . " " . $this->passedArgs["direction"];
-        }
-        $this->Browser->initDataLoad($browsing, $mergeTo, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
-
-        if (! $this->Browser->validPermission) {
-            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
-        }
-
-        $browsingModel = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
-
-        $dropdownOptions = $this->Browser->getBrowserDropdownOptions($browsing['DatamartStructure']['id'], $nodeId, $browsing['DatamartStructure']['plugin'], $this->Browser->checklistModel->name, $browsing['DatamartStructure']['model'], $this->Browser->checklistUseKey, $browsingModel->primaryKey, $this->Browser->checklistSubModelsIdFilter);
-        foreach ($dropdownOptions as $key => $option) {
-            if (isset($option['value']) && strpos($option['value'], 'javascript:setCsvPopup(\'Datamart/Csv/csv') === 0) {
-                unset($dropdownOptions[$key]);
-            }
-        }
-
-        if ($this->Browser->checklistModel->name != $browsing['DatamartStructure']['model']) {
-            $browsing['DatamartStructure']['index_link'] = str_replace($browsing['DatamartStructure']['model'], $this->Browser->checklistModel->name, str_replace($browsing['DatamartStructure']['model'] . "." . $browsingModel->primaryKey, $this->Browser->checklistModel->name . "." . $this->Browser->checklistUseKey, $browsing['DatamartStructure']['index_link']));
-        }
-
-        $this->request->data = $this->Browser->getDataChunk(0, $passedArgs);
-        
-        API::sendDataToAPI($this->request->data);
     }
 }

@@ -432,8 +432,6 @@ class StructuresHelper extends Helper
                     "SampleMaster"
                 );
                 $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
-                // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
-                // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
             }
         }
         return $tmp;
@@ -510,7 +508,6 @@ class StructuresHelper extends Helper
                     );
                     $tmp = $this->getIndexStructure($atimStructure, $possible);
                 }
-                // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
                 
                 $test = $this->structureAliasFinal;
                 $test[] = $this->simplifyStructureTable($atimStructure);
@@ -3574,25 +3571,23 @@ $confirmationMsg); // confirmation message
         foreach ($tableIndex as $columns) {
             foreach ($columns as $column) {
                 foreach ($column as $item) {
-                    $suffixes=null;
-                    if (API::getAction() == "search") {
-                        $suffixes =in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
-                    }
-                    if (in_array($item['type'], array('date', 'datetime'))) {
-                        $this->APISetDate($response, $item, $suffixes, $option);
-                    } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
-                        $this->APISetField($response, $item, $suffixes, $option);
-                        if ($suffixes && strpos($item['setting'], 'range') && $item['type']=='input'){
-                            $suffixes=array("_start", "_end");
-                            $this->APISetField($response, $item, $suffixes, $option);
+                    if (!$item['flag_confidential'] || $this->Session->read('flag_show_confidential')){
+                        $suffixes=null;
+                        if (API::getAction() == "search") {
+                            $suffixes =in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
                         }
-                    } else {
-                        //API::sendTo($structures);
-                        continue;
+                        if (in_array($item['type'], array('date', 'datetime'))) {
+                            $this->APISetDate($response, $item, $suffixes, $option);
+                        } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
+                            $this->APISetField($response, $item, $suffixes, $option);
+                            if ($suffixes && strpos($item['setting'], 'range') && $item['type']=='input'){
+                                $suffixes=array("_start", "_end");
+                                $this->APISetField($response, $item, $suffixes, $option);
+                            }
+                        } else {
+                            continue;
+                        }
                     }
-//                    if (in_array($item['field'], array('message_type', 'title', 'date_requested', 'due_date', 'expiry_date', 'done'))) {
-//                        API::sendTo($response);
-//                    }
                 }
             }
         }

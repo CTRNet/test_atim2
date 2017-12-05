@@ -46,6 +46,9 @@ class StructuresComponent extends Component
      */
     public function set($alias = null, $structureName = 'atimStructure', array $parameters = array())
     {
+        if (API::isAPIMode()){
+            $alias = Inflector::pluralize(ucfirst($alias));
+        }
         if (! is_array($alias)) {
             $alias = array_filter(explode(",", $alias));
             // $alias = array_map('AppController::snakeToCamel', array_values($alias));
@@ -121,6 +124,7 @@ $parameters);
         $structureName = Inflector::variable($structureName);
 
         $this->controller->set($structureName, $structure);
+        return $structure;
     }
 
     /**
