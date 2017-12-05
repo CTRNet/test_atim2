@@ -176,7 +176,9 @@ foreach($excel_files_names as $file_data) {
 							}
 						}
 						
-						if($block_aliquot_master_id) {
+						if(!$block_aliquot_master_id) { 
+						    recordErrorAndMessage('Block', '@@ERROR@@', "Block does not exists into ATiM (based on 'Pathology ID number' & 'Block Code') - No block review will be migrated.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+						} else {
 							
 							// 3- SLIDE DETECTION
 							//..............................................................................................
@@ -309,6 +311,7 @@ foreach($excel_files_names as $file_data) {
 								}
 								
 								customInsertRecord($aliquot_review_data);
+								recordErrorAndMessage('Data Creation Summary', '@@MESSAGE@@', 'Block Slide Review Creation', "Review of block '$excel_block_aliquot_label'. See $excel_data_references.");	
 							}							
 						} // End tissue block found						
 					}
