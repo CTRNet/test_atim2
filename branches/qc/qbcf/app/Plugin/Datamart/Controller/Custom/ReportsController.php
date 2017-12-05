@@ -735,31 +735,6 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		return $months;
 	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	function buildQbcfCostRecoverySummary($parameters) {
 	
@@ -895,7 +870,8 @@ class ReportsControllerCustom extends ReportsController {
     			Participant.vital_status,
     			Participant.qbcf_bank_participant_identifier,
     			Participant.qbcf_study_exclusion,
-    			IF(TreatmentMaster.id = NULL, 'n', 'y') AS breast_diagnosis_found,
+    	        Participant.qbcf_study_exclusion_reason,
+    			IF(IFNULL(TreatmentMaster.id, '') = '', 'n', 'y') AS breast_diagnosis_found,
                 AliquotMaster.collection_id,
                 AliquotMaster.sample_master_id,
     			AliquotMaster.id,
