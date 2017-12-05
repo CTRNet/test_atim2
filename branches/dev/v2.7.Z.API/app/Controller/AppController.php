@@ -150,9 +150,9 @@ class AppController extends Controller
             $condition['UserApiKey.api_key']=API::getApiKey();  
             $users=$this->UserApiKey->find('all', array('conditions'=>$condition));
             if (count($users)==1){
-                $user=$this->User->findById($users[0]['UserApiKey']['user_id'])['User'];
+                $user=API::setUser($this->User->findById($users[0]['UserApiKey']['user_id']));
                 unset ($users);
-                $this->AtimAuth->login($user);
+                $this->AtimAuth->login($user['User']);
             }else{
                 unset ($users);
                 $valide=false;
@@ -169,7 +169,7 @@ class AppController extends Controller
     public function beforeFilter()
     {
         parent::beforeFilter(); 
-        API::checkData($this->request->data, $this->modelClass);   
+        API::checkData($this);   
         if (API::isAPIMode()){
             $this->checkApiKey();
         }
@@ -249,8 +249,13 @@ class AppController extends Controller
             $this->set('atimMenu', $this->Menus->get());
         }
         // get default STRUCTRES, used for forms, views, and validation
-        $this->Structures->set();
-        
+        if (!API::isAPIMode()){
+            $this->Structures->set();
+        }else{
+            $structure = $this->Structures->set(API::getModelName());
+        }
+        API::setStructure($structure);
+
         if (isset($this->request->query['file'])) {
             pr($this->request->query['file']);
         }

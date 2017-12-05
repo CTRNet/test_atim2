@@ -27,6 +27,8 @@ $APIGlobalVariable=0;
 class API
 {
     private static $counter=0;
+    private static $user;
+    private static $structure;
     
     /**
      * @param int $counter after $counter time that this function run, it send $message to API
@@ -163,22 +165,29 @@ class API
      * @param array $data 
      * @param string $model
      */
-    public static function checkData(&$data =array(), $model = '')
+    public static function checkData(&$controller)
     {
+        $data = $controller->request->data;
+        if (isset($data['modelName'])){
+            $model = $data['modelName'];
+            unset($controller->request->data['modelName']);
+        }else{
+            $model = $controller->modelClass;
+        }
+        
         if (!(isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api'])){
             unset($_SESSION[REST_API]);
         }
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
                 Configure::write('debug', 0);
-                $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
                 $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY]=$data['data_put_options']['atimApiKey'];
                 $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
                 $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
-                unset($data['data_put_options']);
+                unset($controller->request->data['data_put_options']);
             } 
         }
         $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) ? $_SESSION[REST_API][CONFIG_API][REST_API_MODE] : false;
@@ -192,9 +201,58 @@ class API
         if (self::isAPIMode()) {
             $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug', 'browse');
             if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), $actionsList)) {
+                if(!self::showConfidential()){
+                    $Sfs = self::$structure['Sfs'];
+                    foreach ($Sfs as $value) {
+                        if ($value['flag_confidential']){
+                            for ($i=0; $i<count($data); $i++){
+                                unset($data[$i][ucfirst(self::getModelName())][$value['field']]);
+                            }
+                        }
+                    }
+                }
                 self::addToBundle(array('Model, Action' => self::getModelName() . ', ' . self::getAction(), $data), 'data');
             }
             self::sendDataAndClear();
         }
+    }
+    
+    public static function setUser(&$user)
+    {
+        unset($user['UserApiKey']);
+        self::$user = $user;
+        return $user;
+    }
+    
+    public static function getUser()
+    {
+        return self::$user;
+    }
+    
+    public static function setStructure($structure)
+    {
+        self::$structure = $structure;
+        if (!self::allowModifyConfidentialData()){
+            AppController::getInstance()->atimFlashError(__('you are not authorized to reach that page because you cannot input data into confidential fields'), '/Menus');
+        }
+    }    
+    
+    private static function allowModifyConfidentialData()
+    {
+        $allow = true;
+        if (!self::showConfidential()){
+            $Sfs = self::$structure['Sfs'];
+            foreach ($Sfs as $value) {
+                if ($value['flag_confidential'] && (strpos(self::getAction(), 'edit')!==false || strpos(self::getAction(), 'add')!==false)){
+                    $allow = false;
+                }
+            }
+        }
+        return $allow;
+    }
+    
+    public static function showConfidential()
+    {
+        return self::getUser()['Group']['flag_show_confidential'];
     }
 }
