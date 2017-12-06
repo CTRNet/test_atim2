@@ -256,8 +256,8 @@ class AppController extends Controller
             $this->Structures->set();
         }else{
             $structure = $this->Structures->set(API::getModelName());
+            API::setStructure($structure);
         }
-        API::setStructure($structure);
 
         if (isset($this->request->query['file'])) {
             pr($this->request->query['file']);
