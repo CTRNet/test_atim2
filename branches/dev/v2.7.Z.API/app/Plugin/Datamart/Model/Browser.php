@@ -1536,7 +1536,8 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param unknown_type $chunkSize            
+     * @param unknown_type $chunkSize
+     * @param array $passedArgs
      * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
      */
     public function getDataChunk($chunkSize, $passedArgs=array())

@@ -143,7 +143,10 @@ class AppController extends Controller
         }
         API::sendDataToAPI($this->request->data);
     }
-    
+
+    /**
+     * @return bool
+     */
     private function checkApiKey(){
         $valide=true;
         if (API::getApiKey()){
@@ -858,6 +861,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
     }
 
     /**
+     * @param int $history
      * @return array
      */
     public static function getStackTrace($history=0)
@@ -2220,7 +2224,12 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
     /*
      * @todo: Check if this is necessary ti change the redirect for API
      */
-    public function redirect($url, $status = null, $exit = true) 
+    /**
+     * @param array|string $url
+     * @param null $status
+     * @param bool $exit
+     */
+    public function redirect($url, $status = null, $exit = true)
     {
         if (!API::isAPIMode()){
             parent::redirect($url, $status, $exit);

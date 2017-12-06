@@ -43,6 +43,7 @@ class StructuresComponent extends Component
      * @param null $alias
      * @param string $structureName
      * @param array $parameters
+     * @return array
      */
     public function set($alias = null, $structureName = 'atimStructure', array $parameters = array())
     {

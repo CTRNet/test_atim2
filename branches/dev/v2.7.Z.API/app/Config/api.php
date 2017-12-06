@@ -154,16 +154,20 @@ class API
         }
     }
 
+    /**
+     * @return null
+     */
     public static function getApiKey(){
         if (self::isAPIMode()){
             return $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY];
         }
         return null;
     }
-    
+
     /**
-     * @param array $data 
-     * @param string $model
+     * @param $controller
+     * @internal param array $data
+     * @internal param string $model
      */
     public static function checkData(&$controller)
     {
@@ -216,7 +220,11 @@ class API
             self::sendDataAndClear();
         }
     }
-    
+
+    /**
+     * @param $user
+     * @return mixed
+     */
     public static function setUser(&$user)
     {
         unset($user['UserApiKey']);
@@ -228,15 +236,21 @@ class API
     {
         return self::$user;
     }
-    
+
+    /**
+     * @param $structure
+     */
     public static function setStructure($structure)
     {
         self::$structure = $structure;
         if (!self::allowModifyConfidentialData()){
             AppController::getInstance()->atimFlashError(__('you are not authorized to reach that page because you cannot input data into confidential fields'), '/Menus');
         }
-    }    
-    
+    }
+
+    /**
+     * @return bool
+     */
     private static function allowModifyConfidentialData()
     {
         $allow = true;
@@ -250,7 +264,10 @@ class API
         }
         return $allow;
     }
-    
+
+    /**
+     * @return mixed
+     */
     public static function showConfidential()
     {
         return self::getUser()['Group']['flag_show_confidential'];
