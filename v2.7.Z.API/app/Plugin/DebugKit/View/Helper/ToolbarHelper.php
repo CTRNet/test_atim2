@@ -225,7 +225,8 @@ class ToolbarHelper extends AppHelper {
 
     /**
      * @param $date
-     */        
+     * @return bool
+     */
     private function isRecente($date){
         $d=strip_tags($date);
         $d= substr($d, -19);

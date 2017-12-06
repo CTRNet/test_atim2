@@ -36,6 +36,9 @@ class AppModel extends Model
         'MasterDetail'
     );
 
+    /**
+     * @param $message
+     */
     public function setValidationErrors($message){
         $this->validationErrors['error'.rand(0, 100)]=$message;
     }
