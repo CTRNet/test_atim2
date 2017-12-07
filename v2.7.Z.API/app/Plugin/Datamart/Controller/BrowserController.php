@@ -166,6 +166,13 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
+        
+        if(API::isAPIMode()){
+            if (strpos($controlId, '-')>-1){
+                list ($controlId, $subStructCtrlId) = explode("-", $controlId);
+            }
+        }
+
         if(API::isAPIMode() && isset($this->request->data)){
             $data = $this->request->data;
             foreach ($data as $modelName=>$values){
@@ -244,11 +251,11 @@ class BrowserController extends DatamartAppController
             $createdNode = null;
             // save nodes (direct and indirect)
             foreach ($directIdArr as $controlId) {
-                $subStructCtrlId = null;
+                $subStructCtrlId = (isset($subStructCtrlId) && API::isAPIMode())?$subStructCtrlId:null;
                 if (isset($subStructureId) /* there is a sub id */ && $directIdArr[count($directIdArr) - 1] == $controlId /* this is the last element */ &&  $checkList)/* this is a checklist */{ 
                     $subStructCtrlId = $subStructureId;
                 }
-                
+
                 $params = array(
                     'struct_ctrl_id' => $controlId,
                     'sub_struct_ctrl_id' => $subStructCtrlId,
