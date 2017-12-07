@@ -1516,6 +1516,9 @@ class Browser extends DatamartAppModel
     {
         $this->searchParameters['limit'] = $chunkSize;
         $this->searchParameters['offset'] = $this->offset;
+        if(API::isAPIMode()){
+            $this->searchParameters['order'] = $this->order;
+        }
         $lines = $this->nodes[0][self::MODEL]->find('all', $this->searchParameters);
         $this->offset += $chunkSize;
         
@@ -1587,8 +1590,8 @@ class Browser extends DatamartAppModel
                 }
             }
         } else {
-            extract($passedArgs); //Limit, page, direction, order
-            
+            extract($passedArgs); //Limit, page, direction, sort
+            $this->order = (isset($sort) && isset($direction))?array($sort=>$direction):null;
             $chunkSize = isset($limit)?$limit:PAGINATION_AMOUNT;
             $page = isset($page)?$page:1;
             $this->offset=($page-1)*$chunkSize;
@@ -1597,7 +1600,6 @@ class Browser extends DatamartAppModel
             }
                 
             $this->fillBuffer($chunkSize);
-
 
             $chunk = array_fill(0, count($this->rowsBuffer), array());
             $node = null;
