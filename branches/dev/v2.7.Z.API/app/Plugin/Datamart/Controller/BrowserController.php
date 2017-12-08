@@ -166,9 +166,9 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        
+
         if(API::isAPIMode()){
-            if (strpos($controlId, '-')>-1){
+            if (strpos($controlId, '-')!==false){
                 list ($controlId, $subStructCtrlId) = explode("-", $controlId);
             }
         }
