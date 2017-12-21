@@ -698,7 +698,11 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 		if(array_key_exists(strtolower($value), $domains_values[$domain_name])) {
 			$value = $domains_values[$domain_name][strtolower($value)];	//To set the right case
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+		    $domain_name_values = "<br><i>Allowed Values : [".implode("] & [", $domains_values[$domain_name])."]";
+		    $str_limit = 1000;
+		    if(strlen($domain_name_values) > $str_limit) $domain_name_values = substr($domain_name_values, 0, $str_limit).'...';
+		    $domain_name_values.= "</i>";
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in).$domain_name_values, "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
 			$value = '';
 		}
 	}
@@ -795,15 +799,13 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 	$date = str_replace(' ', '', $date);
 	$time = str_replace(' ', '', $time);
 	//** Get Date **
-	$tmp_date_and_accuracy = validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in);
-	if(!$tmp_date_and_accuracy['date']) {
+	list($formatted_date, $formatted_date_accuracy) = validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in);
+	if(!$formatted_date) {
 		if(!empty($time) && !in_array(strtolower($time), $empty_date_time_values)) {
 			recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'DateTime Format Error: Date Is Missing'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		}
 		return array('', '');
 	} else {
-		$formatted_date = $tmp_date_and_accuracy['date'];
-		$formatted_date_accuracy = $tmp_date_and_accuracy['accuracy'];
 		//Combine date and time
 		if(empty($time) || in_array(strtolower($time), $empty_date_time_values)) {
 			return array($formatted_date.' 00:00', str_replace('c', 'h', $formatted_date_accuracy));

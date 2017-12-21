@@ -126,7 +126,7 @@ foreach($excel_files_names as $file_data) {
 						// Current Status
 						
 						$excel_field = 'Vital Status';
-						$excel_participant_data['vital_status'] = validateAndGetStructureDomainValue(str_replace(array('Died', 'died'), array('deceased', 'deceased'), $excel_line_data[$excel_field]), 'health_status', $summary_section_title, $excel_field, "See $excel_data_references");
+						$excel_participant_data['vital_status'] = validateAndGetStructureDomainValue(str_replace(array('Died', 'died', 'deceased of unknown cause'), array('deceased', 'deceased', 'deceased from unknown cause (lost to f/u)'), $excel_line_data[$excel_field]), 'health_status', $summary_section_title, $excel_field, "See $excel_data_references");
 						
 						$excel_field = 'Registered Date of Death';
 						$excel_field_accuracy = "$excel_field Accuracy";
@@ -649,6 +649,7 @@ foreach($excel_files_names as $file_data) {
 					$specific_summary_section_title = "$summary_section_title : Breast Treatment";
 					
 					$excel_systemic_treatment_data_set = false;
+					$excel_systemic_treatment_data_set_array = array();
 					$treatment_fields = array('Clinical Trial/ Protocol Used',
 						'Systemic treatement - Treatment completed', 
 						'Systemic treatement - Number of cycles planned', 
@@ -657,9 +658,15 @@ foreach($excel_files_names as $file_data) {
 						'Drug 2', 
 						'Drug 3', 
 						'Drug 4');
-					foreach($treatment_fields as $new_field) if(strlen($excel_line_data[$new_field])) $excel_systemic_treatment_data_set = true;
+					foreach($treatment_fields as $new_field) {
+					    if(strlen($excel_line_data[$new_field])) {
+					        $excel_systemic_treatment_data_set = true;
+					        $excel_systemic_treatment_data_set_array[] = "[<i><u>$new_field</u> = ".$excel_line_data[$new_field]."</i>]";
+					    }
+					}
 					
 					$excel_radiation_treatment_data_set = false;
+					$excel_radiation_treatment_data_set_array = array();
 					$treatment_fields = array('Radiation Type', 
 						'Radiation Completed',
 						'Conventional-Number of cycles', 
@@ -668,7 +675,12 @@ foreach($excel_files_names as $file_data) {
 						'Boost- Dose (number of Gray)', 
 						'Brachytherapy - Number of cycles', 	
 						'Brachytherapy (number of Gray)');									
-					foreach($treatment_fields as $new_field) if(strlen($excel_line_data[$new_field])) $excel_radiation_treatment_data_set = true;
+					foreach($treatment_fields as $new_field) {
+					    if(strlen($excel_line_data[$new_field])) {
+					        $excel_radiation_treatment_data_set = true;
+					        $excel_radiation_treatment_data_set_array[] = "[<i><u>$new_field</u> = ".$excel_line_data[$new_field]."</i>]";
+					    }
+					}
 					
 					if($type_of_event == 'Treatment' && !$excel_systemic_treatment_data_set && !$excel_radiation_treatment_data_set && !strlen($excel_line_data['Treatment Type'])) {
 						recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "No breast treatment data defined into excel for 'Treatment' event type - No excel treatment data will be migrated", "See following participant : $excel_data_references.");
@@ -724,7 +736,10 @@ foreach($excel_files_names as $file_data) {
 									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Excel breast treatment type is a radiation but no raditation data found into excel - Treatment will be created with no detail. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 								}
 								if($excel_systemic_treatment_data_set) {
-									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Excel breast treatment type is a radiation but some systemic treatment detail data found into excel - Treatment will be created but all systemic data won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									recordErrorAndMessage($specific_summary_section_title, 
+									    '@@ERROR@@', 
+									    "Excel breast treatment type is a radiation but some systemic treatment detail data found into excel - Treatment will be created but all systemic data won't be mirgated. Please confirm.", 
+									    "See value(s) ".implode(' & ', $excel_systemic_treatment_data_set_array)." of ".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 								}
 								
 								// Treatment data
@@ -828,7 +843,10 @@ foreach($excel_files_names as $file_data) {
 									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Excel treatment type is a systemic breast treatment but no systemic treatment data found into excel - Treatment will be created with no detail. Pleas confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 								}
 								if($excel_radiation_treatment_data_set) {
-									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Excel treatment type is a systemic breast treatment but some radiation treatment data found into excel - Treatment will be created but all radiation data won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									recordErrorAndMessage($specific_summary_section_title, 
+									    '@@ERROR@@', 
+									    "Excel treatment type is a systemic breast treatment but some radiation treatment data found into excel - Treatment will be created but all radiation data won't be mirgated. Please confirm.", 
+									    "See value(s) ".implode(' & ', $excel_systemic_treatment_data_set_array)." of '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 								}
 								
 								// Treatment data
@@ -836,8 +854,11 @@ foreach($excel_files_names as $file_data) {
 								$excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'] = $excel_line_data['Clinical Trial/ Protocol Used'];
 								
 								foreach(array('Systemic treatement - Number of cycles planned' => 'num_cycles_planned',	'Systemic treatement - Number of cycles received' => 'num_cycles_received',	'Systemic treatement - Treatment completed' => 'cycles_completed') as $excel_field => $atim_field) {
-									if($atim_treatment_control_data['tx_method'] == 'bone specific therapy' && strlen($excel_line_data[$excel_field])) {
-										recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									if($atim_treatment_control_data['tx_method'] == 'bone specific therapy' && strlen(trim($excel_line_data[$excel_field]))) {
+										recordErrorAndMessage($specific_summary_section_title, 
+										    '@@ERROR@@', 
+										    "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", 
+										    "See value [<i><u>$excel_field</u> = ".$excel_line_data[$excel_field]."</i>] of '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									} else if($atim_treatment_control_data['tx_method'] != 'bone specific therapy') {
 										if($excel_field == 'Systemic treatement - Treatment completed') {
 											if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
@@ -1601,29 +1622,105 @@ function getDrugId($drug_name, $type, $excel_data_references) {
 	$drug_data = array('drugs' => array('generic_name' => $drug_name, 'type' =>$type));
 	$atim_drugs[$drug_key] = customInsertRecord($drug_data);
 	recordErrorAndMessage('Data Creation Summary', '@@MESSAGE@@', "New ATiM Drug Creation", "$drug_name ($type)");
-
+	recordErrorAndMessage('Drug', '@@WARNING@@', "Created a new drug into ATiM. Please confirm.", "$drug_name ($type)");
+	
 	return $atim_drugs[$drug_key];
 }
 
 function formatDrugName($xls_drug_name, $xls_drug_type, $excel_data_references) {
 	
+// 	$drug_matches = array(
+// 		"5-fluorouracil" => array("5-fluorouracil", "chemotherapy"),
+// 		"5-fluouracil" => array("5-fluorouracil", "chemotherapy"),
+// 		"fluorouracile" => array("5-fluorouracil", "chemotherapy"),
+// 		"fluouracile" => array("5-fluorouracil", "chemotherapy"),
+// 		"abemaciclib" => array("abemaciclib", "chemotherapy"),
+// 		"abraxane" => array("abraxane", "chemotherapy"),
+// 		"anastrozole" => array("anastrozole", "hormonal"),
+// 		"anastrozole" => array("anastrozole", "hormonal"),
+// 		"anatrozole" => array("anastrozole", "hormonal"),
+// 		"arimidex" => array("anastrozole", "hormonal"),
+// 		"arimidex + zoladex" => array("anastrozole+goserelin", "hormonal"),
+// 		"aredia" => array("aredia", "bone specific"),
+// 		"avastin" => array("Bevacizumab ", "chemotherapy"),
+// 		"bevacizumab" => array("Bevacizumab ", "chemotherapy"),
+// 		"capecitabine" => array("capecitabine", "chemotherapy"),
+// 		"xeloda" => array("capecitabine", "chemotherapy"),
+// 		"carboplatin" => array("carboplatin", "chemotherapy"),
+// 		"carboplatine" => array("carboplatin", "chemotherapy"),
+// 		"cyclophosphamide" => array("cyclophosphamide", "chemotherapy"),
+// 		"cyclophosphamide" => array("cyclophosphamide", "chemotherapy"),
+// 		"cyclphosphamide" => array("cyclophosphamide", "chemotherapy"),
+// 		"cylophosphamide" => array("cyclophosphamide", "chemotherapy"),
+// 		"denosumab" => array("denosumab", "bone specific"),
+// 		"denosumab" => array("denosumab", "bone specific"),
+// 		"denosumab ou placebo" => array("denosumab or placebo", "bone specific"),
+// 		"docetaxel" => array("docetaxel", "chemotherapy"),
+// 		"taxotere" => array("docetaxel", "chemotherapy"),
+// 		"taxotere" => array("docetaxel", "chemotherapy"),
+// 		"docetaxel + herceptin" => array("docetaxel + trastuzumab", "chemotherapy"),
+// 		"adramicin" => array("doxorubicin", "chemotherapy"),
+// 		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+// 		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+// 		"adriamycin" => array("doxorubicin", "chemotherapy"),
+// 		"adriamycine" => array("doxorubicin", "chemotherapy"),
+// 		"doxorubicin" => array("doxorubicin", "chemotherapy"),
+// 		"epirubicin" => array("epirubicin", "chemotherapy"),
+// 		"epirubicine" => array("epirubicin", "chemotherapy"),
+// 		"eribulin" => array("eribulin", "chemotherapy"),
+// 		"eribuline" => array("eribulin", "chemotherapy"),
+// 	    "faslodex" => array("fulvestrant", "hormonal"),
+// 		"aromasin" => array("exemestane", "hormonal"),
+// 		"exemestane" => array("exemestane", "hormonal"),
+// 		"fulvestrant" => array("fulvestrant", "hormonal"),
+// 		"gemcitabine" => array("gemcitabine", "chemotherapy"),
+// 		"gosereline" => array("goserelin", "hormonal"),
+// 		"gosereline" => array("goserelin", "hormonal"),
+// 		"lapatinib" => array("lapatinib", "chemotherapy"),
+// 		"femara" => array("letrozole", "hormonal"),
+// 		"letrozole" => array("letrozole", "hormonal"),
+// 		"leuprolide" => array("leuprolide", "hormonal"),
+// 		"metformin vs placebo" => array("metformin vs placebo", "other"),
+// 		"methotrexate" => array("methotrexate", "chemotherapy"),
+// 		"navelbine" => array("vinorelbine", "chemotherapy"),
+// 		"xgeva" => array("denosumab", "bone specific"),
+// 		"prolia" => array("denosumab", "bone specific"),
+// 	    "paclitaxel" => array("paclitaxel", "chemotherapy"),
+// 		"taxol" => array("paclitaxel", "chemotherapy"),
+// 		"pamidronate" => array("pamidronate", "bone specific"),
+// 		"tamoxifen" => array("tamoxifen", "hormonal"),
+// 		"tamoxifen 3 mo" => array("tamoxifen", "hormonal"),
+// 		"herceptin" => array("trastuzumab", "immunotherapy"),
+// 		"herceptin" => array("trastuzumab", "immunotherapy"),
+// 		"trastuzumab" => array("trastuzumab", "immunotherapy"),
+// 		"triptorelin" => array("triptorelin", "hormonal"),
+// 		"vinorelbin" => array("vinorelbine", "chemotherapy"),
+// 		"vinorelbine" => array("vinorelbine", "chemotherapy"),
+// 		"acide zoledronique" => array("zoledronic acid", "bone specific"),
+// 		"zoledronic acid" => array("zoledronic acid", "bone specific"),
+// 		"zometa" => array("zoledronic acid", "bone specific"));
+	
 	$drug_matches = array(
 		"5-fluorouracil" => array("5-fluorouracil", "chemotherapy"),
 		"5-fluouracil" => array("5-fluorouracil", "chemotherapy"),
-		"fluorouracile" => array("5-fluorouracil", "chemotherapy"),
-		"fluouracile" => array("5-fluorouracil", "chemotherapy"),
 		"abemaciclib" => array("abemaciclib", "chemotherapy"),
 		"abraxane" => array("abraxane", "chemotherapy"),
+		"acide zoledronique" => array("zoledronic acid", "bone specific"),
+		"adramicin" => array("doxorubicin", "chemotherapy"),
+		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+		"adriamycin" => array("doxorubicin", "chemotherapy"),
+		"adriamycine" => array("doxorubicin", "chemotherapy"),
 		"anastrozole" => array("anastrozole", "hormonal"),
 		"anastrozole" => array("anastrozole", "hormonal"),
 		"anatrozole" => array("anastrozole", "hormonal"),
+		"aredia" => array("aredia", "bone specific"),
 		"arimidex" => array("anastrozole", "hormonal"),
 		"arimidex + zoladex" => array("anastrozole+goserelin", "hormonal"),
-		"aredia" => array("aredia", "bone specific"),
+		"aromasin" => array("exemestane", "hormonal"),
 		"avastin" => array("Bevacizumab ", "chemotherapy"),
 		"bevacizumab" => array("Bevacizumab ", "chemotherapy"),
 		"capecitabine" => array("capecitabine", "chemotherapy"),
-		"xeloda" => array("capecitabine", "chemotherapy"),
 		"carboplatin" => array("carboplatin", "chemotherapy"),
 		"carboplatine" => array("carboplatin", "chemotherapy"),
 		"cyclophosphamide" => array("cyclophosphamide", "chemotherapy"),
@@ -1634,49 +1731,51 @@ function formatDrugName($xls_drug_name, $xls_drug_type, $excel_data_references) 
 		"denosumab" => array("denosumab", "bone specific"),
 		"denosumab ou placebo" => array("denosumab or placebo", "bone specific"),
 		"docetaxel" => array("docetaxel", "chemotherapy"),
-		"taxotere" => array("docetaxel", "chemotherapy"),
-		"taxotere" => array("docetaxel", "chemotherapy"),
 		"docetaxel + herceptin" => array("docetaxel + trastuzumab", "chemotherapy"),
-		"adramicin" => array("doxorubicin", "chemotherapy"),
-		"adriamcyin" => array("doxorubicin", "chemotherapy"),
-		"adriamcyin" => array("doxorubicin", "chemotherapy"),
-		"adriamycin" => array("doxorubicin", "chemotherapy"),
-		"adriamycine" => array("doxorubicin", "chemotherapy"),
 		"doxorubicin" => array("doxorubicin", "chemotherapy"),
 		"epirubicin" => array("epirubicin", "chemotherapy"),
 		"epirubicine" => array("epirubicin", "chemotherapy"),
 		"eribulin" => array("eribulin", "chemotherapy"),
 		"eribuline" => array("eribulin", "chemotherapy"),
-	    "faslodex" => array("fulvestrant", "hormonal"),
-		"aromasin" => array("exemestane", "hormonal"),
+		"everolimus" => array("everolimus", "chemotherapy"),
 		"exemestane" => array("exemestane", "hormonal"),
+		"faslodex" => array("fulvestrant", "hormonal"),
+		"femara" => array("letrozole", "hormonal"),
+		"fluorouracile" => array("5-fluorouracil", "chemotherapy"),
+		"fluouracile" => array("5-fluorouracil", "chemotherapy"),
 		"fulvestrant" => array("fulvestrant", "hormonal"),
 		"gemcitabine" => array("gemcitabine", "chemotherapy"),
+		"Gemzar" => array("gemcitabine", "chemotherapy"),
+		"generic_name dans excel" => array("generic_name dans atim", "type"),
 		"gosereline" => array("goserelin", "hormonal"),
 		"gosereline" => array("goserelin", "hormonal"),
+		"herceptin" => array("trastuzumab", "immunotherapy"),
+		"herceptin" => array("trastuzumab", "immunotherapy"),
 		"lapatinib" => array("lapatinib", "chemotherapy"),
-		"femara" => array("letrozole", "hormonal"),
 		"letrozole" => array("letrozole", "hormonal"),
 		"leuprolide" => array("leuprolide", "hormonal"),
 		"metformin vs placebo" => array("metformin vs placebo", "other"),
 		"methotrexate" => array("methotrexate", "chemotherapy"),
-		"navelbine" => array("vinorelbine", "chemotherapy"),
-		"xgeva" => array("denosumab", "bone specific"),
-		"prolia" => array("denosumab", "bone specific"),
-	    "paclitaxel" => array("paclitaxel", "chemotherapy"),
-		"taxol" => array("paclitaxel", "chemotherapy"),
+		"Navelbine" => array("Vinorelbine", "chemotherapy"),
+		"paclitaxel" => array("paclitaxel", "chemotherapy"),
 		"pamidronate" => array("pamidronate", "bone specific"),
+		"prolia" => array("denosumab", "bone specific"),
 		"tamoxifen" => array("tamoxifen", "hormonal"),
 		"tamoxifen 3 mo" => array("tamoxifen", "hormonal"),
-		"herceptin" => array("trastuzumab", "immunotherapy"),
-		"herceptin" => array("trastuzumab", "immunotherapy"),
+		"TAXOL" => array("paclitaxel", "chemotherapy"),
+		"taxotere" => array("docetaxel", "chemotherapy"),
+		"taxotere" => array("docetaxel", "chemotherapy"),
 		"trastuzumab" => array("trastuzumab", "immunotherapy"),
 		"triptorelin" => array("triptorelin", "hormonal"),
 		"vinorelbin" => array("vinorelbine", "chemotherapy"),
+		"Vinorelbine" => array("doxorubicin", "chemotherapy"),
+		"Vinorelbine" => array("Vinorelbine", "chemotherapy"),
 		"vinorelbine" => array("vinorelbine", "chemotherapy"),
-		"acide zoledronique" => array("zoledronic acid", "bone specific"),
+		"xeloda" => array("capecitabine", "chemotherapy"),
+		"Xgeva" => array("denosumab", "bone specific"),
 		"zoledronic acid" => array("zoledronic acid", "bone specific"),
 		"zometa" => array("zoledronic acid", "bone specific"));
+	
 	$xls_drug_name = strtolower($xls_drug_name);
 	
 	$drug_name = $xls_drug_name;
