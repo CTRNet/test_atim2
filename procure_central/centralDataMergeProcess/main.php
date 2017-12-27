@@ -4,10 +4,10 @@ $track_queries = false;
 
 $sitecodes_to_sites = array(
 		'p' => 'PROCESSING SITE',
-		'1' => 'CHUM',
-		'2' => 'CHUQ',
-		'4' => 'CHUS',
-		'3' => 'CUSM'
+		'1' => 'PS1',
+		'2' => 'PS2',
+		'3' => 'PS3',
+		'4' => 'PS4'
 );
 
 require_once 'system.php';
@@ -24,10 +24,10 @@ displayMergeTitle('PROCURE CENTRAL ATIM : Data Sites Merge Process');
 connectToCentralDatabase();
 
 $bank_databases = array(
-	'CHUM' => $db_chum_schemas,
-	'CHUQ' => $db_chuq_schemas,
-	'CHUS' => $db_chus_schemas,
-	'CUSM' => $db_cusm_schemas
+	'PS1' => $db_ps1_schemas,
+	'PS2' => $db_ps1_schemas,
+	'PS3' => $db_ps1_schemas,
+	'PS4' => $db_ps1_schemas
 );
 foreach($bank_databases as $site => $db_schema) {
 	if(!testDbSchemas($db_schema, $site)) {
