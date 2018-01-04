@@ -3018,6 +3018,102 @@ INSERT INTO i18n (id,en,fr) VALUES ('aborted', 'Aborted', 'Abandonné(e)');
 
 UPDATE versions SET branch_build_number = '6918', site_branch_build_number = '????' WHERE version_number = '2.6.8';
 
+-- Participant Lost Contact
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_contact_lost', 'checkbox',  NULL , '0', '', '', '', 'lost contact', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_contact_lost' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lost contact' AND `language_tag`=''), '3', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `language_heading`='refusal / withdrawal / lost contact' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_next_collections_refusal' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE participants
+  ADD COLUMN procure_contact_lost tinyint(1) DEFAULT '0';
+ALTER TABLE participants_revs
+  ADD COLUMN procure_contact_lost tinyint(1) DEFAULT '0';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('lost contact', 'Lost Contact', 'Contact perdu'),
+('refusal / withdrawal / lost contact', 'Refusal / Withdrawal / Lost Contact', 'Refus / Désistement / Contact perdu');
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_contact_lost' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Medication Type Fusion
+  
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Types (PROCURE values only)');
+UPDATE structure_permissible_values_customs SET deleted = 1 WHERE control_id = @control_id AND value IN ('open sale medication', 'other diseases medication', 'prostate medication');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('medication' ,'Medication', 'Médicament ', '1', @control_id, NOW(), '1', NOW(), '1');
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+UPDATE treatment_masters SET modified = @modified, modified_by = @modified_by
+WHERE deleted <> 1 AND id IN (
+  SELECT treatment_master_id FROM procure_txd_treatments WHERE treatment_type IN ('open sale medication', 'other diseases medication', 'prostate medication')
+);
+UPDATE procure_txd_treatments 
+SET treatment_type = 'medication'
+WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted <> 1)
+AND treatment_type IN ('open sale medication', 'other diseases medication', 'prostate medication');
+INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+version_created, modified_by)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+modified, modified_by FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_treatments_revs(treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+version_created)
+(SELECT treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+modified
+FROM treatment_masters INNER JOIN procure_txd_treatments ON id = treatment_master_id 
+AND modified = @modified AND modified_by = @modified_by);
+
+-- Cause of death : Unknown
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+-- Added collection of controls
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+SET @procure_collected_by_bank = (SELECT procure_collected_by_bank FROM collections ORDER by id LIMIT 0,1);
+INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `collection_datetime_accuracy`, `sop_master_id`, `collection_property`, 
+`collection_notes`, `participant_id`, `diagnosis_master_id`, `consent_master_id`, `treatment_master_id`, `event_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, 
+`procure_deprecated_field_procure_patient_identity_verified`, `procure_visit`, `procure_collected_by_bank`) VALUES
+(null, '', NULL, NULL, NULL, '', NULL, 'independent collection', 
+'Collection created to track all controls used by the PROCURE banks.', NULL, NULL, NULL, NULL, NULL, @modified, @modified_by, @modified, @modified_by, 0,
+ 0, 'Controls', @procure_collected_by_bank);
+UPDATE versions set permissions_regenerated = 0;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('control collection - no data can be updated', 'Collection of controls! No data can be updated!', "Collection de contrôles! Aucune donnée ne peut être mise à jour!"),
+('control collection - collection can not be deleted', 'Collection of controls! Collection can not be deleted!', "Collection de contrôles! La collection ne peut pas être supprimée!");
+
+-- Remove processing site in procure_banks list
+
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_banks");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="PS1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="PS2"), "1", "2"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="PS3"), "1", "3"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="PS4"), "1", "4"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="s" AND language_alias="system option"), "1", "100");
+
+
+
+
+
+
+
+
+
+ 	
+ 	procure_txd_treatments
+
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

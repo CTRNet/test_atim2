@@ -32,6 +32,13 @@ class CollectionCustom extends Collection {
 		return $res;
 	}
 	
+	function allowDeletion($collection_id){
+	    if($this->data['Collection']['procure_visit'] == 'Controls') {
+	        return array('allow_deletion' => false, 'msg' => 'control collection - collection can not be deleted');
+	    }
+	    return parent::allowDeletion($collection_id);
+	}
+	
 }
 
 ?>
