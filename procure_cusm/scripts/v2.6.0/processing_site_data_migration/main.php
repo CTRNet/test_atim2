@@ -22,10 +22,6 @@ if(isset($argv[1])) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-if(true) {
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 if($test_version) {
     
     $queries = array(
@@ -243,7 +239,7 @@ recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/use
 //=========================================================================================================================================
 
 if(getSelectQueryResult("select * from study_summaries")) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No study exist into CUSM Site database. All new studies will be imported from Processing Site database.");
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No study exists into CUSM Site database. All new studies will be imported from Processing Site database.");
 
 $query = "INSERT INTO study_summaries (id, title, deleted, created, created_by, modified, modified_by, procure_created_by_bank)
     (SELECT id, title, deleted, '$import_date', $imported_by, '$import_date', $imported_by, '$procure_cusm_ps_numer'
@@ -523,24 +519,24 @@ recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/use
 $query = "SELECT count(*) nbr FROM specimen_review_masters;";
 $counter = getSelectQueryResult($query);
 if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No Specimen Review exist into the Processing Site database.");
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No Specimen Review exists into the Processing Site database.");
 
 $query = "SELECT count(*) nbr FROM aliquot_review_masters;";
 $counter = getSelectQueryResult($query);
 if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No Aliquot Review exist into the Processing Site database.");
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No Aliquot Review exists into the Processing Site database.");
 
 $query = "SELECT count(*) nbr FROM tma_slides;";
 $counter = getSelectQueryResult($query);
 if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No TMA Slide Review exist into the Processing Site database.");
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No TMA Slide exists into the Processing Site database.");
 
 //=========================================================================================================================================
 // Import Order
 //=========================================================================================================================================
 
 if(getSelectQueryResult("select * from orders")) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No order exist into the CUSM Site database.");
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No order exists into the CUSM Site database.");
 
 $query = "INSERT INTO orders (id, order_number, short_title, description, date_order_placed, date_order_placed_accuracy, date_order_completed,
     date_order_completed_accuracy, processing_status,
@@ -596,65 +592,6 @@ $created_recd_nbr = getSelectQueryResult("SELECT count(*) as nbrrcd FROM shipmen
 $created_recd_nbr = $created_recd_nbr[0]['nbrrcd'];
 recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/used elements.", "Created $created_recd_nbr shipments");
 
-//=========================================================================================================================================
-// Merge PS3 aliquots previously sent to the processing site
-//=========================================================================================================================================
-
-$query = "UPDATE collections CollectionProcessing, aliquot_masters AliquotMasterProcessing, sample_masters SampleMasterProcessing
-    SET AliquotMasterProcessing.procure_created_by_bank = 'x'
-    WHERE CollectionProcessing.deleted <> 1
-    AND CollectionProcessing.participant_id IS NULL
-    AND CollectionProcessing.collection_notes LIKE '%Temporary collection created by system to migrate data from ATiM Processing Site on $date_yyyy_mm_dd%'
-    AND CollectionProcessing.created LIKE '$date_yyyy_mm_dd%'
-    AND CollectionProcessing.created_by = '$imported_by'
-    AND SampleMasterProcessing.procure_created_by_bank = 's'
-    AND AliquotMasterProcessing.sample_master_id = SampleMasterProcessing.id
-    AND AliquotMasterProcessing.collection_id = CollectionProcessing.id
-    AND AliquotMasterProcessing.deleted <> 1
-    AND AliquotMasterProcessing.created LIKE '$date_yyyy_mm_dd%'
-    AND AliquotMasterProcessing.created_by = '$imported_by'
-    AND AliquotMasterProcessing.procure_created_by_bank = '$procure_cusm_ps_numer'";
-customQuery($query);
-
-// All processing site aliquots received from PS3 are linked to an internaluse euqals to 'received from bank PS3' 
-$counter = getSelectQueryResult("SELECT count(*) as nbr
-    FROM aliquot_masters 
-    WHERE procure_created_by_bank = 'x'
-    AND id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'received from bank' AND use_code = 'PS3')");
-if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "All aliquots of the PS3 participants of Processing Site database and migrated into CUSM database are linked to an 'event' equal to 'received from bank PS3'.");
-
-// All processing site aliquots received from PS3 are not in stock
-$counter = getSelectQueryResult("SELECT count(*) as nbr
-    FROM aliquot_masters AliquotMasterProcessing
-    WHERE AliquotMasterProcessing.deleted <> 1
-    AND AliquotMasterProcessing.procure_created_by_bank = 'x'
-    AND AliquotMasterProcessing.in_stock != 'no'");
-if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "All aliquots of the PS3 participants of Processing Site database and migrated into CUSM database have an in stock status equal to 'no'.");
-
-// All processing site aliquots received from PS3 are not linked to a study
-$counter = getSelectQueryResult("SELECT count(*) as nbr
-    FROM aliquot_masters AliquotMasterProcessing
-    WHERE AliquotMasterProcessing.deleted <> 1
-    AND AliquotMasterProcessing.procure_created_by_bank = 'x'
-    AND AliquotMasterProcessing.study_summary_id IS NOT NULL;");
-if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No aliquot of the PS3 participants of Processing Site database is linked to a study.");
-
-// Two processing site aliquots received from PS3 are not linked to the same sample_master_id
-$counter = getSelectQueryResult("SELECT count(*) as nbr2
-    FROM (
-        SELECT sample_master_id, count(*) as nbr
-        FROM aliquot_masters AliquotMasterProcessing
-        WHERE AliquotMasterProcessing.deleted <> 1
-        AND AliquotMasterProcessing.procure_created_by_bank = 'x'
-        GROUP BY sample_master_id
-    ) Res
-    WHERE Res.nbr > 1");
-if($counter[0]['nbr2']) die("ERR_LINE_".__LINE__);
-recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "One sample has been created per aliquot of the PS3 participants of Processing Site database.");
-    
 //=========================================================================================================================================
 // Change Processing Site sample type 'pbmc' to 'buffy coat' (revs table don't have to be managed at this level)
 //=========================================================================================================================================
@@ -757,11 +694,71 @@ $counter = $counter[0]['nbr'];
 if($counter) die("ERR_LINE_".__LINE__);
 recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/used elements.", "$initial_processing_site_pbmc_counter PBMC samples of the Processing Site database will be migrated as Buffy Coat into CUSM database.");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
-IF(FALSE) {
+//=========================================================================================================================================
+// Merge PS3 aliquots previously sent to the processing site
+//=========================================================================================================================================
+
+$query = "UPDATE collections CollectionProcessing, aliquot_masters AliquotMasterProcessing, sample_masters SampleMasterProcessing
+    SET AliquotMasterProcessing.procure_created_by_bank = 'x'
+    WHERE CollectionProcessing.deleted <> 1
+    AND CollectionProcessing.participant_id IS NULL
+    AND CollectionProcessing.collection_notes LIKE '%Temporary collection created by system to migrate data from ATiM Processing Site on $date_yyyy_mm_dd%'
+    AND CollectionProcessing.created LIKE '$date_yyyy_mm_dd%'
+    AND CollectionProcessing.created_by = '$imported_by'
+    AND SampleMasterProcessing.procure_created_by_bank = 's'
+    AND AliquotMasterProcessing.sample_master_id = SampleMasterProcessing.id
+    AND AliquotMasterProcessing.collection_id = CollectionProcessing.id
+    AND AliquotMasterProcessing.deleted <> 1
+    AND AliquotMasterProcessing.created LIKE '$date_yyyy_mm_dd%'
+    AND AliquotMasterProcessing.created_by = '$imported_by'
+    AND AliquotMasterProcessing.procure_created_by_bank = '$procure_cusm_ps_numer'";
+customQuery($query);
+
+// All processing site aliquots received from PS3 are linked to an internaluse euqals to 'received from bank PS3'
+$counter = getSelectQueryResult("SELECT count(*) as nbr
+    FROM aliquot_masters
+    WHERE procure_created_by_bank = 'x'
+    AND id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'received from bank' AND use_code = 'PS3')");
+if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "All aliquots of the PS3 participants of Processing Site database and migrated into CUSM database are linked to an 'event' equal to 'received from bank PS3'.");
+
+// All processing site aliquots received from PS3 are not in stock
+$counter = getSelectQueryResult("SELECT count(*) as nbr
+    FROM aliquot_masters AliquotMasterProcessing
+    WHERE AliquotMasterProcessing.deleted <> 1
+    AND AliquotMasterProcessing.procure_created_by_bank = 'x'
+    AND AliquotMasterProcessing.in_stock != 'no'");
+if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "All aliquots of the PS3 participants of Processing Site database and migrated into CUSM database have an in stock status equal to 'no'.");
+
+// All processing site aliquots received from PS3 are not linked to a study
+$counter = getSelectQueryResult("SELECT count(*) as nbr
+    FROM aliquot_masters AliquotMasterProcessing
+    WHERE AliquotMasterProcessing.deleted <> 1
+    AND AliquotMasterProcessing.procure_created_by_bank = 'x'
+    AND AliquotMasterProcessing.study_summary_id IS NOT NULL;");
+if($counter[0]['nbr']) die("ERR_LINE_".__LINE__);
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "No aliquot of the PS3 participants of Processing Site database is linked to a study.");
+
+// Two processing site aliquots received from PS3 are not linked to the same sample_master_id
+$counter = getSelectQueryResult("SELECT count(*) as nbr2
+    FROM (
+        SELECT sample_master_id, count(*) as nbr
+        FROM aliquot_masters AliquotMasterProcessing
+        WHERE AliquotMasterProcessing.deleted <> 1
+        AND AliquotMasterProcessing.procure_created_by_bank = 'x'
+        GROUP BY sample_master_id
+    ) Res
+    WHERE Res.nbr > 1");
+if($counter[0]['nbr2']) die("ERR_LINE_".__LINE__);
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "One sample has been created per aliquot of the PS3 participants of Processing Site database.");
+
+// Merge code
+$counter = getSelectQueryResult("SELECT count(*) as nbr
+    FROM aliquot_masters
+    WHERE procure_created_by_bank = 'x'");
+$processing_site_ps3_aliquot_counter = $counter[0]['nbr'];
+$merged_ps3_aliquot_counter = 0; 
 $query = "SELECT AliquotMasterProcessing.collection_id as processing_collection_id, 
     AliquotMasterProcessing.sample_master_id as processing_sample_master_id,
     AliquotMasterProcessing.id as processing_aliquot_master_id,
@@ -778,7 +775,7 @@ $query = "SELECT AliquotMasterProcessing.collection_id as processing_collection_
     FROM aliquot_masters AliquotMasterProcessing
     INNER JOIN aliquot_masters AliquotMasterCusm
         ON AliquotMasterCusm.deleted <> 1
-        AND AliquotMasterCusm.procure_created_by_bank = '3'
+        AND AliquotMasterCusm.procure_created_by_bank = '$procure_cusm_ps_numer'
         AND AliquotMasterProcessing.barcode = AliquotMasterCusm.barcode
         AND AliquotMasterProcessing.aliquot_control_id = AliquotMasterCusm.aliquot_control_id
     INNER JOIN sample_masters SampleMasterCusm
@@ -818,92 +815,117 @@ foreach(getSelectQueryResult($query) as $new_aliquot_match) {
         "UPDATE aliquot_internal_uses SET aliquot_master_id = $cusm_aliquot_master_id WHERE aliquot_master_id = $processing_aliquot_master_id;",
         "UPDATE source_aliquots SET aliquot_master_id = $cusm_aliquot_master_id WHERE aliquot_master_id = $processing_aliquot_master_id;");
     foreach($queries as $tmp_query) customQuery($tmp_query);
-    updateDerivatvieSamples($cusm_collection_id, $cusm_initial_specimen_sample_id, $cusm_initial_specimen_sample_type, $processing_sample_master_id);
+    updateDerivatvieSamplesAndAliquots($cusm_collection_id, $cusm_initial_specimen_sample_id, $cusm_initial_specimen_sample_type, $processing_sample_master_id);
     customQuery("UPDATE sample_masters SET parent_id = $cusm_sample_master_id, parent_sample_type = '$cusm_sample_type' WHERE parent_id = $processing_sample_master_id;");
-    
-    
+    customQuery("DELETE FROM ad_tubes WHERE aliquot_master_id = $processing_aliquot_master_id;");
+    customQuery("DELETE FROM aliquot_masters WHERE id = $processing_aliquot_master_id;");
+    $merged_ps3_aliquot_counter++;
 }
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/used elements.", "$merged_ps3_aliquot_counter/$processing_site_ps3_aliquot_counter PS3 aliquots of the Processing Site database CUSM have been merged with aliquot of the CUSM database.");
 
-function updateDerivatvieSamples($cusm_collection_id, $cusm_initial_specimen_sample_id, $cusm_initial_specimen_sample_type, $parent_sample_master_ids) {
-    $query = "SELECT IFNULL(GROUP_CONCAT( DISTINCT id SEPARATOR ','), '') as sample_master_ids FROM sample_masters WHERE deleted <> 1 AND parent_id IN ($parent_sample_master_ids);";
-        pr($query);
-    $sample_master_ids = getSelectQueryResult($query);
-    if($sample_master_ids[0]['sample_master_ids']) {
-pr($sample_master_ids);
-        exit;
-         
-        
+// Add aliquot events 'Sent to Processing Site' for PS3 aliquots linked to the cusm
+$query = "INSERT INTO aliquot_internal_uses (aliquot_master_id, type, use_code, use_details, created, created_by, modified, modified_by, procure_created_by_bank)
+    (SELECT id, 'sent to processing site', 'N/A', 'Data created by Processing Site Data merge script on $date_yyyy_mm_dd.', '$import_date', $imported_by, '$import_date', $imported_by, '$procure_cusm_ps_numer'
+    FROM aliquot_masters
+    WHERE procure_created_by_bank = '$procure_cusm_ps_numer'
+    AND id IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'received from bank' AND use_code = 'PS3')
+    AND id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'sent to processing site' AND use_code = 'PS3'))";
+customQuery($query);
+addToModifiedDatabaseTablesList('aliquot_internal_uses', null);
+$created_uses_nbr = getSelectQueryResult("SELECT count(*) as nbrst 
+    FROM aliquot_internal_uses 
+    WHERE created LIKE '$date_yyyy_mm_dd%' AND created_by = '$imported_by'
+    AND type = 'sent to processing site'");
+$created_uses_nbr = $created_uses_nbr[0]['nbrst'];
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/used elements.", "Created $created_uses_nbr aliquot events 'Sent to Processing Site'.");
+
+// Set aliquot in stock to no if shipped to processing site
+$query = "SELECT count(*) as nbr 
+    FROM aliquot_masters
+    WHERE deleted <> 1
+    AND in_stock != 'no'
+    AND id IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'received from bank' AND use_code = 'PS3')";
+$al_counter = getSelectQueryResult($query);
+$al_counter = $al_counter[0]['nbr'];
+recordErrorAndMessage("Migration Summary", '@@WARNING@@', "Number of created/used elements.", "Updated $al_counter PS3 aliquot sent to Processing Site to set the 'In Stock' value to 'no'.");
+$query = "UPDATE aliquot_masters 
+    SET in_stock = 'no', storage_master_id = null, storage_coord_x = '', storage_coord_y = '', modified = '$import_date', modified_by  = $imported_by
+    WHERE deleted <> 1
+    AND in_stock != 'no'
+    AND id IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1 AND type = 'received from bank' AND use_code = 'PS3')";
+customQuery($query);
+addToModifiedDatabaseTablesList('aliquot_masters', null);
+
+//=========================================================================================================================================
+// Delete collections created by the process with no more aliquot 
+// (PS3 aliquots previously sent to the processing site and merged with cusm collections)
+//=========================================================================================================================================
+
+$query = "SELECT SampleMaster.id AS sample_master_id
+    FROM sample_masters SampleMaster
+    WHERE SampleMaster.deleted <> 1
+    AND SampleMaster.created LIKE '$date_yyyy_mm_dd%'
+    AND SampleMaster.created_by = '$imported_by'
+    AND SampleMaster.collection_id IN (SELECT Collection.id FROM collections Collection WHERE created LIKE '$date_yyyy_mm_dd%' AND created_by = '$imported_by' AND Collection.collection_notes LIKE 'Temporary collection created by system to migrate data from AT%')
+    AND SampleMaster.id NOT IN (SELECT DISTINCT parent_id FROM sample_masters WHERE created LIKE '$date_yyyy_mm_dd%' AND created_by = '$imported_by' AND parent_id IS NOT NULL)
+    AND SampleMaster.id NOT IN (SELECT DISTINCT sample_master_id FROM aliquot_masters WHERE created LIKE '$date_yyyy_mm_dd%' AND created_by = '$imported_by')";
+$sample_to_delete = getSelectQueryResult($query);
+while($sample_to_delete) {
+    $sample_master_ids_to_delete = array('-1');    
+    foreach($sample_to_delete as $new_sample) {
+        $sample_master_ids_to_delete[] = $new_sample['sample_master_id'];
     }
-    
+    $sample_master_ids_to_delete = implode(',', $sample_master_ids_to_delete);
+    $sql_delete_queries = array(
+        "DELETE FROM derivative_details WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM specimen_details WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_der_pbmcs WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_der_dnas WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_spe_bloods WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_der_plasmas WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_spe_urines WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_der_urine_cents WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sd_der_buffy_coats WHERE sample_master_id IN ($sample_master_ids_to_delete)",
+        "UPDATE sample_masters SET initial_specimen_sample_id = null WHERE id IN ($sample_master_ids_to_delete)",
+        "DELETE FROM sample_masters WHERE id IN ($sample_master_ids_to_delete);"
+    );
+    foreach($sql_delete_queries as $custom_query) {
+        customQuery($custom_query);
+    }
+    $sample_to_delete = getSelectQueryResult($query);
 }
-pr("diff counter = $in_stock_diff_counter");
 
+$query = "DELETE FROM collections 
+    WHERE  created LIKE '$date_yyyy_mm_dd%' 
+    AND created_by = '$imported_by' 
+    AND collection_notes LIKE 'Temporary collection created by system to migrate data from AT%'
+    AND id NOT IN (SELECT SampleMaster.collection_id AS sample_master_id
+        FROM sample_masters SampleMaster
+        WHERE SampleMaster.deleted <> 1
+        AND SampleMaster.created LIKE '$date_yyyy_mm_dd%'
+        AND SampleMaster.created_by = '$imported_by');";
+customQuery($query);
 
+//=========================================================================================================================================
+// List PS3 aliquots found into processing site not merged with a real Ps3 aliquot 
+//=========================================================================================================================================
+
+// All processing site aliquots received from PS3 are linked to an internaluse euqals to 'received from bank PS3'
+$query = "SELECT aliquot_masters.barcode
+    FROM aliquot_masters
+    WHERE procure_created_by_bank = 'x'";
+foreach(getSelectQueryResult($query) as $ps3_aliquot) {
+    recordErrorAndMessage("Migration Summary", 
+        '@@ERROR@@', 
+        "PS3 aliquots existing into the Processing Site database that do not match aliquot into CUSM Site database. Clean up to do after migration.", 
+        "See aliquot '".$ps3_aliquot['barcode']."'");  
 }
-//ATTENTION to les aliquots sont des buffy coat... pas des pbmc
-/*
-
-
-aliquot_masters;
-| id                        | int(11)             | NO   | PRI | NULL    | auto_increment |
-| collection_id             | int(11)             | NO   | MUL | NULL    |                |
-| sample_master_id          | int(11)             | NO   | MUL | NULL    |                |
-
-sample_masters;
-| id                           | int(11)             | NO   | PRI | NULL    | auto_increment |
-| initial_specimen_sample_id   | int(11)             | YES  | MUL | NULL    |                |
-| initial_specimen_sample_type | varchar(30)         | NO   |     |         |                |
-| collection_id                | int(11)             | NO   | MUL | NULL    |                |
-       | varchar(30)         | YES  |     | NULL    |                |
-
-    
-
-    */
-    
-  
-    
-
-
-
-
-//TODO
-/*
- Pensez a flusher les sample inutils.
-Prendre les aliquots avec procure_created_by_bank = 3 des collections collections avec notes 'Temporary collection created by system to migrate data from ATiM Processing Site'
-Les fusionner avec les aliquots du cusm existant.
-
-Une fos fait le changement ci-dessus: Remplacer les sample et aliquot avec procure_created_by_bank = p par 3 puis les s par p.
-
-
- */
-
-
-
-
-
-
-
-
-
-
-
-//TODO Lier les aliquot PS3 de la collections avec notes 'Temporary collection created by system to migrate data from ATiM Processing Site' aux aliquots existants dans ATiM cusm
-//TODO Lister ce que nous n'arrivons pas à lier.
-//TODO n Sample et aliquot avec 'p' doivent être remplacé par '3'
-
-
-
-
-
-
-
 
 if($test_version) viewUpdate($date_yyyy_mm_dd, $imported_by);
 
 $final_queries = array(
-//TODO?    "UPDATE sample_masters SET procure_created_by_bank = '3' WHERE procure_created_by_bank = 'p';",
-//TODO?     "UPDATE aliquot_masters SET procure_created_by_bank = '3' WHERE procure_created_by_bank = 'p';",
-
+    "UPDATE sample_masters SET procure_created_by_bank = '$procure_cusm_ps_numer' WHERE procure_created_by_bank IN ('p', 'x');",
+    "UPDATE aliquot_masters SET procure_created_by_bank = '$procure_cusm_ps_numer' WHERE procure_created_by_bank IN ('p', 'x');",
     "UPDATE storage_masters SET code = id WHERE code LIKE 'tmp_%';",
     "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL;",
     "UPDATE sample_masters SET sample_code = id WHERE sample_code LIKE 'tmp_%';",
@@ -918,6 +940,18 @@ dislayErrorAndMessage(true);
 //=========================================================================================================================================
 // Functions
 //=========================================================================================================================================
+
+function updateDerivatvieSamplesAndAliquots($cusm_collection_id, $cusm_initial_specimen_sample_id, $cusm_initial_specimen_sample_type, $parent_sample_master_ids) {
+    $query = "SELECT IFNULL(GROUP_CONCAT( DISTINCT id SEPARATOR ','), '') as sample_master_ids FROM sample_masters WHERE deleted <> 1 AND parent_id IN ($parent_sample_master_ids);";
+    $sample_master_ids = getSelectQueryResult($query);
+    if($sample_master_ids[0]['sample_master_ids']) {
+        customQuery("UPDATE sample_masters 
+            SET collection_id = $cusm_collection_id, initial_specimen_sample_id = $cusm_initial_specimen_sample_id, initial_specimen_sample_type = '$cusm_initial_specimen_sample_type' 
+            WHERE id IN (".$sample_master_ids[0]['sample_master_ids'].");");
+        customQuery("UPDATE aliquot_masters SET collection_id = $cusm_collection_id WHERE sample_master_id IN (".$sample_master_ids[0]['sample_master_ids'].");");
+        updateDerivatvieSamplesAndAliquots($cusm_collection_id, $cusm_initial_specimen_sample_id, $cusm_initial_specimen_sample_type, $sample_master_ids[0]['sample_master_ids']);
+    }
+}
 
 function viewUpdate($date_yyyy_mm_dd, $imported_by) {
     $insert = false;
