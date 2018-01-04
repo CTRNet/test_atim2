@@ -34,7 +34,9 @@ Participant.procure_participant_attribution_number,
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$title = empty($collection_data['ViewCollection']['participant_identifier'])? '?' : $collection_data['ViewCollection']['participant_identifier'];
+			$title = empty($collection_data['ViewCollection']['participant_identifier'])? 
+                ($collection_data['ViewCollection']['procure_visit'] == 'Controls'? 'Controls' : '?') : 
+                $collection_data['ViewCollection']['participant_identifier'];
 			$date = empty($collection_data['ViewCollection']['collection_datetime'])? '' : ' '.substr($collection_data['ViewCollection']['collection_datetime'],0,strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
 			$return = array(
 				'menu' => array(null, $title . $date),
