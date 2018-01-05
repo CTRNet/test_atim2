@@ -531,7 +531,3 @@ Configure::write('procure_bank_id', '3');
 Configure::write('procure_atim_version', 'BANK');
 
 Configure::write('procure_banks_data_merge_output_file', 'atim_merge_process_summary.htm');
-
-/*** PROCURE CUSM ******************************************************************************************/
-Configure::write('sqlFileFullPath', 'sqlDataBackup/1234.sql');
-/*** END PROCURE CUSM ******************************************************************************************/
