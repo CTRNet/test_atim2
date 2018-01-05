@@ -2489,7 +2489,7 @@ UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
 -- Query should be executed on all server
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetime like '0000-00-00';
+UPDATE realiquotings SET realiquoting_datetime = NULL WHERE CAST(realiquoting_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2691,7 +2691,7 @@ VALUES
 
 SET @aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc'));
 SET @modified = (SELECT NOW() FROM users limit 0, 1);
-SET @created = (SELECT id FROM users where username = 'system'); 
+SET @modified_by = (SELECT id FROM users where username = 'system'); 
 UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail
 SET AliquotDetail.procure_time_at_minus_80_days = DATEDIFF(AliquotMaster.storage_datetime, AliquotDetail.procure_date_at_minus_80),
 AliquotMaster.modified = @modified,
@@ -2736,10 +2736,383 @@ UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6743', site_branch_build_number = '????' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
 
+-- 2017-11-07
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- Claire veut changer un type de drug.
--- Importer le site de lucie sur central. Voire pourquoi si on cherche bcr sur central.... on a un site sans sans le flag du site 'PS...' comme PS1, PS2, etc.
--- Voir si on peut nettoyer les données des sites. Ex: Clinical Exam les champs positif, clinical replase peuvent etre compltetes a partir des notes;
+-- Last Contact
+
+SELECT "Added a new field 'Last Contact' to the participant form. Review each installation and check this field is not duplicated like at the CHUM." AS '### WARNING ###';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_last_contact', 'date',  NULL , '0', '', '', 'procure_help_last_contact', 'last contact', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_last_contact_details', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', '', 'details');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_last_contact' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_help_last_contact' AND `language_label`='last contact' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_last_contact_details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE participants 
+  ADD COLUMN procure_last_contact date DEFAULT NULL,
+  ADD COLUMN procure_last_contact_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN procure_last_contact_details text;
+ALTER TABLE participants_revs 
+  ADD COLUMN procure_last_contact date DEFAULT NULL,
+  ADD COLUMN procure_last_contact_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN procure_last_contact_details text;
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_last_contact_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET `language_label`='last contact details',  `language_tag`='' WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_last_contact_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('last contact', 'Last Contact', 'Dernier Contact'),
+('last contact details', 'Details (Last Contact)', 'Détails (Dernier Contact)'),
+('procure_help_last_contact', 
+"Date when the patient was seen by a person from the hospital or bank, contacted or defined as 'alive' by a trusted source",
+"Date à laquelle le patient à été vu par une personne de l'hôpital ou de la banque, a été contacté ou a été défini comme 'En vie' par une source 'de confiance'.");
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
+UPDATE `structure_permissible_values_customs`
+SET use_as_input = '0' 
+WHERE value = 'survival date' AND control_id = @control_id;
+ 
+SELECT CONCAT(count(*), " clinical note(s) was/were flagged as 'survival date'. Please update participant last contact if required.") AS '###WARNING###'
+FROM event_masters INNER JOIN procure_ed_clinical_notes ON id = event_master_id 
+WHERE deleted <> 1 AND type = 'survival date';
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("the 'last contact date' is currently set to '%s'", "The 'last contact date' is currently '%s'.", "La date de dernier contacte est actuellement '%s'."),
+('set last contact date to the date of the visit of the form you compelted today', "Set by default the 'Last contact' date to the date of the visit of the form you compelted today.", 
+ "La date du dernier contact a été mise par défaut à la date du formulaire de visite que vous avez complété aujourd'hui.");
+
+-- Remove Study Menu
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '%/EventMasters/listall/Study%';
+SELECT 'At least one event_controls group is equal to study' as '###WARNING###' from event_controls where flag_active = 1 AND event_group = 'study';
+
+-- Labo
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('procure_ed_followup_worksheet_aps_help',
+"Set the PSA value as a biochemical recurrence only when this recurrence is identified by the project physician/clinician or by a project 'competent' person and this recurrence has not been previously defined (unless the physiscian defined it as a new recurrence). Add a note to calrify the annotation if required.",
+"Ne définissez la valeur de PSA comme une récurrence biochimique que si cette récurrence est identifiée par le médecin/clinicien ou par une personne 'compétente' du projet et si cette récurrence n'a pas été définie précédemment (sauf si le médecin l'a définie comme une nouvelle récurrence). Ajouter une note au besoin pour clarifier l'annotation.");
+
+ALTER TABLE procure_ed_laboratories ADD COLUMN bcr_definition_precision text;
+ALTER TABLE procure_ed_laboratories_revs ADD COLUMN bcr_definition_precision text;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_laboratories', 'bcr_definition_precision', 'textarea',  NULL , '0', 'rows=1,cols=30', '', 'procure_help_bcr_definition_precision', 'bcr_definition_precision', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_laboratories'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_laboratories' AND `field`='bcr_definition_precision' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='procure_help_bcr_definition_precision' AND `language_label`='bcr_definition_precision' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+("bcr_definition_precision", "Biochemical Relapse Precision", "Récidive biochimique - Précision"),
+("procure_help_bcr_definition_precision", 
+"Any information (if required) on the person who identified the biochemical relapse and the criteria that led to this diagnosis.", 
+"Toute information (si nécessaire) sur la personne qui a identifié la rechute biochimique et les critères qui ont conduit à ce diagnostic.");
+
+-- Traitement
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_treatments' AND `field`='treatment_line' AND `language_label`='line' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_line') AND `language_help`='procure_help_treatment_line' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_treatments' AND `field`='treatment_line' AND `language_label`='line' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_line') AND `language_help`='procure_help_treatment_line' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_treatments' AND `field`='treatment_line' AND `language_label`='line' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_line') AND `language_help`='procure_help_treatment_line' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+ALTER TABLE procure_txd_treatments CHANGE treatment_line procure_deprecated_field_treatment_line varchar(3) default null;
+ALTER TABLE procure_txd_treatments_revs CHANGE treatment_line procure_deprecated_field_treatment_line varchar(3) default null;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("procure_dose_frequence_change_warning",
+"Please create a new treatment record if the dose and/or the frequency changed over the time with the start and the finish dates completed.",
+"Veuillez créer un nouveau traitement si la dose et/ou la fréquence ont changé au cours du temps en saissant les dates de début et de fin.");
+
+-- refusal / withdrawal
+
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_patient_withdrawn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_next_collections_refusal', 'checkbox',  NULL , '0', '', '', 'procure_help_next_collections_refusal', 'refusal to participate to next collections', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_next_collections_refusal' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_help_next_collections_refusal' AND `language_label`='refusal to participate to next collections' AND `language_tag`=''), '3', '39', 'refusal / withdrawal', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('refusal / withdrawal', 'Refusal/Withdrawal', 'Refus/Désistement'),
+('refusal to participate to next collections',
+"Refusal Next Collections",
+"Refus des prochaines collections"),
+("procure_help_next_collections_refusal",
+"Refusal to participate to next collections",
+"Refus de participer aux prochaines collections");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_next_visits_refusal', 'checkbox',  NULL , '0', '', '', 'procure_help_next_visits_refusal', 'refusal to participate to next visits', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_next_visits_refusal' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_help_next_visits_refusal' AND `language_label`='refusal to participate to next visits' AND `language_tag`=''), '3', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('refusal to participate to next visits',
+"Refusal Next Visits",
+"Refus des prochaines visits"),
+("procure_help_next_visits_refusal",
+"Refusal to participate to next visits",
+"Refus de participer aux prochaines collections");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_refusal_to_be_contacted', 'checkbox',  NULL , '0', '', '', 'procure_help_refusal_to_be_contacted', 'refusal to be contacted', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_refusal_to_be_contacted' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_help_refusal_to_be_contacted' AND `language_label`='refusal to be contacted' AND `language_tag`=''), '3', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('refusal to be contacted',
+"Refusal To Be Contacted",
+"Refus d'être contacté"),
+("procure_help_refusal_to_be_contacted",
+"Refusal to be contacted",
+"Refus d'être contacté");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_clinical_file_update_refusal', 'checkbox',  NULL , '0', '', '', 'procure_help_clinical_file_update_refusal', 'clinical file update refusal', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_clinical_file_update_refusal' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_help_clinical_file_update_refusal' AND `language_label`='clinical file update refusal' AND `language_tag`=''), '3', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('clinical file update refusal',
+"Clinical File Update Refusal",
+"Refus de mise à jour du dossier clinique"),
+("procure_help_clinical_file_update_refusal",
+"Clinical File Update Refusal",
+"Refus de mise à jour du dossier clinique");
+
+ALTER TABLE participants
+  ADD COLUMN procure_next_collections_refusal tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_next_visits_refusal tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_refusal_to_be_contacted tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_clinical_file_update_refusal tinyint(1) DEFAULT '0',
+  CHANGE procure_patient_withdrawn_date procure_patient_refusal_withdrawal_date date DEFAULT NULL,
+  CHANGE procure_patient_withdrawn_date_accuracy procure_patient_refusal_withdrawal_date_accuracy char(1) NOT NULL DEFAULT '',
+  CHANGE procure_patient_withdrawn_reason procure_patient_refusal_withdrawal_reason text;
+ALTER TABLE participants_revs
+  ADD COLUMN procure_next_collections_refusal tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_next_visits_refusal tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_refusal_to_be_contacted tinyint(1) DEFAULT '0',
+  ADD COLUMN procure_clinical_file_update_refusal tinyint(1) DEFAULT '0',
+  CHANGE procure_patient_withdrawn_date procure_patient_refusal_withdrawal_date date DEFAULT NULL,
+  CHANGE procure_patient_withdrawn_date_accuracy procure_patient_refusal_withdrawal_date_accuracy char(1) NOT NULL DEFAULT '',
+  CHANGE procure_patient_withdrawn_reason procure_patient_refusal_withdrawal_reason text;
+UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_date' WHERE field = 'procure_patient_withdrawn_date';
+UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_reason' WHERE field = 'procure_patient_withdrawn_reason';
+
+-- Drug Type (hide)
+
+SELECT Drug.generic_name AS 'Drug name used more than once', Drug.type, IF(Drug.procure_study = 1, 'Yes', 'No') AS 'Is study', count(*) AS 'Nbr Of Record(s)'
+FROM drugs Drug,
+(
+  SELECT generic_name AS dup_generic_name, count(*) AS nbr_records
+  FROM drugs
+  WHERE deleted <> 1
+  GROUP BY generic_name
+) AS DrugDupTmp
+WHERE DrugDupTmp.dup_generic_name = Drug.generic_name
+AND DrugDupTmp.nbr_records > 1
+AND Drug.deleted <> 1
+GROUP BY Drug.generic_name, Drug.procure_study, Drug.type;
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('system') ORDER by username desc LIMIT 0, 1);
+
+UPDATE treatment_masters TreatmentMaster, drugs Drug,
+(
+  SELECT Drug.id, Drug.generic_name, Drug.procure_study
+  FROM drugs Drug,
+  (
+    SELECT generic_name AS dup_generic_name, count(*) AS nbr_records
+    FROM drugs
+    WHERE deleted <> 1
+    GROUP BY generic_name
+  ) AS DrugDupTmp
+  WHERE DrugDupTmp.dup_generic_name = Drug.generic_name
+  AND DrugDupTmp.nbr_records > 1
+  AND Drug.deleted <> 1
+) DrugDup
+SET TreatmentMaster.procure_drug_id = DrugDup.id,
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.procure_drug_id = Drug.id
+AND Drug.deleted <> 1
+AND Drug.generic_name = DrugDup.generic_name
+AND Drug.procure_study = DrugDup.procure_study;
+
+INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+version_created, modified_by)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+modified, modified_by FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_treatments_revs(treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+version_created)
+(SELECT treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+modified
+FROM treatment_masters INNER JOIN procure_txd_treatments ON id = treatment_master_id 
+AND modified = @modified AND modified_by = @modified_by);
+
+UPDATE drugs Drug,
+(
+  SELECT Drug.id
+  FROM drugs Drug,
+  (
+    SELECT generic_name AS dup_generic_name, count(*) AS nbr_records
+    FROM drugs
+    WHERE deleted <> 1
+    GROUP BY generic_name
+  ) AS DrugDupTmp
+  WHERE DrugDupTmp.dup_generic_name = Drug.generic_name
+  AND DrugDupTmp.nbr_records > 1
+  AND Drug.deleted <> 1
+) DrugDup
+SET Drug.deleted = 1,
+Drug.modified = @modified,
+Drug.modified_by = @modified_by
+WHERE Drug.deleted <> 1
+AND DrugDup.id = Drug.id
+AND DrugDup.id NOT IN (SELECT TreatmentMaster.procure_drug_id FROM treatment_masters TreatmentMaster WHERE deleted <> 1 AND TreatmentMaster.procure_drug_id IS NOT NULL);
+
+INSERT INTO drugs_revs (id, generic_name, trade_name, type, description, modified_by, version_created, procure_study)
+(SELECT id, generic_name, trade_name, type, description, modified_by, modified, procure_study 
+FROM drugs 
+WHERE modified = @modified AND modified_by = @modified_by);
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('system') ORDER by username desc LIMIT 0, 1);
+
+UPDATE drugs SET type = '' WHERE deleted <> 1;
+INSERT INTO drugs_revs (id, generic_name, trade_name, type, description, modified_by, version_created, procure_study)
+(SELECT id, generic_name, trade_name, type, description, modified_by, modified, procure_study 
+FROM drugs 
+WHERE deleted <> 1);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='drugs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Drug' AND `tablename`='drugs' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_drug_type') AND `flag_confidential`='0');
+
+UPDATE drugs SET generic_name = REPLACE(REPLACE(generic_name, ' (Experimental Treatment)', ''), ' (Traitement expérimental', '');
+UPDATE drugs_revs SET generic_name = REPLACE(REPLACE(generic_name, ' (Experimental Treatment)', ''), ' (Traitement expérimental', '');
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+('the drug [%s] has already been recorded',
+"The drug [%s] has already been recorded.",
+"Le médicament [%s] a déjà été enregistré."),
+('you can not record drug [%s] twice',
+"You can not record drug [%s] twice.",
+"Vous ne pouvez pas enregistrer le médicament [%s] deux fois.");
+
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Drug' AND `tablename`='drugs' AND `field`='type');
+
+-- Next Followup Report
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_next_followup_data_notes', 'textarea',  NULL , '0', '', '', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_next_followup_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_next_followup_data_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET sortable = '0' WHERE field = 'procure_next_followup_data_notes';
+INSERT INTO i18n (id,en,fr)
+VALUES
+('participants with refusal or withdrawal', 'At least one participant is a participant with refusal or withdrawal', "Au moins un participant est un participant avec refus ou retrait");
+INSERT INTO i18n (id,en,fr) VALUES ('aborted', 'Aborted', 'Abandonné(e)');
+
+UPDATE versions SET branch_build_number = '6918', site_branch_build_number = '????' WHERE version_number = '2.6.8';
+
+-- Participant Lost Contact
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_contact_lost', 'checkbox',  NULL , '0', '', '', '', 'lost contact', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_contact_lost' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lost contact' AND `language_tag`=''), '3', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `language_heading`='refusal / withdrawal / lost contact' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_next_collections_refusal' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE participants
+  ADD COLUMN procure_contact_lost tinyint(1) DEFAULT '0';
+ALTER TABLE participants_revs
+  ADD COLUMN procure_contact_lost tinyint(1) DEFAULT '0';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('lost contact', 'Lost Contact', 'Contact perdu'),
+('refusal / withdrawal / lost contact', 'Refusal / Withdrawal / Lost Contact', 'Refus / Désistement / Contact perdu');
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_contact_lost' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Medication Type Fusion
+  
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Types (PROCURE values only)');
+UPDATE structure_permissible_values_customs SET deleted = 1 WHERE control_id = @control_id AND value IN ('open sale medication', 'other diseases medication', 'prostate medication');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('medication' ,'Medication', 'Médicament ', '1', @control_id, NOW(), '1', NOW(), '1');
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+UPDATE treatment_masters SET modified = @modified, modified_by = @modified_by
+WHERE deleted <> 1 AND id IN (
+  SELECT treatment_master_id FROM procure_txd_treatments WHERE treatment_type IN ('open sale medication', 'other diseases medication', 'prostate medication')
+);
+UPDATE procure_txd_treatments 
+SET treatment_type = 'medication'
+WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted <> 1)
+AND treatment_type IN ('open sale medication', 'other diseases medication', 'prostate medication');
+INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+version_created, modified_by)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
+protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
+modified, modified_by FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_treatments_revs(treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+version_created)
+(SELECT treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+procure_deprecated_field_treatment_line,duration,surgery_type,
+modified
+FROM treatment_masters INNER JOIN procure_txd_treatments ON id = treatment_master_id 
+AND modified = @modified AND modified_by = @modified_by);
+
+-- Cause of death : Unknown
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+-- Added collection of controls
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+SET @procure_collected_by_bank = (SELECT procure_collected_by_bank FROM collections ORDER by id LIMIT 0,1);
+INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `collection_datetime_accuracy`, `sop_master_id`, `collection_property`, 
+`collection_notes`, `participant_id`, `diagnosis_master_id`, `consent_master_id`, `treatment_master_id`, `event_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, 
+`procure_deprecated_field_procure_patient_identity_verified`, `procure_visit`, `procure_collected_by_bank`) VALUES
+(null, '', NULL, NULL, NULL, '', NULL, 'independent collection', 
+'Collection created to track all controls used by the PROCURE banks.', NULL, NULL, NULL, NULL, NULL, @modified, @modified_by, @modified, @modified_by, 0,
+ 0, 'Controls', @procure_collected_by_bank);
+UPDATE versions set permissions_regenerated = 0;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('control collection - no data can be updated', 'Collection of controls! No data can be updated!', "Collection de contrôles! Aucune donnée ne peut être mise à jour!"),
+('control collection - collection can not be deleted', 'Collection of controls! Collection can not be deleted!', "Collection de contrôles! La collection ne peut pas être supprimée!");
+
+-- Remove processing site from the list procure_banks list
+
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_banks");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="PS1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="PS2"), "1", "2"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="PS3"), "1", "3"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="PS4"), "1", "4"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="s" AND language_alias="system option"), "1", "100");
+
+
+
+
+
+
+
+
+
+ 	
+ 	procure_txd_treatments
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
@@ -2760,4 +3133,11 @@ UPDATE versions SET permissions_regenerated = 0;
 -- 
 -- -4- Mettre champ du site dans le label (ex: Protocol (Ch. CUSM)
 -- 
+-- -5- Central 
+--
+-- Importer le site de lucie sur central. Voire pourquoi si on cherche bcr sur central.... on a un site sans sans le flag du site 'PS...' comme PS1, PS2, etc.
+-- 
+-- -5- Clinical Data Clean Up
+--
+-- Voir si on peut nettoyer les données des sites. Ex: Clinical Exam les champs positif, clinical replase peuvent etre compltetes a partir des notes;
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

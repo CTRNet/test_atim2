@@ -1117,13 +1117,31 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		//Get participants data
+		
+		$participants_with_refusal_or_withrawal = array();
+
+		$record_template = array(
+		    '0' => array(
+		        'procure_next_followup_data' => '',
+		        'procure_next_followup_data_precision' => '',
+		        'procure_next_followup_value' => '',
+		        'procure_next_followup_date' => '',
+		        'procure_next_followup_finish_date' => '',
+		        'procure_next_followup_data_notes' => ''));
+		
 		$query = "SELECT
 			Participant.id,
 			Participant.participant_identifier,
 			Participant.first_name,
 			Participant.last_name,
 			Participant.date_of_birth,
-			Participant.date_of_birth_accuracy
+			Participant.date_of_birth_accuracy,
+		    notes,
+		    procure_patient_withdrawn,
+		    procure_next_collections_refusal,
+		    procure_next_visits_refusal,
+		    procure_refusal_to_be_contacted,
+		    procure_clinical_file_update_refusal	    
 			FROM participants Participant
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$participant_data = $participant_model->query($query);
@@ -1147,12 +1165,6 @@ class ReportsControllerCustom extends ReportsController {
 		    $is_first_participant = false;
 		    
 		    $new_participant_id = $new_participant['Participant']['id'];
-			$record_template = array(
-				'0' => array(
-					'procure_next_followup_data' => '', 
-					'procure_next_followup_value' => '', 
-					'procure_next_followup_date' => '', 
-					'procure_next_followup_finish_date' => ''));
 			
 			//*** Patient Profile ***
 			
@@ -1161,6 +1173,23 @@ class ReportsControllerCustom extends ReportsController {
 			$new_data['0']['procure_next_followup_value'] = $new_participant['Participant']['participant_identifier'];
 			$new_data['0']['procure_next_followup_date'] = '';
 			$new_data['0']['procure_next_followup_finish_date'] = '';
+			$new_data['0']['procure_next_followup_data_notes'] = $new_participant['Participant']['notes'];
+			
+			if($new_participant['Participant']['procure_patient_withdrawn']) {
+			    $participants_with_refusal_or_withrawal[] = $new_participant['Participant']['participant_identifier'];
+			    $new_data['0']['procure_next_followup_value'] .= ' -- '.__('warning').' : '.__('patient withdrawn');
+			} else {
+			    $refusal_details = array();
+			    if($new_participant['Participant']['procure_next_collections_refusal']) $refusal_details[] = __('refusal to participate to next collections');
+			    if($new_participant['Participant']['procure_next_visits_refusal']) $refusal_details[] = __('refusal to participate to next visits');
+			    if($new_participant['Participant']['procure_refusal_to_be_contacted']) $refusal_details[] = __('refusal to be contacted');
+			    if($new_participant['Participant']['procure_clinical_file_update_refusal']) $refusal_details[] = __('clinical file update refusal');
+			    if($refusal_details) {
+                    $participants_with_refusal_or_withrawal[] = $new_participant['Participant']['participant_identifier'];
+			        $new_data['0']['procure_next_followup_value'] .= ' -- '.__('warning').' : '.implode(' & ', $refusal_details).'.';
+			    }
+			}
+			
 			$data[] = $new_data;
 			
 			if($flag_show_confidential) {
@@ -1243,12 +1272,13 @@ class ReportsControllerCustom extends ReportsController {
 			    'conditions' => array(
                     'TreatmentMaster.participant_id' => $new_participant_id, 
 			        'TreatmentControl.tx_method' => 'treatment', 
-                    'TreatmentDetail.surgery_type' => 'prostatectomy'), 
+                    'TreatmentDetail.surgery_type' => array('prostatectomy', 'prostatectomy aborted')), 
 			    'order' => 'TreatmentMaster.start_date ASC',
 			    'joins' => array($tx_join)));
 			$new_data = $record_template;
 			$new_data['0']['procure_next_followup_data'] = __('prostatectomy');
 			if($prostatectomy_data) {
+			    if($prostatectomy_data['TreatmentDetail']['surgery_type'] == 'prostatectomy aborted') $new_data['0']['procure_next_followup_data'] .= ' ('.__('aborted').')';		    
 			    if(empty($prostatectomy_data['TreatmentMaster']['start_date'])) {
 			        $new_data['0']['procure_next_followup_value'] = __('date').' : '.__('unknown');
 			    } else {
@@ -1261,6 +1291,7 @@ class ReportsControllerCustom extends ReportsController {
 			            if($prostatectomy_data['TreatmentMaster']['start_date_accuracy'] != 'c') $new_data['0']['procure_next_followup_value'] .= ' ('.__('inaccurate date use').')';
 			        }
 			    }
+			    $new_data['0']['procure_next_followup_data_notes'] = $prostatectomy_data['TreatmentMaster']['notes'];
 			} else {
 			    $new_data['0']['procure_next_followup_value'] = __('none');
 			}
@@ -1462,33 +1493,34 @@ class ReportsControllerCustom extends ReportsController {
 			}
 			
 			//*** Last clinical event ***
-				
+			
+			$sub_data_space = ' . . . . . . . . : ';
+			
 			$all_atim_data = $event_model->find('all', array(
 			    'conditions' => array(
 			        'EventMaster.participant_id' => $new_participant_id, 
 			        'EventControl.event_type' => 'clinical exam'), 
 			    'order' => 'EventMaster.event_date DESC', 
 			    'limit' => $last_record_nbr));
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('last clinical event');
 			if(!$all_atim_data) {
-				$new_data = $record_template;
-				$new_data['0']['procure_next_followup_data'] = __('last clinical event');
 				$new_data['0']['procure_next_followup_value'] = __('none');
 				$data[] = $new_data;
 			} else {
-				$is_first_record = true;
+				$data[] = $new_data;
 				foreach($all_atim_data as $atim_data) {
 					$new_data = $record_template;
-					$new_data['0']['procure_next_followup_data'] = $is_first_record? __('last clinical event') : '';
+					$new_data['0']['procure_next_followup_data'] = $sub_data_space.$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Clinical Exam - Types (PROCURE values only)', $atim_data['EventDetail']['type']);
 					$new_data['0']['procure_next_followup_value'] = implode(' - ', array_filter(array(
-						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Clinical Exam - Types (PROCURE values only)', $atim_data['EventDetail']['type']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Clinical Exam - Sites (PROCURE values only)', $atim_data['EventDetail']['site_precision']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Clinical Exam - Results (PROCURE values only)', $atim_data['EventDetail']['results']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Progressions & Comorbidities (PROCURE values only)', $atim_data['EventDetail']['progression_comorbidity']),
 						(($atim_data['EventDetail']['clinical_relapse'] == 'y')? __('clinical relapse'): '')
 					)));
 					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['EventMaster']['event_date'], $atim_data['EventMaster']['event_date_accuracy']);
+					$new_data['0']['procure_next_followup_data_notes'] = $atim_data['EventMaster']['event_summary'];
 					$data[] = $new_data;
-					$is_first_record = false;
 				}
 			}
 			
@@ -1501,27 +1533,28 @@ class ReportsControllerCustom extends ReportsController {
                     'TreatmentMaster.finish_date IS NOT NULL'), 
 			    'order' => 'TreatmentMaster.finish_date DESC', 
 			    'limit' => $last_record_nbr));
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('last completed treatment');
 			if(!$all_atim_data) {
-				$new_data = $record_template;
-				$new_data['0']['procure_next_followup_data'] = __('last completed treatment');
 				$new_data['0']['procure_next_followup_value'] = __('none');
 				$data[] = $new_data;
 			} else {
-				$is_first_record = true;
+				$data[] = $new_data;
 				foreach($all_atim_data as $atim_data) {
 					$new_data = $record_template;
-					$new_data['0']['procure_next_followup_data'] = $is_first_record? __('last completed treatment') : '';
+					$new_data['0']['procure_next_followup_data'] = $sub_data_space.$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Types (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_type']);
 					$new_data['0']['procure_next_followup_value'] =  implode(' - ', array_filter(array(
-						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Types (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_type']),
 						$atim_data['Drug']['generic_name'],
+					    (strlen($atim_data['TreatmentDetail']['dosage'])? __('dose').': '.$atim_data['TreatmentDetail']['dosage'] : ''),
+					    (strlen($atim_data['TreatmentDetail']['duration'])? __('frequency').': '.$atim_data['TreatmentDetail']['duration'] : ''),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Sites (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_site']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Precisions (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_precision']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Surgery Types (PROCURE values only)', $atim_data['TreatmentDetail']['surgery_type'])
 					)));
 					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
 					$new_data['0']['procure_next_followup_finish_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['finish_date_accuracy']);
+					$new_data['0']['procure_next_followup_data_notes'] = $atim_data['TreatmentMaster']['notes'];
 					$data[] = $new_data;
-					$is_first_record = false;
 				}
 			}
 			
@@ -1533,14 +1566,17 @@ class ReportsControllerCustom extends ReportsController {
 			        'TreatmentControl.tx_method' => 'treatment', 
                     'TreatmentMaster.finish_date IS NULL'), 
 			    'order' => 'TreatmentMaster.start_date DESC'));
+		    $new_data = $record_template;
+		    $new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
 			if($all_atim_data) {
-			    $is_first_record = true;
+			    $data[] = $new_data;
 				foreach($all_atim_data as $atim_data) {
 					$new_data = $record_template;
-					$new_data['0']['procure_next_followup_data'] = $is_first_record? __('ongoing treatment') : '';
+					$new_data['0']['procure_next_followup_data'] = $sub_data_space.$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Types (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_type']);
 					$new_data['0']['procure_next_followup_value'] =  implode(' - ', array_filter(array(
-						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Types (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_type']),
 						$atim_data['Drug']['generic_name'],
+					    (strlen($atim_data['TreatmentDetail']['dosage'])? __('dose').': '.$atim_data['TreatmentDetail']['dosage'] : ''),
+					    (strlen($atim_data['TreatmentDetail']['duration'])? __('frequency').': '.$atim_data['TreatmentDetail']['duration'] : ''),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Sites (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_site']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Treatment Precisions (PROCURE values only)', $atim_data['TreatmentDetail']['treatment_precision']),
 						$StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Surgery Types (PROCURE values only)', $atim_data['TreatmentDetail']['surgery_type'])
@@ -1548,15 +1584,17 @@ class ReportsControllerCustom extends ReportsController {
 					$procure_next_followup_date = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
 					$new_data['0']['procure_next_followup_date'] = strlen($procure_next_followup_date)? $procure_next_followup_date : '______ / ___ / ___';
 					$new_data['0']['procure_next_followup_finish_date'] = '______ / ___ / ___';
+					$new_data['0']['procure_next_followup_data_notes'] = $atim_data['TreatmentMaster']['notes'];
 					$data[] = $new_data;
-					$is_first_record = false;
 				}
 			} else {
-				$new_data = $record_template;
-				$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
 				$new_data['0']['procure_next_followup_value'] = __('none');
 				$data[] = $new_data;
 			}
+		}
+		
+		if($participants_with_refusal_or_withrawal) {
+		    AppController::addWarningMsg(__('participants with refusal or withdrawal').' : '.implode('& ', $participants_with_refusal_or_withrawal).'!');
 		}
         
 		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
@@ -1742,17 +1780,24 @@ class ReportsControllerCustom extends ReportsController {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
-		    
-		    pr('todo');pr($parameters);exit;
-			$procure_created_by_bank  = array_filter($parameters['']['procure_created_by_bank']);
-			$conditions[] = ".procure_created_by_bank IN ('".implode("','",$procure_created_by_bank)."')";
-			$header = array(
-                'title' => __('report linuited to').' :' .implode(" ,",$procure_created_by_bank).'.',
-                'description' => '');
-			if(in_array('p', $procure_created_by_bank) || in_array('s', $procure_created_by_bank)) {
-				$check_procure_created_by_bank = implode('',$procure_created_by_bank);
-				if(in_array($check_procure_created_by_bank, array('p','s','ps','sp'))) $conditions = array(".procure_created_by_bank = '-1'");
-			}
+		    $tmp_conditions = array();
+		    $procure_ps_nbrs = array();
+		    foreach($parameters['0']['procure_participant_identifier_prefix'] as $tmp_new_prefix) {
+		        if(in_array($tmp_new_prefix, array('1', '2', '3', '4'))) {
+		          $tmp_conditions[] = "Participant.participant_identifier LIKE 'PS$tmp_new_prefix%'";
+		          $procure_ps_nbrs[] = "PS$tmp_new_prefix";
+		        } else if(strlen($tmp_new_prefix)) {
+		          $tmp_conditions[] = "Participant.participant_identifier LIKE '-1'";
+		        }
+		    }
+		    if($tmp_conditions) {
+		        $conditions[] = "(".implode(' OR ', $tmp_conditions).")";
+		    }
+		    if($procure_ps_nbrs) {
+    		    $header = array(
+                    'title' => __('report limited to').' : ' .implode(", ",$procure_ps_nbrs).'.',
+                    'description' => '');
+		    }
 		}
 		
 		//Get Data
@@ -1795,7 +1840,7 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $new_participant_id) {
 		    $participant_ids[] = $new_participant_id['Participant']['id'];
 		}
-		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids); 
+		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids);
 		
         // Get number of participants with visit and/or collection
 		
@@ -1948,29 +1993,37 @@ class ReportsControllerCustom extends ReportsController {
 		// Get number of participants with clinical data updated
 		
 		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
-            SELECT DISTINCT res1.participant_id, res1.record_year, res1.record_month FROM (
-                SELECT DISTINCT id as participant_id, 
-            		YEAR(version_created) AS record_year,
-                    LPAD(MONTH(version_created), 2, '0') AS record_month
-            		FROM participants_revs
-            		WHERE version_created > '$start_date' 
-                    AND version_created <= '$end_date'
+                SELECT DISTINCT res1.participant_id, res1.record_year, res1.record_month FROM (
+                    SELECT DISTINCT id as participant_id, 
+            		YEAR(date_of_death) AS record_year,
+                    LPAD(MONTH(date_of_death), 2, '0') AS record_month
+            		FROM participants
+            		WHERE date_of_death > '$start_date' 
+                    AND date_of_death <= '$end_date'
                     AND id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
-            		YEAR(version_created) AS event_year,
-                    LPAD(MONTH(version_created), 2, '0') AS event_month
-            		FROM event_masters_revs
-            		WHERE version_created > '$start_date'
-                    AND version_created <= '$end_date'   
+            		YEAR(event_date) AS event_year,
+                    LPAD(MONTH(event_date), 2, '0') AS event_month
+            		FROM event_masters
+            		WHERE event_date > '$start_date'
+                    AND event_date <= '$end_date'   
                     AND participant_id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
-            		YEAR(version_created) AS event_year,
-                    LPAD(MONTH(version_created), 2, '0') AS event_month
-            		FROM treatment_masters_revs
-            		WHERE version_created > '$start_date'
-                    AND version_created <= '$end_date'
+            		YEAR(start_date) AS event_year,
+                    LPAD(MONTH(start_date), 2, '0') AS event_month
+            		FROM treatment_masters
+            		WHERE start_date > '$start_date'
+                    AND start_date <= '$end_date'
+                    AND participant_id IN ($participant_ids_strg)
+            		UNION All
+            		SELECT DISTINCT participant_id, 
+            		YEAR(finish_date) AS event_year,
+                    LPAD(MONTH(finish_date), 2, '0') AS event_month
+            		FROM treatment_masters
+            		WHERE finish_date > '$start_date'
+                    AND finish_date <= '$end_date'
                     AND participant_id IN ($participant_ids_strg)
                 ) AS res1
     		) AS res
@@ -1992,6 +2045,13 @@ class ReportsControllerCustom extends ReportsController {
 		        }
 		    }
 		}
+		
+		if(empty($date_key_list)) {
+		    $date_key_list = array(__('no data'));
+    		foreach($data as $key => $val_arr)
+    		$data[$key] = array('no data' => __('n/a'));
+		}
+		
         sort($date_key_list);
 		$array_to_return = array(
 			'header' => $header, 

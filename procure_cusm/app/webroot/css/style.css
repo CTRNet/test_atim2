@@ -2161,9 +2161,3 @@ input[type=number].year{
 input[type=number].month, input[type=number].day{
     width: 3em;
 }
-
-/*** PROCURE CUSM ******************************************************************************************/
-.div_download_data{
-    padding: 0px 11px 11px;
-}
-/*** END PROCURE CUSM ******************************************************************************************/
