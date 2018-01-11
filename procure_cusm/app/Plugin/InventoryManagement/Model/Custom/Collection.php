@@ -13,8 +13,18 @@ class CollectionCustom extends Collection {
 		$collection_aliquots_count = $aliquot_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_id), 'recursive' => '-1'));
 		if($collection_aliquots_count) {
 			return array('allow_deletion' => false, 'msg' => 'the link cannot be deleted - collection contains at least one aliquot');
-			
 		}
+		
+		$res = parent::allowLinkDeletion($collection_id);
+		if($res['allow_deletion'] == false) return $res;
+		
+		//Check no aliquot linked to the collection
+		$sample_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+		$collection_samples_count = $sample_model->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '-1'));
+		if($collection_samples_count) {
+		    return array('allow_deletion' => false, 'msg' => 'the link cannot be deleted - collection contains at least one sample');
+		}
+		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	

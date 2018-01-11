@@ -662,7 +662,7 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('procure_help_drug_study', 
 "For any experimental treatment or clinical study that you could classify with another type (ex: chemotherapy, hormonal therapy) than the generic type 'experimental treatment'. This will be more informative.", 
-'Pour tout traitement expérimental ou étude clinique que vous pourriez classer avec un autre type (ex: chimiothérapie, hormonothérapie) que le type générique «traitement expérimental». Ce sera plus instructif.');
+'Pour tout traitement expérimental ou étude clinique que vous pourriez classer avec un autre type (ex: chimiothérapie, hormonothérapie) que le type générique 'traitement expérimental'. Ce sera plus instructif.');
 
 -- Move drug_id field from procure_txd_followup_worksheet_treatments table to treatment_masters table
 
@@ -3090,6 +3090,8 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('control collection - no data can be updated', 'Collection of controls! No data can be updated!', "Collection de contrôles! Aucune donnée ne peut être mise à jour!"),
 ('control collection - collection can not be deleted', 'Collection of controls! Collection can not be deleted!', "Collection de contrôles! La collection ne peut pas être supprimée!");
+-- Should be displayed to not include the control collection when participant is adding a new collection
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
 
 -- Remove processing site from the list procure_banks list
 
@@ -3103,6 +3105,67 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="PS4"), "1", "4"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="s" AND language_alias="system option"), "1", "100");
 
+-- Statements linked to transferred participant
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('the identification format is wrong',
+"The identification format is wrong! Either the participant identifier does not start with the code of your bank (1,2,3,4) or the participant is initially a participant of another bank but this one has not been defined as a 'Transferred Participant'. To update the profile, the participant should be a participant of your bank or a 'Transferred Participant'.",
+"Le format de l'identification n'est pas supporté! Soit l'identifiant du participant ne commence pas avec le code de votre banque (1,2,3,4), soit le participant est un participant initialement d'une autre banque mais celui-ci n'a pas été définie comme 'participant transféré'. Pour mettre à jour le profil, le participant doit être un participant de votre banque ou un 'participant transféré'.");
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('participant of another bank but not transferred - no data entry',
+"The participant is a participant of another bank and is not flagged as a 'Transferred Participant'. This participant has been initialy created by a script to migrate sample from the 'ATiM-Processing Site'. No profile data, no identifier, no clinical information, etc is supposed to be recorded into your ATiM for this particpant excepted if you flag this one as a 'Transferred Participant'.",
+"Le participant est un participant d'une autre banque et n'est pas marqué comme un 'Participant transféré'. Ce participant a été créé par un script pour migrer les échantillons du 'ATiM-Processing Site'. Aucune donnée de profil, aucun identifiant, aucune information clinique, etc. n'est supposé être enregistré pour ce participant sauf si vous définissez le participant comme 'participant transféré'."),
+('system does not allow you to define a participant of another bank from transferred to not transferred',
+"The system does not allow you to change the profile of a participant of another bank from 'Transferred Participant' to 'Not Transferred Participant'. Please contact your system administrator.",
+"Le système ne vous permet pas de modifier le profil d'un participant d'une autre banque de 'Participant transféré' à 'Participant non transféré'. Veuillez contacter votre administrateur système.");
+UPDATE structure_fields SET  `language_help`='procure_transferred_participant_help' WHERE model='Participant' AND tablename='participants' AND field='procure_transferred_participant' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('procure_transferred_participant_help',
+"Defined a participant initially followed by another bank then by your bank or participant who was initially followed by your bank then followed by another one.",
+"Défini un participant initialement suivi par une autre banque puis par votre banque ou participant suivi initialement par votre banque puis suivi par un autre.");
+
+-- Clinical Collection Link Deletion will delete collection
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('the link cannot be deleted - collection contains at least one sample', 
+'The collection cannot be deleted. Collection contains at least one sample.', 
+'La collection ne peut pas être supprimée. Des échantillons existent dans la collection.');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('use inventory management module to delete the entire collection', 'Please note that the collection has been automatically deleted.', "Veuillez noter que la collection a été supprimée automatiquement.");
+SELECT count(*) AS '### WARNING ### : Number of collections not linked to a participant that should be deleted' FROM collections WHERE deleted <> 1 AND participant_id IS NULL AND collection_property = 'participant collection';
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('a created collection should be linked to a participant', 
+'A created collection should be linked to a participant. Please create collection from participant.', 
+'La création d''une collection doit être liée à un patient. Veuillez créer la collection d''un participant.');
+
+-- Manage sample created by system to migrate data from processing site
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('a sample created by system/script to migrate data from the processing site can not be edited', 
+"A sample created by system to migrate data from the 'ATiM-Processing Site' can not been modified.",
+"Un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' ne peut être modifié."),
+('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot',
+"No derivative can be created from sample created by system to migrate data from the 'ATiM-Processing Site' when no aliquot flagged as created by another bank is linked to the sample.",
+"Aucune dérivée ne peut être créé à partir d'un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' si aucun aliquot défini comme créé par une autre banque n'est lié à l'échantillon."),
+('no specimen review can be created from sample created by system/script to migrate data from the processing site with no aliquot',
+"No specimen review can be created from sample created by system to migrate data from the 'ATiM-Processing Site' when no aliquot flagged as created by another bank is linked to the sample.",
+"Aucune rapport d'histologie ne peut être créé à partir d'un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' si aucun aliquot défini comme créé par une autre banque n'est lié à l'échantillon."),
+('no quality control can be created from sample created by system/script to migrate data from the processing site with no aliquot',
+"No quality control can be created from sample created by system to migrate data from the 'ATiM-Processing Site' when no aliquot flagged as created by another bank is linked to the sample.",
+"Aucun contrôle de qualité ne peut être créé à partir d'un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' si aucun aliquot défini comme créé par une autre banque n'est lié à l'échantillon."),
+('at least one data (aliquot, quality control, derivative) is linked to the sample created by the sysem for the migration of aliquots from the processing site - delete all records first',
+"An aliquot initialy transferred from a bank to the 'ATiM-Processing Site' then merged into your ATiM could only be deleted when no other data (derivative, aliquot, quality control) is linked to the sample of this aliquot. Please delete all other record first.", 
+"Un aliquot initialement transférée d'une banque vers la version 'ATiM-Processing Site' et intégrée par la suitedans votre ATiM ne peut être supprimé que si aucune autre donnée (dérivée, aliquote, contrôle qualité) n'est liée à l'échantillon de cet aliquot. Veuillez avant tout supprimer tout autre enregistrement."),
+('no aliquot can be created from sample created by system/script to migrate data from the processing site with no aliquot',
+"No aliquot can be created from sample created by system to migrate data from the 'ATiM-Processing Site' when no aliquot flagged as created by another bank is linked to the sample.",
+"Aucun aliquot ne peut être créé à partir d'un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' si aucun aliquot défini comme créé par une autre banque n'est lié à l'échantillon.");
 
 
 
@@ -3110,9 +3173,11 @@ VALUES
 
 
 
+Revoire le contenenu du fichier 'SampleMasters_contentTreeView_format.php'
+Search 'PROCESSING' flag.
 
- 	
- 	procure_txd_treatments
+
+
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO

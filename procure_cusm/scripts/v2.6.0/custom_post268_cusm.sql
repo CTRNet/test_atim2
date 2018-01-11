@@ -186,6 +186,12 @@ VALUES
 ('rack20 (5X4)' ,'Rack 20 (5X4)', 'Râtelier 20 (5X4)', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('box100 1A-10J' ,'Box100 1A-10J', 'Boîte100 1A-10J', '1', @control_id, NOW(), '1', NOW(), '1');
 
+-- Field procure_participant_attribution_number
+
+UPDATE structure_formats 
+SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_participant_attribution_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 
 
 

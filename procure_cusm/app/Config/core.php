@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
@@ -524,8 +524,6 @@ Configure::write('procure_bank_id', '3');
  * 	Custom core variable defining the type of ATiM custom version installed.
  * 	Allowed value:
  *    - BANK: ATiM version installed in each procure bank that followed participants plus collect then store samples.
- *    - PROCESSING: ATiM version installed in the PROCURE laboratory that received samples from banks for DNA/RNA analysis,
- *      path review, shipping to research groups, etc.
  *    - CENTRAL: ATiM version that gathering all the data of ATiM install to help the head office in the project management. 
  */
 Configure::write('procure_atim_version', 'BANK');

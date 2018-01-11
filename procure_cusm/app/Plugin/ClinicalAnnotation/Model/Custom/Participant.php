@@ -14,11 +14,16 @@ class ParticipantCustom extends Participant {
 			
 			$tructure_alias = 'participants';
 			if(Configure::read('procure_atim_version') == 'BANK') {
+			    // Add RAMQ and hospital number to the summary the sumamry
 				$MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 				$identifiers = $MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $result['Participant']['id'])));
 				$result[0] = array('RAMQ' => '', 'hospital_number' => '');
 				foreach($identifiers as $new_id) $result['0'][str_replace(' ', '_',$new_id['MiscIdentifierControl']['misc_identifier_name'])] = $new_id['MiscIdentifier']['identifier_value'];
 				$tructure_alias = 'participants,procure_miscidentifiers_for_participant_summary';
+				// Add warning on participant of another bank that is not transferred...
+				if(strpos($result['Participant']['participant_identifier'], 'PS'.Configure::read('procure_bank_id')) === false && $result['Participant']['procure_transferred_participant'] == 'n') { 
+				    AppController::addWarningMsg(__('participant of another bank but not transferred - no data entry'));
+				}
 			}
 			
 			$return = array(
