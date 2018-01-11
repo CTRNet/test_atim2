@@ -267,11 +267,11 @@ $value_to_increment_non_ps3_psp_participant_id = getSelectQueryResult("SELECT MA
 $value_to_increment_non_ps3_psp_participant_id = $value_to_increment_non_ps3_psp_participant_id[0]['MAX(id)'];
 
 $query = "INSERT INTO participants(id, participant_identifier, last_modification, procure_transferred_participant, notes, 
-    procure_last_modification_by_bank,
+    procure_last_modification_by_bank, procure_participant_attribution_number,
     deleted,
     created, created_by, modified, modified_by)
     (SELECT (id+$value_to_increment_non_ps3_psp_participant_id), participant_identifier, '$import_date', 'n', 'Created by system to migrate data from ATiM Processing Site on $date_yyyy_mm_dd.', 
-    '$procure_cusm_ps_numer',
+    '$procure_cusm_ps_numer', procure_participant_attribution_number,
     deleted,
     '$import_date', $imported_by, '$import_date', $imported_by
     FROM $processing_site_db_schema.participants
@@ -306,18 +306,40 @@ $created_collections_nbr = $created_collections_nbr[0]['nbrp'];
 recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of created/used elements.", "Created $created_collections_nbr collections");
 
 //=========================================================================================================================================
-// Import collections of PS3 patients (check all collections are linked to participants)
+// Update procure_participant_attribution_number of PS3 participants
 //=========================================================================================================================================
 
 // Check all PS3 participants in ProcessingSite are in Cusm
 
 $query = "SELECT participant_identifier
-    FROM $processing_site_db_schema.participants
-    WHERE deleted <> 1
-    AND participant_identifier NOT IN (SELECT participant_identifier FROM $cusm_db_schema.participants WHERE deleted <> 1)
-    AND participant_identifier LIKE 'PS3%';";
+FROM $processing_site_db_schema.participants
+WHERE deleted <> 1
+AND participant_identifier NOT IN (SELECT participant_identifier FROM $cusm_db_schema.participants WHERE deleted <> 1)
+AND participant_identifier LIKE 'PS3%';";
 if(getSelectQueryResult($query)) die("ERR_LINE_".__LINE__);
 recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Check(s) done.", "All PS3 participants of the Processing Site database exist into CUSM Site database.");
+
+// Check all PS3 participants in ProcessingSite are in Cusm
+
+$query = "UPDATE participants CusmParticipant, $processing_site_db_schema.participants ProcessingSiteParticipant
+    SET CusmParticipant.procure_participant_attribution_number = ProcessingSiteParticipant.procure_participant_attribution_number,
+    CusmParticipant.modified = '$import_date', 
+    CusmParticipant.modified_by = $imported_by
+    WHERE CusmParticipant.deleted <> 1
+    AND ProcessingSiteParticipant.deleted <> 1
+    AND CusmParticipant.participant_identifier = ProcessingSiteParticipant.participant_identifier
+    AND ProcessingSiteParticipant.participant_identifier LIKE 'PS3%'
+    AND ProcessingSiteParticipant.participant_identifier IS NOT NULL;";
+customQuery($query);
+addToModifiedDatabaseTablesList('participants', null);
+
+$updated_attribution_number_nbr = getSelectQueryResult("SELECT count(*) as nbrp FROM participants WHERE deleted <> 1 AND participant_identifier LIKE 'PS3%' AND procure_participant_attribution_number IS NOT NULL");
+$updated_attribution_number_nbr = $updated_attribution_number_nbr[0]['nbrp'];
+recordErrorAndMessage("Migration Summary", '@@MESSAGE@@', "Number of updated elements.", "Updated $updated_attribution_number_nbr PS3 participants with the 'procure_participant_attribution_number'");
+
+//=========================================================================================================================================
+// Import collections of PS3 patients (check all collections are linked to participants)
+//=========================================================================================================================================
 
 // Check all collections in ProcessingSite are linked to participant
 
@@ -929,8 +951,9 @@ $final_queries = array(
     "UPDATE storage_masters SET code = id WHERE code LIKE 'tmp_%';",
     "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL;",
     "UPDATE sample_masters SET sample_code = id WHERE sample_code LIKE 'tmp_%';",
-    "UPDATE quality_ctrls SET qc_code = id WHERE qc_code LIKE 'tmp_%';"
-);
+    "UPDATE quality_ctrls SET qc_code = id WHERE qc_code LIKE 'tmp_%';",
+    "UPDATE collections SET collection_property = 'participant collection' WHERE collection_property IS NULL AND created = '$import_date' AND created_by = $imported_by"
+);	
 if(!$test_version) $final_queries[] = "UPDATE versions SET permissions_regenerated = 0;";
 foreach($final_queries as $new_query) customQuery($new_query);
 

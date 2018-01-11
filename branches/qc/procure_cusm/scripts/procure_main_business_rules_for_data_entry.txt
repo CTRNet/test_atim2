@@ -1,0 +1,65 @@
+
+-- Participant
+--------------
+
+Participant having a PS number equal to the PS number of the local bank (PS1, PS2, PS3, PS4) will be flagged as 'Un-transeferred Participant' by default
+then 'Transferred Participant' by users when this one was initialy followed by the local bank then followed by another bank.
+
+Participant having a PS number diferrent than the PS number of the local bank (PS1, PS2, PS3, PS4) can only be flagged as 'Transeferred Participant'. This property defines 
+participant who was intialy followed by another bank then followed by the local bank.
+
+Exception exists for participants that have been previously created into the ATiM 'Processing Site' (to record samples received from all banks and stored into PS3 site 
+for orders and projects). These participants have been migrated by script in January 2018 from ATiM 'Processing Site' to the ATiM of the PS3 bank and flagged 
+as 'Un-transeferred Participant' into this PS3 ATiM when the PS numbers of these participants were different than PS3.
+
+In all cases additional data like consent, treatment, etc can be linked to the participant but for the exception defined above a message will inform user that no additional 
+participant information is supposed to be recorded.
+
+-- Collection
+-------------
+
+A collection can only be created from participant using ClinicalCollectionLink functions.
+Exception exists for 'Control' collection that has been created by ATiM Update Script (SQL) and can not be deleted or linked to a participant.
+
+A clinical collection link can only be deleted when no sample is linked to the collection and process will delete automatically the collection.
+
+-- Sample
+-------------
+
+Sample created by system to migrate aliquot from ATiM-Processing site can be used as parent sample when at least one aliquot exists for this sample into the ATiM
+used (this one is the aliquot previously transferred from bank different than PS3 to 'Processing Site' and now merged into the ATiM of PS3).
+Sample created by system to migrate aliquot from ATiM-Processing site can not be be edited.
+
+-- Path Review
+--------------
+
+A path review can only be created for a sample created by system to migrate aliquot from ATiM-Processing site when at least one aliquot 
+exists for this sample into the ATiM used (this one is the aliquot previously transferred from bank different than PS3 to 'Processing Site' 
+and now merged into the ATiM of PS3).
+
+-- Quality Control
+------------------
+
+A quality control can only be created for a sample created by system to migrate aliquot from ATiM-Processing site when at least one aliquot 
+exists for this sample into the ATiM used (this one is the aliquot previously transferred from bank different than PS3 to 'Processing Site' 
+and now merged into the ATiM of PS3).
+
+-- Aliquot
+-------------
+
+An aliquot of a sample created by system to migrate aliquot from ATiM-Processing site and defined as created by another bank than the bank of the ATiM used (aliquot previously 
+transferred from bank different than PS3 to 'Processing Site' and now merged into the ATiM of PS3) can only be deleted when:
+ - no other aliquot is linked to this sample.
+ - no derivative is linked to this sample.
+ - no quality control is linked to this sample.
+ - no specimen review is linked to this sample.
+ 
+A new aliquot can be created for a sample created by system to migrate aliquot from ATiM-Processing site and defined as created by another bank than the bank of the ATiM used when 
+at least one aliquot is still recorded for this sample (aliquot previously transferred from bank different than PS3 to 'Processing Site' 
+and now merged into the ATiM of PS3)
+
+An aliquot of a sample created by system to migrate aliquot from ATiM-Processing site and defined as created by another bank than the bank of the ATiM used (aliquot previously 
+transferred from bank different than PS3 to 'Processing Site' and now merged into the ATiM of PS3) can not be defined as the children of an aliquot (realiquoting definition).
+
+
+
