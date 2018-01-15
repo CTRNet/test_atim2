@@ -336,8 +336,8 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		// I - STUDY
 		
 		magicSelectInsert($site_schema, 'study_summaries');
-		magicSelectInsert($site_schema, 'study_fundings', array('study_summary_id' => 'study_summaries'));
-		magicSelectInsert($site_schema, 'study_investigators', array('study_summary_id' => 'study_summaries'));
+		//magicSelectInsert($site_schema, 'study_fundings', array('study_summary_id' => 'study_summaries'));
+		//magicSelectInsert($site_schema, 'study_investigators', array('study_summary_id' => 'study_summaries'));
 		
 		// II - PARTICIPANTS
 		
@@ -991,7 +991,7 @@ foreach($barcodes as $new_aliquot) {
 $query = "SELECT BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
 	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink
 	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id
-	AND BankAliquotMaster.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE type = 'sent to processing site' AND deleted <> 1)";
+	AND BankAliquotMaster.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE type = 'sent to processing site ps3' AND deleted <> 1)";
 $barcodes = getSelectQueryResult($query);
 $aliquot_ids = array();
 foreach($barcodes as $new_aliquot) {
@@ -1023,7 +1023,7 @@ createBatchSet('ViewAliquot', 'Transferred aliquot not flagged in processing sit
 $query = "SELECT aliquot_masters.id, aliquot_masters.barcode, aliquot_masters.procure_created_by_bank
 	FROM aliquot_internal_uses, aliquot_masters
 	WHERE aliquot_masters.id = aliquot_internal_uses.aliquot_master_id 
-	AND aliquot_internal_uses.type = 'sent to processing site' 
+	AND aliquot_internal_uses.type = 'sent to processing site ps3' 
 	AND aliquot_masters.deleted <> 1 AND aliquot_internal_uses.deleted <> 1
 	AND aliquot_masters.id NOT IN (
 		SELECT BankAliquotMaster.id

@@ -3,9 +3,13 @@
 -- Delete first name, last name and notes
 -- Replace any date of birth by 'year_of_birth-01-01'
 
-UPDATE participants SET first_name = 'confid.', last_name = 'confid.', notes = '';
-UPDATE participants SET date_of_birth = CONCAT(SUBSTR(date_of_birth, 1, 4),'-01-01');
-UPDATE participants SET date_of_birth_accuracy = 'm' WHERE date_of_birth_accuracy IN ('c','d');
+UPDATE participants 
+SET first_name = 'confid.', 
+last_name = 'confid.', notes = '';
+UPDATE participants 
+SET date_of_birth = CONCAT(SUBSTR(date_of_birth, 1, 4),'-01-01');
+UPDATE participants 
+SET date_of_birth_accuracy = 'm' WHERE date_of_birth_accuracy IN ('c','d');
 
 UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'chum', 'ps1');
 UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'CHUM', 'ps1');
@@ -23,7 +27,9 @@ UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patie
 -- Keep only the study participant identifiers
 
 DELETE FROM misc_identifiers WHERE misc_identifier_control_id NOT IN (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name IN ('participant study number'));
-UPDATE misc_identifier_controls SET misc_identifier_name = id WHERE misc_identifier_name NOT IN ('participant study number');
+UPDATE misc_identifier_controls 
+SET misc_identifier_name = id 
+WHERE misc_identifier_name NOT IN ('participant study number');
 
 -- Event & Treatment
 -- ..................................................................................................................
@@ -55,8 +61,14 @@ UPDATE treatment_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
 -- ..................................................................................................................
 -- Remove pathology number
 
-UPDATE procure_ed_lab_pathologies SET path_number = 'confid.';
-UPDATE sd_spe_tissues SET procure_report_number = 'confid.';
+UPDATE procure_ed_lab_pathologies 
+SET path_number = 'confid.', 
+qc_nd_surgeon = 'confid.', 
+pathologist_name = 'confid.';
+UPDATE sd_spe_tissues 
+SET procure_report_number = 'confid.', 
+procure_surgeon_name = 'confid.', 
+procure_pathologist_name = 'confid.';
 
 -- Collection
 -- ..................................................................................................................
@@ -89,16 +101,6 @@ UPDATE sample_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
 -- Aliquot & Storage
 -- ..................................................................................................................
 -- Remove bank names from 'aliquot use and event type' 
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
-UPDATE structure_permissible_values_customs SET value = 'sent to ps1', en = '', fr = '' WHERE control_id = @control_id AND value = 'sent to chum';
-UPDATE structure_permissible_values_customs SET value = 'received from ps1', en = '', fr = '' WHERE control_id = @control_id AND value = 'received from chum';
-UPDATE structure_permissible_values_customs SET value = 'sent to ps2', en = '', fr = '' WHERE control_id = @control_id AND value = 'sent to chuq';
-UPDATE structure_permissible_values_customs SET value = 'received from ps2', en = '', fr = '' WHERE control_id = @control_id AND value = 'received from chuq';
-UPDATE structure_permissible_values_customs SET value = 'sent to ps3', en = '', fr = '' WHERE control_id = @control_id AND value = 'sent to muhc';
-UPDATE structure_permissible_values_customs SET value = 'received from ps3', en = '', fr = '' WHERE control_id = @control_id AND value = 'received from muhc';
-UPDATE structure_permissible_values_customs SET value = 'sent to ps4', en = '', fr = '' WHERE control_id = @control_id AND value = 'sent to chus';
-UPDATE structure_permissible_values_customs SET value = 'received from ps4', en = '', fr = '' WHERE control_id = @control_id AND value = 'received from chus';
 
 UPDATE aliquot_masters SET notes = REPLACE(notes, 'chum', 'ps1');
 UPDATE aliquot_masters SET notes = REPLACE(notes, 'CHUM', 'ps1');
@@ -154,6 +156,46 @@ ALTER TABLE `study_summaries`
   CHANGE COLUMN `procure_site_ethics_committee_convenience_chuq` `procure_site_ethics_committee_convenience_ps2` char(1) DEFAULT '',
   CHANGE COLUMN `procure_site_ethics_committee_convenience_cusm` `procure_site_ethics_committee_convenience_ps3` char(1) DEFAULT '';
   
+UPDATE study_summaries SET 
+procure_principal_investigator = 'confid.',
+procure_organization = 'confid.',
+procure_address_street = 'confid.',
+procure_address_city = 'confid.',
+procure_address_province = 'confid.',
+procure_address_country = 'confid.',
+procure_address_postal = 'confid.',
+procure_phone_number = 'confid.',
+procure_fax_number = 'confid.',
+procure_email = 'confid.';
+ 
+UPDATE study_fundings 
+SET study_sponsor = 'confid.', 
+contact = 'confid.', 
+phone_number = 'confid.', 
+phone_extension = 'confid.',
+fax_number = 'confid.', 
+fax_extension = 'confid.', 
+email = 'confid.';
+  
+-- Shipment
+-- ..................................................................................................................
+-- Rename study fields with banks names
+
+UPDATE shipments 
+SET recipient = 'confid.', 
+facility = 'confid.', 
+delivery_street_address = 'confid.', 
+delivery_city = 'confid.', 
+delivery_province = 'confid.', 
+delivery_postal_code = 'confid.', 
+delivery_country = 'confid.', 
+delivery_phone_number = 'confid.', 
+delivery_department_or_door = 'confid.', 
+delivery_notes = 'confid.', 
+shipping_company = 'confid.', 
+shipping_account_nbr = 'confid.', 
+tracking = 'confid.';
+
 -- ..................................................................................................................
 -- Generate date of script creation
   
