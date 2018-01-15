@@ -3091,7 +3091,9 @@ VALUES
 ('control collection - no data can be updated', 'Collection of controls! No data can be updated!', "Collection de contrôles! Aucune donnée ne peut être mise à jour!"),
 ('control collection - collection can not be deleted', 'Collection of controls! Collection can not be deleted!', "Collection de contrôles! La collection ne peut pas être supprimée!");
 -- Should be displayed to not include the control collection when participant is adding a new collection
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
 
 -- Remove processing site from the list procure_banks list
 
@@ -3126,6 +3128,12 @@ VALUES
 ('procure_transferred_participant_help',
 "Defined a participant initially followed by another bank then by your bank or participant who was initially followed by your bank then followed by another one.",
 "Défini un participant initialement suivi par une autre banque puis par votre banque ou participant suivi initialement par votre banque puis suivi par un autre.");
+
+-- Collection Property Clean Up (to let people copy collection)
+
+UPDATE collections SET collection_property = 'participant collection' WHERE participant_id IS NOt NULL AND collection_property IS NULL;
+UPDATE collections_revs SET collection_property = 'participant collection' WHERE participant_id IS NOt NULL AND collection_property IS NULL;
+SELECT count(*) AS '### WARNING ### : Number of collections with collection property set to null' FROM collections WHERE deleted <> 1 AND collection_property IS NULL;
 
 -- Clinical Collection Link Deletion will delete collection
 
@@ -3167,17 +3175,138 @@ VALUES
 "No aliquot can be created from sample created by system to migrate data from the 'ATiM-Processing Site' when no aliquot flagged as created by another bank is linked to the sample.",
 "Aucun aliquot ne peut être créé à partir d'un échantillon créé par le système pour migrer des données depuis la version 'ATiM-Processing Site' si aucun aliquot défini comme créé par une autre banque n'est lié à l'échantillon.");
 
+-- Manage barcode validation Error Vs Warning
 
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('aliquot barcode format errror - error', 
+'Identification (alq.) format errror. This one should start with the participant identification and the visit (PS0P0000 V00 -AAA)', 
+'Erreur de format de l''identification (alq.). Cette donnée doit commencer avec l''identifiant du patient puis le numéro de visit (PS0P0000 V00 -AAA)'),
+('aliquot barcode format errror - warning', 
+'At least one label of an aliquot [Identification (alq.)] does not match a PROCURE format (PS0P0000 V00 -AAA). Please correct data if required.', 
+'Au moins un identification d''aliquot ne correspond pas au format PROCURE (PS0P0000 V00 -AAA). Veuillez corriger la donnée au besoin.');
+SET @datamart_report_id = (SELECT id FROM datamart_reports WHERE function LIKE 'procureGetListOfBarcodeErrors');
+UPDATE datamart_reports SET flag_active = 0 WHERE id = @datamart_report_id;
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = CONCAT('/Datamart/Reports/manageReport/',CONVERT(@datamart_report_id USING utf8));
 
+-- Remove chum, chuq, chus, etc from aliquot internal use list
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
+-- delete [sent to chuq|chum...]
+SELECT DISTINCT type AS '### ERROR ### : Aliquot internal use type not supported (value will be deleted)' 
+FROM aliquot_internal_uses
+WHERE type LIKE 'sent to chum' OR type LIKE 'sent to chuq' OR type LIKE 'sent to chus' OR type LIKE 'sent to muhc';
+DELETE FROM structure_permissible_values_customs 
+WHERE control_id = @control_id AND (value LIKE 'sent to chum' OR value LIKE 'sent to chuq' OR value LIKE 'sent to chus' OR value LIKE 'sent to muhc');
+-- [received from chum|chuq...] to [received from bank]
+UPDATE aliquot_internal_uses
+SET type = 'received from bank' 
+WHERE (type LIKE 'received from chum' OR type LIKE 'received from chuq' OR type LIKE 'received from chus' OR type LIKE 'received from muhc');
+UPDATE aliquot_internal_uses_revs
+SET type = 'received from bank' 
+WHERE (type LIKE 'received from chum' OR type LIKE 'received from chuq' OR type LIKE 'received from chus' OR type LIKE 'received from muhc');
+DELETE FROM structure_permissible_values_customs 
+WHERE control_id = @control_id 
+AND (value LIKE 'received from chum' OR value LIKE 'received from chuq' OR value LIKE 'received from chus' OR value LIKE 'received from muhc');
+-- [received from processing site] to [received from processing site ps3]
+UPDATE aliquot_internal_uses
+SET type = 'received from processing site ps3'
+WHERE type LIKE 'received from processing site';
+UPDATE aliquot_internal_uses_revs
+SET type = 'received from processing site ps3'
+WHERE type LIKE 'received from processing site';
+-- [sent to processing site] to [sent to processing site ps3]
+UPDATE aliquot_internal_uses
+SET type = 'sent to processing site ps3'
+WHERE type LIKE 'sent to processing site';
+UPDATE aliquot_internal_uses_revs
+SET type = 'sent to processing site ps3'
+WHERE type LIKE 'sent to processing site';
+UPDATE structure_permissible_values_customs 
+SET value = 'sent to processing site ps3',
+en = 'Sent To Processing Site (PS3)',
+fr = 'Envoyé au site de traitment (PS3)'
+WHERE control_id = @control_id AND value LIKE 'sent to processing site';
+UPDATE structure_permissible_values_customs 
+SET value = 'received from processing site ps3',
+en = 'Received From Processing Site (PS3)',
+fr = 'Recu du site de traitment (PS3)'
+WHERE control_id = @control_id AND value LIKE 'received from processing site';
 
+-- Add laste modification to profile, event and treatment
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'modified', 'date',  NULL , '0', '', '', '', '', 'profile');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='modified' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='profile'), '3', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_tag`='clinical annotation' WHERE model='Participant' AND tablename='participants' AND field='last_modification' AND `type`='datetime' AND structure_value_domain  IS NULL ;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'modified', 'date',  NULL , '0', '', '', '', 'last modification', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='modified' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last modification' AND `language_tag`=''), '2', '1000', 'system data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'modified', 'date',  NULL , '0', '', '', '', 'last modification', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='modified' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last modification' AND `language_tag`=''), '1', '1000', 'system data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-Revoire le contenenu du fichier 'SampleMasters_contentTreeView_format.php'
-Search 'PROCESSING' flag.
+-- Bank activity report
 
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('encountered patients with collection post bcr', "Encountered 'R' patients with collection", "Patients 'R' recontrés avec collection"),
+('encountered patients with collection pre bcr', "Encountered 'NR' patients with collection", "Patients 'NR' recontrés avec collection");
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_report_criteria_and_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_participant_identifier_prefix' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+UPDATE structure_fields SET language_help = CONCAT(field, '_help') WHERE id IN (SELECT structure_field_id FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_bank_activity_report'));
+INSERT INTO i18n (id,en,fr)
+VALUES
+('procure_nbr_of_participants_with_collection_and_visit_help',
+"Number of participants having at least one collection and/or a visite defined into the 'Visit / Contact' form.",
+"Nombre de participants ayant au moins une collection et/ou une visite définie dans le formulaire 'Visite / Contact'."),
+('procure_nbr_of_participants_with_collection_help',
+"Number of participants having at least one collection.",
+"Nombre de participants ayant au moins une collection."),
+('procure_nbr_of_participants_with_visit_only_help',
+"'Encountered patients' minus 'Encountered patients with collection'.", 
+"'Patients rencontrés' moins 'Patients rencontrés avec collection'."),
+('procure_nbr_of_participants_with_collection_post_bcr_help',
+"Number of participants having at least one collection done after a biochemical relapse.",
+"Nombre de participants ayant au moins une collection faite après une récidive biochimique."),
+('procure_nbr_of_participants_with_collection_pre_bcr_help',
+"'Encountered patients' minus 'Encountered 'R' patients with collection'.", 
+"'Patients rencontrés' moins 'Patients 'R' recontrés avec collection'."),
+('procure_nbr_of_participants_with_pbmc_extraction_help',
+"Number of participants having at least one PBMC extraction done during the month.",
+"Nombre de participants ayant au moins une extraction de PBMC faite durant le mois."),
+('procure_nbr_of_participants_with_rna_extraction_help',
+"Number of participants having at least one RNA extraction done during the month.",
+"Nombre de participants ayant au moins une extraction d'ARN faite durant le mois."),
+('procure_nbr_of_participants_with_clinical_data_update_help',
+"Number of participants having either a date of death or a treatment start/finish date or a clinical annotation date (exam date, laboratory date, clinical note date, etc) defined during this month.",
+"Nombre de participants ayant une date de décès ou une date de début / fin de traitement ou une date d'annotation clinique (date de l'examen, date du laboratoire, date de la note clinique, etc.) définie au cours de ce mois.");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_nbr_of_psa_created_modified', 'input',  NULL , '0', 'size=10', '', '', 'number of psas created / modified', ''), 
+('Datamart', '0', '', 'procure_nbr_of_treatment_created_modified', 'input',  NULL , '0', 'size=10', '', '', 'number of treatments created / modified', ''), 
+('Datamart', '0', '', 'procure_nbr_of_clinical_exams_created_modified', 'input',  NULL , '0', 'size=10', '', '', 'number of clinical exams created / modified', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_psa_created_modified' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='number of psas created / modified' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_treatment_created_modified' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='number of treatments created / modified' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_clinical_exams_created_modified' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='number of clinical exams created / modified' AND `language_tag`=''), '0', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('number of psas created / modified',
+"Number of PSA(s) created +modified",
+"Nombre d'APS(s) créés + modifiés"),
+('number of treatments created / modified',
+"Number of treatment(s) created + modified",
+"Nombre de traitment(s) créés + modifiés"),
+('number of clinical exams created / modified',
+"Number of clinical exam(s) created + modified",
+"Nombre d'examen(s) clinique9s) créés + modifiés");
 
-
+Revoire le contenenu du fichier 'SampleMasters_contentTreeView_format.php' 'AliquotMasters_contentTreeView_format.php'
+Les TMA seront fait par le chum...
+Importer que les study numebr dans export vers le central - supprimer les contacts et les messages, pas d'info sur les contacts dans study / order, etc...
+Vérifier que dans le processus de fusion le id auto-increment sont bien remis a 0
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO

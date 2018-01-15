@@ -55,13 +55,23 @@ class AliquotMasterCustom extends AliquotMaster {
 		return $val_res;
 	}
 	
+	private $validateBarcodeStillLaunched = false;
+	
 	function validateBarcode($barcode, $procure_created_by_bank, $procure_participant_identifier = null, $procure_visit = null) {
-		$error = false;
-		if($procure_created_by_bank != 'p') {
-			if(!$procure_participant_identifier || !$procure_visit || !preg_match('/^'.$procure_participant_identifier.' '.$procure_visit.' \-[A-Z]{3}/', $barcode)) {
-				$error = 'aliquot barcode format errror - should begin with the participant identifier and the visit PS0P0000 V00 -AAA';
-			}
-		}
+        // Check if user is recording data for new collected samples (considering user is using collection tempalte or not)
+	    $is_collection_tempalte_use = isset(AppController::getInstance()->passedArgs['templateInitId'])? true : false;
+	    // Launch validation
+	    $error = false;
+	    if(!$procure_participant_identifier || !$procure_visit || !preg_match('/^'.$procure_participant_identifier.' '.$procure_visit.' \-[A-Z]{3}/', $barcode)) {
+            if(!$is_collection_tempalte_use) {
+	            if(!$this->validateBarcodeStillLaunched) {
+	                AppController::addWarningMsg(__('aliquot barcode format errror - warning'));
+	            }
+	        } else {
+	            $error = 'aliquot barcode format errror - error';
+	        }
+	    }
+		$this->validateBarcodeStillLaunched = true;
 		return $error;
 	}
 	

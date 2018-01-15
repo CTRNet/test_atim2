@@ -515,7 +515,6 @@ unset($debug);
 /**
  * PROCURE Bank ID: Part of the identifier PS[1-5]P0
  * 	- 1 to 4 for the 4 collections sites
- *  - p for the processing bank
  */
 Configure::write('procure_bank_id', '3');
 
@@ -529,3 +528,5 @@ Configure::write('procure_bank_id', '3');
 Configure::write('procure_atim_version', 'BANK');
 
 Configure::write('procure_banks_data_merge_output_file', 'atim_merge_process_summary.htm');
+
+Configure::write('procure_user_log_output_path', 'C:/_NicolasLuc/Server/www/procure_cusm/');
