@@ -99,7 +99,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($procure_participant_identifier_prefix) {
 				$prefix_conditions = array();
 				foreach($procure_participant_identifier_prefix as $prefix) {
-					if(!in_array($prefix, array('p','s'))) {
+					if(!in_array($prefix, array('s'))) {
 						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
 					}
 				}
@@ -372,7 +372,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($procure_participant_identifier_prefix) {
 				$prefix_conditions = array();
 				foreach($procure_participant_identifier_prefix as $prefix) {
-					if(!in_array($prefix, array('p','s'))) {
+					if(!in_array($prefix, array('s'))) {
 						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
 					}
 				}
@@ -675,7 +675,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($procure_participant_identifier_prefix) {
 				$prefix_conditions = array();
 				foreach($procure_participant_identifier_prefix as $prefix) {
-					if(!in_array($prefix, array('p','s'))) {
+					if(!in_array($prefix, array('s'))) {
 						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
 					}
 				}
@@ -846,7 +846,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($procure_participant_identifier_prefix) {
 				$prefix_conditions = array();
 				foreach($procure_participant_identifier_prefix as $prefix) {
-					if(!in_array($prefix, array('p','s'))) {
+					if(!in_array($prefix, array('s'))) {
 						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
 					}
 				}
@@ -1621,134 +1621,137 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureGetListOfBarcodeErrors($parameters) {
-		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
-			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
-		}
-		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
-			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
-		}
+	    // NL Comment (2018-01-11):Can return too many erros beacause any aliquot could have its own specific format
+	    // since we decided that all Processing site, activites will be migrated to each bank.
+	    $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	    	    
+// 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+// 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+// 		}
+// 		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+// 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+// 		}
 
-		AppController::addWarningMsg(__('search is only done on banks aliquots'));
+// 		AppController::addWarningMsg(__('search is only done on banks aliquots'));
 		
-		$display_exact_search_warning = false;
-		$header = null;
-		$conditions = array('TRUE');
-		if(isset($parameters['ViewAliquot']['participant_identifier_start'])) {
-			$participant_identifier_start = (!empty($parameters['ViewAliquot']['participant_identifier_start']))? $parameters['ViewAliquot']['participant_identifier_start']: null;
-			$participant_identifier_end = (!empty($parameters['ViewAliquot']['participant_identifier_end']))? $parameters['ViewAliquot']['participant_identifier_end']: null;
-			if($participant_identifier_start) $conditions[] = "ViewAliquot.participant_identifier >= '$participant_identifier_start'";
-			if($participant_identifier_end) $conditions[] = "ViewAliquot.participant_identifier <= '$participant_identifier_end'";
-		} else if(isset($parameters['ViewAliquot']['participant_identifier'])) {
-			$display_exact_search_warning = true;
-			$participant_identifiers  = array_filter($parameters['ViewAliquot']['participant_identifier']);
-			if($participant_identifiers) $conditions[] = "ViewAliquot.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
-		} else {
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(isset($parameters['ViewAliquot']['procure_created_by_bank'])) {
-			$procure_created_by_bank  = array_filter($parameters['ViewAliquot']['procure_created_by_bank']);
-			$conditions[] = "ViewAliquot.procure_created_by_bank IN ('".implode("','",$procure_created_by_bank)."')";
-			if(in_array('p', $procure_created_by_bank) || in_array('s', $procure_created_by_bank)) {
-				$check_procure_created_by_bank = implode('',$procure_created_by_bank);
-				if(in_array($check_procure_created_by_bank, array('p','s','ps','sp'))) $conditions = array("ViewAliquot.procure_created_by_bank = '-1'");
-			}
-		}
+// 		$display_exact_search_warning = false;
+// 		$header = null;
+// 		$conditions = array('TRUE');
+// 		if(isset($parameters['ViewAliquot']['participant_identifier_start'])) {
+// 			$participant_identifier_start = (!empty($parameters['ViewAliquot']['participant_identifier_start']))? $parameters['ViewAliquot']['participant_identifier_start']: null;
+// 			$participant_identifier_end = (!empty($parameters['ViewAliquot']['participant_identifier_end']))? $parameters['ViewAliquot']['participant_identifier_end']: null;
+// 			if($participant_identifier_start) $conditions[] = "ViewAliquot.participant_identifier >= '$participant_identifier_start'";
+// 			if($participant_identifier_end) $conditions[] = "ViewAliquot.participant_identifier <= '$participant_identifier_end'";
+// 		} else if(isset($parameters['ViewAliquot']['participant_identifier'])) {
+// 			$display_exact_search_warning = true;
+// 			$participant_identifiers  = array_filter($parameters['ViewAliquot']['participant_identifier']);
+// 			if($participant_identifiers) $conditions[] = "ViewAliquot.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+// 		} else {
+// 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+// 		}
+// 		if(isset($parameters['ViewAliquot']['procure_created_by_bank'])) {
+// 			$procure_created_by_bank  = array_filter($parameters['ViewAliquot']['procure_created_by_bank']);
+// 			$conditions[] = "ViewAliquot.procure_created_by_bank IN ('".implode("','",$procure_created_by_bank)."')";
+// 			if(in_array('p', $procure_created_by_bank) || in_array('s', $procure_created_by_bank)) {
+// 				$check_procure_created_by_bank = implode('',$procure_created_by_bank);
+// 				if(in_array($check_procure_created_by_bank, array('p','s','ps','sp'))) $conditions = array("ViewAliquot.procure_created_by_bank = '-1'");
+// 			}
+// 		}
 		
-		$data = array();
+// 		$data = array();
 		
-		//Get Controls Data
-		$ViewAliquot_model = AppModel::getInstance("ClinicalAnnotation", "ViewAliquot", true);
+// 		//Get Controls Data
+// 		$ViewAliquot_model = AppModel::getInstance("ClinicalAnnotation", "ViewAliquot", true);
 		
-		//Look for duplicated barcodes
+// 		//Look for duplicated barcodes
 		
-		$query = "SELECT ViewAliquot.*
-			FROM (
-				SELECT barcode, count(*) as nbr_of_aliquots
-				FROM view_aliquots AS ViewAliquot
-				WHERE ". implode(' AND ', $conditions) ." AND ViewAliquot.procure_created_by_bank NOT IN ('p','s') GROUP BY barcode
-			) TmpRes, view_aliquots AS ViewAliquot
-			WHERE TmpRes.nbr_of_aliquots > 1 
-			AND TmpRes.barcode = ViewAliquot.barcode
-			ORDER BY ViewAliquot.barcode;";
-		foreach($ViewAliquot_model->query($query) as $res) {
-			$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array(__('duplicated'))), $res);
-		}
+// 		$query = "SELECT ViewAliquot.*
+// 			FROM (
+// 				SELECT barcode, count(*) as nbr_of_aliquots
+// 				FROM view_aliquots AS ViewAliquot
+// 				WHERE ". implode(' AND ', $conditions) ." AND ViewAliquot.procure_created_by_bank NOT IN ('p','s') GROUP BY barcode
+// 			) TmpRes, view_aliquots AS ViewAliquot
+// 			WHERE TmpRes.nbr_of_aliquots > 1 
+// 			AND TmpRes.barcode = ViewAliquot.barcode
+// 			ORDER BY ViewAliquot.barcode;";
+// 		foreach($ViewAliquot_model->query($query) as $res) {
+// 			$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array(__('duplicated'))), $res);
+// 		}
 		
-		//Look for barcodes that don't match format (limited to bank aliquots)
+// 		//Look for barcodes that don't match format (limited to bank aliquots)
 		
-		$wrong_format_aliquot_master_ids = array('-1');
-		$query = "SELECT ViewAliquot.*
-			FROM view_aliquots AS ViewAliquot
-			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP '^PS[0-9]P[0-9]{4}\ V[0-9]{2}(\.[0-9]+){0,1}\ \-[A-Z]{3}'
-			AND ViewAliquot.procure_created_by_bank != 'p';";
-		foreach($ViewAliquot_model->query($query) as $res) {
-			$error = __('wrong format');
-			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
-			} else {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
-			}
-			$wrong_format_aliquot_master_ids[] = $res['ViewAliquot']['aliquot_master_id'];
-		}
+// 		$wrong_format_aliquot_master_ids = array('-1');
+// 		$query = "SELECT ViewAliquot.*
+// 			FROM view_aliquots AS ViewAliquot
+// 			WHERE ". implode(' AND ', $conditions) ."
+// 			AND ViewAliquot.barcode NOT REGEXP '^PS[0-9]P[0-9]{4}\ V[0-9]{2}(\.[0-9]+){0,1}\ \-[A-Z]{3}';";
+// 		foreach($ViewAliquot_model->query($query) as $res) {
+// 			$error = __('wrong format');
+// 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+// 			} else {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+// 			}
+// 			$wrong_format_aliquot_master_ids[] = $res['ViewAliquot']['aliquot_master_id'];
+// 		}
 		
-		//Look for barcodes that don't match the participant identifier of the collection participant (limited to bank aliquots)
+// 		//Look for barcodes that don't match the participant identifier of the collection participant (limited to bank aliquots)
 		
-		$query = "SELECT ViewAliquot.*
-			FROM view_aliquots AS ViewAliquot
-			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP CONCAT('^',ViewAliquot.participant_identifier,'\ V[0-9]{2}(\.[0-9]+){0,1}\ \-[A-Z]{3}')
-			AND ViewAliquot.procure_created_by_bank != 'p'
-			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
-		foreach($ViewAliquot_model->query($query) as $res) {
-			$error = __('wrong participant identifier');
-			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
-			} else {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
-			}
-		}
+// 		$query = "SELECT ViewAliquot.*
+// 			FROM view_aliquots AS ViewAliquot
+// 			WHERE ". implode(' AND ', $conditions) ."
+// 			AND ViewAliquot.barcode NOT REGEXP CONCAT('^',ViewAliquot.participant_identifier,'\ V[0-9]{2}(\.[0-9]+){0,1}\ \-[A-Z]{3}')
+// 			AND ViewAliquot.procure_created_by_bank != 'p'
+// 			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
+// 		foreach($ViewAliquot_model->query($query) as $res) {
+// 			$error = __('wrong participant identifier');
+// 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+// 			} else {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+// 			}
+// 		}
 		
-		//Look for barcodes that don't match the visit of the collection (limited to bank aliquots)
+// 		//Look for barcodes that don't match the visit of the collection (limited to bank aliquots)
 		
-		$query = "SELECT ViewAliquot.*
-			FROM view_aliquots AS ViewAliquot
-			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP CONCAT('^PS[0-9]P[0-9]{4}\ ',ViewAliquot.procure_visit,'\ \-[A-Z]{3}')
-			AND ViewAliquot.procure_created_by_bank != 'p'
-			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
-		foreach($ViewAliquot_model->query($query) as $res) {
-			$error = __('wrong visit');
-			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
-			} else {
-				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
-			}
-		}
+// 		$query = "SELECT ViewAliquot.*
+// 			FROM view_aliquots AS ViewAliquot
+// 			WHERE ". implode(' AND ', $conditions) ."
+// 			AND ViewAliquot.barcode NOT REGEXP CONCAT('^PS[0-9]P[0-9]{4}\ ',ViewAliquot.procure_visit,'\ \-[A-Z]{3}')
+// 			AND ViewAliquot.procure_created_by_bank != 'p'
+// 			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
+// 		foreach($ViewAliquot_model->query($query) as $res) {
+// 			$error = __('wrong visit');
+// 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+// 			} else {
+// 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+// 			}
+// 		}
 		
-		$final_data = array();
-		foreach($data as $new_aliquots) {
-			foreach($new_aliquots as $new_aliquot) {
-				$new_aliquot['0']['procure_barcode_error'] = implode(' & ', $new_aliquot['0']);
-				$final_data[] = $new_aliquot;
-			}
-		}
+// 		$final_data = array();
+// 		foreach($data as $new_aliquots) {
+// 			foreach($new_aliquots as $new_aliquot) {
+// 				$new_aliquot['0']['procure_barcode_error'] = implode(' & ', $new_aliquot['0']);
+// 				$final_data[] = $new_aliquot;
+// 			}
+// 		}
 		
-		if(sizeof($final_data) > Configure::read('databrowser_and_report_results_display_limit')) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'the report contains too many results - please redefine search criteria');
-		}
+// 		if(sizeof($final_data) > Configure::read('databrowser_and_report_results_display_limit')) {
+// 			return array(
+// 				'header' => null,
+// 				'data' => null,
+// 				'columns_names' => null,
+// 				'error_msg' => 'the report contains too many results - please redefine search criteria');
+// 		}
 		
-		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+// 		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
 		
-		return array(
-			'header' => $header,
-			'data' => $final_data,
-			'columns_names' => null,
-			'error_msg' => null);
+// 		return array(
+// 			'header' => $header,
+// 			'data' => $final_data,
+// 			'columns_names' => null,
+// 			'error_msg' => null);
 	}
 	
 	function procureBankActivityReport($parameters) {
@@ -1764,8 +1767,8 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Get Criteria
 		
-		$header = array();
 		$conditions = array('TRUE');
+		$procure_ps_nbrs_description = '';
 		
 		if(isset($parameters['Participant']['participant_identifier_start'])) {
 			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
@@ -1794,9 +1797,7 @@ class ReportsControllerCustom extends ReportsController {
 		        $conditions[] = "(".implode(' OR ', $tmp_conditions).")";
 		    }
 		    if($procure_ps_nbrs) {
-    		    $header = array(
-                    'title' => __('report limited to').' : ' .implode(", ",$procure_ps_nbrs).'.',
-                    'description' => '');
+    		    $procure_ps_nbrs_description = ' || '.__('participant identifier prefix').' '.implode(", ",$procure_ps_nbrs);
 		    }
 		}
 		
@@ -1810,7 +1811,10 @@ class ReportsControllerCustom extends ReportsController {
 		    'procure_nbr_of_participants_with_collection_pre_bcr' => array(),
 		    'procure_nbr_of_participants_with_pbmc_extraction' => array(),
 		    'procure_nbr_of_participants_with_rna_extraction' => array(),
-		    'procure_nbr_of_participants_with_clinical_data_update' => array());
+		    'procure_nbr_of_participants_with_clinical_data_update' => array(),
+		    'procure_nbr_of_psa_created_modified' => array(),
+		    'procure_nbr_of_treatment_created_modified' => array(),
+		    'procure_nbr_of_clinical_exams_created_modified' => array());
         $date_key_list = array();
         
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
@@ -1828,21 +1832,29 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $res) $sample_controls[$res['sample_controls']['sample_type']] = array('id' => $res['sample_controls']['id'], 'detail_tablename' => $res['sample_controls']['detail_tablename']);
 		
 		$end_date_year = date("Y");
-		$end_date = date("Y-m-d");
+		$end_date = date("Y-m");
 		$start_date= str_replace($end_date_year, ($end_date_year -1), $end_date);
+		$end_date .= '-31';
+		$start_date .= '-01';
 
 		//Get participants ids
 		$query = "SELECT DISTINCT
 			Participant.id
 			FROM participants Participant
-			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
+			WHERE Participant.deleted <> 1
+		    AND ". implode(' AND ', $conditions);
 		$participant_ids = array();
 		foreach($participant_model->query($query) as $new_participant_id) {
 		    $participant_ids[] = $new_participant_id['Participant']['id'];
 		}
 		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids);
 		
-        // Get number of participants with visit and/or collection
+        $header = array(
+		    'title' => __('report parameters'),
+		    'description' => __('from')." $start_date ".__('to')." $end_date || ".sizeof($participant_ids).' '.__('participants').$procure_ps_nbrs_description
+		);
+		
+		// Get number of participants with visit and/or collection
 		
 		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
                 SELECT DISTINCT res1.participant_id, res1.record_year, res1.record_month FROM (
@@ -1998,7 +2010,8 @@ class ReportsControllerCustom extends ReportsController {
             		YEAR(date_of_death) AS record_year,
                     LPAD(MONTH(date_of_death), 2, '0') AS record_month
             		FROM participants
-            		WHERE date_of_death > '$start_date' 
+            		WHERE deleted <> 1 
+            		AND date_of_death > '$start_date' 
                     AND date_of_death <= '$end_date'
                     AND id IN ($participant_ids_strg)
             		UNION All
@@ -2006,7 +2019,8 @@ class ReportsControllerCustom extends ReportsController {
             		YEAR(event_date) AS event_year,
                     LPAD(MONTH(event_date), 2, '0') AS event_month
             		FROM event_masters
-            		WHERE event_date > '$start_date'
+            		WHERE deleted <> 1 
+            		AND event_date > '$start_date'
                     AND event_date <= '$end_date'   
                     AND participant_id IN ($participant_ids_strg)
             		UNION All
@@ -2014,7 +2028,8 @@ class ReportsControllerCustom extends ReportsController {
             		YEAR(start_date) AS event_year,
                     LPAD(MONTH(start_date), 2, '0') AS event_month
             		FROM treatment_masters
-            		WHERE start_date > '$start_date'
+            		WHERE deleted <> 1 
+            		AND start_date > '$start_date'
                     AND start_date <= '$end_date'
                     AND participant_id IN ($participant_ids_strg)
             		UNION All
@@ -2022,7 +2037,8 @@ class ReportsControllerCustom extends ReportsController {
             		YEAR(finish_date) AS event_year,
                     LPAD(MONTH(finish_date), 2, '0') AS event_month
             		FROM treatment_masters
-            		WHERE finish_date > '$start_date'
+            		WHERE deleted <> 1 
+            		AND finish_date > '$start_date'
                     AND finish_date <= '$end_date'
                     AND participant_id IN ($participant_ids_strg)
                 ) AS res1
@@ -2031,6 +2047,117 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $new_participants_count) {
 		    $data['procure_nbr_of_participants_with_clinical_data_update'][$new_participants_count[0]['y_m']] =  $new_participants_count[0]['nbr_of_records'];
 		    $date_key_list[$new_participants_count[0]['y_m']] = $new_participants_count[0]['y_m'];
+		}
+		
+		// Get number of psa(s), treatments, clinical exams created/updated
+		
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT event_masters.id,
+        		YEAR(created) AS record_year,
+        		LPAD(MONTH(created), 2, '0') AS record_month
+        		FROM event_masters
+        		WHERE deleted <> 1 
+        		AND event_control_id = ".$event_controls['laboratory']['id']."
+                AND created > '$start_date'
+        		AND created <= '$end_date'
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_psa_created_modified'][$new_psas_count[0]['y_m']]['created'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT event_masters.id,
+        		YEAR(modified) AS record_year,
+        		LPAD(MONTH(modified), 2, '0') AS record_month
+        		FROM event_masters
+        		WHERE deleted <> 1
+        		AND event_control_id = ".$event_controls['laboratory']['id']."
+        		AND modified > '$start_date'
+        		AND modified <= '$end_date'
+        		AND modified != created
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_psa_created_modified'][$new_psas_count[0]['y_m']]['modified'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT event_masters.id,
+        		YEAR(created) AS record_year,
+        		LPAD(MONTH(created), 2, '0') AS record_month
+        		FROM event_masters
+        		WHERE deleted <> 1
+        		AND event_control_id = ".$event_controls['clinical exam']['id']."
+        		AND created > '$start_date'
+        		AND created <= '$end_date'
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_clinical_exams_created_modified'][$new_psas_count[0]['y_m']]['created'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT event_masters.id,
+        		YEAR(modified) AS record_year,
+        		LPAD(MONTH(modified), 2, '0') AS record_month
+        		FROM event_masters
+        		WHERE deleted <> 1
+        		AND event_control_id = ".$event_controls['clinical exam']['id']."
+        		AND modified > '$start_date'
+        		AND modified <= '$end_date'
+        		AND modified != created
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_clinical_exams_created_modified'][$new_psas_count[0]['y_m']]['modified'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT treatment_masters.id,
+        		YEAR(created) AS record_year,
+        		LPAD(MONTH(created), 2, '0') AS record_month
+        		FROM treatment_masters
+        		WHERE deleted <> 1
+        		AND created > '$start_date'
+        		AND created <= '$end_date'
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_treatment_created_modified'][$new_psas_count[0]['y_m']]['created'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
+        		SELECT DISTINCT treatment_masters.id,
+        		YEAR(modified) AS record_year,
+        		LPAD(MONTH(modified), 2, '0') AS record_month
+        		FROM treatment_masters
+        		WHERE deleted <> 1
+        		AND modified > '$start_date'
+        		AND modified <= '$end_date'
+        		AND modified != created
+        		AND participant_id IN ($participant_ids_strg)
+    		) AS res
+    		GROUP BY res.record_year, res.record_month;";
+		foreach($participant_model->query($query) as $new_psas_count) {
+		    $data['procure_nbr_of_treatment_created_modified'][$new_psas_count[0]['y_m']]['modified'] =  $new_psas_count[0]['nbr_of_records'];
+		    $date_key_list[$new_psas_count[0]['y_m']] = $new_psas_count[0]['y_m'];
+		}
+		
+		foreach(array('procure_nbr_of_psa_created_modified', 'procure_nbr_of_clinical_exams_created_modified', 'procure_nbr_of_treatment_created_modified') as $tmp_created_modified_field) {
+		    foreach($data[$tmp_created_modified_field] as $tmp_created_modified_date => $tmp_created_modified_values) {
+    		    $created = isset($tmp_created_modified_values['created'])? $tmp_created_modified_values['created'] : '0';
+    		    $modified = isset($tmp_created_modified_values['modified'])? $tmp_created_modified_values['modified'] : '0';
+    		    $data[$tmp_created_modified_field][$tmp_created_modified_date] = "$created + $modified";
+		    }
+		    
 		}
 		
 		// Set empty value
