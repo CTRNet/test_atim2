@@ -75,44 +75,40 @@ class ParticipantCustom extends Participant {
 	function buildAddProcureFormsButton($participant_id) {
 		$add_links = array();
 		
-		if(Configure::read('procure_atim_version') == 'BANK') {
-			$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
-			$tmp_url = $this->getClinicalFileUpdateProcessUrl($participant_id, '1');
-			if($tmp_url) $add_links['update clinical record'] = array('link'=> $tmp_url['url'], 'icon' => 'duplicate');
-			$add_links['add procure clinical information'] = array();
-			//Consent
-			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
-			$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($consent_controls_list as $consent_control) {
-				$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
-					'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
-					'icon' => 'consents');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
-			//Event
-			$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
-			$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($event_controls_list as $event_ctrl) {
-				$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
-					'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
-					'icon' => 'annotation');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
-			//Treatment
-			$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-			$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($tx_controls_list as $treatment_control) {
-				$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
-					'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
-					'icon' => 'treatments');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
+		$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
+		$tmp_url = $this->getClinicalFileUpdateProcessUrl($participant_id, '1');
+		if($tmp_url) $add_links['update clinical record'] = array('link'=> $tmp_url['url'], 'icon' => 'duplicate');
+		$add_links['add procure clinical information'] = array();
+		//Consent
+		$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
+		$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($consent_controls_list as $consent_control) {
+			$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
+				'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
+				'icon' => 'consents');
+		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
+		//Event
+		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
+		$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($event_controls_list as $event_ctrl) {
+			$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
+				'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
+				'icon' => 'annotation');
+		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
+		//Treatment
+		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
+		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($tx_controls_list as $treatment_control) {
+			$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
+				'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
+				'icon' => 'treatments');
 		}
 		
 		return $add_links;
