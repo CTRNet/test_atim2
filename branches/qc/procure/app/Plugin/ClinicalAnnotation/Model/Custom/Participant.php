@@ -110,6 +110,8 @@ class ParticipantCustom extends Participant {
 				'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
 				'icon' => 'treatments');
 		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 		
 		return $add_links;
 	}

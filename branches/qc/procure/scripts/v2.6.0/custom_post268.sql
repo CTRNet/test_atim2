@@ -2899,7 +2899,7 @@ UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_reason' 
 
 -- Drug Type (hide)
 
-SELECT Drug.generic_name AS 'Drug name used more than once', Drug.type, IF(Drug.procure_study = 1, 'Yes', 'No') AS 'Is study', count(*) AS 'Nbr Of Record(s)'
+SELECT Drug.generic_name AS '###WARNING### Drug name defined more than once into Drug Tool. To clean up to have no duplciation', Drug.type, IF(Drug.procure_study = 1, 'Yes', 'No') AS 'Is study', count(*) AS 'Nbr Of Record(s)'
 FROM drugs Drug,
 (
   SELECT generic_name AS dup_generic_name, count(*) AS nbr_records
@@ -3303,11 +3303,26 @@ VALUES
 "Number of clinical exam(s) created + modified",
 "Nombre d'examen(s) clinique9s) créés + modifiés");
 
+
+
+
+
+
+
+
+
+
+
+UPDATE versions SET branch_build_number = '6982' WHERE version_number = '2.6.8';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- TODO (short time)
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 Revoire le contenenu du fichier 'SampleMasters_contentTreeView_format.php' 'AliquotMasters_contentTreeView_format.php'
 Les TMA seront fait par le chum...
 Importer que les study numebr dans export vers le central - supprimer les contacts et les messages, pas d'info sur les contacts dans study / order, etc...
 Vérifier que dans le processus de fusion le id auto-increment sont bien remis a 0
-
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
