@@ -39,7 +39,9 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$title = empty($collection_data['ViewCollection']['participant_identifier'])? '?' : $collection_data['ViewCollection']['participant_identifier'];
+			$title = empty($collection_data['ViewCollection']['participant_identifier'])? 
+                ($collection_data['ViewCollection']['procure_visit'] == 'Controls'? 'Controls' : '?') : 
+                $collection_data['ViewCollection']['participant_identifier'];
 			$date = empty($collection_data['ViewCollection']['collection_datetime'])? '' : ' '.substr($collection_data['ViewCollection']['collection_datetime'],0,strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
 			$return = array(
 				'menu' => array(null, $title . $date),
@@ -48,23 +50,22 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 				'data'				=> $collection_data
 			);
 			
-			if(Configure::read('procure_atim_version') != 'PROCESSING') {
-				//Check Consent
-				$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
-				if(!empty($consent_status)){
-					if(!$collection_data['ViewCollection']['participant_id']){
-						AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-					}else if($consent_status[$variables['Collection.id']] == null){
-						AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
-					}
-				}
-				//Check Aliquot Barcode
-				$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-				$aliquot_count = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_data['ViewCollection']['collection_id'], "AliquotMaster.barcode NOT LIKE '% ".$collection_data['ViewCollection']['procure_visit']." -%'"), 'recursive' => '-1'));
-				if($aliquot_count) {
-					AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
+			//Check Consent
+			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
+			if(!empty($consent_status)){
+				if(!$collection_data['ViewCollection']['participant_id']){
+					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+				}else if($consent_status[$variables['Collection.id']] == null){
+					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
 				}
 			}
+			//Check Aliquot Barcode
+			$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+			$aliquot_count = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_data['ViewCollection']['collection_id'], "AliquotMaster.barcode NOT LIKE '% ".$collection_data['ViewCollection']['procure_visit']." -%'"), 'recursive' => '-1'));
+			if($aliquot_count) {
+				AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
+			}
+				
 			//Check Aliquot Barcode
 			$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 			$aliquot_count = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_data['ViewCollection']['collection_id'], "AliquotMaster.barcode NOT LIKE '% ".$collection_data['ViewCollection']['procure_visit']." -%'"), 'recursive' => '-1'));

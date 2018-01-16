@@ -39,3 +39,21 @@ UPDATE versions SET site_branch_build_number = '6667' WHERE version_number = '2.
 
 UPDATE users SET username = 'NicoEn', flag_active = '1' WHERE id = 1;
 UPDATE versions SET site_branch_build_number = '6745' WHERE version_number = '2.6.8';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- procure_last_contact & qc_nd_last_contact
+
+UPDATE participants SET procure_last_contact = qc_nd_last_contact, procure_last_contact_accuracy = 'c' WHERE qc_nd_last_contact IS NOt NULL;
+UPDATE participants_revs SET procure_last_contact = qc_nd_last_contact, procure_last_contact_accuracy = 'c' WHERE qc_nd_last_contact IS NOt NULL;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_last_contact' AND `language_label`='last contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_last_contact' AND `language_label`='last contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_last_contact' AND `language_label`='last contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+
+ALTER TABLE participants CHANGE qc_nd_last_contact procure_deprecated_field_qc_nd_last_contact date DEFAULT NULL;
+ALTER TABLE participants_revs CHANGE qc_nd_last_contact procure_deprecated_field_qc_nd_last_contact date;
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET site_branch_build_number = '6983' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
