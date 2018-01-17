@@ -961,6 +961,7 @@ class ReportsControllerCustom extends ReportsController {
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
 		$event_control_id = $event_controls['laboratory']['id'];
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
+		$system_bcr_event_master_ids = array();
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
 			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
@@ -968,6 +969,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($prostatectomy_date && $new_psa['EventMaster']['event_date'] > $prostatectomy_date) {
 				//Check ATiM BCR
 				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
+				    $system_bcr_event_master_ids[] = $new_psa['EventMaster']['id'];
 					$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['psa_total_ngml'];
 					$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
 					$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
@@ -1016,13 +1018,32 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			} else if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
 				//No prostatectomy or BCR flagged before prostatectomy date
+				$system_bcr_event_master_ids[] = $new_psa['EventMaster']['id'];
 				$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['psa_total_ngml'];
 				$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
 				$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
 				$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
 			}
 		}
-	
+		
+		if($parameters['0']['update_system_biochemical_relapse']['0'] == '1') {
+    		// Update field procure_ed_laboratories.system_biochemical_relapse 
+    		// (to limit the number of records into revs tables (event_masters and particiants), update is done directly into table to bypass the record into revs)
+    		$update_query = "UPDATE event_masters EventMaster, procure_ed_laboratories EventDetail
+                SET EventDetail.system_biochemical_relapse = ''
+                WHERE EventMaster.participant_id IN ('".implode("','",$participant_ids)."')
+                AND EventMaster.id = EventDetail.event_master_id;";
+    		$treatment_model->tryCatchQuery($update_query);
+    		if($system_bcr_event_master_ids) {
+        		$update_query = "UPDATE event_masters EventMaster, procure_ed_laboratories EventDetail
+                    SET EventDetail.system_biochemical_relapse = 'y'
+                    WHERE EventMaster.id IN ('".implode("','",$system_bcr_event_master_ids)."')
+                    AND EventMaster.id = EventDetail.event_master_id;";
+        		$treatment_model->tryCatchQuery($update_query);
+    		}
+    		AppController::addWarningMsg(__('updated field procure_ed_laboratories.system_biochemical_relapse of the listed participants'));
+		}
+		
 		if($inaccurate_date) AppController::addWarningMsg(__('at least one participant summary is based on inaccurate date'));
 		
 		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
