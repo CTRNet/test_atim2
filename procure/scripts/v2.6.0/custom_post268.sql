@@ -2896,6 +2896,12 @@ ALTER TABLE participants_revs
   CHANGE procure_patient_withdrawn_reason procure_patient_refusal_withdrawal_reason text;
 UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_date' WHERE field = 'procure_patient_withdrawn_date';
 UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_reason' WHERE field = 'procure_patient_withdrawn_reason';
+UPDATE structure_fields SET  `language_help`='procure_patient_refusal_withdrawal_date_help' WHERE model='Participant' AND tablename='participants' AND field='procure_patient_refusal_withdrawal_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('procure_patient_refusal_withdrawal_date_help', 
+"Date of the last update of the fields of the section 'Refusal / Withdrawal / Lost Contact'. To record the changes history (like participant refused new collection from 2013 to 2016) please use the field 'Details'.", 
+"Date de la dernière mise à jour des champs de la section «Refus / Retrait / Contact perdu». Pour enregistrer l'historique des changements (comme le participant a refusé la nouvelle collection de 2013 à 2016), veuillez utiliser le champ 'Détails'.");
 
 -- Drug Type (hide)
 
@@ -3303,6 +3309,37 @@ VALUES
 "Number of clinical exam(s) created + modified",
 "Nombre d'examen(s) clinique9s) créés + modifiés");
 
+-- i18n correction
+
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('procure next followup report description', 'Last data collected during the last followup visit', 'Dernieres données recueillies lors de la dernière visite de suivi');
+
+-- Add PSA BCR system (updated by report)
+
+ALTER TABLE procure_ed_laboratories
+   ADD COLUMN system_biochemical_relapse char(1) DEFAULT '';
+ALTER TABLE procure_ed_laboratories_revs
+   ADD COLUMN system_biochemical_relapse char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'procure_ed_laboratories', 'system_biochemical_relapse', 'yes_no',  NULL , '0', '', '', 'procure_system_biochemical_relapse_help', 'system biochemical relapse', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_laboratories'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='procure_ed_laboratories' AND `field`='system_biochemical_relapse' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_system_biochemical_relapse_help' AND `language_label`='system biochemical relapse' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_laboratories' AND field='system_biochemical_relapse' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('update system biochemical relapse', "Update 'Biochemical Relapse (System)' values", "Mettre à jour les valeurs 'Récidive biochimique (Système)'"),
+('updated field procure_ed_laboratories.system_biochemical_relapse of the listed participants',
+"Sysem updated field 'Biochemical Relapse (System)' for the PSA(s) of the listed participant(s).",
+"Le sytème a mis à jour le champ 'Récidive biochimique (Système)' pour les APS(s) des participants listés dans le rapport."),
+('system biochemical relapse', "Biochemical Relapse (System)", "Récidive biochimique (Système)"),
+('procure_system_biochemical_relapse_help',
+"Biochemical relapse defined by the system and updated following the last execution of the report 'PROCURE - Biochemical Relapses Detection' on this participant.",
+"Récidive biochimique définie par le système et mise à jour suite à la dernière execution du rapport «PROCURE - Détection de rechutes biochimiques» sur ce participant.");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'update_system_biochemical_relapse', 'checkbox',  NULL , '0', '', '', '', 'update system biochemical relapse', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='update_system_biochemical_relapse' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='update system biochemical relapse' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 
 
