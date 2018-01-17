@@ -969,8 +969,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($prostatectomy_date && $new_psa['EventMaster']['event_date'] > $prostatectomy_date) {
 				//Check ATiM BCR
 				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
-				    $system_bcr_event_master_ids[] = $new_psa['EventMaster']['id'];
-					$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['psa_total_ngml'];
+				    $data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['psa_total_ngml'];
 					$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
 					$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
 					$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
@@ -980,21 +979,22 @@ class ReportsControllerCustom extends ReportsController {
 					$inaccurate_date = true;
 					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 				}
-				array_unshift($data[$participant_id]['tmp_all_psa'], array($new_psa['EventDetail']['psa_total_ngml'], $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']), $new_psa['EventMaster']['event_date_accuracy']));
+				array_unshift($data[$participant_id]['tmp_all_psa'], array($new_psa['EventDetail']['psa_total_ngml'], $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']), $new_psa['EventMaster']['event_date_accuracy'], $new_psa['EventMaster']['id']));
 				switch($procure_nbr_of_succesive_psa) {
 					case '1':
 						if(!strlen($data[$participant_id]['0']['procure_detected_bcr_psa'])) {
 							if($data[$participant_id]['tmp_all_psa']['0']['0'] >= $procure_psa_level) {
 								//BCR
-								list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+								list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['0'];
 								$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
+                                $system_bcr_event_master_ids[] = $tmp_event_master_id;
 								//Pre BCR
-								if(isset($data[$participant_id]['tmp_all_psa']['1'])) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['1'];
+								if(isset($data[$participant_id]['tmp_all_psa']['1'])) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['1'];
 							}
 						} else {
 							if(!strlen($data[$participant_id]['0']['procure_detected_post_bcr_psa'])) {
 								//Post BCR
-								list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+								list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['0'];
 							}
 						}
 						break;
@@ -1003,12 +1003,13 @@ class ReportsControllerCustom extends ReportsController {
 							if(!strlen($data[$participant_id]['0']['procure_detected_bcr_psa'])) {
 								if($data[$participant_id]['tmp_all_psa']['0']['0'] >= $procure_psa_level && $data[$participant_id]['tmp_all_psa']['1']['0'] >= $procure_psa_level) {
 									//Pre BCR
-									if(sizeof($data[$participant_id]['tmp_all_psa']) > 2) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['2'];
+									if(sizeof($data[$participant_id]['tmp_all_psa']) > 2) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['2'];
 									//BCR
-									list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['1'];
+									list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['1'];
 									$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
+									$system_bcr_event_master_ids[] = $tmp_event_master_id;
 									//Post BCR
-									list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+									list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy'], $tmp_event_master_id) = $data[$participant_id]['tmp_all_psa']['0'];
 								}
 							}								
 						}
@@ -1018,7 +1019,6 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			} else if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
 				//No prostatectomy or BCR flagged before prostatectomy date
-				$system_bcr_event_master_ids[] = $new_psa['EventMaster']['id'];
 				$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['psa_total_ngml'];
 				$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
 				$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
