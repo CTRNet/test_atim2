@@ -945,6 +945,29 @@ foreach(getSelectQueryResult($query) as $ps3_aliquot) {
 
 if($test_version) viewUpdate($date_yyyy_mm_dd, $imported_by);
 
+//=========================================================================================================================================
+// Create Participant Study Number Based On procure_participant_attribution_number
+//=========================================================================================================================================
+
+$misc_identifier_control_id = getSelectQueryResult("SELECT id FROM misc_identifier_controls WHERE misc_identifier_name LIKE 'participant study number';");
+$misc_identifier_control_id = $misc_identifier_control_id[0]['id'];
+$new_query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, study_summary_id, created, created_by, modified, modified_by)
+    (SELECT DISTINCT Participant.procure_participant_attribution_number, $misc_identifier_control_id, Participant.id, StudySummary.id, '$import_date', $imported_by, '$import_date', $imported_by
+    FROM study_summaries StudySummary
+    INNER JOIN orders Ord ON Ord.default_study_summary_id = StudySummary.id
+    INNER JOIN order_items OrderItem ON OrderItem.order_id = Ord.id AND OrderItem.deleted <> 1
+    INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id AND AliquotMaster.deleted <> 1
+    INNEr JOIN collections Collection ON Collection.id = AliquotMaster.collection_id AND Collection.deleted <> 1
+    INNER JOIN participants Participant ON Participant.id = Collection.participant_id AND Participant.deleted <> 1
+    WHERE StudySummary.deleted <> 1)";
+customQuery($new_query);
+
+addToModifiedDatabaseTablesList('misc_identifiers', null);
+
+//=========================================================================================================================================
+// End of the process
+//=========================================================================================================================================
+
 $final_queries = array(
     "UPDATE sample_masters SET procure_created_by_bank = '$procure_cusm_ps_numer' WHERE procure_created_by_bank IN ('p', 'x');",
     "UPDATE aliquot_masters SET procure_created_by_bank = '$procure_cusm_ps_numer' WHERE procure_created_by_bank IN ('p', 'x');",

@@ -192,6 +192,8 @@ UPDATE structure_formats
 SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_participant_attribution_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_participant_identifier_prefix' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+
 
 
 
