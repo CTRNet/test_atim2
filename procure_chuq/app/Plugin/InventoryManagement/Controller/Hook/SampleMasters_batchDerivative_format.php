@@ -1,6 +1,6 @@
 <?php
 	
-	//===============================================================================
+    //===============================================================================
 	//Manage structure to record the initial weight of blood tube
 	//===============================================================================
 	
@@ -17,7 +17,6 @@
 			$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume,procure_tube_weight_for_derivative_creation', 'aliquots_volume_structure');
 		}
 	} else {
-	
 		$reset_aliquots_volume_structure = false;
 		foreach($this->request->data as $procure_key => &$procure_data) {
 			if(array_key_exists('AliquotDetail', $procure_data) && array_key_exists('procure_tube_weight_gr', $procure_data['AliquotDetail'])) {
