@@ -1,9 +1,5 @@
 <?php 
 	
-	//Cannot be added to Participant model because participant record will be updated by system for any MiscIdentifier creation/modification
-	//And there are no interest to ad control for CENTRAL BANK because data will be erased
-	if(Configure::read('procure_atim_version') != 'BANK') $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-	
 	// Clinical file update process
 	if (empty($this->request->data)) {			
 		$this->Participant->setNextUrlOfTheClinicalFileUpdateProcess($participant_id, $this->passedArgs);
@@ -13,13 +9,21 @@
 			$now_data = $this->Participant->query($now_query);
 			$now_date = $now_data[0][0]['created_date'];
 			
+			
+			// *** 1 *** Set the date of the last chart checked date
+			//    - If date of the visit completed today during this clinical file update process 
+			//          then set by default the last chart checked date to this visite date 
+			//          if this one is bigger than the existing last chart checked date
+			//    - Else if the current date is bigger than the last chart checked date
+			//          then set by default the last chart checked date to the current date
+			
 			//Check a visit/contact form has just been completed by user
 			$visit_contact_form_conditions = array(
 					'EventMaster.participant_id' => $participant_id,
 					'EventControl.event_type' => 'visit/contact',
 					"EventMaster.created LIKE '$now_date%'",
 					'EventMaster.created_by' => $_SESSION['Auth']['User']['id']);
-			$last_visite_contact = $this->EventMaster->find('first', array('conditions' => $visit_contact_form_conditions, 'order' => array('EventMaster.event_date DESC')));
+			$last_visit_date_completed_today = $this->EventMaster->find('first', array('conditions' => $visit_contact_form_conditions, 'order' => array('EventMaster.event_date DESC')));
 			
 			$last_chart_checked_date_in_database = '';
 			if(preg_match('/^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$/', $participant_data['Participant']['last_chart_checked_date'], $matches)) {
@@ -37,11 +41,11 @@
 				$last_chart_checked_date_in_database = __("the 'last chart checked date' is currently set to '%s'", $last_chart_checked_date_in_database);
 			}
 			
-			if($last_visite_contact) {
-				if($last_visite_contact['EventMaster']['event_date'] > $participant_data['Participant']['last_chart_checked_date']) {
+			if($last_visit_date_completed_today) {
+				if($last_visit_date_completed_today['EventMaster']['event_date'] > $participant_data['Participant']['last_chart_checked_date']) {
 					AppController::addWarningMsg(__('set last chart checked date to the date of the visit of the form you compelted today').' '.$last_chart_checked_date_in_database);
-					$participant_data['Participant']['last_chart_checked_date'] = $last_visite_contact['EventMaster']['event_date'];
-					$participant_data['Participant']['last_chart_checked_date_accuracy'] = $last_visite_contact['EventMaster']['event_date_accuracy'];
+					$participant_data['Participant']['last_chart_checked_date'] = $last_visit_date_completed_today['EventMaster']['event_date'];
+					$participant_data['Participant']['last_chart_checked_date_accuracy'] = $last_visit_date_completed_today['EventMaster']['event_date_accuracy'];
 				}
 			} else {
 				if($now_date > $participant_data['Participant']['last_chart_checked_date']) {
@@ -49,6 +53,32 @@
 					$participant_data['Participant']['last_chart_checked_date'] = $now_date;
 					$participant_data['Participant']['last_chart_checked_date_accuracy'] = 'c';
 				}
+			}
+			
+			// *** 2 *** Last contact date
+			
+			$procure_last_contact_in_database = '';
+			if(preg_match('/^([0-9]{4})\-([0-9]{2})\-([0-9]{2})$/', $participant_data['Participant']['procure_last_contact'], $matches)) {
+			    switch($participant_data['Participant']['procure_last_contact_accuracy']) {
+			        case 'd':
+			            $procure_last_contact_in_database = $matches[1].'-'.$matches[2];
+			            break;
+			        case 'm':
+			        case 'y':
+			            $procure_last_contact_in_database = $matches[1];
+			            break;
+			        default:
+			            $procure_last_contact_in_database = $participant_data['Participant']['procure_last_contact'];
+			    }
+			    $procure_last_contact_in_database = __("the 'last contact date' is currently set to '%s'", $procure_last_contact_in_database);
+			}
+			
+			if($last_visit_date_completed_today) {
+			    if($last_visit_date_completed_today['EventMaster']['event_date'] > $participant_data['Participant']['procure_last_contact']) {
+			        AppController::addWarningMsg(__('set last contact date to the date of the visit of the form you compelted today').' '.$procure_last_contact_in_database);
+			        $participant_data['Participant']['procure_last_contact'] = $last_visit_date_completed_today['EventMaster']['event_date'];
+			        $participant_data['Participant']['procure_last_contact_accuracy'] = $last_visit_date_completed_today['EventMaster']['event_date_accuracy'];
+			    }
 			}
 		}
 	}

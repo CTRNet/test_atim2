@@ -230,3 +230,25 @@ UPDATE versions SET permissions_regenerated = 0;
 
 UPDATE versions SET site_branch_build_number = '6747' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`='43' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_chuq_stop_followup_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('cause of death (code)' ,"Code (Cause of Death) (CHUQ Field)", "Code (Cause du décès) (Champ CHUQ)"),
+('confirmation source' ,"Confirmation Source (CHUQ Field)", "Source de la confirmation (Champ CHUQ)");
+INSERT INTO i18n (id,en,fr)
+(SELECT CONCAT('p.chuq - ', i18n.id),CONCAT(en, ' [CHUQ Field]'), CONCAT(fr, ' [Champ CHUQ]') 
+FROM structure_fields SF, i18n 
+WHERE field LIKE '%procure_chuq%'
+AND language_label = i18n.id);
+UPDATE structure_fields 
+SET language_label = CONCAT('p.chuq - ', language_label)
+WHERE field LIKE '%procure_chuq%';
+
+UPDATE versions SET site_branch_build_number = '6747' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
+
