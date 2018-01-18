@@ -1,13 +1,23 @@
 <?php 
-		
-	//Note there is no interest to add control for CENTRAL BANK because data will be erased
-	if(Configure::read('procure_atim_version') != 'BANK') {
-		if($sample_control_data['SampleControl']['sample_category'] == 'specimen') {
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		} else if($parent_sample_data['SampleMaster']['procure_created_by_bank'] != 'p'){
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
+
+	// # 1 # ATiM Processing Site Data Check
+	//===================================================
+	// Sample created by system to migrate aliquot from ATiM-Processing site can be used as parent sample when at least one aliquot exists for this sample into the ATiM
+	// used (this one is the aliquot previously transferred from bank different than PS3 to 'Processing Site' and now merged into the ATiM of PS3).
+	  
+	if($parent_sample_data && $parent_sample_data['SampleMaster']['procure_created_by_bank'] == 's') {
+	   $tmp_aliquots_count = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.sample_master_id' => $parent_sample_data['SampleMaster']['id'])));
+	    if(!$tmp_aliquots_count) {
+            $this->flash(
+	            __('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot'), 
+	            "javascript:history.back();", 
+	            5);
+	        return;
+	    }
 	}
+	
+	// # 2 # Default Values
+	//===================================================
 	
 	//--------------------------------------------------------------------------------
 	//  BLOOD

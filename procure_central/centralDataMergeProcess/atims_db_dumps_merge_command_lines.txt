@@ -1,16 +1,16 @@
-mysql -u root -p{password} -e "drop database if exists atim_procure_ps3_dump_dor_central"
 mysql -u root -p{password} -e "drop database if exists atim_procure_ps1_dump_dor_central"
 mysql -u root -p{password} -e "drop database if exists atim_procure_ps2_dump_dor_central"
+mysql -u root -p{password} -e "drop database if exists atim_procure_ps3_dump_dor_central"
 mysql -u root -p{password} -e "drop database if exists atim_procure_ps4_dump_dor_central"
 
-mysql -u root -p{password} -e "create database atim_procure_ps3_dump_dor_central"
 mysql -u root -p{password} -e "create database atim_procure_ps1_dump_dor_central"
 mysql -u root -p{password} -e "create database atim_procure_ps2_dump_dor_central"
+mysql -u root -p{password} -e "create database atim_procure_ps3_dump_dor_central"
 mysql -u root -p{password} -e "create database atim_procure_ps4_dump_dor_central"
 
-mysql -u root -p{password} atim_procure_ps3_dump_dor_central --default-character-set=utf8 < atim_procure_ps3_dump_for_central.sql
 mysql -u root -p{password} atim_procure_ps1_dump_dor_central --default-character-set=utf8 < atim_procure_ps1_dump_for_central.sql
 mysql -u root -p{password} atim_procure_ps2_dump_dor_central --default-character-set=utf8 < atim_procure_ps2_dump_for_central.sql
+mysql -u root -p{password} atim_procure_ps3_dump_dor_central --default-character-set=utf8 < atim_procure_ps3_dump_for_central.sql
 mysql -u root -p{password} atim_procure_ps4_dump_dor_central --default-character-set=utf8 < atim_procure_ps4_dump_for_central.sql
 
 php main.php > atim_merge_process_summary.html

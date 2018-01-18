@@ -95,6 +95,21 @@ class AppController extends Controller {
 			
 		$log_activity_model->save($log_activity_data);
 		
+		// record URL in logs file
+		
+        if(Configure::read('procure_user_log_output_path')) {
+        	$user_log_file_handle = fopen(Configure::read('procure_user_log_output_path') . 'user_logs.txt', "a");
+        	if($user_log_file_handle) {
+        	    $user_log_strg =  '['.$log_activity_data['UserLog']['visited'].'] '.
+        	            '{user_id:'.(strlen($log_activity_data['UserLog']['user_id'])? $log_activity_data['UserLog']['user_id'] : 'NULL').'] '.
+        	            $log_activity_data['UserLog']['url'].' (allowed:'.$log_activity_data['UserLog']['allowed'].')';
+        		fwrite($user_log_file_handle, "$user_log_strg\n");
+        	    fclose($user_log_file_handle);
+        	} else {
+        	    AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+            }
+        }
+		
 		// menu grabbed for HEADER
 		if($this->request->is('ajax')){
 			Configure::write ('debug', 0);
