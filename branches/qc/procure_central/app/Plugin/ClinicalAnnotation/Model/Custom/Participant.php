@@ -14,11 +14,16 @@ class ParticipantCustom extends Participant {
 			
 			$tructure_alias = 'participants';
 			if(Configure::read('procure_atim_version') == 'BANK') {
+			    // Add RAMQ and hospital number to the summary the sumamry
 				$MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 				$identifiers = $MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $result['Participant']['id'])));
 				$result[0] = array('RAMQ' => '', 'hospital_number' => '');
 				foreach($identifiers as $new_id) $result['0'][str_replace(' ', '_',$new_id['MiscIdentifierControl']['misc_identifier_name'])] = $new_id['MiscIdentifier']['identifier_value'];
 				$tructure_alias = 'participants,procure_miscidentifiers_for_participant_summary';
+				// Add warning on participant of another bank that is not transferred...
+				if(strpos($result['Participant']['participant_identifier'], 'PS'.Configure::read('procure_bank_id')) === false && $result['Participant']['procure_transferred_participant'] == 'n') { 
+				    AppController::addWarningMsg(__('participant of another bank but not transferred - no data entry'));
+				}
 			}
 			
 			$return = array(
@@ -57,12 +62,6 @@ class ParticipantCustom extends Participant {
 			//Field 'procure_transferred_participant' has to be set
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		if(isset($this->data['Participant']['procure_patient_withdrawn'])) {
-			if(!$this->data['Participant']['procure_patient_withdrawn'] && (strlen($this->data['Participant']['procure_patient_withdrawn_date']) || strlen(trim($this->data['Participant']['procure_patient_withdrawn_reason'])))) {
-				$result = false;
-				$this->validationErrors['participant_identifier'][] = "please check the patient withdrawn checkbox if required";
-			}
-		}
 		if(array_key_exists('date_of_death', $this->data['Participant'])) {
 			if(($this->data['Participant']['date_of_death'] || $this->data['Participant']['procure_cause_of_death']) && $this->data['Participant']['vital_status'] != 'deceased') {
 				$this->data['Participant']['vital_status'] = 'deceased';
@@ -76,45 +75,43 @@ class ParticipantCustom extends Participant {
 	function buildAddProcureFormsButton($participant_id) {
 		$add_links = array();
 		
-		if(Configure::read('procure_atim_version') == 'BANK') {
-			$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
-			$tmp_url = $this->getClinicalFileUpdateProcessUrl($participant_id, '1');
-			if($tmp_url) $add_links['update clinical record'] = array('link'=> $tmp_url['url'], 'icon' => 'duplicate');
-			$add_links['add procure clinical information'] = array();
-			//Consent
-			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
-			$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($consent_controls_list as $consent_control) {
-				$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
-					'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
-					'icon' => 'consents');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
-			//Event
-			$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
-			$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($event_controls_list as $event_ctrl) {
-				$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
-					'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
-					'icon' => 'annotation');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
-			//Treatment
-			$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-			$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
-			$add_links_tmp = array();
-			foreach ($tx_controls_list as $treatment_control) {
-				$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
-					'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
-					'icon' => 'treatments');
-			}
-			ksort($add_links_tmp);
-			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
+		$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
+		$tmp_url = $this->getClinicalFileUpdateProcessUrl($participant_id, '1');
+		if($tmp_url) $add_links['update clinical record'] = array('link'=> $tmp_url['url'], 'icon' => 'duplicate');
+		$add_links['add procure clinical information'] = array();
+		//Consent
+		$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
+		$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($consent_controls_list as $consent_control) {
+			$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
+				'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
+				'icon' => 'consents');
 		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
+		//Event
+		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
+		$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($event_controls_list as $event_ctrl) {
+			$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
+				'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
+				'icon' => 'annotation');
+		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
+		//Treatment
+		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
+		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
+		$add_links_tmp = array();
+		foreach ($tx_controls_list as $treatment_control) {
+			$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
+				'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
+				'icon' => 'treatments');
+		}
+		ksort($add_links_tmp);
+		$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 		
 		return $add_links;
 	}

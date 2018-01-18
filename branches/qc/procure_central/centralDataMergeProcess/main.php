@@ -1,5 +1,8 @@
 <?php
 
+
+// TODO
+
 $track_queries = false;
 
 $sitecodes_to_sites = array(
@@ -220,7 +223,6 @@ foreach($sites_atim_controls['central']['consent_controls'] as $control_type => 
 $tables_to_truncate[] = 'consent_masters';
 $tables_to_truncate[] = 'misc_identifiers';
 $tables_to_truncate[] = 'misc_identifier_controls';
-$tables_to_truncate[] = 'participant_messages';
 $tables_to_truncate[] = 'participants';
 //StorageLayout
 $tables_to_truncate[] = 'tma_slides';
@@ -229,8 +231,6 @@ $tables_to_truncate[] = 'storage_masters';
 $tables_to_truncate[] = 'storage_masters_revs';
 $tables_to_truncate[] = 'storage_controls';
 //Study
-$tables_to_truncate[] = 'study_fundings';
-$tables_to_truncate[] = 'study_investigators';
 $tables_to_truncate[] = 'study_summaries';
 //...
 $tables_to_truncate[] = 'datamart_batch_ids';
@@ -336,13 +336,10 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		// I - STUDY
 		
 		magicSelectInsert($site_schema, 'study_summaries');
-		//magicSelectInsert($site_schema, 'study_fundings', array('study_summary_id' => 'study_summaries'));
-		//magicSelectInsert($site_schema, 'study_investigators', array('study_summary_id' => 'study_summaries'));
 		
 		// II - PARTICIPANTS
 		
 		magicSelectInsert($site_schema, 'participants');
-		magicSelectInsert($site_schema, 'participant_messages', array('participant_id' => 'participants'));
 		
 		// III - IDENTIFIERS
 		
@@ -557,8 +554,22 @@ foreach($populated_tables_information as $table_name => $populated_table_data) {
 if($drug_ids_to_delete) customQuery("DELETE FROM drugs WHERE id IN (".implode(',', $drug_ids_to_delete).")");
 
 // Merge duplicated patients: 
-//    Note we won't merge patient created in the processing site database
-//    These patient should be deleted in section below
+
+$merged_participants_fields = array(
+    'date_of_birth', 
+    'vital_status', 
+    'date_of_death', 
+    'procure_cause_of_death', 
+    'procure_patient_withdrawn',
+    'procure_patient_refusal_withdrawal_date', 
+    'procure_last_contact', 
+    'procure_last_contact_details',
+    'procure_next_collections_refusal', 
+    'procure_refusal_to_be_contacted', 
+    'procure_clinical_file_update_refusal', 
+    'procure_contact_lost', 
+    'procure_next_visits_refusal', 
+    'procure_patient_refusal_withdrawal_reason');
 
 $query = "SELECT ids, participant_identifier
 	FROM (
@@ -580,7 +591,6 @@ foreach($duplicated_participants as $new_duplicated_participants_data) {
 	$participants_data_to_display = $participants_data[0];
 	unset($participants_data[0]);
 	$participants_banks = array($participants_data_to_display['procure_last_modification_by_bank']);
-	$all_notes_to_merge = strlen($participants_data_to_display['notes'])? array($participants_data_to_display['notes']) : array();
 	$check_all_flagged_as_transferred = ($participants_data_to_display['procure_transferred_participant'] == 'y')? true : false;
 	
 	
@@ -590,18 +600,13 @@ foreach($duplicated_participants as $new_duplicated_participants_data) {
 	foreach($participants_data as $duplicated_participant) {
 		$matching_participant_ids[$participants_data_to_display['id']][] = $duplicated_participant['id'];
 		$participants_banks[] = "'".$sitecodes_to_sites[$duplicated_participant['procure_last_modification_by_bank']]."'";
-		if(strlen($duplicated_participant['notes'])) $all_notes_to_merge[] = $duplicated_participant['notes'];
 		if($duplicated_participant['procure_transferred_participant'] != 'y') $check_all_flagged_as_transferred = false;
-		foreach(array('date_of_birth', 'vital_status', 'date_of_death', 'procure_cause_of_death', 'procure_patient_withdrawn', 'procure_patient_withdrawn_date', 'procure_patient_withdrawn_reason') as $studied_field) {
+		foreach($merged_participants_fields as $studied_field) {
 			if($participants_data_to_display[$studied_field] !== $duplicated_participant[$studied_field]) $check_all_data_similar = false;
 		}
 	}
 	$matching_participant_ids[$participants_data_to_display['id']] = implode(',', $matching_participant_ids[$participants_data_to_display['id']]);
 	$participants_banks = implode(', ', $participants_banks);
-	//Update notes
-	$all_notes_to_merge[] = "Participant followed by banks : $participants_banks.";
-	$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode(' ',$all_notes_to_merge))."' WHERE id = ".$participants_data_to_display['id'];
-	customQuery($query);
 	//Record merge process message
 	recordErrorAndMessage('Participants', '@@MESSAGE@@', "Transferred participant", "Participant is recorded into more than one bank. The participant data (excepted profile) recorded in each site will be merged and linked to the last modified participant profile.", "$participant_identifier in banks $participants_banks");
 	if(!$check_all_flagged_as_transferred) recordErrorAndMessage('Participants', '@@WARNING@@', "Participant not flagged as 'Transferred Participant'", "At least one bank did not flagged participant listed in more than one bank as 'Transferred Participant'. Please validate with banks.", "$participant_identifier in banks $participants_banks");

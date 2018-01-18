@@ -5,22 +5,23 @@
 
 UPDATE participants 
 SET first_name = 'confid.', 
-last_name = 'confid.', notes = '';
+last_name = 'confid.', 
+notes = 'confid.';
 UPDATE participants 
 SET date_of_birth = CONCAT(SUBSTR(date_of_birth, 1, 4),'-01-01');
 UPDATE participants 
 SET date_of_birth_accuracy = 'm' WHERE date_of_birth_accuracy IN ('c','d');
 
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'chum', 'ps1');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'CHUM', 'ps1');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'chuq', 'ps2');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'CHUQ', 'ps2');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'muhc', 'ps3');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'MUHC', 'ps3');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'cusm', 'ps3');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'CUSM', 'ps3');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'chus', 'ps4');
-UPDATE participants SET procure_patient_withdrawn_reason = REPLACE(procure_patient_withdrawn_reason, 'CHUS', 'ps4');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chum', 'ps1');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUM', 'ps1');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chuq', 'ps2');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUQ', 'ps2');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'muhc', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'MUHC', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'cusm', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CUSM', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chus', 'ps4');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUS', 'ps4');
 
 -- Participant Indetifiers (RAMQ, Hospital Numbers, etc)
 -- ..................................................................................................................
@@ -62,8 +63,7 @@ UPDATE treatment_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
 -- Remove pathology number
 
 UPDATE procure_ed_lab_pathologies 
-SET path_number = 'confid.', 
-qc_nd_surgeon = 'confid.', 
+SET path_number = 'confid.',
 pathologist_name = 'confid.';
 UPDATE sd_spe_tissues 
 SET procure_report_number = 'confid.', 
@@ -167,15 +167,6 @@ procure_address_postal = 'confid.',
 procure_phone_number = 'confid.',
 procure_fax_number = 'confid.',
 procure_email = 'confid.';
- 
-UPDATE study_fundings 
-SET study_sponsor = 'confid.', 
-contact = 'confid.', 
-phone_number = 'confid.', 
-phone_extension = 'confid.',
-fax_number = 'confid.', 
-fax_extension = 'confid.', 
-email = 'confid.';
   
 -- Shipment
 -- ..................................................................................................................
@@ -195,7 +186,7 @@ delivery_notes = 'confid.',
 shipping_company = 'confid.', 
 shipping_account_nbr = 'confid.', 
 tracking = 'confid.';
-  
+
 -- ..................................................................................................................
 -- Generate date of script creation
   
@@ -225,9 +216,7 @@ ALTER TABLE ad_tubes
 ALTER TABLE aliquot_masters
     DROP COLUMN qc_nd_stored_by; 
 ALTER TABLE aliquot_masters_revs 
-    DROP COLUMN qc_nd_stored_by; 
-ALTER TABLE participants 
-    DROP COLUMN qc_nd_last_contact; 
+    DROP COLUMN qc_nd_stored_by;
 ALTER TABLE procure_ed_lab_pathologies 
     DROP COLUMN qc_nd_margins_extensive_apex; 
 ALTER TABLE sd_der_dnas 

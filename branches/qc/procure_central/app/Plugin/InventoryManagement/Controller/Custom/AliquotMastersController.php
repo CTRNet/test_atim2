@@ -39,7 +39,7 @@ class AliquotMastersControllerCustom extends AliquotMastersController{
 		$this->AliquotMaster->sortForDisplay($aliquot_data, $aliquot_ids);
 		
 		$aliquots_used_barcode = array();
-		$aliquots_used = $this->AliquotInternalUse->find('all', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_ids, 'AliquotInternalUse.type' => 'sent to processing site')));	
+		$aliquots_used = $this->AliquotInternalUse->find('all', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_ids, 'AliquotInternalUse.type' => 'sent to processing site ps3')));	
 		foreach($aliquots_used as $new_use) {
 			$aliquots_used_barcode[] = $new_use['AliquotMaster']['barcode'];
 		}
@@ -94,7 +94,7 @@ class AliquotMastersControllerCustom extends AliquotMastersController{
 				}
 				if(!isset($current_barcode_to_procure_created_by_bank[$new_studied_aliquot['ViewAliquot']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$procure_created_by_bank = $current_barcode_to_procure_created_by_bank[$new_studied_aliquot['ViewAliquot']['barcode']];
-				$barcode_error = $this->AliquotMaster->validateBarcode($new_studied_aliquot['AliquotMaster']['barcode'], $procure_created_by_bank, $new_studied_aliquot['ViewAliquot']['participant_identifier'], $new_studied_aliquot['ViewAliquot']['procure_visit']);
+				$barcode_error = $this->AliquotMaster->validateBarcode(false, $new_studied_aliquot['AliquotMaster']['barcode'], $procure_created_by_bank, $new_studied_aliquot['ViewAliquot']['participant_identifier'], $new_studied_aliquot['ViewAliquot']['procure_visit']);
 				if($barcode_error) $errors['AliquotMaster']['barcode'][__($barcode_error)][] = $record_counter;
 				// Reset data
 				$this->request->data[$key] = $new_studied_aliquot;
