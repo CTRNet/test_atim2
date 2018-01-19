@@ -249,13 +249,6 @@ UPDATE versions SET permissions_regenerated = 0;
 
 
 
-
-
-
-
-il faudrait supprimer ps4_ chuq etc au niveau du central....
-ps4_ 
-
 L'onglet contact ne sert à rien pour nous
 L'onglet message ne sert à rien
 
@@ -264,7 +257,5 @@ TODO procure_banks_data_merge_messages
 
 
 TODO:
-  - Faut il supprimer les dates de chirurgie.
-  - HTTPS sur les serveur central.
   - EXporter le résumé de la migration en csv et non html
   - Faire un truncate dans le processus de merge pour ne pas avoir des ids trop grand.
