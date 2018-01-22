@@ -242,6 +242,14 @@ UPDATE versions SET permissions_regenerated = 0;
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO i18n (id,en,fr)
+VALUES
+('participant study number PS1', 'Participant Study # - PS1', 'No étude patient - PS1'),
+('participant study number PS2', 'Participant Study # - PS2', 'No étude patient - PS2'),
+('participant study number PS3', 'Participant Study # - PS3', 'No étude patient - PS3'),
+('participant study number PS4', 'Participant Study # - PS4', 'No étude patient - PS4');
+
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
 
 
 
@@ -249,6 +257,13 @@ UPDATE versions SET permissions_regenerated = 0;
 
 
 
+
+
+
+
+
+  
+  
 L'onglet contact ne sert à rien pour nous
 L'onglet message ne sert à rien
 

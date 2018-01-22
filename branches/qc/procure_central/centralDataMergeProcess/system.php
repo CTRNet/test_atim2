@@ -523,7 +523,7 @@ function getControls($db_schema) {
 	foreach(getSelectQueryResult("SELECT id, disease_site, event_type, detail_tablename FROM $db_schema.event_controls WHERE flag_active = 1") as $new_control) $atim_controls['event_controls'][(strlen($new_control['disease_site'])? $new_control['disease_site'].'-': '').$new_control['event_type']] = $new_control;
 	//*** Control : misc_identifier_controls ***
 	$atim_controls['misc_identifier_controls'] = array();
-	foreach(getSelectQueryResult("SELECT id, misc_identifier_name, flag_active, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_unique FROM $db_schema.misc_identifier_controls WHERE flag_active = 1") as $new_control) $atim_controls['misc_identifier_controls'][$new_control['misc_identifier_name']] = $new_control;
+	foreach(getSelectQueryResult("SELECT id, misc_identifier_name, flag_active, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_unique FROM $db_schema.misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name LIKE '%participant study number%'") as $new_control) $atim_controls['misc_identifier_controls'][$new_control['misc_identifier_name']] = $new_control;
 	//*** Control : storage_controls ***
 	$atim_controls['storage_controls'] = array();
 	foreach(getSelectQueryResult("SELECT id, storage_type, coord_x_title, coord_x_type, coord_x_size, coord_y_title, coord_y_type, coord_y_size, display_x_size, display_y_size , set_temperature, is_tma_block, detail_tablename FROM $db_schema.storage_controls WHERE flag_active = 1") as $new_control) $atim_controls['storage_controls'][$new_control['storage_type']] = $new_control;
@@ -746,12 +746,14 @@ function dislayErrorAndMessage($commit = false) {
 				foreach($details as $detail) {
 					$detail = str_replace("\n", ' ', $detail);
 					echo ' - '.utf8_decode($detail)."<br>";
-					//Record data in db
-					$detail = str_replace("'", "''", $detail);
-					$query = "INSERT INTO procure_banks_data_merge_messages (type, message_nbr, title, description, details, created, created_by, modified, modified_by)
-						VALUES 
-						('".str_replace('@','',$msg_level)."', $err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
-					customQuery($query, true);
+					if($msg_title != 'List of queries') {
+    					//Record data in db
+    					$detail = str_replace("'", "''", $detail);
+    					$query = "INSERT INTO procure_banks_data_merge_messages (type, message_nbr, title, description, details, created, created_by, modified, modified_by)
+    						VALUES 
+    						('".str_replace('@','',$msg_level)."', $err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
+    					customQuery($query, true);
+					}
 				}
 			}
 		}
