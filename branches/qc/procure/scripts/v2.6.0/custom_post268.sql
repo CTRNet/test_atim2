@@ -3353,9 +3353,13 @@ CREATE TABLE `procure_banks_data_merge_tries` (
   `datetime` datetime DEFAULT NULL,
   `result` varchar(100) DEFAULT NULL,
   `ps1_dump_date` datetime DEFAULT NULL,
+  `ps1_dump_versions` varchar(100) DEFAULT NULL,
   `ps2_dump_date` datetime DEFAULT NULL,
+  `ps2_dump_versions` varchar(100) DEFAULT NULL,
   `ps3_dump_date` datetime DEFAULT NULL,
+  `ps3_dump_versions` varchar(100) DEFAULT NULL,
   `ps4_dump_date` datetime DEFAULT NULL,
+  `ps4_dump_versions` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS procure_banks_data_merge_messages;
@@ -3418,7 +3422,26 @@ VALUES
 "Transferred Aliquot : Aliquot created into one of the banks (PS1, PS2 or PS4) then transferred to PS3 and recorded into 'ATiM-PS3', ATiM that gathers aliquots previoulsy recorded into the depreacted 'ATiM-Procure Processing Site'.",
 "Aliquot transféré : Aliquot créé dans une des banques (PS1, PS2 ou PS4) puis transféré à PS3 et enregistré dans le 'ATiM-PS3', ATiM contenant les aliquots précédemment enregistrés dans le 'ATiM-Procure Processing Site' obsoltète.");
 
-UPDATE versions SET branch_build_number = '6994' WHERE version_number = '2.6.8';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps1_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps2_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps3_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps4_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps1_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps2_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps3_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps4_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO structure_value_domains (domain_name) VALUES ("procure_bank_data_merge_results");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("failed", "failed"),("successfull", "successfull");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_bank_data_merge_results"), (SELECT id FROM structure_permissible_values WHERE value="failed" AND language_alias="failed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_bank_data_merge_results"), (SELECT id FROM structure_permissible_values WHERE value="successfull" AND language_alias="successfull"), "1", "1");
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_bank_data_merge_results')  WHERE model='ProcureBanksDataMergeTrie' AND tablename='procure_banks_data_merge_tries' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE versions SET branch_build_number = '6995' WHERE version_number = '2.6.8';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
