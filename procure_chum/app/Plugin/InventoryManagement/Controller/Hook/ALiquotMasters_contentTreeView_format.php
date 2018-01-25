@@ -20,18 +20,7 @@ if(Configure::read('procure_atim_version') == 'CENTRAL') {
 					foreach($keys_disabled as $new_key) unset($tree_node['css'][$new_key]);
 					$tree_node['css'][] = 'disabled_transfered_psp_aliquot';
 				}
-			} else if($tree_node['AliquotMaster']['procure_created_by_bank'] == 'p') {
-				//Aliquot created by processing site
-				if(!$keys_disabled) {
-					$tree_node['css'][] = 'psp_aliquot';
-				} else {
-					foreach($keys_disabled as $new_key) unset($tree_node['css'][$new_key]);
-					$tree_node['css'][] = 'disabled_psp_aliquot';
-				}
 			}
-		} else if(isset($tree_node['ViewAliquotUse']) && $tree_node['ViewAliquotUse']['procure_created_by_bank'] == 'p') {
-			//Aliquot use created in psp site
-			$tree_node['css'][] = 'disabled_psp_record';
 		}	
 	}
 }
