@@ -1157,7 +1157,7 @@ class ReportsControllerCustom extends ReportsController {
 			Participant.last_name,
 			Participant.date_of_birth,
 			Participant.date_of_birth_accuracy,
-		    notes,
+		    Participant.notes,
 		    procure_patient_withdrawn,
 		    procure_next_collections_refusal,
 		    procure_next_visits_refusal,
