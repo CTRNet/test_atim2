@@ -80,8 +80,8 @@ class TreatmentMasterCustom extends TreatmentMaster {
 				'procure_drug_id' => array(
 				    'TreatmentMaster',
 					'drug', 
-					array('chemotherapy', 'experimental treatment', 'hormonotherapy', 'immunotherapy', 'open sale medication', 'other diseases medication', 'prostate medication'), 
-					__('chemotherapy').' & '.__('experimental treatment').' & '. __('hormonotherapy').' & '. __('immunotherapy').' & '. __('open sale medication').' & '. __('other diseases medication').' & '. __('prostate medication')));
+					array('chemotherapy', 'experimental treatment', 'hormonotherapy', 'immunotherapy', 'medication', 'other diseases medication', 'prostate medication'), 
+					__('chemotherapy').' & '.__('experimental treatment').' & '. __('hormonotherapy').' & '. __('immunotherapy').' & '. __('medication').' & '. __('other diseases medication').' & '. __('prostate medication')));
 			foreach($field_controls as $fied => $fied_data) {;
 				list($tmp_model, $field_label, $tx_types, $msg) = $fied_data;
 				if(array_key_exists($fied, $this->data[$tmp_model]) && $this->data[$tmp_model][$fied]) {
