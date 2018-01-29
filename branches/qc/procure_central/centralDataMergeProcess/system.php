@@ -456,26 +456,32 @@ function connectToCentralDatabase() {
 function testDbSchemas($db_schema, $site) {
 	global $db_connection;
 	global $db_sites_schemas;
+	global $import_date;
 
 	if($db_schema) {
 		if(!mysqli_query($db_connection, "SELECT count(*) from $db_schema.aliquot_controls")) {
-			pr("SELECT count(*) from $db_schema.aliquot_controls");exit;
-			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema and/or content", '', "Unable to connect to the schema $db_schema defined for site $site (or to the aliquot_controls table). No data will be imported from this site.");
+			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema and/or content", "Unable to connect to the schema [$db_schema] defined for site $site (or to the aliquot_controls table). No data will be imported from this site.");
 			return false;
 		} else {
 			$query_result = mysqli_query($db_connection, "SELECT created FROM $db_schema.atim_procure_dump_information LIMIT 0 ,1");
 			if($query_result) {
 				$atim_dump_data = $query_result->fetch_assoc();
-				$atim_dump_data['created'];
-				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", '', "Dump of '$site' database created on '".$atim_dump_data['created'].".");
+				$query_result = mysqli_query($db_connection, "select * FROM versions ORDER BY id DESC LIMIT 0 ,1;");
+				$atim_dump_version = $query_result->fetch_assoc();
+				$atim_dump_version = $atim_dump_version['version_number'].' [revs:'.$atim_dump_version['trunk_build_number'].'/'.$atim_dump_version['branch_build_number'].'/'.$atim_dump_version['site_branch_build_number'].']';
+				customQuery("UPDATE procure_banks_data_merge_tries 
+				    SET ".strtolower($site)."_dump_date = '".$atim_dump_data['created']."', 
+				    ".strtolower($site)."_dump_versions = '".$atim_dump_version."'
+				    WHERE datetime = '$import_date';");
+				mysqli_commit($db_connection);
 				return true;
 			} else {
-				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", '', "See data of site '$site'. No data will be imported from this site.");
+				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", "See data of site '$site'. No data will be imported from this site.");
 				return false;
 			}
 		}
 	} else {
-		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", '', "No schema defined for site '$site'. No data will be imported from this site.");
+		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", "No schema defined for site '$site'. No data will be imported from this site.");
 		return false;
 	}
 	return false;
@@ -685,12 +691,12 @@ function displayMergeTitle($title) {
 		<FONT COLOR=\"blue\">=====================================================================</FONT><br>";
 }
 
-function recordErrorAndMessage($msg_data_type, $msg_level, $msg_title, $msg_description, $msg_detail, $msg_detail_key = null) {
+function recordErrorAndMessage($msg_data_type, $msg_level, $msg_title, $msg_detail, $msg_detail_key = null) {
 	global $import_summary;
 	if(is_null($msg_detail_key)) {
-		$import_summary[$msg_data_type][$msg_level]["$msg_title#@#@#$msg_description"][] = $msg_detail;
+		$import_summary[$msg_data_type][$msg_level]["$msg_title"][] = $msg_detail;
 	} else {
-		$import_summary[$msg_data_type][$msg_level]["$msg_title#@#@#$msg_description"][$msg_detail_key] = $msg_detail;
+		$import_summary[$msg_data_type][$msg_level]["$msg_title"][$msg_detail_key] = $msg_detail;
 	}
 }
 
@@ -734,24 +740,20 @@ function dislayErrorAndMessage($commit = false) {
 				default:
 					echo '<br><br><br>UNSUPORTED message_type : '.$msg_level.'<br><br><br>';
 			}
-			foreach($data2 as $msg_title_and_description => $details) {
-				preg_match('/^(.+)(#@#@#)(.*)$/', $msg_title_and_description, $matches);
-				$msg_title = str_replace("\n", ' ', $matches[1]);
+			foreach($data2 as $msg_title => $details) {
+				$msg_title = str_replace("\n", ' ', $msg_title);
 				$msg_title_for_db = str_replace("'", "''", $msg_title);
-				$msg_description = str_replace("\n", ' ', $matches[3]);
-				$msg_description_for_db = str_replace("'", "''", $msg_description);
 				$err_counter++;
 				echo "<br><br><FONT COLOR='$color' ><b>".utf8_decode("[$code#$err_counter] $msg_title")."</b></FONT><br>";
-				if($msg_description) echo "<i><FONT COLOR=\black\" >".utf8_decode($msg_description)."</FONT></i><br>";
 				foreach($details as $detail) {
 					$detail = str_replace("\n", ' ', $detail);
 					echo ' - '.utf8_decode($detail)."<br>";
 					if($msg_title != 'List of queries') {
     					//Record data in db
     					$detail = str_replace("'", "''", $detail);
-    					$query = "INSERT INTO procure_banks_data_merge_messages (type, message_nbr, title, description, details, created, created_by, modified, modified_by)
+    					$query = "INSERT INTO procure_banks_data_merge_messages (type, title, details)
     						VALUES 
-    						('".str_replace('@','',$msg_level)."', $err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
+    						('".str_replace('@','',$msg_level)."', '$msg_title_for_db', '$detail');";
     					customQuery($query, true);
 					}
 				}
@@ -759,13 +761,7 @@ function dislayErrorAndMessage($commit = false) {
 		}
 	}
 	
-	$query = "INSERT INTO procure_banks_data_merge_messages (type, details, created, created_by, modified, modified_by)
-		VALUES
-		('merge_date', DATE(NOW()), '$import_date', $imported_by, '$import_date', $imported_by);";
-	customQuery($query, true);
-	
 	if($commit) {
-		customQuery($query);
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
