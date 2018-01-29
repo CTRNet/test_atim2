@@ -84,6 +84,8 @@ UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CUSM', 'ps3
 UPDATE collections SET collection_notes = REPLACE(collection_notes, 'chus', 'ps4');
 UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CHUS', 'ps4');
 
+UPDATE collections SET collection_site = 'confid.';
+
 -- Sample
 -- ..................................................................................................................
 
@@ -97,6 +99,10 @@ UPDATE sample_masters SET notes = REPLACE(notes, 'cusm', 'ps3');
 UPDATE sample_masters SET notes = REPLACE(notes, 'CUSM', 'ps3');
 UPDATE sample_masters SET notes = REPLACE(notes, 'chus', 'ps4');
 UPDATE sample_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
+
+UPDATE specimen_details SET supplier_dept = 'confid.';
+UPDATE derivative_details SET creation_by = 'confid.';
+UPDATE specimen_details SET reception_by = 'confid.';
 
 -- Aliquot & Storage
 -- ..................................................................................................................
@@ -145,7 +151,12 @@ UPDATE storage_masters_revs SET notes = REPLACE(notes, 'cusm', 'ps3');
 UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CUSM', 'ps3');
 UPDATE storage_masters_revs SET notes = REPLACE(notes, 'chus', 'ps4');
 UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CHUS', 'ps4'); 
-  
+
+UPDATE aliquot_internal_uses SET used_by = 'confid.';
+UPDATE order_items SET date_added = null, reception_by = 'confid.';
+UPDATE realiquotings SET realiquoted_by = 'confid.';
+UPDATE shipments SET shipped_by = 'confid.';
+
 -- Study
 -- ..................................................................................................................
 -- Rename study fields with banks names
@@ -186,7 +197,35 @@ delivery_notes = 'confid.',
 shipping_company = 'confid.', 
 shipping_account_nbr = 'confid.', 
 tracking = 'confid.';
-  
+
+-- List of values
+-- ..................................................................................................................
+-- Rename study fields with banks names
+
+DELETE FROM structure_permissible_values_customs 
+WHERE control_id NOT IN (
+	SELECT id FROM structure_permissible_values_custom_controls
+	WHERE name IN (
+		'Aliquot Use and Event Types',
+		'Clinical Exam - Results (PROCURE values only)',
+		'Clinical Exam - Sites (PROCURE values only)',
+		'Clinical Exam - Types (PROCURE values only)',
+		'Clinical Note Types',
+		'Consent Form Versions',
+		'Progressions & Comorbidities (PROCURE values only)',
+		'Questionnaire version date',
+		'Slide Review : Tissue Type',
+		'Storage Coordinate Titles',
+		'Storage Types',
+		'Surgery Types (PROCURE values only)',
+		'Tissue Slide Stains',
+		'TMA Slide Stains',
+		'Treatment Precisions (PROCURE values only)',
+		'Treatment Sites (PROCURE values only)',
+		'Treatment Types (PROCURE values only)'
+	)
+);
+
 -- ..................................................................................................................
 -- Generate date of script creation
   
@@ -194,7 +233,7 @@ CREATE TABLE atim_procure_dump_information (created datetime NOT NULL);;
 INSERT INTO atim_procure_dump_information (created) (SELECT NOW() FROM aliquot_controls LIMIT 0 ,1);
 
 -- ------------------------------------------------------------------------------------------------------------------------
--- CUSM specific PS3
+-- PS3
 -- ------------------------------------------------------------------------------------------------------------------------
 
 UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
