@@ -1,4 +1,8 @@
 <?php
-class ExternalLink extends AppModel{
-	
+
+/**
+ * Class ExternalLink
+ */
+class ExternalLink extends AppModel
+{
 }

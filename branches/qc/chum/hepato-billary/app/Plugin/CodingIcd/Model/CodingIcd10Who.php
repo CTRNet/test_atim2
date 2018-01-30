@@ -1,24 +1,76 @@
 <?php
 
-class CodingIcd10Who extends CodingIcdAppModel{
+/**
+ * Class CodingIcd10Who
+ */
+class CodingIcd10Who extends CodingIcdAppModel
+{
 
-	protected static $singleton = null;
-	
-    var $name = 'CodingIcd10Who';
-	var $useTable = 'coding_icd10_who';
+    // ---------------------------------------------------------------------------------------------------------------
+    // Coding System: ICD-10 (International)
+    // From: Stats Canada (WHO_ICD10_Ever_Created_Codes_2009WC)
+    // ---------------------------------------------------------------------------------------------------------------
+    protected static $singleton = null;
 
-	var $validate = array();
+    public $name = 'CodingIcd10Who';
 
-	function __construct(){
-		parent::__construct();
-		self::$singleton = $this;
-	}
-	
-	static function validateId($id){
-		return self::$singleton->globalValidateId($id);
-	}
-	
-	static function getSingleton(){
-		return self::$singleton;
-	}
+    public $useTable = 'coding_icd10_who';
+
+    public $icdDescriptionTableFields = array(
+        'search_format' => array(
+            'title',
+            'sub_title',
+            'description'
+        ),
+        'detail_format' => array(
+            'description'
+        )
+    );
+
+    public $validate = array();
+
+    /**
+     * CodingIcd10Who constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$singleton = $this;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public static function validateId($id)
+    {
+        return self::$singleton->globalValidateId($id);
+    }
+
+    /**
+     * @return CodingIcd10Who|null
+     */
+    public static function getSingleton()
+    {
+        return self::$singleton;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSecondaryDiagnosisList()
+    {
+        $data = array();
+        foreach (self::$singleton->find('all', array(
+            'conditions' => array(
+                "en_description LIKE 'Secondary malignant neoplasm%'"
+            ),
+            'fields' => array(
+                'id'
+            )
+        )) as $newId) {
+            $data[$newId['CodingIcd10Who']['id']] = $newId['CodingIcd10Who']['id'] . ' - ' . self::$singleton->getDescription($newId['CodingIcd10Who']['id']);
+        }
+        return $data;
+    }
 }

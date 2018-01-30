@@ -1,7 +1,8 @@
 <?php
 
-class LabBookAppController extends AppController {	
-	 
+/**
+ * Class LabBookAppController
+ */
+class LabBookAppController extends AppController
+{
 }
-
-?>

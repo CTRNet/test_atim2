@@ -4,7 +4,7 @@
 var dragging = false;//counter Chrome text selection issue
 var modified = false;//if true, save warning
 
-function initStorageLayout(){
+function initStorageLayout(mode){
 	var id = document.URL.match(/[0-9]+/g);
 	id = id.pop();
 	$("#firstStorageRow").data('storageId', id);
@@ -23,22 +23,23 @@ function initStorageLayout(){
 	
 	//load the top storage loayout
 	ctrls = $("#firstStorageRow").data("ctrls");
-	$.get($("#firstStorageRow").data("storageUrl") + '/1/ctrls:' + ctrls, function(data){
-		data = $.parseJSON(data);
-		if(data.valid){
-			initRow($("#firstStorageRow"), data, ctrls);
-			if(!ctrls){
-				$(".RecycleStorage").remove();
-				$(".TrashStorage").remove();
-				$(".trash_n_unclass").remove();
-				$("#firstStorageRow").find(".dragme").removeClass("dragme");
-			}
-		}
-		$("#firstStorageRow").find(".dragme").data("top", true);
-		$("#firstStorageRow").find(".droppable").data("top", true);
-		$("#firstStorageRow").data('checkConflicts', data.check_conflicts);
-	});
-	
+        if (typeof $("#firstStorageRow").data("storageUrl") !=='undefined'){
+            $.get($("#firstStorageRow").data("storageUrl") + '/1/ctrls:' + ctrls, function(data){
+                    data = $.parseJSON(data);
+                    if(data.valid){
+                            initRow($("#firstStorageRow"), data, ctrls);
+                            if(!ctrls){
+                                    $(".RecycleStorage").remove();
+                                    $(".TrashStorage").remove();
+                                    $(".trash_n_unclass").remove();
+                                    $("#firstStorageRow").find(".dragme").removeClass("dragme");
+                            }
+                    }
+                    $("#firstStorageRow").find(".dragme").data("top", true);
+                    $("#firstStorageRow").find(".droppable").data("top", true);
+                    $("#firstStorageRow").data('checkConflicts', data.check_conflicts);
+            });
+        }
 	
 	window.onbeforeunload = function(event) {
 		if(modified){
@@ -46,59 +47,61 @@ function initStorageLayout(){
 		}
 	};
 	
-	//handle the "pick a storage to drag and drop to" button and popup
-	$.get(root_url + 'StorageLayout/StorageMasters/search/', function(data){
-		var isVisible = $("#default_popup:visible").length;
-		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
-		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
-		globalInit($("#default_popup"));
-		
-		if(isVisible){
-			//recenter popup
-			$("#default_popup").popup('close');
-			$("#default_popup").popup();
-		}
-		
-		$("#default_popup input.submit").click(function(){
-			//search results into popup
-			$("body").append("<div class='hidden tmpSearchForm'></div>");
-			$(".tmpSearchForm").append($("#default_popup .wrapper"));
-			$("#default_popup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
-			$.post($(".tmpSearchForm form").attr("action") + '/1', $(".tmpSearchForm form").serialize(), function(data){
-				data = $.parseJSON(data);
-				var isVisible = $("#default_popup:visible").length;
-				$("#default_popup").html('<div class="wrapper"><div class="frame">' + data.page + '</div></div>');
-				if(isVisible){
-					//recenter popup
-					$("#default_popup").popup('close');
-					$("#default_popup").popup();
-				}
-				
-				$("#default_popup a.detail").click(function(){
-					//handle selection buttons
-					$("#secondStorageRow").html("");
-					var id = $(this).attr("href").match("[0-9]+(/)*$")[0];
-					if(id != $("#firstStorageRow").data("storageId")){
-						//if not the same storage
-						$("#secondStorageRow").data("storageId", id);
-						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
-						$.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
-							data = $.parseJSON(data);
-							if(data.valid){
-								initRow($("#secondStorageRow"), data, true);
-								$("#secondStorageRow").find(".dragme").data("top", false);
-								$("#secondStorageRow").find(".droppable").data("top", false);
-								$("#secondStorageRow").data('checkConflicts', data.check_conflicts);
-							}
-						});
-					}
-					return false;
-				});
-			});
-			return false;
-		});
-	});
-	
+        if (mode!=='detail'){
+            //handle the "pick a storage to drag and drop to" button and popup
+            $.post(root_url + 'StorageLayout/StorageMasters/search/', function(data){
+                    var isVisible = $("#default_popup:visible").length;
+                    $("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
+                    $("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
+                    globalInit($("#default_popup"));
+
+                    if(isVisible){
+                            //recenter popup
+                            $("#default_popup").popup('close');
+                            $("#default_popup").popup();
+                    }
+
+                    $("#default_popup input.submit").click(function(){
+                            //search results into popup
+                            $("body").append("<div class='hidden tmpSearchForm'></div>");
+                            $(".tmpSearchForm").append($("#default_popup .wrapper"));
+                            $("#default_popup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
+                            $.post($(".tmpSearchForm form").attr("action") + '/1', $(".tmpSearchForm form").serialize(), function(data){
+                                    data = $.parseJSON(data);
+                                    var isVisible = $("#default_popup:visible").length;
+                                    $("#default_popup").html('<div class="wrapper"><div class="frame">' + data.page + '</div></div>');
+                                    if(isVisible){
+                                            //recenter popup
+                                            $("#default_popup").popup('close');
+                                            $("#default_popup").popup();
+                                    }
+
+                                    $("#default_popup a.detail").click(function(){
+                                            //handle selection buttons
+                                            $("#secondStorageRow").html("");
+                                            var id = $(this).attr("href").match("[0-9]+(/)*$")[0];
+                                            if(id != $("#firstStorageRow").data("storageId")){
+                                                    //if not the same storage
+                                                    $("#secondStorageRow").data("storageId", id);
+                                                    $("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
+                                                    $.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
+                                                            data = $.parseJSON(data);
+                                                            if(data.valid){
+                                                                    initRow($("#secondStorageRow"), data, true);
+                                                                    $("#secondStorageRow").find(".dragme").data("top", false);
+                                                                    $("#secondStorageRow").find(".droppable").data("top", false);
+                                                                    $("#secondStorageRow").data('checkConflicts', data.check_conflicts);
+                                                            }
+                                                    });
+                                            }
+                                            return false;
+                                    });
+                            });
+                            return false;
+                    });
+            });
+        }
+
 	$("#btnPickStorage").click(function(){
 		$("#default_popup").popup();
 	});

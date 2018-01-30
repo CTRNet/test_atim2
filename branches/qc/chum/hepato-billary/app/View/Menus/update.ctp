@@ -1,4 +1,5 @@
 <?php
-	$menu_array = $this->Shell->menu( $ajax_menu, array('variables'=>$ajax_menu_variables) );
-	echo $menu_array[0];
-?>
+$menuArray = $this->Shell->menu($ajaxMenu, array(
+    'variables' => $ajaxMenuVariables
+));
+echo $menuArray[0];
