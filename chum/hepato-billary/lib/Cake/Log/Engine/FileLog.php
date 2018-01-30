@@ -2,8 +2,6 @@
 /**
  * File Storage stream for Logging
  *
- * PHP 5
- *
  * CakePHP(tm) :  Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -15,7 +13,7 @@
  * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
  * @package       Cake.Log.Engine
  * @since         CakePHP(tm) v 1.3
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('BaseLog', 'Log/Engine');
@@ -63,7 +61,7 @@ class FileLog extends BaseLog {
 /**
  * Max file size, used for log file rotation.
  *
- * @var integer
+ * @var int
  */
 	protected $_size = null;
 
@@ -85,7 +83,7 @@ class FileLog extends BaseLog {
  * - `mask` A mask is applied when log files are created. Left empty no chmod
  *   is made.
  *
- * @param array $options Options for the FileLog, see above.
+ * @param array $config Options for the FileLog, see above.
  */
 	public function __construct($config = array()) {
 		$config = Hash::merge($this->_defaults, $config);
@@ -130,7 +128,7 @@ class FileLog extends BaseLog {
  *
  * @param string $type The type of log you are making.
  * @param string $message The message you want to log.
- * @return boolean success of write.
+ * @return bool success of write.
  */
 	public function write($type, $message) {
 		$output = date('Y-m-d H:i:s') . ' ' . ucfirst($type) . ': ' . $message . "\n";
@@ -159,6 +157,7 @@ class FileLog extends BaseLog {
 
 /**
  * Get filename
+ *
  * @param string $type The type of log.
  * @return string File name
  */
@@ -167,7 +166,7 @@ class FileLog extends BaseLog {
 
 		if (!empty($this->_file)) {
 			$filename = $this->_file;
-		} elseif ($type == 'error' || $type == 'warning') {
+		} elseif ($type === 'error' || $type === 'warning') {
 			$filename = 'error.log';
 		} elseif (in_array($type, $debugTypes)) {
 			$filename = 'debug.log';
@@ -183,7 +182,7 @@ class FileLog extends BaseLog {
  * Also if `rotate` count is reached oldest file is removed.
  *
  * @param string $filename Log file name
- * @return mixed True if rotated successfully or false in case of error.
+ * @return mixed True if rotated successfully or false in case of error, otherwise null.
  *   Void if file doesn't need to be rotated.
  */
 	protected function _rotateFile($filename) {
@@ -197,21 +196,25 @@ class FileLog extends BaseLog {
 		if (!file_exists($filepath) ||
 			filesize($filepath) < $this->_size
 		) {
-			return;
+			return null;
 		}
 
 		if ($this->_config['rotate'] === 0) {
-			return unlink($filepath);
+			$result = unlink($filepath);
+		} else {
+			$result = rename($filepath, $filepath . '.' . time());
 		}
 
-		if ($this->_config['rotate']) {
-			$files = glob($filepath . '.*');
-			if (count($files) === $this->_config['rotate']) {
+		$files = glob($filepath . '.*');
+		if ($files) {
+			$filesToDelete = count($files) - $this->_config['rotate'];
+			while ($filesToDelete > 0) {
 				unlink(array_shift($files));
+				$filesToDelete--;
 			}
 		}
 
-		return rename($filepath, $filepath . '.' . time());
+		return $result;
 	}
 
 }
