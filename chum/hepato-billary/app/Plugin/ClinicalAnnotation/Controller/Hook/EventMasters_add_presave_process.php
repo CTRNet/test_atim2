@@ -1,13 +1,12 @@
 <?php
-	
-	$processed_event_data = $event_control_data['EventControl']['use_addgrid']? $this->request->data : array('0' => $this->request->data);
-	foreach($processed_event_data as &$new_event_data ) {
-		$new_event_data = $this->EventMaster->addBmiValue($new_event_data);
-		$new_event_data = $this->EventMaster->setHospitalizationDuration($new_event_data);
-		$new_event_data = $this->EventMaster->setIntensiveCareDuration($new_event_data);
-		$new_event_data = $this->EventMaster->completeVolumetry($new_event_data, $submitted_data_validates);
-		$new_event_data = $this->EventMaster->setScores($event_control_data['EventControl']['event_type'], $new_event_data, $submitted_data_validates);
-	}
-	$this->request->data = $event_control_data['EventControl']['use_addgrid']? $processed_event_data: $processed_event_data['0'];
-	
-?>
+$processedEventData = $eventControlData['EventControl']['use_addgrid'] ? $this->request->data : array(
+    '0' => $this->request->data
+);
+foreach ($processedEventData as &$newEventData) {
+    $newEventData = $this->EventMaster->addBmiValue($newEventData);
+    $newEventData = $this->EventMaster->setHospitalizationDuration($newEventData);
+    $newEventData = $this->EventMaster->setIntensiveCareDuration($newEventData);
+    $newEventData = $this->EventMaster->completeVolumetry($newEventData, $submittedDataValidates);
+    $newEventData = $this->EventMaster->setScores($eventControlData['EventControl']['event_type'], $newEventData, $submittedDataValidates);
+}
+$this->request->data = $eventControlData['EventControl']['use_addgrid'] ? $processedEventData : $processedEventData['0'];

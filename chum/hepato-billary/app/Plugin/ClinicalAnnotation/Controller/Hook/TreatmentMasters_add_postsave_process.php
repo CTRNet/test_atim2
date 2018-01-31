@@ -1,4 +1,2 @@
 <?php
-	
-	$this->TreatmentMaster->updateAllSurvivalTimes($participant_id, $this->TreatmentMaster->id);
-	
+$this->TreatmentMaster->updateAllSurvivalTimes($participantId, $this->TreatmentMaster->id);
