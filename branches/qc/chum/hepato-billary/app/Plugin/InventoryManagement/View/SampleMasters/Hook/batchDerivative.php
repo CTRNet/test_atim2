@@ -1,7 +1,4 @@
-<?php 
-
-	if(isset($custom_created_sample_override_data)) {
-		$options_children['override'] = array_merge($options_children['override'], $custom_created_sample_override_data);
-	}
-
-?>
+<?php
+if (isset($customCreatedSampleOverrideData)) {
+    $optionsChildren['override'] = array_merge($optionsChildren['override'], $customCreatedSampleOverrideData);
+}

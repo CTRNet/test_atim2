@@ -1,6 +1,3 @@
 <?php
-	$this->set('default_country', 'Canada');
-	$this->set('default_region', 'quebec');
-
-
-
+$this->set('defaultCountry', 'Canada');
+$this->set('defaultRegion', 'quebec');

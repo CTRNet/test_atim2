@@ -1,10 +1,16 @@
 <?php
-class StorageMasterCustom extends StorageMaster{
-	var $useTable = 'storage_masters';
-	var $name = 'StorageMaster';
-	
-	function getLabel(array $children_array, $type_key, $label_key){
-		if($type_key == 'AliquotMaster') $label_key = 'aliquot_label';
-		return $children_array[$type_key][$label_key];
-	}
+
+class StorageMasterCustom extends StorageMaster
+{
+
+    var $useTable = 'storage_masters';
+
+    var $name = 'StorageMaster';
+
+    public function getLabel(array $childrenArray, $typeKey, $labelKey)
+    {
+        if ($typeKey == 'AliquotMaster')
+            $labelKey = 'aliquot_label';
+        return $childrenArray[$typeKey][$labelKey];
+    }
 }
