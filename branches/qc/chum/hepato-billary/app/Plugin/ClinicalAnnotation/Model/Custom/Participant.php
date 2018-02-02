@@ -32,8 +32,9 @@ class ParticipantCustom extends Participant
             
             // Add No Labs to description
             foreach ($identifiers as $identifier) {
+                $showValue = ($identifier['MiscIdentifierControl']['flag_confidential'] && ! AppController::getInstance()->Session->read('flag_show_confidential'))? false : true;            
                 if (in_array($identifier['MiscIdentifierControl']['misc_identifier_name'], array_keys($result['FunctionManagement']))) {
-                    $result['FunctionManagement'][$identifier['MiscIdentifierControl']['misc_identifier_name']] = $identifier['MiscIdentifier']['identifier_value'];
+                    $result['FunctionManagement'][$identifier['MiscIdentifierControl']['misc_identifier_name']] = $showValue? $identifier['MiscIdentifier']['identifier_value'] : CONFIDENTIAL_MARKER;
                 }
             }
             

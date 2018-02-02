@@ -59,7 +59,7 @@ $j=1;
 $k=1;
 $output="";
 foreach($Iterator as $file){
-    if(substr($file,-4) == '.php' && (preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Hook.*/', $file) || preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Custom.*/', $file))) {
+    if((substr($file,-4) == '.php' || substr($file,-4) == '.ctp') && (preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Hook.*/', $file) || preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Custom.*/', $file))) {
         $out = convert(file_get_contents($file), $file);
         if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
     		file_put_contents($file, $out);

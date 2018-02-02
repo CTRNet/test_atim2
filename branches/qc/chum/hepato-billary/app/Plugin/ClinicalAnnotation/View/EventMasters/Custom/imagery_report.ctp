@@ -1,20 +1,20 @@
 <?php
 
 // 1- DIAGNOSTICS
-$detail_links = array();
-foreach ($this->data as $new_event) {
-    $detail_links[__($new_event['EventControl']['event_type']) . ' ' . $new_event['EventMaster']['formated_event_date']] = '/ClinicalAnnotation/EventMasters/detail/' . $new_event['EventMaster']['participant_id'] . '/' . $new_event['EventMaster']['id'];
+$detailLinks = array();
+foreach ($this->data as $newEvent) {
+    $detailLinks[__($newEvent['EventControl']['event_type']) . ' ' . $newEvent['EventMaster']['formated_event_date']] = '/ClinicalAnnotation/EventMasters/detail/' . $newEvent['EventMaster']['participant_id'] . '/' . $newEvent['EventMaster']['id'];
 }
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
-        'detail' => '/ClinicalAnnotation/EventMasters/imageryReport/' . $atim_menu_variables['Participant.id']
+        'detail' => '/ClinicalAnnotation/EventMasters/imageryReport/' . $atimMenuVariables['Participant.id']
     ),
     'bottom' => array(
-        'detail' => $detail_links
+        'detail' => $detailLinks
     )
 );
 
-$structure_settings = array(
+$structureSettings = array(
     'form_bottom' => false,
     'form_inputs' => false,
     'actions' => false,
@@ -22,13 +22,13 @@ $structure_settings = array(
     'header' => __('liver segments', null)
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'detail',
-    'settings' => $structure_settings
+    'settings' => $structureSettings
 );
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <style>
@@ -168,7 +168,7 @@ if ($found) {
 		</td>
 			<?php
 } else {
-    ?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php
+    ?><td class="no_data_available" colspan="7"><?php echo(__( 'core_no_data_available', false)); ?></td><?php
 }
 ?>
 		</tr>
@@ -176,8 +176,8 @@ if ($found) {
 
 <?php
 
-$final_options['settings']['header'] = __('other localisations', true);
-$this->Structures->build($final_atim_structure, $final_options);
+$finalOptions['settings']['header'] = __('other localisations', true);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <table class="structure">
@@ -254,15 +254,15 @@ if ($found) {
 		</td>
 			<?php
 } else {
-    ?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php
+    ?><td class="no_data_available" colspan="1"><?php echo(__( 'core_no_data_available', false)); ?></td><?php
 }
 ?>
 		</tr>
 </table>
 <?php
 
-$final_options['settings']['header'] = __('pancreas', true);
-$this->Structures->build($final_atim_structure, $final_options);
+$finalOptions['settings']['header'] = __('pancreas', true);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <table class="structure">
@@ -325,14 +325,14 @@ if ($found) {
 		</td>
 			<?php
 } else {
-    ?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php
+    ?><td class="no_data_available" colspan="1"><?php echo(__( 'core_no_data_available', false)); ?></td><?php
 }
 ?>
 		</tr>
 </table>
 <?php
-$final_options['settings']['header'] = __('summaries', true);
-$this->Structures->build($final_atim_structure, $final_options);
+$finalOptions['settings']['header'] = __('summaries', true);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>
 <table class="structure">
 	<!-- frame table -->
@@ -367,15 +367,15 @@ if (isset($data) && sizeof($data) > 0) {
 		</td>
 			<?php
 } else {
-    ?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php
+    ?><td class="no_data_available" colspan="1"><?php echo(__( 'core_no_data_available', false)); ?></td><?php
 }
 ?>
 		</tr>
 </table>
 <?php
-unset($final_options['settings']['header']);
-$final_options['settings']['form_bottom'] = true;
-$final_options['settings']['actions'] = true;
-$this->Structures->build($final_atim_structure, $final_options);
+unset($finalOptions['settings']['header']);
+$finalOptions['settings']['form_bottom'] = true;
+$finalOptions['settings']['actions'] = true;
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

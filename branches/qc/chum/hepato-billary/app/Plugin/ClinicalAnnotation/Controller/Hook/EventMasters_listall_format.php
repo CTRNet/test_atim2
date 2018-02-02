@@ -28,3 +28,8 @@ if (! $eventControlId) {
     if (! empty($summaryEventButton))
         $this->set('summaryEventButton', $summaryEventButton);
 }
+
+if ($eventControlId == '-1') {
+    // 2 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+    $this->Structures->set('eventmasters,qc_hb_imaging_result,qc_hb_imaging_dateNSummary');
+}
