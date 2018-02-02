@@ -1,11 +1,11 @@
 <?php
 
 // ************** EVENTS **************
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/TreatmentMasters/preOperativeEdit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/'
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/TreatmentMasters/preOperativeEdit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/'
 );
 
-$structure_settings = array(
+$structureSettings = array(
     'form_top' => true,
     'form_bottom' => false,
     'form_inputs' => false,
@@ -14,54 +14,53 @@ $structure_settings = array(
     'header' => null
 );
 
-$is_first = true;
-foreach ($surgeries_events_data as $foreign_key_id => $new_events_list) {
-    $structure_settings['form_top'] = $is_first ? true : false;
-    $structure_settings['header'] = $new_events_list['header'];
+$isFirst = true;
+foreach ($surgeriesEventsData as $foreignKeyId => $newEventsList) {
+    $structureSettings['form_top'] = $isFirst ? true : false;
+    $structureSettings['header'] = $newEventsList['header'];
     
-    $structure_links['radiolist'] = array(
-        'TreatmentDetail.' . $new_events_list['event_foreign_key'] => '%%EventMaster.id%%'
+    $structureLinks['radiolist'] = array(
+        'TreatmentDetail.' . $newEventsList['event_foreign_key'] => '%%EventMaster.id%%'
     );
     
-    $final_atim_structure = $new_events_list['structure'];
+    $finalAtimStructure = $newEventsList['structure'];
     
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'index',
-        'data' => $new_events_list['data'],
-        'settings' => $structure_settings,
-        'links' => $structure_links,
+        'data' => $newEventsList['data'],
+        'settings' => $structureSettings,
+        'links' => $structureLinks,
         'extras' => array(
-            'end' => '<input type="radio" name="data[TreatmentDetail][' . $new_events_list['event_foreign_key'] . ']" ' . ($new_events_list['selected_event_found'] ? '' : 'checked="checked"') . ' value=""/>' . __('n/a', true)
+            'end' => '<input type="radio" name="data[TreatmentDetail][' . $newEventsList['event_foreign_key'] . ']" ' . ($newEventsList['selected_event_found'] ? '' : 'checked="checked"') . ' value=""/>' . __('n/a', true)
         )
     );
     
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
-    $is_first = false;
+    $isFirst = false;
 }
 
 // ************** CIRRHOSIS **************
 
-$structure_links = array(
-    'top' => $structure_links['top']
+$structureLinks = array(
+    'top' => $structureLinks['top']
 );
-$structure_links['bottom'] = array(
-    'cancel' => '/ClinicalAnnotation/TreatmentMasters/preOperativeDetail/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/'
+$structureLinks['bottom'] = array(
+    'cancel' => '/ClinicalAnnotation/TreatmentMasters/preOperativeDetail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/'
 );
 
-$structure_settings = array(
+$structureSettings = array(
     'form_top' => false,
     'header' => __('cirrhosis data', true)
 );
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
-$final_options = array(
+$finalOptions = array(
     'type' => 'edit',
     'data' => $this->data,
-    'settings' => $structure_settings,
-    'links' => $structure_links
+    'settings' => $structureSettings,
+    'links' => $structureLinks
 );
 
-$this->Structures->build($final_atim_structure, $final_options);
-?>
+$this->Structures->build($finalAtimStructure, $finalOptions);

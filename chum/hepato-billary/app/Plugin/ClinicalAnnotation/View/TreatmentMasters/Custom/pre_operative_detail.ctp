@@ -1,8 +1,8 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/TreatmentMasters/preOperativeDetail/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/',
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/TreatmentMasters/preOperativeDetail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/',
     'bottom' => array(
-        'edit' => '/ClinicalAnnotation/TreatmentMasters/preOperativeEdit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/'
+        'edit' => '/ClinicalAnnotation/TreatmentMasters/preOperativeEdit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/'
     ),
     'index' => array(
         array(
@@ -14,7 +14,7 @@ $structure_links = array(
 
 // ************** EVENTS **************
 
-$structure_settings = array(
+$structureSettings = array(
     'form_top' => true,
     'form_bottom' => false,
     'form_inputs' => false,
@@ -23,44 +23,42 @@ $structure_settings = array(
     'header' => null
 );
 
-$is_first = true;
-foreach ($surgeries_events_data as $foreign_key_id => $new_events_list) {
-    $structure_settings['form_top'] = $is_first ? true : false;
-    $structure_settings['header'] = $new_events_list['header'];
+$isFirst = true;
+foreach ($surgeriesEventsData as $foreignKeyId => $newEventsList) {
+    $structureSettings['form_top'] = $isFirst ? true : false;
+    $structureSettings['header'] = $newEventsList['header'];
     
-    $final_atim_structure = $new_events_list['structure'];
+    $finalAtimStructure = $newEventsList['structure'];
     
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'index',
-        'data' => $new_events_list['data'],
-        'settings' => $structure_settings,
-        'links' => $structure_links
+        'data' => $newEventsList['data'],
+        'settings' => $structureSettings,
+        'links' => $structureLinks
     );
     
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
-    $is_first = false;
+    $isFirst = false;
 }
 
 // ************** CIRRHOSIS **************
 
-unset($structure_links['top']);
-unset($structure_links['index']);
+unset($structureLinks['top']);
+unset($structureLinks['index']);
 
-$structure_settings = array(
+$structureSettings = array(
     'form_top' => false,
     'header' => __('cirrhosis data', true)
 );
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
-$final_options = array(
+$finalOptions = array(
     'type' => 'detail',
     'data' => $this->data,
-    'settings' => $structure_settings,
-    'links' => $structure_links
+    'settings' => $structureSettings,
+    'links' => $structureLinks
 );
 
-$this->Structures->build($final_atim_structure, $final_options);
-
-?>
+$this->Structures->build($finalAtimStructure, $finalOptions);

@@ -20,9 +20,15 @@ if ($addChemoComplication) {
         'links' => $structureLinks
     );
     $finalAtimStructure = $extendFormAlias2;
-    
+    pr(($txExtendType ? __($txExtendType) : __('add precision')));/*
     $structureLinks['bottom']['add precision'] = array(
-        'chemotherapy drugs' => $structureLinks['bottom']['add precision'],
+        'chemotherapy drugs' => $structureLinks['bottom']['add']['add precision'],
         'chemotherapy complications' => $structureLinks['bottom']['add precision'] . '/chemo_complications'
+    );*/
+    
+    $tmpKeyName = $txExtendType ? __($txExtendType) : __('add precision');
+    $structureLinks['bottom']['add'][__('chemotherapy complications')] = array(
+        'link' => $structureLinks['bottom']['add'][$tmpKeyName]['link'] . '/chemo_complications',
+        'icon' => $structureLinks['bottom']['add'][$tmpKeyName]['icon']
     );
 }
