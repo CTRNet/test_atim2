@@ -43,6 +43,9 @@ $tma_short_label_to_storage_master_id = array();
 //	this one will be created twice: first one will be created into 'TMA Controls' collection and the second one as a block of a patients collection.
 
 Doit on mettre le block a not in stock pour les block de control???
+Il faut mettre le numéro de patho dans collection
+
+ATTENTION: On doit maintenant toujours partir d'un bloc de ATiM. Ne plus créer de bloc. Ca rend tout cela plus complexe la migration des blocs de patho.
 
 $controls_collections = array('collection_id' => array(), 'block_aliquot_master_ids' => array());
 $query = "SELECT Collection.id as collection_id, 
@@ -226,6 +229,7 @@ foreach($excel_files as $excel_data) {
 									'collections' => array(
 										'participant_id' => $participant_id,
 										'acquisition_label' => 'Collection Created From TMA Layout',
+Il mmanque le numéro de patho									    
 										'bank_id' => $banks_to_ids[$excel_line_data['Bank']]['bank_id'],
 										'collection_property' => 'participant collection'));
 								$block_ids['collection_id'] = customInsertRecord($collection_data);
@@ -272,6 +276,7 @@ foreach($excel_files as $excel_data) {
 								$atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
 									'block_type' => 'paraffin',
 									'patho_dpt_block_code' => $excel_line_data['PathoID'],
+Vérifier si bloc existe déjà et attention ils ont ajouté -95.... pour 1995								    
 									'sample_position_code' => $excel_line_data['BlocID']));
 							$block_ids['aliquot_master_id'] = customInsertRecord($aliquot_data);
 							$creation_messages_for_summary["Patient Core Creation Summary"]["New block creation"][] = "The system created a new tissue block '".$excel_line_data['PathoID'].'-'.$excel_line_data['BlocID']."' linked to bank '".$excel_line_data['Bank']."' and NoLabo '".$excel_line_data['NoLabo']."'. REF: $excel_file_name / $worksheet_name, line $line_number.";

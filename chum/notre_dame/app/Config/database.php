@@ -67,7 +67,7 @@ class DATABASE_CONFIG
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'atim_chum',
+        'database' => 'chumonco',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306

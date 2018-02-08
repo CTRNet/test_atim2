@@ -4,57 +4,30 @@ class SardoMigrationsController extends AdministrateAppController
 {
 
     var $uses = array(
-        'Administrate.SardoImportSummary'
+        'Administrate.SardoImportSummary',
+        'Administrate.SardoDataImportTry'
     );
 
     var $paginate = array(
         'SardoImportSummary' => array(
-            'limit' => PAGINATION_AMOUNT,
             'order' => 'SardoImportSummary.message_type ASC'
+        ),
+        'SardoDataImportTry' => array(
+            'order' => 'SardoDataImportTry.datetime_try DESC'
         )
     );
 
     public function listAll($messageType = 'all')
     {
-        if (! in_array($messageType, array(
-            'all',
-            'csv',
-            'profile_reproductive',
-            'main'
-        )))
+        if (! in_array($messageType, array('all', 'csv', 'profile_reproductive', 'main', 'tries'))) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         $this->set('messageType', $messageType);
         
         if ($messageType == 'all') {
             
             // Main form
             
-            $this->Structures->set('qc_nd_sardo_migrations_summary');
-            
-            $condtions = array(
-                'SardoImportSummary.message_type' => 'MESSAGE',
-                'SardoImportSummary.data_type' => 'Process'
-            );
-            $processMessages = $this->SardoImportSummary->find('all', array(
-                'conditions' => $condtions
-            ));
-            $this->request->data = array();
-            foreach ($processMessages as $newMessage) {
-                switch ($newMessage['SardoImportSummary']['message']) {
-                    case 'Date':
-                        $this->request->data['Generated']['qc_nd_last_sardo_update'] = $newMessage['SardoImportSummary']['details'];
-                        break;
-                    case 'Process completed':
-                        $this->request->data['Generated']['qc_nd_sardo_update_completed'] = $newMessage['SardoImportSummary']['details'];
-                        break;
-                    case 'Updated participants counter':
-                        $this->request->data['Generated']['qc_nd_sardo_updated_participants_nbr'] = $newMessage['SardoImportSummary']['details'];
-                        break;
-                    case 'Error':
-                        $this->request->data['Generated']['qc_nd_sardo_update_error'] = $newMessage['SardoImportSummary']['details'];
-                        break;
-                }
-            }
         } elseif ($messageType == 'csv') {
             
             // Export data in csv
@@ -69,6 +42,12 @@ class SardoMigrationsController extends AdministrateAppController
             
             Configure::write('debug', 0);
             $this->layout = false;
+            
+        } elseif ($messageType == 'tries') {
+            
+            $this->Structures->set('qc_nd_sardo_migrations_summary', 'atim_structure_messages');
+            $this->request->data = $this->paginate($this->SardoDataImportTry, array());
+            
         } else {
             
             // Sub-Form (messages list)
