@@ -19,22 +19,7 @@ $labMarkerUnits = $this->StructurePermissibleValuesCustom->getCustomDropdown(arr
 $labMarkerUnits = array_merge($labMarkerUnits['defined'], $labMarkerUnits['previously_defined']);
 $labMarkerUnits[''] = '';
 
-$estrogenProgestinReceptorResults = $this->Participant->getSardoValues(array(
-    'SARDO : Estrogen/Progestin Receptor Results'
-));
-$estrogenProgestinReceptorResults[''] = '';
-
-$her2NeuResults = $this->Participant->getSardoValues(array(
-    'SARDO : HER2/NEU Results'
-));
-$her2NeuResults[''] = '';
-
 // *** Diagnosis ***
 
 $icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
 $icdO3TopoCategories = $icdO3TopoModel::getTopoCategoriesCodes();
-
-$sardoProgressionDetails = $this->Participant->getSardoValues(array(
-    'SARDO : Progression Details'
-));
-$sardoProgressionDetails[''] = '';

@@ -10,10 +10,12 @@ if ($messageType == 'all') {
         'type' => 'detail',
         'links' => array(),
         'settings' => array(
+            'header' => __('tries', null),
             'actions' => false
-        )
+        ),
+        'extras' => $this->Structures->ajaxIndex('Administrate/SardoMigrations/listAll/tries')
     );
-    $this->Structures->build($atimStructure, $finalOptions);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // --------- Profile & Reproductive History ----------------------------------------------------------------------------------------------
     

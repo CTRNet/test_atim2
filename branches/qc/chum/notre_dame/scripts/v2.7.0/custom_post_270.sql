@@ -348,3 +348,118 @@ UPDATE sample_controls SET qc_nd_sample_type_code = 'TIL' WHERE sample_type = 't
 UPDATE structure_fields SET  `language_label`='additive' WHERE model='SampleDetail' AND tablename='sd_der_cell_cultures' AND field='tmp_hormon' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_culture_hormone');
 
 UPDATE versions SET branch_build_number = '6920' WHERE version_number = '2.7.0';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 20180126
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- SARDO data migration
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS qc_nd_sardo_drop_down_list_properties;
+DROP TABLE IF EXISTS qc_nd_sardo_drop_down_lists;
+
+UPDATE structure_fields 
+SET type = 'input', setting = 'size=10', structure_value_domain = null 
+WHERE structure_value_domain IN (
+	SELECT id FROM structure_value_domains WHERE source LIKE '%ClinicalAnnotation.Participant::getSardoValues%'
+);
+UPDATE 
+DELETE FROM structure_value_domains WHERE source LIKE '%ClinicalAnnotation.Participant::getSardoValues%';
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%sardo%_key_words');
+DELETE FROM structure_fields WHERE field LIKE '%sardo%_key_words';
+
+DROP TABLE IF EXISTS `cd_icm_sardo_data_import_tries`;
+CREATE TABLE `cd_icm_sardo_data_import_tries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `datetime_try` datetime DEFAULT NULL,
+  `global_result` varchar(15) DEFAULT NULL,
+  `sardo_data_load_result` varchar(15) DEFAULT NULL,
+  `atim_data_management_result` varchar(15) DEFAULT NULL,
+  `details` varchar(1000) DEFAULT NULL,
+  `sardo_participant_counter` int(7) DEFAULT NULL,
+  `update_participant_counter` int(7) DEFAULT NULL,
+  `last_sardo_treatment_event_dx_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- qc_nd_sardo_migrations_summary
+ 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_last_sardo_update' AND `language_label`='last update' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_completed' AND `language_label`='completed' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_updated_participants_nbr' AND `language_label`='number of updated participants' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_error' AND `language_label`='error' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_last_sardo_update' AND `language_label`='last update' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0') OR (
+`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_completed' AND `language_label`='completed' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0') OR (
+`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_updated_participants_nbr' AND `language_label`='number of updated participants' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0'));
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_error' AND `language_label`='error' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_last_sardo_update' AND `language_label`='last update' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0') OR (
+`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_completed' AND `language_label`='completed' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0') OR (
+`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_updated_participants_nbr' AND `language_label`='number of updated participants' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_error' AND `language_label`='error' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'datetime_try', 'datetime',  NULL , '0', '', '', '', 'date', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'global_result', 'input',  NULL , '0', '', '', '', 'global', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'sardo_data_load_result', 'input',  NULL , '0', '', '', '', 'sardo XML file reading', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'atim_data_management_result', 'input',  NULL , '0', '', '', '', 'merging data into atim', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'details', 'textarea',  NULL , '0', '', '', '', 'details', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'sardo_participant_counter', 'input',  NULL , '0', '', '', '', 'sardo participants number', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'update_participant_counter', 'input',  NULL , '0', '', '', '', 'atim participants number updated', ''), 
+('Administrate', 'Generated', 'cd_icm_sardo_data_import_tries', 'last_sardo_treatment_event_dx_date', 'date',  NULL , '0', '', '', '', 'last sardo clinical data imported', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='datetime_try' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='global_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='global' AND `language_tag`=''), '1', '2', 'results', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='sardo_data_load_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sardo XML file reading' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='atim_data_management_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='merging data into atim' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='sardo_participant_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sardo participants number' AND `language_tag`=''), '1', '6', 'data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='update_participant_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='atim participants number updated' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='last_sardo_treatment_event_dx_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last sardo clinical data imported' AND `language_tag`=''), '1', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET  `model`='SardoDataImportTry' WHERE model='Generated' AND tablename='cd_icm_sardo_data_import_tries';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('tries', 'Tries', Essais'),
+('global', "Global", "Global"),
+('sardo XML file reading', "SARDO File Reading", "Lecture du fichier SARDO"),
+('merging data into atim', "Data Merging", "Fusion des données"),
+('sardo participants number', "SARDO Participants Number", "Nombre participants SARDO"),
+('atim participants number updated', "Update ATiM Participants", "Participants ATiM mis à jour"),
+('last sardo clinical data imported', "Laste SARDO Clinical Date Imported", "Dernière date clinique SARDO importée");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+REPLACE INTO i18n (id,en,fr) VALUES ('lesions number', 'Number of Lesions', 'Nombre de lésions');
+
+
+
+
+-- Remove collection datetime = '0000-00-00'
+
+UPDATE collections SET collection_datetime = null WHERE CAST(collection_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
+UPDATE collections_revs SET collection_datetime = null WHERE CAST(collection_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
+
+--
+
+
+
+
+
+
+
+

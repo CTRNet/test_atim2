@@ -2,10 +2,10 @@
 switch ($annotation['EventControl']['event_type']) {
     case 'progestin receptor report (RP)':
     case 'estrogen receptor report (RE)':
-        $chronolgyDataAnnotation['chronology_details'] = $estrogenProgestinReceptorResults[$annotation['EventDetail']['result']];
+        $chronolgyDataAnnotation['chronology_details'] = $annotation['EventDetail']['result'];
         break;
     case 'her2/neu':
-        $chronolgyDataAnnotation['chronology_details'] = $her2NeuResults[$annotation['EventDetail']['result']];
+        $chronolgyDataAnnotation['chronology_details'] = $annotation['EventDetail']['result'];
         break;
     case 'genetic test':
         $chronolgyDataAnnotation['event'] .= ' - ' . $geneticTests[$annotation['EventDetail']['test']];
