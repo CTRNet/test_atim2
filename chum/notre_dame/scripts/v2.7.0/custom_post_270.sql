@@ -364,7 +364,6 @@ SET type = 'input', setting = 'size=10', structure_value_domain = null
 WHERE structure_value_domain IN (
 	SELECT id FROM structure_value_domains WHERE source LIKE '%ClinicalAnnotation.Participant::getSardoValues%'
 );
-UPDATE 
 DELETE FROM structure_value_domains WHERE source LIKE '%ClinicalAnnotation.Participant::getSardoValues%';
 
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%sardo%_key_words');
@@ -412,7 +411,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='datetime_try' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='global_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='global' AND `language_tag`=''), '1', '2', 'results', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='sardo_data_load_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sardo XML file reading' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='atim_data_management_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='merging data into atim' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='atim_data_management_result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='merging data into atim' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='sardo_participant_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sardo participants number' AND `language_tag`=''), '1', '6', 'data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='cd_icm_sardo_data_import_tries' AND `field`='update_participant_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='atim participants number updated' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
@@ -420,7 +420,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_fields SET  `model`='SardoDataImportTry' WHERE model='Generated' AND tablename='cd_icm_sardo_data_import_tries';
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('tries', 'Tries', Essais'),
+('tries', 'Tries', 'Essais'),
 ('global', "Global", "Global"),
 ('sardo XML file reading', "SARDO File Reading", "Lecture du fichier SARDO"),
 ('merging data into atim', "Data Merging", "Fusion des données"),
@@ -428,12 +428,20 @@ VALUES
 ('atim participants number updated', "Update ATiM Participants", "Participants ATiM mis à jour"),
 ('last sardo clinical data imported', "Laste SARDO Clinical Date Imported", "Dernière date clinique SARDO importée");
 
+-- Pulmonary consent
+
+ALTER TABLE `qc_nd_cd_chum_pulmonarys` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
+ALTER TABLE `qc_nd_cd_chum_pulmonarys_revs` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
 
 
 
 
 
 
+-- 
+
+
+qc_nd_cd_chum_pulmonarys
 
 
 
