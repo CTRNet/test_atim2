@@ -1560,6 +1560,9 @@ class AppController extends Controller
                 }
             } else {
                 $this->Version->query('CREATE TABLE ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $viewModel::$tableQuery) . ')');
+                if($viewModel->table=='view_aliquots'){
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_barcode_index` (`barcode`)');
+                }
             }
             $desc = $this->Version->query('DESC ' . $viewModel->table);
             $fields = array();
@@ -1572,7 +1575,7 @@ class AppController extends Controller
             }
             $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
         }
-        
+
         AppController::addWarningMsg(__('views have been rebuilt'));
         
         // *** 6 *** Current Volume clean up
