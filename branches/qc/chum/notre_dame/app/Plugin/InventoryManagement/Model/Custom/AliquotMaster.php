@@ -106,6 +106,7 @@ class AliquotMasterCustom extends AliquotMaster
                     break;
             }
             $defaultAliquotLabel = $idenitfierValue . ' ' . $visitLabel . ' ' . $label;
+            
         } elseif ($viewSample['ViewSample']['bank_id'] == 8) {
             
             // *** Autopsy Bank ***
@@ -121,6 +122,42 @@ class AliquotMasterCustom extends AliquotMaster
             $idenitfierValue = empty($viewSample['ViewSample']['identifier_value']) ? '?' : substr($viewSample['ViewSample']['identifier_value'], 3, 3);
             $qcNdSampleLabel = (! empty($viewSample['ViewSample']['qc_nd_sample_label']) && preg_match('/A\-([A-Z]+)/', $viewSample['ViewSample']['qc_nd_sample_label'], $matches)) ? $matches['1'] : '?';
             $defaultAliquotLabel = $collectionDateTime . $idenitfierValue . $qcNdSampleLabel;
+            
+        } elseif ($viewSample['ViewSample']['bank_id'] == 10) {
+            
+            // *** Pulmonary Bank ***
+            
+            $this->Collection = AppModel::getInstance('InventoryManagement', 'Collection', true);
+            $tmpColData = $this->Collection->find('first', array(
+                'conditions' => array(
+                    'id' => $viewSample['ViewSample']['collection_id']
+                ),
+                'recursive' => - 1
+            ));
+            
+            $collectionDateTime = empty($tmpColData['Collection']['collection_datetime'])? '?' : substr($tmpColData['Collection']['collection_datetime'], 0, 10);
+            $idenitfierValue = empty($viewSample['ViewSample']['identifier_value']) ? '?' : $viewSample['ViewSample']['identifier_value'];
+            
+            $label = '?';
+            switch ($viewSample['ViewSample']['sample_type'] . '-' . $aliquotControlData['AliquotControl']['aliquot_type']) {
+                case 'serum-tube':
+                    $label = 'Serum';
+                    break;
+                case 'plasma-tube':
+                    $label = 'Plasma';
+                    break;
+                case 'pbmc-tube':
+                    $label = 'Buffycoat';
+                    break;
+                case 'blood cell-tube':
+                    $label = 'Buffycoat';
+                    break;
+                case 'tissue-tube':
+                    $label = substr($viewSample['ViewSample']['qc_nd_sample_label'], 0, strpos($viewSample['ViewSample']['qc_nd_sample_label'], ' '));
+                    break;
+            }
+            $defaultAliquotLabel = $idenitfierValue . ' ' . $label . '-? ' . $collectionDateTime;
+                    
         } else {
             
             // *** Other Bank ***

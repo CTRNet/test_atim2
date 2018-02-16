@@ -432,30 +432,14 @@ VALUES
 
 ALTER TABLE `qc_nd_cd_chum_pulmonarys` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
 ALTER TABLE `qc_nd_cd_chum_pulmonarys_revs` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_pulmonarys', 'stool', 'yes_no',  NULL , '0', '', '', '', 'stool', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonarys'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='stool' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stool' AND `language_tag`=''), '2', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-
-
-
-
-
--- 
-
-
-qc_nd_cd_chum_pulmonarys
-
-
-
-
-
-
-
-
-
+-- i18n clean up
 
 REPLACE INTO i18n (id,en,fr) VALUES ('lesions number', 'Number of Lesions', 'Nombre de lésions');
-
-
-
 
 -- Remove collection datetime = '0000-00-00'
 
@@ -463,6 +447,12 @@ UPDATE collections SET collection_datetime = null WHERE CAST(collection_datetime
 UPDATE collections_revs SET collection_datetime = null WHERE CAST(collection_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
 
 --
+
+
+
+
+
+
 
 
 
