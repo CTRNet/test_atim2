@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -539,3 +539,9 @@ Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMaster
 Configure::write('order_item_type_config', 1);
 
 unset($debug);
+
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// Save userlogs in a text file
+// --------------------------------------------------------------------------------------------------------------------------------------------
+Configure::write('procure_user_log_output_path', substr(APP, 0, strlen(APP) -4).'logs');

@@ -169,6 +169,28 @@ class AppController extends Controller
         }
         
         $logActivityModel->save($logActivityData);
+
+		// record URL in logs file
+		
+        if(Configure::read('procure_user_log_output_path')) {
+            $userLogFileHandle = fopen(Configure::read('procure_user_log_output_path') . '/user_logs.txt', "a");
+            if($userLogFileHandle) {
+                $userLogStrg =  '['.$logActivityData['UserLog']['visited'].'] '.
+                        '{user_id:'.(strlen($logActivityData['UserLog']['user_id'])? $logActivityData['UserLog']['user_id'] : 'NULL').'] '.
+                        $logActivityData['UserLog']['url'].' (allowed:'.$logActivityData['UserLog']['allowed'].')';
+                    fwrite($userLogFileHandle, "$userLogStrg\n");
+                fclose($userLogFileHandle);
+            } else {
+                $logDirectory=Configure::read('procure_user_log_output_path');
+                $permission = substr(sprintf('%o', fileperms($logDirectory)), -4);
+                if ($permission!='0777'){
+                    AppController::addWarningMsg(__('The permission of "upload" directory is not correct.'));
+                }else{
+                    AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+                }
+            }
+        }
+
         
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
@@ -1574,6 +1596,18 @@ class AppController extends Controller
                 }
             }
             $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
+/*
+$database = new DATABASE_CONFIG();
+$database = $database->default['database'];
+$columns = $this->Version->query("SELECT column_name FROM information_schema.columns WHERE  table_name = '".$viewModel->table."' && TABLE_SCHEMA='".$database."' order by column_name ;");
+foreach($columns as $column){
+    $c= $column['columns']['column_name'];
+    try {
+        $this->Version->query("ALTER TABLE ".$viewModel->table." ADD INDEX (".$c.");");
+    } catch (Exception $exc) {
+    }
+}
+*/
         }
 
         AppController::addWarningMsg(__('views have been rebuilt'));
