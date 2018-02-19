@@ -2259,7 +2259,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     initTree($(currentLi));
                 }
                 currentUl=currentLi.children("ul").first();
-                findDuplicatedSamples(currentUl);
+                if (typeof duplicatedSamples !=='undefined'){
+                    findDuplicatedSamples(currentUl);
+                }
             });
         }
     }
