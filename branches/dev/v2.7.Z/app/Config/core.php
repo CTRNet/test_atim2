@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+$debug = 2;
 /**
  * CakePHP Debug Level:
  *
@@ -414,11 +414,16 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// Upload a file
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
 Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 Configure::write('uploadDirectory', substr(APP, 0, strlen(APP) -4).'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
-Configure::write('deleteUploadedFilePhysically', true);
+Configure::write('deleteUploadedFilePhysically', false);
 Configure::write('maxUploadFileSize', 10*1024*1024);
 ini_set('upload_max_filesize', '10.1M');
 ini_set('post_max_size', '16M');
