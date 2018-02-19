@@ -136,9 +136,9 @@ class AppModel extends Model
         if (! is_array($data)) {
             return $moveFiles;
         }
-
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
+        
         
         $prevData = $this->id ? $this->read() : null;
         $dir = Configure::read('uploadDirectory');
@@ -148,6 +148,20 @@ class AppModel extends Model
             }
             foreach ($fields as $fieldName => $value) {
                 if (is_array($value)) {
+                    if (isset($value['option']) && in_array($value['option'], array('delete', 'replace'))){
+                        if ($prevData[$modelName][$fieldName]) {
+                            // delete previous file
+                            $ifDelete=Configure::read('deleteUploadedFilePhysically');
+                            if (!$ifDelete){
+                                $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                                if (!is_dir($deleteDirectory)) {
+                                    mkdir($deleteDirectory);
+                                }
+                                copy($dir.DS.$prevData[$modelName][$fieldName], $deleteDirectory.DS.$prevData[$modelName][$fieldName]);
+                            }
+                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                        }
+                    }
                     if (isset($value['name'])) {
                         if (! $value['size']) {
                             // no file
@@ -170,10 +184,6 @@ class AppModel extends Model
                         }
                         $targetName = $modelName . '.' . $fieldName . '.%%key_increment%%.' . $value['name'];
                         
-                        if ($prevData[$modelName][$fieldName]) {
-                            // delete previous file
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
-                        }
                         $targetName = $this->getKeyIncrement('atim_internal_file', $targetName);
                         array_push($moveFiles, array(
                             'tmpName' => $value['tmp_name'],
@@ -181,9 +191,9 @@ class AppModel extends Model
                         ));
                         $data[$modelName][$fieldName] = $targetName;
                     } elseif (isset($value['option'])) {
-                        if ($value['option'] == 'delete' && $prevData[$modelName][$fieldName]) {
+                        if (in_array($value['option'], array('delete', 'replace')) && $prevData[$modelName][$fieldName]) {
                             $data[$modelName][$fieldName] = '';
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            //unlink($dir . '/' . $prevData[$modelName][$fieldName]);
                         } else {
                             unset($data[$modelName][$fieldName]);
                         }
@@ -997,7 +1007,7 @@ class AppModel extends Model
         }
         
         $this->checkFloats();
-        
+
         parent::validates($options);
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
