@@ -3309,9 +3309,10 @@ VALUES
 "Number of clinical exam(s) created + modified",
 "Nombre d'examen(s) clinique9s) créés + modifiés");
 
--- i18n correction
+-- i18n correction 'procure next followup report description'
 
-INSERT INTO i18n (id,en,fr)
+DELETE FROM i18n WHERE id = 'procure next followup report description';
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ('procure next followup report description', 'Last data collected during the last followup visit', 'Dernieres données recueillies lors de la dernière visite de suivi');
 
@@ -3442,6 +3443,8 @@ VALUES
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_bank_data_merge_results')  WHERE model='ProcureBanksDataMergeTrie' AND tablename='procure_banks_data_merge_tries' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 UPDATE versions SET branch_build_number = '6995' WHERE version_number = '2.6.8';
+
+UPDATE versions SET branch_build_number = '7015' WHERE version_number = '2.6.8';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
