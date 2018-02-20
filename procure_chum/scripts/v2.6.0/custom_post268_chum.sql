@@ -78,4 +78,5 @@ AND language_tag NOT LIKE '' AND language_tag NOT LIKE 'p.chum - %';
 UPDATE versions SET site_branch_build_number = '6996' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
 
-UPDATE versions SET site_branch_build_number = '7016' WHERE version_number = '2.6.8';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/ProcureBanksDataMergeSummary%';
+UPDATE versions SET site_branch_build_number = '7018' WHERE version_number = '2.6.8';
