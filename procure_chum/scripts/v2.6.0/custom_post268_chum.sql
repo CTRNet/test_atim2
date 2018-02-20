@@ -64,7 +64,7 @@ SET language_label = CONCAT('p.chum - ', language_label)
 WHERE (field LIKE 'qc_nd%' OR tablename LIKE 'qc_nd%')
 AND language_label NOT LIKE '';
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 (SELECT CONCAT('p.chum - ', i18n.id),CONCAT(en, ' [CHUM Field]'), CONCAT(fr, ' [Champ CHUM]') 
 FROM structure_fields SF, i18n 
 WHERE (field LIKE 'qc_nd%' OR tablename LIKE 'qc_nd%')
@@ -73,7 +73,9 @@ AND language_tag NOT LIKE '');
 UPDATE structure_fields 
 SET language_tag = CONCAT('p.chum - ', language_tag)
 WHERE (field LIKE 'qc_nd%' OR tablename LIKE 'qc_nd%')
-AND language_tag NOT LIKE '';
+AND language_tag NOT LIKE '' AND language_tag NOT LIKE 'p.chum - %';
 
 UPDATE versions SET site_branch_build_number = '6996' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
+
+UPDATE versions SET site_branch_build_number = '7016' WHERE version_number = '2.6.8';
