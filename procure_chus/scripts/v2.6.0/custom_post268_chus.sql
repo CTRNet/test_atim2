@@ -69,4 +69,4 @@ UPDATE versions SET permissions_regenerated = 0;
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/ProcureBanksDataMergeSummary%';
-UPDATE versions SET site_branch_build_number = '7019' WHERE version_number = '2.6.8';
+UPDATE versions SET site_branch_build_number = '7020' WHERE version_number = '2.6.8';
