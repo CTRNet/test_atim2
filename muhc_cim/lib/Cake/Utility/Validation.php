@@ -23,7 +23,6 @@ if (!function_exists('mb_strlen')) {
 }
 
 /**
- * Validation Class. Used for validation of model data
  *
  * Offers different validation methods.
  *
@@ -502,7 +501,6 @@ class Validation {
  * Check that value is exactly $comparedTo.
  *
  * @param mixed $check Value to check
- * @param mixed $comparedTo Value to compare
  * @return bool Success
  */
 	public static function equalTo($check, $comparedTo) {
@@ -908,7 +906,7 @@ class Validation {
  * @param string $regex Regular expression
  * @return bool Success of match
  */
-	protected static function _check($check, $regex) {
+	protected static function _check($check, $regex) {echo "[...$regex....]";
 		if (is_string($regex) && is_scalar($check) && preg_match($regex, $check)) {
 			return true;
 		}
