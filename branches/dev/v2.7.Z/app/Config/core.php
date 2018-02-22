@@ -419,7 +419,7 @@ Cache::config('default', array(
 // Upload a file
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', $debug>0 ? false : true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 Configure::write('uploadDirectory', substr(APP, 0, strlen(APP) -4).'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
