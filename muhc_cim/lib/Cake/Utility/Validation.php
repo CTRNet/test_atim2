@@ -906,7 +906,7 @@ class Validation {
  * @param string $regex Regular expression
  * @return bool Success of match
  */
-	protected static function _check($check, $regex) {echo "[...$regex....]";
+	protected static function _check($check, $regex) {
 		if (is_string($regex) && is_scalar($check) && preg_match($regex, $check)) {
 			return true;
 		}

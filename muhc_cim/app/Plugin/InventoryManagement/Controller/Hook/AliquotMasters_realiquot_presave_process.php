@@ -29,6 +29,5 @@ foreach ($this->request->data as &$cusmCimNewSampleAliquotsSet) {
         $cusmCimNewAliquot['AliquotMaster']['cusm_cim_bank_id'] = $parentAliquotIdToIds[$cusmCimNewSampleAliquotsSet['parent']['AliquotMaster']['id']]['cusm_cim_bank_id'];
     }
 }
-$this->AliquotMaster->addWritableField(
-    'cusm_cim_bank_id', 'aliquot_masters'
-);
+$childWritableFields['aliquot_masters']['addgrid'][] = 'study_summary_id';
+$childWritableFields['aliquot_masters']['addgrid'][] = 'cusm_cim_bank_id';

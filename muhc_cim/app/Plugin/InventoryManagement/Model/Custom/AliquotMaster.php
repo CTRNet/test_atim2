@@ -1,40 +1,39 @@
 <?php
 
-/**
+/** **********************************************************************
+ * CUSM-CIM Project.
+ * ***********************************************************************
+ *
+ * InventoryManagement plugin custom code
+ *
  * Class AliquotMasterCustom
+ * 
+ * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
+ * @since 2018-02-21
  */
+ 
 class AliquotMasterCustom extends AliquotMaster
 {
     var $useTable = 'aliquot_masters';
     
     var $name = "AliquotMaster";
     
-//     /**
-//      * @param array $options
-//      * @return bool
-//      */
-//     public function beforeSave($options = array())
-//     {
-//         $retVal = parent::beforeSave($options);
-//         if (!isset($this->id)) {
-//             if (!isset($this->data['AliquotMaster']['collection_id'])) {
-//                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);  
-//             } else {
-//                 $this->ViewCollection = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
-//                 $collectionData = $this->ViewCollection->find('first', array(
-//                     'conditions' => array(
-//                         'ViewCollection.collection_id' => $this->data['AliquotMaster']['collection_id']
-//                     ),
-//                     'recursive' => 0
-//                 ));
-//                 if(!$collectionData) {
-//                     AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-//                 }
-//                 $this->data['AliquotMaster']['study_summary_id'] = $collectionData['Participant']['cusm_cim_study_summary_id'];
-//                 $this->addWritableField(array('study_summary_id'));
-//             }
-//         }
-//         return $retVal;
-//     }
+    /**
+     * Will return an empty array considering that no consent exists into CUSM-CIM version.
+     *
+     * @param array $aliquot
+     *            with either a key 'id' referring to an array
+     *            of ids, or a key 'data' referring to AliquotMaster.
+     * @param If|string $modelName If
+     *            the aliquot array contains data, the model name
+     *            to use.
+     * @return an array having unconsented aliquot as key and their consent
+     *         status as value. This function refers to
+     * ViewCollection->getUnconsentedCollections.
+     */
+    public function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
+    {
+        return array();
+    }
 
 }
