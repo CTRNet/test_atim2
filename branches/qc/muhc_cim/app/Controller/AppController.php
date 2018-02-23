@@ -391,7 +391,7 @@ class AppController extends Controller
             $this->set('url', Router::url($url));
             $this->set('message', $message);
             $this->set('pageTitle', $message);
-            $this->render(false, "Flash");
+            $this->render(false, "flash");
         }
     }
 

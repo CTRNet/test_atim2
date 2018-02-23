@@ -468,10 +468,6 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Shipment');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Shipment') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
@@ -585,7 +581,7 @@ ALTER TABLE sample_masters_revs
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleMaster', 'sample_masters', 'cusm_cim_centrifuge_duration_mn', 'integer_positive',  NULL , '0', '', '', '', 'centrifuge duration (mn)', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cusm_cim_sd_centrifuged_derivative'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='cusm_cim_centrifuge_duration_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='centrifuge duration' AND `language_tag`=''), '1', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='cusm_cim_sd_centrifuged_derivative'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='cusm_cim_centrifuge_duration_mn'), '1', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('centrifuge duration (mn)', 'Centrifuge Duration (mn)', 'Durée centrifugation (mn)');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
@@ -595,13 +591,183 @@ SET flag_active = 0
 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail")
 AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE language_alias="reserved for study");
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/QualityCtrls%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
 
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'participant identifiers';
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'list all related diagnosis';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'create quality control';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'create quality control';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'participant identifiers report';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'MiscIdentifier' AND label = 'number of elements per participant';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ConsentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'FamilyHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ParticipantMessage' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'QualityCtrl' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'EventMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'SpecimenReviewMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ParticipantContact' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ReproductiveHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaBlock' AND label = 'create tma slide';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add tma slide use';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlideUse' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
 
+ALTER TABLE aliquot_masters ADD COLUMN cusm_cim_backup tinyint(1) DEFAULT '0';
+ALTER TABLE aliquot_masters_revs ADD COLUMN cusm_cim_backup tinyint(1) DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'cusm_cim_backup', 'checkbox',  NULL , '0', '', '', '', 'backup', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='cusm_cim_backup' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='backup' AND `language_tag`=''), '0', '399', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1', '1', '1', '1', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('backup', 'Backup', 'Sauvegarde');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_internal_use_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquotUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) 
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'ViewCollection'), (SELECT id FROM datamart_structures WHERE model = 'StudySummary'), '1', '1', 'cusm_cim_study_summary_id'),
+((SELECT id FROM datamart_structures WHERE model = 'Participant'), (SELECT id FROM datamart_structures WHERE model = 'StudySummary'), '1', '1', 'cusm_cim_study_summary_id');
+
+UPDATE structure_permissible_values_custom_controls
+SET flag_active = '0'
+WHERE name IN ('Quality Control Tools',
+'SOP Versions',
+'Consent Form Versions',
+'Orders Institutions',
+'Orders Contacts',
+'Xenograft Species',
+'Xenograft Implantation Sites',
+'Xenograft Tissues Sources',
+'Participant Message Types');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('paxgene', 'Paxgene',  'Paxgene', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Shipment');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Shipment') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
+
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE sample_masters
+  ADD COLUMN cusm_cim_centrifuge_speed decimal(10,3) DEFAULT NULL,
+  ADD COLUMN cusm_cim_centrifuge_speed_unit varchar(5) DEFAULT NULL;
+ALTER TABLE sample_masters_revs
+  ADD COLUMN cusm_cim_centrifuge_speed decimal(10,3) DEFAULT NULL,
+  ADD COLUMN cusm_cim_centrifuge_speed_unit varchar(5) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('cusm_cim_centrifuge_speed_unit', NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("RPM", "RPM"),
+("Gys", "Gys");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="cusm_cim_centrifuge_speed_unit"), 
+(SELECT id FROM structure_permissible_values WHERE value="RPM" AND language_alias="RPM"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="cusm_cim_centrifuge_speed_unit"), 
+(SELECT id FROM structure_permissible_values WHERE value="Gys" AND language_alias="Gys"), "1", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'cusm_cim_centrifuge_speed', 'float_positive',  NULL , '0', '', '', '', 'centrifuge speed', ''), 
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'cusm_cim_centrifuge_speed_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_cim_centrifuge_speed_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_cim_sd_centrifuged_derivative'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='cusm_cim_centrifuge_speed' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='centrifuge speed' AND `language_tag`=''), '1', '102', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cim_sd_centrifuged_derivative'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='cusm_cim_centrifuge_speed_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_cim_centrifuge_speed_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '103', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('centrifuge speed', 'Centrifuge Speed', 'Vitesse de centrifugation'),
+("RPM", "RPM", "RPM"),
+("Gys", "Gys", "Gys");
+
+UPDATE structure_formats SET `flag_addgrid_readonly`='0', `flag_editgrid_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='cusm_cim_backup' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/MiscIdentifiers/%';
+
+-- Aliquot Internal Use :: Order
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('incident', 'Incident',  'Incident', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('shipping', 'Shipping',  'Envoi', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') AND `flag_confidential`='0');
+
+ALTER TABLE aliquot_internal_uses 
+  ADD COLUMN `cusm_cim_datetime_remove_from_storage` datetime DEFAULT NULL,
+  ADD COLUMN `cusm_cim_datetime_remove_from_storage_accuracy` char(1) NOT NULL DEFAULT '',
+  ADD COLUMN `cusm_cim_time_packaged` time DEFAULT NULL;
+ALTER TABLE aliquot_internal_uses_revs
+  ADD COLUMN `cusm_cim_datetime_remove_from_storage` datetime DEFAULT NULL,
+  ADD COLUMN `cusm_cim_datetime_remove_from_storage_accuracy` char(1) NOT NULL DEFAULT '',
+  ADD COLUMN `cusm_cim_time_packaged` time DEFAULT NULL;
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date (event/shipping)' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('date (event/shipping)', 'Date (Event/Shipping)', 'Date (Evenement/Livraison)');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_datetime_remove_from_storage', 'datetime',  NULL , '0', '', '', '', 'removed from freezer', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='removed from freezer' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_datetime_remove_from_storage', 'datetime',  NULL , '0', '', '', '', 'removed from freezer', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_time_packaged', 'time',  NULL , '0', '', '', '', 'time packaged', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='removed from freezer' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='cusm_cim_time_packaged' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='time packaged' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('removed from freezer', 'Removed From Freezer (if applicable)', 'Retiré du congélateur (cas échéant)'),
+('time packaged', 'Time Packaged (if applicable)', 'emballé (cas échéant)');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('aliquot internal use code', 'Precision/Mail#', 'Précision/Courrier#'),
+("add uses/events", "Add Events/Shippings", "Ajouter événements/envois"),
+("aliquot use/event", "Aliquot Event/Shipping", "Événement/envoi d'aliquot"),
+("aliquot uses and events", "Aliquot Events/Shippings", "Événements/envois d'aliquot"),
+("create use/event (applied to all)", "Create event/shipping (applied to all)", "Créer événement/envoi (applicabl à tous)"),
+("create uses/events (aliquot specific)", "Create events/shippings (aliquot specific)", "Créer événements/envois (aliquot spécifique)"),
+("use and/or event", "Event/Shipping", "Événement/envoi"),
+("use counter", "Events/Shippings", "Événements/envois"),
+("use/event creation", "Events/Shipping Creation", "Création événement/envoi"),
+("uses and events", "Events/Shippings", "Événements/envois"),
+("you are about to create an use/event for %d aliquot(s)", "You are about to create an event/shipping for %d aliquot(s)", "Vous êtes sur le point de créer un(e) événement/envoi pour %d aliquots"),
+("you are about to create an use/event for %s aliquot(s) contained into %s", "You are about to create an event/shipping for %s aliquot(s) contained into %s", "Vous êtes sur le point de créer un(e) envoi/événement pour %d aliquots contenus dans %s");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquotUse', 'view_aliquot_uses', 'cusm_cim_datetime_remove_from_storage', 'datetime',  NULL , '0', '', '', '', 'removed from freezer', ''), 
+('InventoryManagement', 'ViewAliquotUse', 'view_aliquot_uses', 'cusm_cim_time_packaged', 'time',  NULL , '0', '', '', '', 'time packaged', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='viewaliquotuses'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='removed from freezer' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='viewaliquotuses'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_time_packaged' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='time packaged' AND `language_tag`=''), '0', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='duration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='duration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='duration_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_time_packaged' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date (event/shipping)' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='use_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------
 
@@ -653,15 +819,15 @@ VALUES
 
 INSERT INTO `cusmcim`.`study_summaries` (`cusm_cim_bank_id`, `title`, `cusm_cim_study_full_name`, `start_date`, `end_date`, `summary`, `start_date_accuracy`, `end_date_accuracy`, `modified`, `created`, `created_by`, `modified_by`) 
 VALUES 
-(4, '4-45368', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
-(4, '4-45676', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
-(4, '4-45658', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
+(4, 'Bs-45368', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
+(4, 'Bs-45676', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
+(4, 'Bs-45658', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
 
 (1, 'Onco-22323', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
 (1, 'Onco-423238', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
 (1, 'Onco-41166', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
 
-(2, 'Wom-eda', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
-(2, 'Wom-ade', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1);
+(2, 'Wom-5784', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1),
+(2, 'Wom-38982', '', NULL, NULL, '', '', '', '2018-02-21 20:03:32', '2018-02-21 20:03:32', 1, 1);
 
 
