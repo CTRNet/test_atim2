@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -414,7 +414,7 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');

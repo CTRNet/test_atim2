@@ -439,25 +439,123 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 -- i18n clean up
 
-REPLACE INTO i18n (id,en,fr) VALUES ('lesions number', 'Number of Lesions', 'Nombre de lésions');
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('mycoplasma test', 'Mycoplasma/Method', 'Mycoplasme/Méthode'),
+('lesions number', 'Number of Lesions', 'Nombre de lésions');
 
 -- Remove collection datetime = '0000-00-00'
 
 UPDATE collections SET collection_datetime = null WHERE CAST(collection_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
 UPDATE collections_revs SET collection_datetime = null WHERE CAST(collection_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
 
---
+-- breastfeeding
 
+ALTER TABLE reproductive_histories
+   ADD COLUMN qc_nd_breastfeeding char(1) DEFAULT '';
+ALTER TABLE reproductive_histories_revs
+   ADD COLUMN qc_nd_breastfeeding char(1) DEFAULT ''; 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ReproductiveHistory', 'reproductive_histories', 'qc_nd_breastfeeding', 'yes_no',  NULL , '0', '', '', '', 'breast feeding', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='reproductivehistories'), (SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='qc_nd_breastfeeding' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='breast feeding' AND `language_tag`=''), '2', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='age_at_menopause_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='lnmp_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='qc_nd_year_menopause' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('breast feeding', 'Breast Feeding', 'Allaitement');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='qc_nd_breastfeeding' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Genetic test  :
 
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ('variant', 'variant');
+INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_genetic_test_results"), (SELECT id FROM structure_permissible_values WHERE value="variant" AND language_alias="variant"), "1", "1");
+INSERT INTO i18n (id,en,fr)
+VALUES
+('variant', 'Variant', 'Variant');
 
+-- Bank PROVAQ
 
+INSERT INTO key_increments (key_name ,key_value) VALUES ('provaq bank no lab', '50000');
+INSERT INTO misc_identifier_controls (misc_identifier_name , flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_confidential, flag_unique, pad_to_length, reg_exp_validation, user_readable_format, flag_link_to_study)
+VALUES
+('provaq bank no lab','1','1','provaq bank no lab','%%key_increment%%','1','0','1','0','','','0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('provaq no lab', "'No Labo' of PROVAQ Bank","'No Labo' de la banque PROVAQ"),
+('provaq bank no lab', "'No Labo' of PROVAQ Bank","'No Labo' de la banque PROVAQ");
 
+-- Genetic Test Site
 
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_genetic_test_sites', "StructurePermissibleValuesCustom::getCustomDropdown('Genetic Test Sites')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Genetic Test Sites', 0, 150, 'clinical - annotation');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_test_sites') ,  `setting`='' WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='site' AND `type`='input' AND structure_value_domain  IS NULL ;
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Genetic Test Sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `fr`, `en`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("Mount Sinai Hospital", "Hôpital du Mont Sinai", "Mount Sinai Hospital", '1', @control_id, NOW(), NOW(), 1, 1), 
+("McGill - Dr Tonin", "McGill - Dr Tonin", "McGill - Dr Tonin", '1', @control_id, NOW(), NOW(), 1, 1), 
+("Gyneco-onco list", "Liste gynéco-onco", "Gyneco-onco list", '1', @control_id, NOW(), NOW(), 1, 1), 
+("CHUM - Medical file", "CHUM - Dossier médical", "CHUM - Medical file", '1', @control_id, NOW(), NOW(), 1, 1), 
+("CHUM - Genetic medecine", "CHUM - Médecine génique", "CHUM - Genetic medecine", '1', @control_id, NOW(), NOW(), 1, 1), 
+("Invitae", "Invitae", "Invitae", '1', @control_id, NOW(), NOW(), 1, 1), 
+("Toronto - Dr Narod", "Toronto - Dr Narod", "Toronto - Dr Narod", '1', @control_id, NOW(), NOW(), 1, 1), 
+("Myriad", "Myriad", "Myriad", '1', @control_id, NOW(), NOW(), 1, 1), 
+("Jewish General Hospital", "Hôpital Général Juif ", "Jewish General Hospital", '1', @control_id, NOW(), NOW(), 1, 1), 
+("other", "Autre", "Other", '1', @control_id, NOW(), NOW(), 1, 1);
+UPDATE structure_permissible_values_customs SET value = LOWER(value) WHERE control_id = @control_id;
 
+SET @modified = (SELECT NOW());
+SET @modified_by = (SELECT 1);
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'jewish general hospital' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Hôpital Général Juif';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'toronto - dr narod' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Toronto - Dr Narod';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'gyneco-onco list' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Liste informatique gynéco-onco';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - medical file' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'CHUM';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - genetic medecine' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'CHUM - clinique génique';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - medical file' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'CHUM - Dossier médical';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'invitae' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'INVITAE';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'mcgill - dr tonin' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'McGill - Tonin';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - medical file' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'CHUM - Dossier médicial';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - genetic medecin' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'CHUM - Médecine génique';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - genetic medecin' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'clinique génique';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'myriad' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Myriad';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'other' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Inconnu';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'chum - medical file' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Dossier médical';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'mount sinai hospital' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Mount Sinai Hospital';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'mcgill - dr tonin' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Mc-Gill - Tonin';
+INSERT INTO event_masters_revs (id,event_control_id,event_status,event_summary,event_date,event_date_accuracy,information_source,
+urgency,date_required,date_required_accuracy,date_requested,date_requested_accuracy,reference_number,participant_id,diagnosis_master_id,version_created,modified_by)
+(SELECT id,event_control_id,event_status,event_summary,event_date,event_date_accuracy,information_source,
+urgency,date_required,date_required_accuracy,date_requested,date_requested_accuracy,reference_number,participant_id,diagnosis_master_id,modified,modified_by
+FROM event_masters WHERE modified_by = @modified_by AND modified = @modified);
+INSERT INTO qc_nd_ed_genetic_tests_revs (event_master_id,test,result,detail,site,simplified_result,version_created)
+(SELECT id,test,result,detail,site,simplified_result,modified
+FROM event_masters INNER JOIN qc_nd_ed_genetic_tests ON id = event_master_id WHERE modified_by = @modified_by AND modified = @modified);
+	
+-- -----------------------------
 
-
-
-
-
+UPDATE versions SET branch_build_number = '7024' WHERE version_number = '2.7.0';
