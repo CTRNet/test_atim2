@@ -3,7 +3,7 @@
 /**
  * 
  * @author     Nicolas L.
- * @version     Revs 7026 - 20180302
+ * @version     Revs 7027 - 20180302
  * 
  * */
  
@@ -413,7 +413,7 @@ function manageSardoNewPatient($sardo_patient_data) {
 		$no_labos_string = "'".implode("','",$sardo_patient_data['no_labos'])."'";
 		$query = "SELECT mi.participant_id, mi.identifier_value 
 			FROM misc_identifier_controls mic INNER JOIN misc_identifiers mi ON mi.misc_identifier_control_id = mic.id
-			WHERE mic.misc_identifier_name LIKE '%bank no lab' AND mic.misc_identifier_name NOT IN ('old bank no lab', ' old breast bank no lab', 'old ovary bank no lab') AND mic.flag_active = 1
+			WHERE mic.misc_identifier_name LIKE '%bank no lab' AND mic.misc_identifier_name NOT IN ('old bank no lab', 'old breast bank no lab', 'old ovary bank no lab') AND mic.flag_active = 1
 			AND mi.identifier_value IN ($no_labos_string) AND mi.deleted <> 1;";
 		$query_res = customQuery($query, __LINE__);
 		if($query_res->num_rows == 0) {
