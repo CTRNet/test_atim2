@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * 
+ * @author     Nicolas L.
+ * @version     Revs 7026 - 20180302
+ * 
+ * */
+ 
 global $import_summary;
 $import_summary = array();
 
@@ -11,7 +18,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "atimoncologyaxistest";
+$db_schema		= "";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -406,13 +413,17 @@ function manageSardoNewPatient($sardo_patient_data) {
 		$no_labos_string = "'".implode("','",$sardo_patient_data['no_labos'])."'";
 		$query = "SELECT mi.participant_id, mi.identifier_value 
 			FROM misc_identifier_controls mic INNER JOIN misc_identifiers mi ON mi.misc_identifier_control_id = mic.id
-			WHERE mic.misc_identifier_name LIKE '%bank no lab' AND mic.misc_identifier_name != 'old bank no lab' AND mic.flag_active = 1
+			WHERE mic.misc_identifier_name LIKE '%bank no lab' AND mic.misc_identifier_name NOT IN ('old bank no lab', ' old breast bank no lab', 'old ovary bank no lab') AND mic.flag_active = 1
 			AND mi.identifier_value IN ($no_labos_string) AND mi.deleted <> 1;";
 		$query_res = customQuery($query, __LINE__);
 		if($query_res->num_rows == 0) {
 			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) not linked to ATiM patients - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
 		} else if($query_res->num_rows != sizeof($sardo_patient_data['no_labos'])) {
-			$import_summary['Diagnosis']['ERROR']["SARDO diagnosis NoLabo does not exist into ATiM (at least one) - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
+		    if($query_res->num_rows > sizeof($sardo_patient_data['no_labos'])) {
+		        $import_summary['Diagnosis']['ERROR']["SARDO diagnosis NoLabo matches more than one ATiM NoLabo (or at least one of them) - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
+		    } else {
+                $import_summary['Diagnosis']['ERROR']["SARDO diagnosis NoLabo does not exist into ATiM (or at least one of them) - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
+		    }
 		} else {
 			$participant_ids = array();
 			while($res = mysqli_fetch_assoc($query_res)) {
@@ -1206,7 +1217,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
     					} else if(sizeof($atim_all_labos_data[$atim_test_title][$sardo_formated_date]) > 1) {
     					    $multiple_daily_results[$atim_test_title][$sardo_formated_date] = 'found';
     					} else if($atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value'] != $sardo_labo_data['Resultat']) {
-    						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']." ".$sardo_labo_data['sardo_ca125_exact_value']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : $no_labos_string";
+    						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']." ".$sardo_labo_data['sardo_ca125_exact_value']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
     						$event_master_id = $atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['id'];
     						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'];
     						$queries = array(	
@@ -1241,7 +1252,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			        $sardo_day_results = implode('#', array_keys($sardo_day_results));
 			        //Generate warning			        
 			        if($sardo_day_results != $atim_day_results) {
-			            $import_summary['Labo']['WARNING']["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. Data have to be updated/corrected manually into ATiM"][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [$atim_day_results_strg] on $sardo_formated_date. See NoLabo(s) : $no_labos_string";
+			            $import_summary['Labo']['WARNING']["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. Data have to be updated/corrected manually into ATiM"][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [$atim_day_results_strg] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 			        }
 			    } 
 			}
