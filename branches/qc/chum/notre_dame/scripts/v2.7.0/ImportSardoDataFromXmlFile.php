@@ -10,7 +10,7 @@ $import_summary = array();
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
+$db_pwd			= "";
 $db_schema		= "atimoncologyaxistest";
 $db_charset		= "utf8";
 

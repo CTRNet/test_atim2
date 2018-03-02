@@ -510,6 +510,7 @@ VALUES
 ("Toronto - Dr Narod", "Toronto - Dr Narod", "Toronto - Dr Narod", '1', @control_id, NOW(), NOW(), 1, 1), 
 ("Myriad", "Myriad", "Myriad", '1', @control_id, NOW(), NOW(), 1, 1), 
 ("Jewish General Hospital", "Hôpital Général Juif ", "Jewish General Hospital", '1', @control_id, NOW(), NOW(), 1, 1), 
+("testmyrisk", "TestMyRisk", "TestMyRisk", '1', @control_id, NOW(), NOW(), 1, 1),
 ("other", "Autre", "Other", '1', @control_id, NOW(), NOW(), 1, 1);
 UPDATE structure_permissible_values_customs SET value = LOWER(value) WHERE control_id = @control_id;
 
@@ -547,6 +548,8 @@ UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMa
 WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Mount Sinai Hospital';
 UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'mcgill - dr tonin' 
 WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site = 'Mc-Gill - Tonin';
+UPDATE event_masters EventMaster, qc_nd_ed_genetic_tests EventDetail SET EventMaster.modified_by = @modified_by, EventMaster.modified = @modified, EventDetail.site = 'testmyrisk' 
+WHERE EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted <> 1 AND EventDetail.site LIKE '%Test MyRisk%';
 INSERT INTO event_masters_revs (id,event_control_id,event_status,event_summary,event_date,event_date_accuracy,information_source,
 urgency,date_required,date_required_accuracy,date_requested,date_requested_accuracy,reference_number,participant_id,diagnosis_master_id,version_created,modified_by)
 (SELECT id,event_control_id,event_status,event_summary,event_date,event_date_accuracy,information_source,
@@ -556,6 +559,16 @@ INSERT INTO qc_nd_ed_genetic_tests_revs (event_master_id,test,result,detail,site
 (SELECT id,test,result,detail,site,simplified_result,modified
 FROM event_masters INNER JOIN qc_nd_ed_genetic_tests ON id = event_master_id WHERE modified_by = @modified_by AND modified = @modified);
 	
+-- Toronto Hereditary Cancer Number
+	
+INSERT INTO misc_identifier_controls (misc_identifier_name , flag_active, display_order, autoincrement_name, misc_identifier_format, 
+flag_once_per_participant, flag_confidential, flag_unique, pad_to_length, reg_exp_validation, user_readable_format, flag_link_to_study)
+VALUES
+('toronto hereditary cancer number','1','1','','','0','0','1','0','','','0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('toronto hereditary cancer number', "Toronto Hereditary Cancer Number","No Cancer Héréditaire de Toronto");
+	
 -- -----------------------------
 
-UPDATE versions SET branch_build_number = '7024' WHERE version_number = '2.7.0';
+UPDATE versions SET branch_build_number = '7025' WHERE version_number = '2.7.0';
