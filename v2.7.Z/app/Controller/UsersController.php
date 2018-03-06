@@ -11,7 +11,7 @@ class UsersController extends AppController
         'UserLoginAttempt',
         'Version'
     );
-
+    
     /**
      * Before Filter Callback
      *
@@ -35,6 +35,63 @@ class UsersController extends AppController
         );
         $this->set('atimStructure', $this->Structures->get('form', 'login'));
     }
+    
+    
+    private function doLogin()
+    {
+        $isLdap = Configure::read("if_use_ldap_authentication");
+        if (empty($isLdap)){
+            return $this->Auth->login();
+        }elseif ($isLdap===true){
+            if (!isset($this->request->data['User']['username']) && !isset($this->request->data['User']['password']) && $this->Auth->login()){
+                    return true;
+            }elseif (isset($this->request->data['User']['username'])){
+
+                $adServer = Configure::read('ldap_server');
+                $ldaprdn = Configure::read('ldap_domain');
+
+                $username=(isset($this->request->data['User']['username']))?$this->request->data['User']['username']:null;
+                $password=(isset($this->request->data['User']['password']))?$this->request->data['User']['password']:null;
+                
+                $ldaprdn= sprintf($ldaprdn, $username);
+                
+                $ldap = ldap_connect($adServer);
+                ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+                ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+
+                try{
+                    $bind = @ldap_bind($ldap, $ldaprdn, $password);
+                } catch (Exception $ex) {
+                    $bind = null;
+                }
+               
+                if (!empty($bind)){
+                    $conditions = array(
+                        'User.username' => $username,
+                        'User.deleted'=> '0',
+                        'User.flag_active'=>1
+                    );
+                    $user=$this->User->find('all', array('conditions'=>$conditions));
+                    if(empty($user)){
+                        return false;
+                    }elseif (count($user)===1){
+                        unset($user[0]['User']['password']);
+                        $tempUser = $user[0]['User'];
+                        $tempUser['Group'] = $user[0]['Group'];
+                        $this->Auth->login($tempUser);
+                        return true;
+                    }else{
+                        return false;
+                    }
+
+                }else{
+                    return $this->Auth->login();
+                }
+            }else{
+                return false;
+            }
+        }
+    }
 
     /**
      * Login Method
@@ -43,6 +100,7 @@ class UsersController extends AppController
      */
     public function login()
     {
+        
         $username=$this->UserLoginAttempt->find('first', array('order' => 'attempt_time DESC'));
         $username=(isset($username["UserLoginAttempt"]["username"])?$username["UserLoginAttempt"]["username"]:null);
         if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
@@ -69,17 +127,17 @@ class UsersController extends AppController
         if ($this->Version->data['Version']['permissions_regenerated'] == 0) {
             $this->newVersionSetup();
         }
-        
+
         $this->set('skipExpirationCookie', true);
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
             $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled')));
-        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
-
+        } elseif ((! isset($this->passedArgs['login'])) && $this->doLogin()) {
             // Log in user
-            if ($this->request->data['User']['username'])
+            if ($this->request->data['User']['username']){
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+            }
             $this->_initializeNotificationSessionVariables();
             
             $this->_setSessionSearchId();
@@ -103,21 +161,26 @@ class UsersController extends AppController
                 AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
             }
             $this->request->data = array();
-            $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
-        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username===$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+            $ldap = Configure::read("if_use_ldap_authentication");
+            if (!isset($ldap) || $ldap==false){
+                $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+            }else{
+                $this->Auth->flash(__('login failed - invalid username or password or disabled user or LDAP server connection error'));
+            }
+        } elseif (isset($this->request->data['User']['username']) && isset($this->passedArgs['login']) && $username === $this->request->data['User']['username']) {
+            if ($this->doLogin()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
                 }
-                $this->_initializeNotificationSessionVariables();
+                $this->_initialsizeNotificationSessionVariables();
 
                 $this->_setSessionSearchId();
                 $this->resetPermissions();
                 return $this->render('ok');
             }
-        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username!==$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+        } elseif (isset($this->request->data['User']['username']) && isset($this->passedArgs['login']) && $username !== $this->request->data['User']['username']) {
+            if ($this->doLogin()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
