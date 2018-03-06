@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -550,3 +550,11 @@ unset($debug);
 // Save userlogs in a text file
 // --------------------------------------------------------------------------------------------------------------------------------------------
 Configure::write('procure_user_log_output_path', substr(APP, 0, strlen(APP) -4).'logs');
+
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// LDAP
+// --------------------------------------------------------------------------------------------------------------------------------------------
+Configure::write('if_use_ldap_authentication', true);
+Configure::write('ldap_server', 'ldap://ch06chum00001.chum.rtss.qc.ca:389');
+Configure::write('ldap_domain', 'CN=%s,OU=GP_Default,OU=GP_Standard,OU=Users,OU=Prod,OU=CHUM,DC=chum,DC=rtss,DC=qc,DC=ca');
