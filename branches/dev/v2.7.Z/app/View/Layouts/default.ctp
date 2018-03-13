@@ -71,7 +71,9 @@ if(Configure::read('debug')===0){
 ?>
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
+
 	<?php
+echo $this->Html->css('d3/nv.d3.css') . "\n"; //Chart
 echo $this->Html->css('style') . "\n";
 echo $this->Html->css('jQuery/themes/custom-theme/jquery-ui-1.8.20.custom') . "\n";
 echo $this->Html->css('jQuery/popup/popup.css');
@@ -122,10 +124,8 @@ echo $this->Html->css('iehacks');
 	<![endif]-->
 </head>
 <body>
-
 <?php
 echo $header;
-
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
@@ -154,8 +154,11 @@ echo $this->Html->script('ccl') . "\n";
 echo $this->Html->script('dropdownConfig') . "\n";
 echo $this->Html->script('jquery.fm-menu') . "\n";
 echo $this->Html->script('form/jquery.form.js') . "\n";
+echo $this->Html->script('d3/d3.js') . "\n";    //Chart
+echo $this->Html->script('d3/nv.d3.js') . "\n"; //Chart
+echo $this->Html->script('saveSvgAsPng.js') . "\n"; //Chart
 ?>
-	
+
 	<script type="text/javascript">
 		$(function(){
 			initJsControls();
