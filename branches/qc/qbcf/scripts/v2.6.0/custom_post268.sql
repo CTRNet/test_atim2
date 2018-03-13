@@ -2332,3 +2332,28 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE versions SET branch_build_number = '6963'  WHERE version_number = '2.6.8';
 
+UPDATE aliquot_review_masters SET deleted = 1 WHERE created = '2018-03-13 14:04:59' AND created_by = '1' AND  modified = '2018-03-13 14:04:59' AND modified_by = '1';
+UPDATE specimen_review_masters SET deleted = 1 WHERE created = '2018-03-13 14:04:59' AND created_by = '1' AND  modified = '2018-03-13 14:04:59' AND modified_by = '1';
+
+ALTER TABLE qbcf_ar_tissue_blocks ADD COLUMN possible_pinches VARCHAR(30) DEFAULT NULL;
+ALTER TABLE qbcf_ar_tissue_blocks_revs ADD COLUMN possible_pinches VARCHAR(30) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qbcf_path_review_possible_punches', "StructurePermissibleValuesCustom::getCustomDropdown('Block Possible Punches')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Block Possible Punches', 1, 30, 'inventory - specimen review');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Block Possible Punches');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('3 to 6', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('7 to 9', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('10 to 12', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('12 and more', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'possible_pinches', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_possible_punches') , '0', '', '', '', 'possible punches', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='possible_pinches' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_possible_punches')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='possible punches' AND `language_tag`=''), '0', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('possible punches', 'Possible Punches', '');
+
+UPDATE versions SET branch_build_number = '7033'  WHERE version_number = '2.6.8';
