@@ -418,7 +418,6 @@ Cache::config('default', array(
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // Upload a file
 // --------------------------------------------------------------------------------------------------------------------------------------------
-
 Configure::write('use_compression', $debug>0 ? false : true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 Configure::write('uploadDirectory', substr(APP, 0, strlen(APP) -4).'atimUploadDirectory');
@@ -555,6 +554,6 @@ Configure::write('procure_user_log_output_path', substr(APP, 0, strlen(APP) -4).
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LDAP
 // --------------------------------------------------------------------------------------------------------------------------------------------
-Configure::write('if_use_ldap_authentication', true);
+Configure::write('if_use_ldap_authentication', false);
 Configure::write('ldap_server', 'ldap://ch06chum00001.chum.rtss.qc.ca:389');
 Configure::write('ldap_domain', 'CN=%s,OU=GP_Default,OU=GP_Standard,OU=Users,OU=Prod,OU=CHUM,DC=chum,DC=rtss,DC=qc,DC=ca');
