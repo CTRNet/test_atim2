@@ -50,6 +50,10 @@ class StructuresHelper extends Helper
 
     // default options
     private static $defaults = array(
+        'chartSettings'=>array(),
+        'chartsType'=>array(),
+        'number' => 0,
+        'titles' => '',
         'type' => null,
         'data' => false, // override $this->request->data values, will not work properly for EDIT forms
         'settings' => array(
@@ -485,6 +489,7 @@ class StructuresHelper extends Helper
      */
     public function build(array $atimStructure = array(), array $options = array())
     {
+
         if (Configure::read('debug')) {
             $tmp = array();
             if (count($atimStructure) != 0) {
@@ -709,7 +714,33 @@ class StructuresHelper extends Helper
         } elseif ($type == 'csv') {
             $this->buildCsv($atimStructure, $options, $data);
             $options['settings']['actions'] = false;
-        } else {
+        } elseif ($type == 'chart'){
+            for ($i=0; $i<$options['number']; $i++){
+                if (!isset($options['chartSettings']['popup']) || !$options['chartSettings']['popup']){
+                    $options['titles'][$i] = isset($options['titles'][$i])?$options['titles'][$i]:"";
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
+                    echo '<div class="chartDivHTML" style="height: 300px"><svg></svg></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" title="Detach the chart" class="search pop-up-chart-a" onclick = "createGraph('.$i.', true)">
+                                <span class="icon16 charts" style="margin-right: 0px;"></span>'.
+                                '</a>
+                            </div>
+                        </div>';
+                }else{
+                    echo '<div class="heading_mimic"><h4>' .__("Chart %d", $i+1) . '</h4></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" class= "show-chart-popup" title="'.__("Show chart %d", $i+1).'" class="search">
+                                <span class="icon16 charts"></span>'.__("Show chart %d", $i+1).
+                                '</a>
+                            </div>
+                        </div>';
+                }
+            }
+            return;
+        } 
+        else{
             if (Configure::read('debug') > 0) {
                 AppController::addWarningMsg(__("warning: unknown build type [%s]", $type));
             }
@@ -1518,6 +1549,7 @@ class StructuresHelper extends Helper
      */
     private function buildCsv($atimStructure, $options, $data)
     {
+
         $csv = $this->Csv;
         if (isset(AppController::getInstance()->csvConfig)) {
             $this->Csv->csvSeparator = AppController::getInstance()->csvConfig['define_csv_separator'];
@@ -1687,8 +1719,8 @@ class StructuresHelper extends Helper
                     if ($displayHeading)
                         $this->Csv->addRow($headingLine);
                     $this->Csv->addRow($line);
-                }
-                
+                }                
+
                 // content
                 if (empty($options['settings']['columns_names'])) {
                     foreach ($data as $dataUnit) {
