@@ -1570,6 +1570,7 @@ class AppController extends Controller
             AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
             AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
         );
+
         foreach ($viewModels as $viewModel) {
             $this->Version->query('DROP TABLE IF EXISTS ' . $viewModel->table);
             $this->Version->query('DROP VIEW IF EXISTS ' . $viewModel->table);
@@ -1687,8 +1688,9 @@ foreach($columns as $column){
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
-        if ($currentVolumesUpdated)
+        if ($currentVolumesUpdated){
             AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ') . (implode(', ', $currentVolumesUpdated)));
+        }
         // -C-Used Volume
         $usedVolumeUpdated = array();
         // Search all aliquot internal use having used volume not null but no volume unit
@@ -1907,8 +1909,9 @@ foreach($columns as $column){
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
         $flagDetailResult = $aliquotMasterModel->query($tmpSql);
         $aliquotLabelFlagDetail = '1';
-        if ($flagDetailResult)
+        if ($flagDetailResult){
             $aliquotLabelFlagDetail = empty($flagDetailResult[0]['structure_formats']['flag_detail']) ? '0' : '1';
+        }
         
         $structureFormatsQueries = array();
         switch (Configure::read('order_item_type_config')) {
@@ -2133,8 +2136,14 @@ foreach($columns as $column){
             
             default:
         }
-        foreach ($structureFormatsQueries as $tmpSql)
+        $ldap = Configure::read('if_use_ldap_authentication');
+        if (!empty($ldap)){
+            $structureFormatsQueries[] = "update structure_formats SET `flag_edit`='0', `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='users_form_for_admin') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='User' AND `tablename`='users' AND `field`='force_password_reset')";
+        }
+        
+        foreach ($structureFormatsQueries as $tmpSql){
             $aliquotMasterModel->query($tmpSql);
+        }
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ class UsersController extends AppController
     private function doLogin()
     {
         $isLdap = Configure::read("if_use_ldap_authentication");
+
         if (empty($isLdap)){
             return $this->Auth->login();
         }elseif ($isLdap===true){
@@ -47,43 +48,51 @@ class UsersController extends AppController
                     return true;
             }elseif (isset($this->request->data['User']['username'])){
 
-                $adServer = Configure::read('ldap_server');
-                $ldaprdn = Configure::read('ldap_domain');
-
                 $username=(isset($this->request->data['User']['username']))?$this->request->data['User']['username']:null;
                 $password=(isset($this->request->data['User']['password']))?$this->request->data['User']['password']:null;
-                
-                $ldaprdn= sprintf($ldaprdn, $username);
-                
-                $ldap = ldap_connect($adServer);
-                ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-                ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
-                try{
-                    $bind = @ldap_bind($ldap, $ldaprdn, $password);
-                } catch (Exception $ex) {
-                    $bind = null;
-                }
-               
-                if (!empty($bind)){
-                    $conditions = array(
-                        'User.username' => $username,
-                        'User.deleted'=> '0',
-                        'User.flag_active'=>1
-                    );
-                    $user=$this->User->find('all', array('conditions'=>$conditions));
-                    if(empty($user)){
-                        return false;
-                    }elseif (count($user)===1){
-                        unset($user[0]['User']['password']);
-                        $tempUser = $user[0]['User'];
-                        $tempUser['Group'] = $user[0]['Group'];
-                        $this->Auth->login($tempUser);
-                        return true;
-                    }else{
-                        return false;
+                $conditions = array(
+                    'User.username' => $username,
+                    'User.deleted'=> '0',
+                    'User.flag_active'=>1
+                );
+                $user=$this->User->find('first', array('conditions'=>$conditions));
+                $forcePasswordReset = (!empty($user))?$user['User']['force_password_reset']:null;
+                if (empty($forcePasswordReset)){
+                    $adServer = Configure::read('ldap_server');
+                    $ldaprdn = Configure::read('ldap_domain');
+
+                    $ldaprdn= sprintf($ldaprdn, $username);
+
+                    $ldap = ldap_connect($adServer);
+                    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+                    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+
+                    try{
+                        $bind = @ldap_bind($ldap, $ldaprdn, $password);
+                    } catch (Exception $ex) {
+                        $bind = null;
                     }
 
+                    if (!empty($bind)){
+                        $conditions = array(
+                            'User.username' => $username,
+                            'User.deleted'=> '0',
+                            'User.flag_active'=>1
+                        );
+                        $user=$this->User->find('all', array('conditions'=>$conditions));
+                        if(empty($user)){
+                            return false;
+                        }elseif (count($user)===1){
+                            unset($user[0]['User']['password']);
+                            $tempUser = $user[0]['User'];
+                            $tempUser['Group'] = $user[0]['Group'];
+                            $this->Auth->login($tempUser);
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }
                 }else{
                     return $this->Auth->login();
                 }
@@ -162,7 +171,7 @@ class UsersController extends AppController
             }
             $this->request->data = array();
             $ldap = Configure::read("if_use_ldap_authentication");
-            if (!isset($ldap) || $ldap==false){
+            if (empty($ldap)){
                 $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
             }else{
                 $this->Auth->flash(__('login failed - invalid username or password or disabled user or LDAP server connection error'));
