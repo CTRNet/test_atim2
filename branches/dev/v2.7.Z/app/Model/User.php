@@ -133,10 +133,16 @@ class User extends AppModel
                     'password_modified' => date("Y-m-d H:i:s")
                 )
             );
-            if (array_key_exists('force_password_reset', $data['User']))
+            $isLdap = !empty($isLdap = Configure::read("if_use_ldap_authentication"));
+            if ($isLdap){
+                unset($dataToSave['User']['password']);
+            }
+            if (array_key_exists('force_password_reset', $data['User'])){
                 $dataToSave['User']['force_password_reset'] = $data['User']['force_password_reset'];
-            if ($modifiedByUser)
+            }
+            if ($modifiedByUser){
                 $dataToSave['User']['force_password_reset'] = '0';
+            }
             
             $this->data = null;
             $this->checkWritableFields = false;
@@ -159,6 +165,7 @@ class User extends AppModel
      */
     public function validatePassword(array $data, $createdUserName = null)
     {
+        $isLdap = !empty(Configure::read("if_use_ldap_authentication"));
         $validationErrors = array();
         
         if (! isset($data['User']['new_password'], $data['User']['confirm_password']) || (! $this->id && ! $createdUserName)) {
@@ -174,58 +181,89 @@ class User extends AppModel
         if ($data['User']['new_password'] !== $data['User']['confirm_password']) {
             $validationErrors['confirm_password'][] = 'passwords do not match';
         }
-        
-        if ($createdUserName && $createdUserName === $data['User']['new_password']) {
-            $validationErrors['password'][] = 'password should be different than username';
+        if ($isLdap && empty($createdUserName)) {
+            $adServer = Configure::read('ldap_server');
+            $ldaprdn = Configure::read('ldap_domain');
+
+            $username = ($_SESSION['Auth']['User']['username']) ? $_SESSION['Auth']['User']['username'] : null;
+            $password = $data['User']['new_password'];
+
+            $ldaprdn = sprintf($ldaprdn, $username);
+
+            $ldap = ldap_connect($adServer);
+            ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+
+            try {
+                $bind = @ldap_bind($ldap, $ldaprdn, $password);
+            } catch (Exception $ex) {
+                $bind = null;
+            }
+
+            if (empty($bind)) {
+                $validationErrors['password'][] = 'Error: invalid username or password or disabled user or LDAP server connection error.';
+                $validationErrors['password'][] = 'As new password, should enter your password for loging into your computer.';
+            }
         }
-        if ($dbUserData) {
-            if ($dbUserData['User']['username'] === $data['User']['new_password']) {
+        elseif (!$isLdap){
+            if ($createdUserName && $createdUserName === $data['User']['new_password']) {
                 $validationErrors['password'][] = 'password should be different than username';
             }
-            if ($dbUserData['User']['password'] === Security::hash($data['User']['new_password'], null, true)) {
-                $validationErrors['password'][] = 'password should be different than the previous one';
-            } else {
-                
-                $differentPasswordsNumber = (int) Configure::read('different_passwords_number_before_re_use');
-                if (! preg_match('/^[0-5]$/', $differentPasswordsNumber)) {
-                    $differentPasswordsNumber = 5;
+            if ($dbUserData) {
+                if ($dbUserData['User']['username'] === $data['User']['new_password']) {
+                    $validationErrors['password'][] = 'password should be different than username';
                 }
-                if ($differentPasswordsNumber) {
-                    $previousPasswords = $this->tryCatchQuery("SELECT password FROM users_revs WHERE id = " . $this->id . " ORDER BY version_id DESC LIMIT 1, $differentPasswordsNumber"); // Take last revs record equals current record in consideration
-                    foreach ($previousPasswords as $previousPassword) {
-                        if ($previousPassword['users_revs']['password'] == Security::hash($data['User']['new_password'], null, true)) {
-                            $validationErrors['password'][] = __('password should be different than the %s previous one', ($differentPasswordsNumber + 1));
+                if ($dbUserData['User']['password'] === Security::hash($data['User']['new_password'], null, true)) {
+                    $validationErrors['password'][] = 'password should be different than the previous one';
+                } else {
+
+                    $differentPasswordsNumber = (int) Configure::read('different_passwords_number_before_re_use');
+                    if (! preg_match('/^[0-5]$/', $differentPasswordsNumber)) {
+                        $differentPasswordsNumber = 5;
+                    }
+                    if ($differentPasswordsNumber) {
+                        $previousPasswords = $this->tryCatchQuery("SELECT password FROM users_revs WHERE id = " . $this->id . " ORDER BY version_id DESC LIMIT 1, $differentPasswordsNumber"); // Take last revs record equals current record in consideration
+                        foreach ($previousPasswords as $previousPassword) {
+                            if ($previousPassword['users_revs']['password'] == Security::hash($data['User']['new_password'], null, true)) {
+                                $validationErrors['password'][] = __('password should be different than the %s previous one', ($differentPasswordsNumber + 1));
+                            }
                         }
                     }
                 }
             }
-        }
         
-        $passwordSecurityLevel = (int) Configure::read('password_security_level');
-        if (! preg_match('/^[0-4]$/', $passwordSecurityLevel)) {
-            $passwordSecurityLevel = 4;
+            $passwordSecurityLevel = (int) Configure::read('password_security_level');
+            if (! preg_match('/^[0-4]$/', $passwordSecurityLevel)) {
+                $passwordSecurityLevel = 4;
+            }
+            $passwordFormatError = false;
+            switch ($passwordSecurityLevel) {
+                case 4:
+                    if (! preg_match('/\W+/', $data['User']['new_password'])){
+                        $passwordFormatError = true;
+                    }
+                case 3:
+                    if (! preg_match('/[A-Z]+/', $data['User']['new_password'])){
+                        $passwordFormatError = true;
+                    }
+                case 2:
+                    if (! preg_match('/[1-9]+/', $data['User']['new_password'])){
+                        $passwordFormatError = true;
+                    }
+                case 1:
+                    if (strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
+                        $passwordFormatError = true;
+                    }
+                    if (! preg_match('/[a-z]+/', $data['User']['new_password'])){
+                        $passwordFormatError = true;
+                    }
+                case 0:
+                default:
+            }
+            if ($passwordFormatError){
+                $validationErrors['password'][] = 'password_format_error_msg_' . $passwordSecurityLevel;
+            }
         }
-        $passwordFormatError = false;
-        switch ($passwordSecurityLevel) {
-            case 4:
-                if (! preg_match('/\W+/', $data['User']['new_password']))
-                    $passwordFormatError = true;
-            case 3:
-                if (! preg_match('/[A-Z]+/', $data['User']['new_password']))
-                    $passwordFormatError = true;
-            case 2:
-                if (! preg_match('/[1-9]+/', $data['User']['new_password']))
-                    $passwordFormatError = true;
-            case 1:
-                if (strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH)
-                    $passwordFormatError = true;
-                if (! preg_match('/[a-z]+/', $data['User']['new_password']))
-                    $passwordFormatError = true;
-            case 0:
-            default:
-        }
-        if ($passwordFormatError)
-            $validationErrors['password'][] = 'password_format_error_msg_' . $passwordSecurityLevel;
         
         $this->validationErrors = array_merge($this->validationErrors, $validationErrors);
         return empty($validationErrors);

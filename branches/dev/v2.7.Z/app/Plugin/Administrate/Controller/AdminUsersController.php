@@ -62,6 +62,7 @@ class AdminUsersController extends AdministrateAppController
      */
     public function add($groupId)
     {
+        $isLdap = !empty(Configure::read('if_use_ldap_authentication'));
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
         ));
@@ -91,7 +92,7 @@ class AdminUsersController extends AdministrateAppController
                     )
                 );
                 $submittedDataValidates = $this->User->validatePassword($passwordData, $this->request->data['User']['username']);
-                
+
                 $this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
                 $this->request->data['User']['password_modified'] = date("Y-m-d H:i:s");
                 $this->request->data['User']['group_id'] = $groupId;
@@ -108,8 +109,12 @@ class AdminUsersController extends AdministrateAppController
                 if ($hookLink) {
                     require ($hookLink);
                 }
-                
+
                 if ($submittedDataValidates) {
+                    if (!empty($isLdap)){
+                        $this->request->data['force_password_reset']=1;
+                    }
+
                     if ($this->User->save($this->request->data)) {
                         $hookLink = $this->hook('postsave_process');
                         if ($hookLink) {
@@ -123,7 +128,7 @@ class AdminUsersController extends AdministrateAppController
                 $this->request->data['Generated']['field1'] = "";
             }
         } else {
-            $this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $groupId . "/", AppController::ERROR);
+            $this->atimFlashError(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $groupId . "/");
         }
     }
 
