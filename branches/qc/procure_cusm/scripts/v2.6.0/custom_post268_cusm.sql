@@ -194,14 +194,7 @@ WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND st
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_participant_identifier_prefix' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/ProcureBanksDataMergeSummary/%';
 
-
-
-
-
-
-
-
-
-
-
+UPDATE versions SET site_branch_build_number = '7035' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
