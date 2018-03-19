@@ -1,8 +1,11 @@
-<?php 
-	$structure_links = array(
-		'top'=>'/Administrate/StructureFormats/edit/'.$atim_menu_variables['Structure.id'].'/'.$atim_menu_variables['StructureFormat.id'],
-		'bottom'=>array('cancel'=>'/Administrate/StructureFormats/detail/'.$atim_menu_variables['Structure.id'].'/'.$atim_menu_variables['StructureFormat.id'])
-	);
-	
-	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>
+<?php
+$structureLinks = array(
+    'top' => '/Administrate/StructureFormats/edit/' . $atimMenuVariables['Structure.id'] . '/' . $atimMenuVariables['StructureFormat.id'],
+    'bottom' => array(
+        'cancel' => '/Administrate/StructureFormats/detail/' . $atimMenuVariables['Structure.id'] . '/' . $atimMenuVariables['StructureFormat.id']
+    )
+);
+
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
+));

@@ -1,39 +1,62 @@
 <?php
 
-class CodingIcd10sController extends CodingIcdAppController{
+/**
+ * Class CodingIcd10sController
+ */
+class CodingIcd10sController extends CodingIcdAppController
+{
 
-	var $uses = array("CodingIcd.CodingIcd10Who", "CodingIcd.CodingIcd10Ca"); 
-	/* 
-		Forms Helper appends a "tool" link to the "add" and "edit" form types
-		Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
-	*/
-	
-	function tool($use_icd_type){
-		parent::tool($use_icd_type);
-		$this->set("use_icd_type", $use_icd_type);
-	}
+    public $uses = array(
+        "CodingIcd.CodingIcd10Who",
+        "CodingIcd.CodingIcd10Ca"
+    );
 
-	function search($use_icd_type = "who", $is_tool = true){
-		parent::globalSearch($is_tool, $this->getIcd10Type($use_icd_type));
-		$this->set("use_icd_type", $use_icd_type);
-	}
-	
-	function autocomplete($use_icd_type = "who"){
-		parent::globalAutocomplete($this->getIcd10Type($use_icd_type));
-	}
-	
-	function getIcd10Type($icd_type_name){
-		$model_to_use = null;
-		if($icd_type_name == "who"){
-			$model_to_use = $this->CodingIcd10Who;
-		}else if($icd_type_name == "ca"){
-			$model_to_use = $this->CodingIcd10Ca;
-		}else{
-			$this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [".$icd_type_name."]");
-			$model_to_use = $this->CodingIcd10Who;
-		}
-		return $model_to_use;
-	}
+    /*
+     * Forms Helper appends a "tool" link to the "add" and "edit" form types
+     * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
+     */
+    /**
+     * @param $useIcdType
+     */
+    public function tool($useIcdType)
+    {
+        parent::tool($useIcdType);
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    /**
+     * @param string $useIcdType
+     * @param bool $isTool
+     */
+    public function search($useIcdType = "who", $isTool = true)
+    {
+        parent::globalSearch($isTool, $this->getIcd10Type($useIcdType));
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    /**
+     * @param string $useIcdType
+     */
+    public function autocomplete($useIcdType = "who")
+    {
+        parent::globalAutocomplete($this->getIcd10Type($useIcdType));
+    }
+
+    /**
+     * @param $icdTypeName
+     * @return mixed|null
+     */
+    public function getIcd10Type($icdTypeName)
+    {
+        $modelToUse = null;
+        if ($icdTypeName == "who") {
+            $modelToUse = $this->CodingIcd10Who;
+        } elseif ($icdTypeName == "ca") {
+            $modelToUse = $this->CodingIcd10Ca;
+        } else {
+            $this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [" . $icdTypeName . "]");
+            $modelToUse = $this->CodingIcd10Who;
+        }
+        return $modelToUse;
+    }
 }
-
-?>

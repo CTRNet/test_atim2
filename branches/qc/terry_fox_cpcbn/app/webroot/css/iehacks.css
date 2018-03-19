@@ -1,5 +1,4 @@
 /* Internet Explorer hacks */
-
 td.id a.default {
 	display: block;
 	float: left;
@@ -7,6 +6,7 @@ td.id a.default {
 	width: 20px;
 	height: 20px;
 }
+
 td.id a.not_allowed {
 	display: block;
 	width: 20px;
