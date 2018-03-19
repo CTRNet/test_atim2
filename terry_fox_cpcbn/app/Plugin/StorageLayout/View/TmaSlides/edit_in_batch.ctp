@@ -1,24 +1,31 @@
-<?php 
-$structure_links = array(
-	'top'=>'/StorageLayout/TmaSlides/editInBatch/'.$tma_block_storage_master_id,
-	'bottom'=>array('cancel'=>$url_to_cancel)
+<?php
+$structureLinks = array(
+    'top' => '/StorageLayout/TmaSlides/editInBatch/',
+    'bottom' => array(
+        'cancel' => $urlToCancel
+    )
 );
 
-$final_options = array(
-	'type' => 'editgrid', 
-	'links'=>$structure_links, 
-	'settings'=> array('pagination' => false, 'header' => __('tma slides')),
-	'extras' => '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/><input type="hidden" name="data[tma_slide_ids_for_sorting]" value="'.$tma_slide_ids_for_sorting.'"/>'
+$finalOptions = array(
+    'type' => 'editgrid',
+    'links' => $structureLinks,
+    'settings' => array(
+        'pagination' => false,
+        'header' => __('tma slides')
+    ),
+    'extras' => '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/><input type="hidden" name="data[tma_slide_ids]" value="' . $tmaSlideIds . '"/>'
 );
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if( $hook_link ) { require($hook_link); }
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
 
 // BUILD FORM
-$this->Structures->build( $final_atim_structure, $final_options );
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <script type="text/javascript">

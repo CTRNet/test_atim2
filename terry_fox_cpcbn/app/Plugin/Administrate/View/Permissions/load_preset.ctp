@@ -1,33 +1,63 @@
 <?php
-$this->Structures->build($atim_structure, array(
-	'type' => 'index', 
-	'data' => array(
-		array('PermissionsPreset' => array('name' => __('readonly'), 'description' => __('atim_preset_readonly'), 'id' => '-1')),
-		array('PermissionsPreset' => array('name' => __('reset'), 'description' => __('atim_preset_reset'), 'id' => '-2'))),
-	'links' => array('index' => array('detail' => array('link' => 'javascript:applyPreset(%%PermissionsPreset.id%%);', 'icon' => 'detail'))), 
-	'settings' => array(
-		'header' => __('atim presets'), 
-		'pagination' => false,
-		'actions' => false,
-		'form_bottom' => false
-	)
+$this->Structures->build($atimStructure, array(
+    'type' => 'index',
+    'data' => array(
+        array(
+            'PermissionsPreset' => array(
+                'name' => __('readonly'),
+                'description' => __('atim_preset_readonly'),
+                'id' => '-1'
+            )
+        ),
+        array(
+            'PermissionsPreset' => array(
+                'name' => __('reset'),
+                'description' => __('atim_preset_reset'),
+                'id' => '-2'
+            )
+        )
+    ),
+    'links' => array(
+        'index' => array(
+            'detail' => array(
+                'link' => 'javascript:applyPreset(%%PermissionsPreset.id%%);',
+                'icon' => 'detail'
+            )
+        )
+    ),
+    'settings' => array(
+        'header' => __('atim presets'),
+        'pagination' => false,
+        'actions' => false,
+        'form_bottom' => false
+    )
 ));
 
-$can_delete = !empty($this->request->data) && AppController::checkLinkPermission($this->request->data[0]['PermissionPreset']['delete']);
-$this->Structures->build($atim_structure, array(
-	'type' => 'index', 
-	'data' => $this->request->data, 
-	'links' => array(
-		'index' => array('detail' => array('link' => '#', 'icon' => 'detail jsApplyPreset', 'json' => '%%PermissionsPreset.json%%'), 'delete' => $can_delete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'),
-		'bottom' => array(
-			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/Permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
-		)
-	), 
-	'settings' => array(
-		'header' => __('saved presets'), 
-		'pagination' => false),
-	)
-);
+$canDelete = ! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete']) && AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
+$this->Structures->build($atimStructure, array(
+    'type' => 'index',
+    'data' => $this->request->data,
+    'links' => array(
+        'index' => array(
+            'detail' => array(
+                'link' => '#',
+                'icon' => 'detail jsApplyPreset',
+                'json' => '%%PermissionsPreset.json%%'
+            ),
+            'delete' => $canDelete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'
+        ),
+        'bottom' => array(
+            __('save preset') => array(
+                'link' => AppController::checkLinkPermission('/Administrate/Permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright',
+                'icon' => 'submit'
+            )
+        )
+    ),
+    'settings' => array(
+        'header' => __('saved presets'),
+        'pagination' => false
+    )
+));
 
 ?>
 <script>
@@ -70,8 +100,12 @@ function applyPreset(data){
 		$(".tree_root").find("select").first().val(1);
 	}else{
 		//acos ids operations
-		data.allow = data.allow.split(",");
-		data.deny = data.deny.split(",");
+                if ($.type(data.allow)==="string"){
+                    data.allow = data.allow.split(",");
+                }
+                if ($.type(data.deny)==="string"){
+                    data.deny = data.deny.split(",");
+                }
 
 		$(".tree_root").find("select").val("");
 		for(var i in data.allow){

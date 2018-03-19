@@ -1,31 +1,31 @@
 <?php
-	
-	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/FamilyHistories/add/'.$atim_menu_variables['Participant.id'].'/',
-		'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/FamilyHistories/listall/'.$atim_menu_variables['Participant.id'].'/'
-		)
-	);
-	
-	$structure_settings = array(
-		'pagination' => false,
-		'add_fields' => true,
-		'del_fields' => true
-	);
-	
-	$final_atim_structure = $atim_structure;
-	$final_options = array(
-		'links' => $structure_links, 
-		'type' => 'addgrid',
-		'settings'=> $structure_settings);
-	
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) {
-		require($hook_link);
-	}
-	
-	$this->Structures->build( $final_atim_structure,  $final_options);
-	
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/FamilyHistories/add/' . $atimMenuVariables['Participant.id'] . '/',
+    'bottom' => array(
+        'cancel' => '/ClinicalAnnotation/FamilyHistories/listall/' . $atimMenuVariables['Participant.id'] . '/'
+    )
+);
+
+$structureSettings = array(
+    'pagination' => false,
+    'add_fields' => true,
+    'del_fields' => true
+);
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'type' => 'addgrid',
+    'settings' => $structureSettings
+);
+
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
 ?>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";
