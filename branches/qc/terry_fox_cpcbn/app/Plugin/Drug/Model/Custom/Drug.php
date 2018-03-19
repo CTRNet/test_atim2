@@ -7,7 +7,7 @@ class DrugCustom extends Drug
 
     var $useTable = 'drugs';
 
-    function getHormDrugPermissibleValues()
+    public function getHormDrugPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -23,7 +23,7 @@ class DrugCustom extends Drug
         return $result;
     }
 
-    function getChemoDrugPermissibleValues()
+    public function getChemoDrugPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -39,7 +39,7 @@ class DrugCustom extends Drug
         return $result;
     }
 
-    function getBoneDrugPermissibleValues()
+    public function getBoneDrugPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -55,7 +55,7 @@ class DrugCustom extends Drug
         return $result;
     }
 
-    function getHrDrugPermissibleValues()
+    public function getHrDrugPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -71,5 +71,3 @@ class DrugCustom extends Drug
         return $result;
     }
 }
-
-?>

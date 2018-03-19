@@ -1,9 +1,7 @@
 <?php
-unset($final_options['links']['bottom']['print barcode']);
-unset($structure_links['bottom']['print barcode']);
-unset($final_options['links']['bottom']['add to order']);
-unset($structure_links['bottom']['add to order']);
-unset($final_options['links']['bottom']['add uses/events']);
-unset($structure_links['bottom']['add uses/events']);
-
-?>
+unset($finalOptions['links']['bottom']['print barcode']);
+unset($structureLinks['bottom']['print barcode']);
+unset($finalOptions['links']['bottom']['add to order']);
+unset($structureLinks['bottom']['add to order']);
+unset($finalOptions['links']['bottom']['add uses/events']);
+unset($structureLinks['bottom']['add uses/events']);

@@ -1,4 +1,3 @@
 <?php
-$final_options['settings']['actions'] = true;
-$is_ajax = true;
-	
+$finalOptions['settings']['actions'] = true;
+$isAjax = true;

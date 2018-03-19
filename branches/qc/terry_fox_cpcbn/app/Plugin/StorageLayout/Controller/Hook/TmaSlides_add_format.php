@@ -1,20 +1,18 @@
 <?php
-if (! $initial_display) {
-    foreach ($this->request->data as $tmp_key_block_storage_master_id => &$tmp_data_unit) {
-        $last_block_tma_section_id = '';
-        foreach ($tmp_data_unit as &$tmp_data) {
-            if (isset($tmp_data['TmaSlide'])) {
-                if (preg_match('/[0-9]+/', $tmp_data['TmaSlide']['qc_tf_cpcbn_section_id'])) {
-                    $last_block_tma_section_id = $tmp_data['TmaSlide']['qc_tf_cpcbn_section_id'];
-                } elseif ($tmp_data['TmaSlide']['qc_tf_cpcbn_section_id'] == '+' && preg_match('/[0-9]+/', $last_block_tma_section_id)) {
-                    $last_block_tma_section_id ++;
-                    $tmp_data['TmaSlide']['qc_tf_cpcbn_section_id'] = $last_block_tma_section_id;
+if (! $initialDisplay) {
+    foreach ($this->request->data as $tmpKeyBlockStorageMasterId => &$tmpDataUnit) {
+        $lastBlockTmaSectionId = '';
+        foreach ($tmpDataUnit as &$tmpData) {
+            if (isset($tmpData['TmaSlide'])) {
+                if (preg_match('/[0-9]+/', $tmpData['TmaSlide']['qc_tf_cpcbn_section_id'])) {
+                    $lastBlockTmaSectionId = $tmpData['TmaSlide']['qc_tf_cpcbn_section_id'];
+                } elseif ($tmpData['TmaSlide']['qc_tf_cpcbn_section_id'] == '+' && preg_match('/[0-9]+/', $lastBlockTmaSectionId)) {
+                    $lastBlockTmaSectionId ++;
+                    $tmpData['TmaSlide']['qc_tf_cpcbn_section_id'] = $lastBlockTmaSectionId;
                 } else {
-                    $last_block_tma_section_id = '';
+                    $lastBlockTmaSectionId = '';
                 }
             }
         }
     }
 }
-
-?>

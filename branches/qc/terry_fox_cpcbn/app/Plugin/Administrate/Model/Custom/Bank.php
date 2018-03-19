@@ -7,46 +7,46 @@ class BankCustom extends Bank
 
     var $name = "Bank";
 
-    function getBankPermissibleValues()
+    public function getBankPermissibleValues()
     {
         $result = array();
         if ($_SESSION['Auth']['User']['group_id'] == '1') {
             $result = parent::getBankPermissibleValues();
         } else {
             $GroupModel = AppModel::getInstance("", "Group", true);
-            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-            $bank_data = $this->find('first', array(
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $bankData = $this->find('first', array(
                 'conditions' => array(
-                    'Bank.id' => $group_data['Group']['bank_id']
+                    'Bank.id' => $groupData['Group']['bank_id']
                 )
             ));
             $result = array();
-            if ($bank_data) {
-                $result[$bank_data["Bank"]["id"]] = $bank_data["Bank"]["name"];
+            if ($bankData) {
+                $result[$bankData["Bank"]["id"]] = $bankData["Bank"]["name"];
             }
         }
         return $result;
     }
 
-    function getBankPermissibleValuesForControls()
+    public function getBankPermissibleValuesForControls()
     {
-        $final_result = array();
-        foreach (parent::getBankPermissibleValues() as $bank_id => $bank_name) {
-            $final_result[$bank_id] = preg_match('/^(.*)\ #[0-9]+$/', $bank_name, $matches) ? $matches[1] : $bank_name;
+        $finalResult = array();
+        foreach (parent::getBankPermissibleValues() as $bankId => $bankName) {
+            $finalResult[$bankId] = preg_match('/^(.*)\ #[0-9]+$/', $bankName, $matches) ? $matches[1] : $bankName;
         }
-        return $final_result;
+        return $finalResult;
     }
 
-    function allowDeletion($bank_id)
+    public function allowDeletion($bankId)
     {
-        $res = parent::allowDeletion($bank_id);
+        $res = parent::allowDeletion($bankId);
         if (! $res['allow_deletion'])
             return $res;
         
         $SampleMasterModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
         $data = $SampleMasterModel->find('first', array(
             'conditions' => array(
-                'SampleMaster.qc_tf_tma_sample_control_bank_id' => $bank_id
+                'SampleMaster.qc_tf_tma_sample_control_bank_id' => $bankId
             )
         ));
         if ($data) {
@@ -59,7 +59,7 @@ class BankCustom extends Bank
         $ParticipantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
         $data = $ParticipantModel->find('first', array(
             'conditions' => array(
-                'Participant.qc_tf_bank_id' => $bank_id
+                'Participant.qc_tf_bank_id' => $bankId
             )
         ));
         if ($data) {
@@ -75,5 +75,3 @@ class BankCustom extends Bank
         );
     }
 }
-
-?>
