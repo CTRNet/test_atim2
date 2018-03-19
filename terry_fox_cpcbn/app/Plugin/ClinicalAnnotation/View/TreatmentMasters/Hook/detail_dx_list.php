@@ -1,3 +1,2 @@
-<?php 
-
-	$final_options['settings']['actions'] = true;
+<?php
+$final_options['settings']['actions'] = true;
