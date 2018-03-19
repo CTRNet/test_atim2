@@ -7,7 +7,7 @@ class ParticipantCustom extends Participant
 
     var $name = 'Participant';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -18,52 +18,52 @@ class ParticipantCustom extends Participant
                 )
             ));
             
-            $bank_identfiers = CONFIDENTIAL_MARKER;
+            $bankIdentfiers = CONFIDENTIAL_MARKER;
             if ($result['Participant']['qc_tf_bank_participant_identifier'] != CONFIDENTIAL_MARKER) {
-                $bank_model = AppModel::getInstance('Administrate', 'Bank', true);
-                $bank = $bank_model->find('first', array(
+                $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+                $bank = $bankModel->find('first', array(
                     'conditions' => array(
                         'Bank.id' => $result['Participant']['qc_tf_bank_id']
                     )
                 ));
-                $bank_identfiers = (empty($bank['Bank']['name']) ? '?' : $bank['Bank']['name']) . ' : ' . $result['Participant']['qc_tf_bank_participant_identifier'];
+                $bankIdentfiers = (empty($bank['Bank']['name']) ? '?' : $bank['Bank']['name']) . ' : ' . $result['Participant']['qc_tf_bank_participant_identifier'];
             }
             
-            $label = $bank_identfiers . ' [' . $result['Participant']['participant_identifier'] . ']';
+            $label = $bankIdentfiers . ' [' . $result['Participant']['participant_identifier'] . ']';
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $label
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $label
                 ),
                 'structure alias' => 'participants',
                 'data' => $result
             );
             
-            $diagnosis_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
-            $treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-            $all_participant_dx = $diagnosis_model->find('all', array(
+            $diagnosisModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+            $treatmentModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+            $allParticipantDx = $diagnosisModel->find('all', array(
                 'conditions' => array(
                     'DiagnosisMaster.participant_id' => $variables['Participant.id'],
                     'DiagnosisControl.category' => 'primary',
                     'DiagnosisControl.controls_type' => 'prostate'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
-            foreach ($all_participant_dx as $new_dx) {
-                $is_biopsy_turp_dx_method = in_array($new_dx['DiagnosisDetail']['tool'], array(
+            foreach ($allParticipantDx as $newDx) {
+                $isBiopsyTurpDxMethod = in_array($newDx['DiagnosisDetail']['tool'], array(
                     'biopsy',
                     'TURP',
                     'TRUS-guided biopsy'
                 )) ? true : false;
-                $all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($new_dx['DiagnosisMaster']['id']);
+                $allLinkedDiagmosisesIds = $diagnosisModel->getAllTumorDiagnosesIds($newDx['DiagnosisMaster']['id']);
                 // Get Biopsy 'dx Bx'
                 $conditions = array(
-                    'TreatmentMaster.diagnosis_master_id' => $all_linked_diagmosises_ids,
-                    'TreatmentDetail.type' => $treatment_model->dx_biopsy_and_turp_types
+                    'TreatmentMaster.diagnosis_master_id' => $allLinkedDiagmosisesIds,
+                    'TreatmentDetail.type' => $treatmentModel->dxBiopsyAndTurpTypes
                 );
                 $joins = array(
                     array(
@@ -75,20 +75,20 @@ class ParticipantCustom extends Participant
                         )
                     )
                 );
-                $biopsy_turp_at_dx = $treatment_model->find('first', array(
+                $biopsyTurpAtDx = $treatmentModel->find('first', array(
                     'conditions' => $conditions,
                     'joins' => $joins
                 ));
                 // checks
-                if (empty($biopsy_turp_at_dx) && $is_biopsy_turp_dx_method) {
+                if (empty($biopsyTurpAtDx) && $isBiopsyTurpDxMethod) {
                     AppController::addWarningMsg(__('the biopsy or the turp used for the diagnosis is missing into the system'));
-                } elseif (! empty($biopsy_turp_at_dx) && ! $is_biopsy_turp_dx_method) {
+                } elseif (! empty($biopsyTurpAtDx) && ! $isBiopsyTurpDxMethod) {
                     AppController::addWarningMsg(__('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else'));
-                } elseif ($biopsy_turp_at_dx && $is_biopsy_turp_dx_method) {
-                    if ($biopsy_turp_at_dx['TreatmentMaster']['start_date'] != $new_dx['DiagnosisMaster']['dx_date'] || $biopsy_turp_at_dx['TreatmentMaster']['start_date_accuracy'] != $new_dx['DiagnosisMaster']['dx_date_accuracy']) {
+                } elseif ($biopsyTurpAtDx && $isBiopsyTurpDxMethod) {
+                    if ($biopsyTurpAtDx['TreatmentMaster']['start_date'] != $newDx['DiagnosisMaster']['dx_date'] || $biopsyTurpAtDx['TreatmentMaster']['start_date_accuracy'] != $newDx['DiagnosisMaster']['dx_date_accuracy']) {
                         AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
                     }
-                    if (($new_dx['DiagnosisDetail']['tool'] == 'biopsy' && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'Bx Dx') || ($new_dx['DiagnosisDetail']['tool'] == 'TURP' && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'TURP Dx') || ($new_dx['DiagnosisDetail']['tool'] == 'TRUS-guided biopsy' && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'Bx Dx TRUS-Guided')) {
+                    if (($newDx['DiagnosisDetail']['tool'] == 'biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx Dx') || ($newDx['DiagnosisDetail']['tool'] == 'TURP' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'TURP Dx') || ($newDx['DiagnosisDetail']['tool'] == 'TRUS-guided biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx Dx TRUS-Guided')) {
                         AppController::addWarningMsg(__('the method of the diagnosis (biopsy, TRUS-guided biopsy or TURP) is different than the type set for the biopsy or a turp record'));
                     }
                 }
@@ -98,7 +98,7 @@ class ParticipantCustom extends Participant
         return $return;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $result = parent::validates($options);
         
@@ -122,30 +122,30 @@ class ParticipantCustom extends Participant
         return $result;
     }
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("Participant.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
-            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-            $user_bank_id = $group_data['Group']['bank_id'];
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $userBankId = $groupData['Group']['bank_id'];
             $queryData['conditions'][] = array(
-                "Participant.qc_tf_bank_id" => $user_bank_id
+                "Participant.qc_tf_bank_id" => $userBankId
             );
         }
         return $queryData;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         if ($_SESSION['Auth']['User']['group_id'] != '1') {
             $GroupModel = AppModel::getInstance("", "Group", true);
-            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-            $user_bank_id = $group_data['Group']['bank_id'];
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $userBankId = $groupData['Group']['bank_id'];
             if (isset($results[0]['Participant']['qc_tf_bank_id']) || isset($results[0]['Participant']['qc_tf_bank_participant_identifier'])) {
                 foreach ($results as &$result) {
-                    if ((! isset($result['Participant']['qc_tf_bank_id'])) || $result['Participant']['qc_tf_bank_id'] != $user_bank_id) {
+                    if ((! isset($result['Participant']['qc_tf_bank_id'])) || $result['Participant']['qc_tf_bank_id'] != $userBankId) {
                         $result['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
                         $result['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
                     }
@@ -160,5 +160,3 @@ class ParticipantCustom extends Participant
         return $results;
     }
 }
-
-?>

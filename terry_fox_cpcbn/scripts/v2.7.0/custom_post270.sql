@@ -334,6 +334,74 @@ Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slides relat
 
 
 
+   ### 3 # Custom AutoCompleteField Function
+   -----------------------------------------------------------
+
+      The autocomplete field did not work in v2.6.8 version for any values having special characters like {\%'"}.
+      See "issue#3398: autoComplete and special characters". 
+   
+      The following functions of controllers and models used to generate the autocomplete lists, to format the displayed values 
+      and to validate the selected values have been modified :
+      
+         - DrugsController.autocompleteDrug() and Drug.getDrugIdFromDrugDataAndCode()
+         	  Field : Drug.generic_name
+         	  Correction : Autocomplete and validation
+         - AliquotMastersController.autocompleteBarcode()
+         	  Field : AliquotMaster.barcode
+         	  Correction : Autocomplete only
+         - StorageMastersController.autocompleteLabel() and StorageMaster.getStorageDataFromStorageLabelAndCode()
+         	  Field : StorageMaster.Selection_label
+         	  Correction : Autocomplete and validation
+         - TmaSlides.autocompleteBarcode()
+         	  Field : TmaSlide.barcode
+         	  Correction : Autocomplete only
+         - TmaSlides.autocompleteTmaSlideImmunochemistry()
+         	  Field : TmaSlide.immunochemistry
+              Correction : Autocomplete only
+         - StudySummaries.autocompleteStudy() and StudySummary.getStudyIdFromStudyDataAndCode()
+         	  Field : StudySummary.title
+              Correction : Autocomplete and validation
+      
+      In Controller function (like autocompleteDrug()) :
+         - Special characters of the $term have been formatted using str_replace()
+   			  $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+         - Search conditions have been changed  
+   			  from Model.Field LIKE '%" . trim($keyWord) . "%'",
+   			  to Model.Field LIKE " => '%' . trim($keyWord) . '%', 
+         - Returned value has been formatted using str_replace()  
+   			  $result = "";
+   			  foreach ($data as $dataUnit) {
+   			     $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), dataUnit . '", ';
+   			  }
+      
+      In Model funtions (like getDrugIdFromDrugDataAndCode($drugDataAndCode)) :   
+         - Special characters of the submitted value (like $drugDataAndCode) have been formatted using str_replace()
+   			  $submitedValue = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $submittedValue);
+         - Search conditions have been changed
+   			  from Model.Field LIKE '%" . trim($submittedValue) . "%'",
+   			  to Model.Field LIKE " => '%' . trim($submittedValue) . '%',
+   
+      TODO :  
+   
+      Update custom code for any function listed above and being overridden by a custom function.
+
+
+   ### 4 # New content in collection tree view upgrade
+   -----------------------------------------------------------
+   
+      Quality control and path review are now displayed into the collection tree view when they are not linked 
+      to a tested aliquot. See "issue#3427: Add quality control and tissue review to collection tree view when data 
+      not linked to an aliquot". 
+   
+      TODO :  
+   
+      Review structure 'sample_uses_for_collection_tree_view' and function SampleMastersController.contentTreeView() for
+      any customisation.
+
+
+
+
+
 
 
 

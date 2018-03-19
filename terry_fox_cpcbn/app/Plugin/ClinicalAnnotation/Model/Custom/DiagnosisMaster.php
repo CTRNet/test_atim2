@@ -7,20 +7,20 @@ class DiagnosisMasterCustom extends DiagnosisMaster
 
     var $name = 'DiagnosisMaster';
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $result = parent::validates($options);
         
         if (array_key_exists('first_biochemical_recurrence', $this->data['DiagnosisDetail']) && $this->data['DiagnosisDetail']['first_biochemical_recurrence']) {
             // Get all diagnoses linked to the same primary
-            $dx_id_for_search = array_key_exists('primary_id', $this->data['DiagnosisMaster']) ? $this->data['DiagnosisMaster']['primary_id'] : $this->id;
-            if (empty($dx_id_for_search))
+            $dxIdForSearch = array_key_exists('primary_id', $this->data['DiagnosisMaster']) ? $this->data['DiagnosisMaster']['primary_id'] : $this->id;
+            if (empty($dxIdForSearch))
                 AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $all_linked_diagmosises_ids = $this->getAllTumorDiagnosesIds($dx_id_for_search);
+            $allLinkedDiagmosisesIds = $this->getAllTumorDiagnosesIds($dxIdForSearch);
             
             // Search existing BCR linked to this cancer already flagged as first_biochemical_recurrence
             $conditions = array(
-                'DiagnosisMaster.id' => $all_linked_diagmosises_ids,
+                'DiagnosisMaster.id' => $allLinkedDiagmosisesIds,
                 'DiagnosisDetail.first_biochemical_recurrence' => '1'
             );
             if ($this->id)
@@ -48,34 +48,34 @@ class DiagnosisMasterCustom extends DiagnosisMaster
         return $result;
     }
 
-    function calculateSurvivalAndBcr($studied_diagnosis_id)
+    public function calculateSurvivalAndBcr($studiedDiagnosisId)
     {
-        if (empty($studied_diagnosis_id))
+        if (empty($studiedDiagnosisId))
             return;
         
-        $all_linked_diagnoses_ids = $this->getAllTumorDiagnosesIds($studied_diagnosis_id);
+        $allLinkedDiagnosesIds = $this->getAllTumorDiagnosesIds($studiedDiagnosisId);
         $conditions = array(
-            'DiagnosisMaster.id' => $all_linked_diagnoses_ids,
+            'DiagnosisMaster.id' => $allLinkedDiagnosesIds,
             'DiagnosisMaster.deleted != 1',
             'DiagnosisControl.category' => 'primary',
             'DiagnosisControl.controls_type' => 'prostate'
         );
-        $prostate_dx = $this->find('first', array(
+        $prostateDx = $this->find('first', array(
             'conditions' => $conditions
         ));
         
-        if (! empty($prostate_dx)) {
-            $participant_id = $prostate_dx['DiagnosisMaster']['participant_id'];
-            $primary_id = $prostate_dx['DiagnosisMaster']['id'];
-            $primary_diagnosis_control_id = $prostate_dx['DiagnosisMaster']['diagnosis_control_id'];
+        if (! empty($prostateDx)) {
+            $participantId = $prostateDx['DiagnosisMaster']['participant_id'];
+            $primaryId = $prostateDx['DiagnosisMaster']['id'];
+            $primaryDiagnosisControlId = $prostateDx['DiagnosisMaster']['diagnosis_control_id'];
             
-            $previous_survival = $prostate_dx['DiagnosisDetail']['survival_in_months'];
-            $previous_bcr = $prostate_dx['DiagnosisDetail']['bcr_in_months'];
+            $previousSurvival = $prostateDx['DiagnosisDetail']['survival_in_months'];
+            $previousBcr = $prostateDx['DiagnosisDetail']['bcr_in_months'];
             
             // Get 1st BCR
             
             $conditions = array(
-                'DiagnosisMaster.primary_id' => $primary_id,
+                'DiagnosisMaster.primary_id' => $primaryId,
                 'DiagnosisMaster.deleted != 1',
                 'DiagnosisDetail.first_biochemical_recurrence' => '1'
             );
@@ -94,62 +94,62 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                 'joins' => $joins
             ));
             
-            $bcr_date = empty($bcr) ? '' : $bcr['DiagnosisMaster']['dx_date'];
-            $bcr_accuracy = empty($bcr) ? '' : $bcr['DiagnosisMaster']['dx_date_accuracy'];
+            $bcrDate = empty($bcr) ? '' : $bcr['DiagnosisMaster']['dx_date'];
+            $bcrAccuracy = empty($bcr) ? '' : $bcr['DiagnosisMaster']['dx_date_accuracy'];
             
             // Get 1st DFS
             
-            $treatment_master_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
+            $treatmentMasterModel = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
             $conditions = array(
-                'TreatmentMaster.diagnosis_master_id' => $all_linked_diagnoses_ids,
+                'TreatmentMaster.diagnosis_master_id' => $allLinkedDiagnosesIds,
                 'TreatmentMaster.deleted != 1',
                 'TreatmentMaster.qc_tf_disease_free_survival_start_events' => '1'
             );
-            $dfs = $treatment_master_model->find('first', array(
+            $dfs = $treatmentMasterModel->find('first', array(
                 'conditions' => $conditions
             ));
             
-            $dfs_date = empty($dfs) ? '' : $dfs['TreatmentMaster']['start_date'];
-            $dfs_accuracy = empty($dfs) ? '' : $dfs['TreatmentMaster']['start_date_accuracy'];
+            $dfsDate = empty($dfs) ? '' : $dfs['TreatmentMaster']['start_date'];
+            $dfsAccuracy = empty($dfs) ? '' : $dfs['TreatmentMaster']['start_date_accuracy'];
             
             // Get survival end date
             
-            $participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-            $participant = $participant_model->find('first', array(
+            $participantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+            $participant = $participantModel->find('first', array(
                 'conditions' => array(
-                    'Participant.id' => $participant_id
+                    'Participant.id' => $participantId
                 )
             ));
             
-            $survival_end_date = '';
-            $survival_end_date_accuracy = '';
+            $survivalEndDate = '';
+            $survivalEndDateAccuracy = '';
             if (! empty($participant['Participant']['date_of_death'])) {
-                $survival_end_date = $participant['Participant']['date_of_death'];
-                $survival_end_date_accuracy = $participant['Participant']['date_of_death_accuracy'];
+                $survivalEndDate = $participant['Participant']['date_of_death'];
+                $survivalEndDateAccuracy = $participant['Participant']['date_of_death_accuracy'];
             } elseif (! empty($participant['Participant']['qc_tf_last_contact'])) {
-                $survival_end_date = $participant['Participant']['qc_tf_last_contact'];
-                $survival_end_date_accuracy = $participant['Participant']['qc_tf_last_contact_accuracy'];
+                $survivalEndDate = $participant['Participant']['qc_tf_last_contact'];
+                $survivalEndDateAccuracy = $participant['Participant']['qc_tf_last_contact_accuracy'];
             }
             
             // Calculate Survival
             
-            $new_survival = '';
-            if (! empty($dfs_date) && ! empty($survival_end_date)) {
-                if (in_array($survival_end_date_accuracy . $dfs_accuracy, array(
+            $newSurvival = '';
+            if (! empty($dfsDate) && ! empty($survivalEndDate)) {
+                if (in_array($survivalEndDateAccuracy . $dfsAccuracy, array(
                     'cc',
                     'cd',
                     'dc'
                 ))) {
-                    if ($survival_end_date_accuracy . $dfs_accuracy != 'cc') {
+                    if ($survivalEndDateAccuracy . $dfsAccuracy != 'cc') {
                         AppController::getInstance()->addWarningMsg(__('survival has been calculated with at least one unaccuracy date'));
                     }
-                    $dfs_date_ob = new DateTime($dfs_date);
-                    $survival_end_date_ob = new DateTime($survival_end_date);
-                    $interval = $dfs_date_ob->diff($survival_end_date_ob);
+                    $dfsDateOb = new DateTime($dfsDate);
+                    $survivalEndDateOb = new DateTime($survivalEndDate);
+                    $interval = $dfsDateOb->diff($survivalEndDateOb);
                     if ($interval->invert) {
                         AppController::getInstance()->addWarningMsg(__('survival cannot be calculated because dates are not chronological'));
                     } else {
-                        $new_survival = $interval->y * 12 + $interval->m;
+                        $newSurvival = $interval->y * 12 + $interval->m;
                     }
                 } else {
                     AppController::getInstance()->addWarningMsg(__('survival cannot be calculated on inaccurate dates'));
@@ -158,92 +158,92 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             
             // Calculate bcr
             
-            $new_bcr = '';
-            if (! empty($dfs_date) && ! empty($bcr_date)) {
-                if (in_array($dfs_accuracy . $bcr_accuracy, array(
+            $newBcr = '';
+            if (! empty($dfsDate) && ! empty($bcrDate)) {
+                if (in_array($dfsAccuracy . $bcrAccuracy, array(
                     'cc',
                     'cd',
                     'dc'
                 ))) {
-                    if ($dfs_accuracy . $bcr_accuracy != 'cc') {
+                    if ($dfsAccuracy . $bcrAccuracy != 'cc') {
                         AppController::getInstance()->addWarningMsg(__('bcr has been calculated with at least one unaccuracy date'));
                     }
-                    $dfs_date_ob = new DateTime($dfs_date);
-                    $bcr_date_ob = new DateTime($bcr_date);
-                    $interval = $dfs_date_ob->diff($bcr_date_ob);
+                    $dfsDateOb = new DateTime($dfsDate);
+                    $bcrDateOb = new DateTime($bcrDate);
+                    $interval = $dfsDateOb->diff($bcrDateOb);
                     if ($interval->invert) {
                         AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated because dates are not chronological'));
                     } else {
-                        $new_bcr = $interval->y * 12 + $interval->m;
+                        $newBcr = $interval->y * 12 + $interval->m;
                     }
                 } else {
                     AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated on inaccurate dates'));
                 }
             } else {
-                $new_bcr = $new_survival;
+                $newBcr = $newSurvival;
             }
             
             // Data to update
             
-            $data_to_update = array(
+            $dataToUpdate = array(
                 'DiagnosisMaster' => array(
-                    'diagnosis_control_id' => $primary_diagnosis_control_id
+                    'diagnosis_control_id' => $primaryDiagnosisControlId
                 )
             );
-            if ($new_bcr != $previous_bcr)
-                $data_to_update['DiagnosisDetail']['bcr_in_months'] = $new_bcr;
-            if ($new_survival != $previous_survival)
-                $data_to_update['DiagnosisDetail']['survival_in_months'] = $new_survival;
-            if (sizeof($data_to_update) != 1) {
+            if ($newBcr != $previousBcr)
+                $dataToUpdate['DiagnosisDetail']['bcr_in_months'] = $newBcr;
+            if ($newSurvival != $previousSurvival)
+                $dataToUpdate['DiagnosisDetail']['survival_in_months'] = $newSurvival;
+            if (sizeof($dataToUpdate) != 1) {
                 $thid->data = array();
-                $this->id = $primary_id;
-                if (! $this->save($data_to_update))
+                $this->id = $primaryId;
+                if (! $this->save($dataToUpdate))
                     AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
         }
     }
 
-    function getAllTumorDiagnosesIds($diagnosis_master_id)
+    public function getAllTumorDiagnosesIds($diagnosisMasterId)
     {
-        $all_linked_diagmosises_ids = array();
-        $studied_diagnosis_data = $this->find('first', array(
+        $allLinkedDiagmosisesIds = array();
+        $studiedDiagnosisData = $this->find('first', array(
             'conditions' => array(
-                'DiagnosisMaster.id' => $diagnosis_master_id
+                'DiagnosisMaster.id' => $diagnosisMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
-        if (! empty($studied_diagnosis_data)) {
-            $all_linked_diagmosises = $this->find('all', array(
+        if (! empty($studiedDiagnosisData)) {
+            $allLinkedDiagmosises = $this->find('all', array(
                 'conditions' => array(
-                    'DiagnosisMaster.primary_id' => $studied_diagnosis_data['DiagnosisMaster']['primary_id']
+                    'DiagnosisMaster.primary_id' => $studiedDiagnosisData['DiagnosisMaster']['primary_id']
                 ),
                 'fields' => array(
                     'DiagnosisMaster.id'
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             ));
-            $all_linked_diagmosises_ids = array();
-            foreach ($all_linked_diagmosises as $new_dx)
-                $all_linked_diagmosises_ids[] = $new_dx['DiagnosisMaster']['id'];
+            $allLinkedDiagmosisesIds = array();
+            foreach ($allLinkedDiagmosises as $newDx)
+                $allLinkedDiagmosisesIds[] = $newDx['DiagnosisMaster']['id'];
         }
-        return $all_linked_diagmosises_ids;
+        return $allLinkedDiagmosisesIds;
     }
 
-    function atimDelete($diagnosis_master_id, $cascade = true)
+    public function atimDelete($diagnosisMasterId, $cascade = true)
     {
-        $deleted_diagnosis_master_data = $this->find('first', array(
+        $deletedDiagnosisMasterData = $this->find('first', array(
             'conditions' => array(
-                'DiagnosisMaster.id' => $diagnosis_master_id
+                'DiagnosisMaster.id' => $diagnosisMasterId
             )
         ));
-        $result = parent::atimDelete($diagnosis_master_id);
-        if ($result && array_key_exists('first_biochemical_recurrence', $deleted_diagnosis_master_data['DiagnosisDetail']) && $deleted_diagnosis_master_data['DiagnosisDetail']['first_biochemical_recurrence']) {
-            $this->calculateSurvivalAndBcr($deleted_diagnosis_master_data['DiagnosisMaster']['primary_id']);
+        $result = parent::atimDelete($diagnosisMasterId);
+        if ($result && array_key_exists('first_biochemical_recurrence', $deletedDiagnosisMasterData['DiagnosisDetail']) && $deletedDiagnosisMasterData['DiagnosisDetail']['first_biochemical_recurrence']) {
+            $this->calculateSurvivalAndBcr($deletedDiagnosisMasterData['DiagnosisMaster']['primary_id']);
         }
         return $result;
     }
 
-    function updateAgeAtDx($model, $primary_key_id)
+    public function updateAgeAtDx($model, $primaryKeyId)
     {
         $criteria = array(
             'DiagnosisControl.category' => 'primary',
@@ -252,7 +252,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                 'prostate'
             ),
             'DiagnosisMaster.deleted <> 1',
-            $model . '.id' => $primary_key_id
+            $model . '.id' => $primaryKeyId
         );
         $joins = array(
             array(
@@ -264,63 +264,61 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                 )
             )
         );
-        $dx_to_check = $this->find('all', array(
+        $dxToCheck = $this->find('all', array(
             'conditions' => $criteria,
             'joins' => $joins,
-            'recursive' => '0',
+            'recursive' => 0,
             'fields' => array(
                 'Participant.*, DiagnosisMaster.*'
             )
         ));
         
-        $dx_to_update = array();
+        $dxToUpdate = array();
         $warnings = array();
-        foreach ($dx_to_check as $new_dx) {
-            $dx_id = $new_dx['DiagnosisMaster']['id'];
-            $previous_age_at_dx = $new_dx['DiagnosisMaster']['age_at_dx'];
-            if ($new_dx['DiagnosisMaster']['dx_date'] && $new_dx['Participant']['date_of_birth']) {
-                if (($new_dx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($new_dx['Participant']['date_of_birth_accuracy'] != 'c'))
+        foreach ($dxToCheck as $newDx) {
+            $dxId = $newDx['DiagnosisMaster']['id'];
+            $previousAgeAtDx = $newDx['DiagnosisMaster']['age_at_dx'];
+            if ($newDx['DiagnosisMaster']['dx_date'] && $newDx['Participant']['date_of_birth']) {
+                if (($newDx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($newDx['Participant']['date_of_birth_accuracy'] != 'c'))
                     $warnings[- 1] = __('age at diagnosis has been calculated with at least one unaccuracy date');
-                $arr_spent_time = $this->getSpentTime($new_dx['Participant']['date_of_birth'] . ' 00:00:00', $new_dx['DiagnosisMaster']['dx_date'] . ' 00:00:00');
-                if ($arr_spent_time['message']) {
-                    $warnings[$arr_spent_time['message']] = __('unable to calculate age at diagnosis') . ': ' . __($arr_spent_time['message']);
-                    $dx_to_update[] = array(
+                $arrSpentTime = $this->getSpentTime($newDx['Participant']['date_of_birth'] . ' 00:00:00', $newDx['DiagnosisMaster']['dx_date'] . ' 00:00:00');
+                if ($arrSpentTime['message']) {
+                    $warnings[$arrSpentTime['message']] = __('unable to calculate age at diagnosis') . ': ' . __($arrSpentTime['message']);
+                    $dxToUpdate[] = array(
                         'DiagnosisMaster' => array(
-                            'id' => $dx_id,
+                            'id' => $dxId,
                             'age_at_dx' => ''
                         )
                     );
-                } elseif ($arr_spent_time['years'] != $previous_age_at_dx) {
-                    $dx_to_update[] = array(
+                } elseif ($arrSpentTime['years'] != $previousAgeAtDx) {
+                    $dxToUpdate[] = array(
                         'DiagnosisMaster' => array(
-                            'id' => $dx_id,
-                            'age_at_dx' => $arr_spent_time['years']
+                            'id' => $dxId,
+                            'age_at_dx' => $arrSpentTime['years']
                         )
                     );
                 }
             } else {
                 $warnings['missing date'] = __('unable to calculate age at diagnosis') . ': ' . __('missing date');
-                $dx_to_update[] = array(
+                $dxToUpdate[] = array(
                     'DiagnosisMaster' => array(
-                        'id' => $dx_id,
+                        'id' => $dxId,
                         'age_at_dx' => ''
                     )
                 );
             }
         }
-        foreach ($warnings as $new_warning)
-            AppController::getInstance()->addWarningMsg($new_warning);
+        foreach ($warnings as $newWarning)
+            AppController::getInstance()->addWarningMsg($newWarning);
         
         $this->addWritableField(array(
             'age_at_dx'
         ));
-        foreach ($dx_to_update as $dx_data) {
+        foreach ($dxToUpdate as $dxData) {
             $thid->data = array();
-            $this->id = $dx_data['DiagnosisMaster']['id'];
-            if (! $this->save($dx_data, false))
+            $this->id = $dxData['DiagnosisMaster']['id'];
+            if (! $this->save($dxData, false))
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
     }
 }
-
-?>

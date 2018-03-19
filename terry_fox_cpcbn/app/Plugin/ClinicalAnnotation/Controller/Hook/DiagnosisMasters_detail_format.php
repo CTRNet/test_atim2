@@ -1,17 +1,17 @@
 <?php
-if ($dx_master_data['DiagnosisControl']['controls_type'] == 'prostate' && $dx_master_data['DiagnosisControl']['category'] == 'primary') {
-    $disease_free_start_trt = $this->TreatmentMaster->find('first', array(
+if ($dxMasterData['DiagnosisControl']['controls_type'] == 'prostate' && $dxMasterData['DiagnosisControl']['category'] == 'primary') {
+    $diseaseFreeStartTrt = $this->TreatmentMaster->find('first', array(
         'conditions' => array(
-            'TreatmentMaster.participant_id' => $participant_id,
-            'TreatmentMaster.diagnosis_master_id' => $diagnosis_master_id,
+            'TreatmentMaster.participant_id' => $participantId,
+            'TreatmentMaster.diagnosis_master_id' => $diagnosisMasterId,
             'TreatmentMaster.qc_tf_disease_free_survival_start_events' => '1'
         ),
-        'recursive' => '-1'
+        'recursive' => -1
     ));
-    $this->set('disease_free_start_trt_id', empty($disease_free_start_trt) ? '-1' : $disease_free_start_trt['TreatmentMaster']['id']);
+    $this->set('diseaseFreeStartTrtId', empty($diseaseFreeStartTrt) ? '-1' : $diseaseFreeStartTrt['TreatmentMaster']['id']);
     
     $conditions = array(
-        'DiagnosisMaster.primary_id ' => $diagnosis_master_id,
+        'DiagnosisMaster.primary_id ' => $diagnosisMasterId,
         'DiagnosisDetail.first_biochemical_recurrence' => '1'
     );
     $joins = array(
@@ -24,10 +24,9 @@ if ($dx_master_data['DiagnosisControl']['controls_type'] == 'prostate' && $dx_ma
             )
         )
     );
-    $disease_free_end_bcr = $this->DiagnosisMaster->find('first', array(
+    $diseaseFreeEndBcr = $this->DiagnosisMaster->find('first', array(
         'conditions' => $conditions,
         'joins' => $joins
     ));
-    $this->set('disease_free_end_bcr_id', empty($disease_free_end_bcr) ? '-1' : $disease_free_end_bcr['DiagnosisMaster']['id']);
+    $this->set('diseaseFreeEndBcrId', empty($diseaseFreeEndBcr) ? '-1' : $diseaseFreeEndBcr['DiagnosisMaster']['id']);
 }
-	

@@ -5,21 +5,21 @@ class ViewStorageMasterCustom extends ViewStorageMaster
 
     var $name = 'ViewStorageMaster';
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
-            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-            $user_bank_id = $group_data['Group']['bank_id'];
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $userBankId = $groupData['Group']['bank_id'];
             $queryData['conditions'][] = array(
-                "ViewStorageMaster.qc_tf_bank_id" => $user_bank_id
+                "ViewStorageMaster.qc_tf_bank_id" => $userBankId
             );
         }
         return $queryData;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         
@@ -31,34 +31,34 @@ class ViewStorageMasterCustom extends ViewStorageMaster
             foreach ($results as &$result) {
                 // Manage confidential information and create the storage information label to display
                 // NOTE: Will Use data returned by StorageMaster.afterFind() function
-                $storage_master_data = null;
+                $storageMasterData = null;
                 if (isset($result['ViewStorageMaster']['id'])) {
                     if (! isset($result['StorageMaster'])) {
                         if (! $StorageMasterModel)
                             $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
-                        $storage_master_data = $StorageMasterModel->find('first', array(
+                        $storageMasterData = $StorageMasterModel->find('first', array(
                             'conditions' => array(
                                 'StorageMaster.id' => $result['StorageMaster']['id']
                             ),
-                            'recursive' => '-1'
+                            'recursive' => -1
                         ));
                     } else {
-                        $storage_master_data = array(
+                        $storageMasterData = array(
                             'StorageMaster' => $result['StorageMaster']
                         );
                     }
                 }
-                if ($storage_master_data) {
+                if ($storageMasterData) {
                     if (isset($result['ViewStorageMaster']['qc_tf_bank_id']))
-                        $result['ViewStorageMaster']['qc_tf_bank_id'] = $storage_master_data['StorageMaster']['qc_tf_bank_id'];
+                        $result['ViewStorageMaster']['qc_tf_bank_id'] = $storageMasterData['StorageMaster']['qc_tf_bank_id'];
                     if (isset($result['ViewStorageMaster']['qc_tf_tma_label_site']))
-                        $result['ViewStorageMaster']['qc_tf_tma_label_site'] = $storage_master_data['StorageMaster']['qc_tf_tma_label_site'];
+                        $result['ViewStorageMaster']['qc_tf_tma_label_site'] = $storageMasterData['StorageMaster']['qc_tf_tma_label_site'];
                     ;
                     if (isset($result['ViewStorageMaster']['qc_tf_tma_name']))
-                        $result['ViewStorageMaster']['qc_tf_tma_name'] = $storage_master_data['StorageMaster']['qc_tf_tma_name'];
+                        $result['ViewStorageMaster']['qc_tf_tma_name'] = $storageMasterData['StorageMaster']['qc_tf_tma_name'];
                     ;
                     if (isset($result['ViewStorageMaster']['short_label'])) {
-                        $result['ViewStorageMaster']['qc_tf_generated_label_for_display'] = $storage_master_data['StorageMaster']['qc_tf_generated_label_for_display'];
+                        $result['ViewStorageMaster']['qc_tf_generated_label_for_display'] = $storageMasterData['StorageMaster']['qc_tf_generated_label_for_display'];
                     }
                 }
             }
@@ -71,5 +71,3 @@ class ViewStorageMasterCustom extends ViewStorageMaster
         return $results;
     }
 }
-
-?>

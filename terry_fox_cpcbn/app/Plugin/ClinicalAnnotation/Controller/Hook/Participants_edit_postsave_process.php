@@ -1,20 +1,19 @@
 <?php
-$new_participant_data = $this->Participant->getOrRedirect($participant_id);
-if ($participant_data['Participant']['date_of_death'] != $new_participant_data['Participant']['date_of_death'] || $participant_data['Participant']['date_of_death_accuracy'] != $new_participant_data['Participant']['date_of_death_accuracy'] || $participant_data['Participant']['qc_tf_last_contact'] != $new_participant_data['Participant']['qc_tf_last_contact'] || $participant_data['Participant']['qc_tf_last_contact_accuracy'] != $new_participant_data['Participant']['qc_tf_last_contact_accuracy']) {
+$newParticipantData = $this->Participant->getOrRedirect($participantId);
+if ($participantData['Participant']['date_of_death'] != $newParticipantData['Participant']['date_of_death'] || $participantData['Participant']['date_of_death_accuracy'] != $newParticipantData['Participant']['date_of_death_accuracy'] || $participantData['Participant']['qc_tf_last_contact'] != $newParticipantData['Participant']['qc_tf_last_contact'] || $participantData['Participant']['qc_tf_last_contact_accuracy'] != $newParticipantData['Participant']['qc_tf_last_contact_accuracy']) {
     $conditions = array(
-        'DiagnosisMaster.participant_id' => $participant_id,
+        'DiagnosisMaster.participant_id' => $participantId,
         'DiagnosisMaster.deleted != 1',
         'DiagnosisControl.category' => 'primary',
         'DiagnosisControl.controls_type' => 'prostate'
     );
-    $all_prostat_primaries = $this->DiagnosisMaster->find('all', array(
+    $allProstatPrimaries = $this->DiagnosisMaster->find('all', array(
         'conditions' => $conditions
     ));
-    foreach ($all_prostat_primaries as $new_primary)
-        $this->DiagnosisMaster->calculateSurvivalAndBcr($new_primary['DiagnosisMaster']['id']);
+    foreach ($allProstatPrimaries as $newPrimary)
+        $this->DiagnosisMaster->calculateSurvivalAndBcr($newPrimary['DiagnosisMaster']['id']);
 }
 
-if ($participant_data['Participant']['date_of_birth'] != $new_participant_data['Participant']['date_of_birth'] || $participant_data['Participant']['date_of_birth_accuracy'] != $new_participant_data['Participant']['date_of_birth_accuracy']) {
-    $this->DiagnosisMaster->updateAgeAtDx('Participant', $participant_id);
+if ($participantData['Participant']['date_of_birth'] != $newParticipantData['Participant']['date_of_birth'] || $participantData['Participant']['date_of_birth_accuracy'] != $newParticipantData['Participant']['date_of_birth_accuracy']) {
+    $this->DiagnosisMaster->updateAgeAtDx('Participant', $participantId);
 }
-	

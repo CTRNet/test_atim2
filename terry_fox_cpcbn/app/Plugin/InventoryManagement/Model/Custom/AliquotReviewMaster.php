@@ -7,19 +7,17 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
 
     var $name = 'AliquotReviewMaster';
 
-    function generateLabelOfReviewedAliquot($aliquot_master_id, $aliquot_data = null)
+    public function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
     {
-        if (! $aliquot_data || ! isset($aliquot_data['ViewAliquot'])) {
+        if (! $aliquotData || ! isset($aliquotData['ViewAliquot'])) {
             $ViewAliquotModel = AppModel::getInstance('InventoryManagement', 'ViewAliquot', true);
-            $aliquot_data = $ViewAliquotModel->find('first', array(
+            $aliquotData = $ViewAliquotModel->find('first', array(
                 'conditions' => array(
-                    'ViewAliquot.aliquot_master_id' => $aliquot_master_id
+                    'ViewAliquot.aliquot_master_id' => $aliquotMasterId
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             ));
         }
-        return $aliquot_data['ViewAliquot']['barcode'] . ' [' . $aliquot_data['ViewAliquot']['qc_tf_generated_label_for_display'] . ']';
+        return $aliquotData['ViewAliquot']['barcode'] . ' [' . $aliquotData['ViewAliquot']['qc_tf_generated_label_for_display'] . ']';
     }
 }
-
-?>

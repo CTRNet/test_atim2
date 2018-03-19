@@ -7,7 +7,7 @@ class StorageMasterCustom extends StorageMaster
 
     var $name = 'StorageMaster';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -23,9 +23,9 @@ class StorageMasterCustom extends StorageMaster
                 $title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
             } else {
                 $GroupModel = AppModel::getInstance("", "Group", true);
-                $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-                $user_bank_id = $group_data['Group']['bank_id'];
-                if ($result['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
+                $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+                $userBankId = $groupData['Group']['bank_id'];
+                if ($result['StorageMaster']['qc_tf_bank_id'] == $userBankId) {
                     $title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
                 }
             }
@@ -51,51 +51,51 @@ class StorageMasterCustom extends StorageMaster
         return $return;
     }
 
-    function getLabel(array $children_array, $type_key, $label_key)
+    public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
-        if (isset($children_array[$type_key]['qc_tf_generated_label_for_display'])) {
-            return $children_array[$type_key]['qc_tf_generated_label_for_display'];
+        if (isset($childrenArray[$typeKey]['qc_tf_generated_label_for_display'])) {
+            return $childrenArray[$typeKey]['qc_tf_generated_label_for_display'];
         }
-        return $children_array[$type_key][$label_key];
+        return $childrenArray[$typeKey][$labelKey];
     }
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
-            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-            $user_bank_id = $group_data['Group']['bank_id'];
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $userBankId = $groupData['Group']['bank_id'];
             $queryData['conditions'][] = array(
-                "StorageMaster.qc_tf_bank_id" => $user_bank_id
+                "StorageMaster.qc_tf_bank_id" => $userBankId
             );
         }
         return $queryData;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         
         // Manage confidential information and build a storage information label gathering many data like bank, etc for TMA
         if (isset($results[0]['StorageMaster'])) {
             // Get user and bank information
-            $user_bank_id = '-1';
+            $userBankId = '-1';
             if ($_SESSION['Auth']['User']['group_id'] == '1') {
-                $user_bank_id = 'all';
+                $userBankId = 'all';
             } else {
                 $GroupModel = AppModel::getInstance("", "Group", true);
-                $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-                if ($group_data)
-                    $user_bank_id = $group_data['Group']['bank_id'];
+                $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+                if ($groupData)
+                    $userBankId = $groupData['Group']['bank_id'];
             }
             $BankModel = AppModel::getInstance("Administrate", "Bank", true);
-            $bank_list = $BankModel->getBankPermissibleValuesForControls();
+            $bankList = $BankModel->getBankPermissibleValuesForControls();
             // Process data
             foreach ($results as &$result) {
                 // Manage confidential information
-                $set_to_confidential = ($user_bank_id != 'all' && (! isset($result['StorageMaster']['qc_tf_bank_id']) || $result['StorageMaster']['qc_tf_bank_id'] != $user_bank_id)) ? true : false;
-                if ($set_to_confidential) {
+                $setToConfidential = ($userBankId != 'all' && (! isset($result['StorageMaster']['qc_tf_bank_id']) || $result['StorageMaster']['qc_tf_bank_id'] != $userBankId)) ? true : false;
+                if ($setToConfidential) {
                     if (isset($result['StorageMaster']['qc_tf_bank_id']))
                         $result['StorageMaster']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
                     if (isset($result['StorageMaster']['qc_tf_tma_label_site']))
@@ -107,9 +107,9 @@ class StorageMasterCustom extends StorageMaster
                 if (isset($result['StorageMaster']['short_label'])) {
                     $result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['short_label'];
                     if (isset($result['StorageMaster']['qc_tf_tma_name'])) {
-                        if ($user_bank_id == 'all') {
-                            $result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name'] . " [" . $result['StorageMaster']['short_label'] . "]" . (isset($result['StorageMaster']['qc_tf_bank_id']) ? ' (' . $bank_list[$result['StorageMaster']['qc_tf_bank_id']] . ')' : '');
-                        } elseif ($result['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
+                        if ($userBankId == 'all') {
+                            $result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name'] . " [" . $result['StorageMaster']['short_label'] . "]" . (isset($result['StorageMaster']['qc_tf_bank_id']) ? ' (' . $bankList[$result['StorageMaster']['qc_tf_bank_id']] . ')' : '');
+                        } elseif ($result['StorageMaster']['qc_tf_bank_id'] == $userBankId) {
                             $result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_label_site'];
                         }
                     }
@@ -128,15 +128,15 @@ class StorageMasterCustom extends StorageMaster
         return $results;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
-        $validate_res = parent::validates($options);
+        $validateRes = parent::validates($options);
         if (array_key_exists('qc_tf_tma_label_site', $this->data['StorageMaster'])) {
             if (strlen($this->data['StorageMaster']['qc_tf_tma_label_site']) && ! $this->data['StorageMaster']['qc_tf_bank_id']) {
                 $this->validationErrors['qc_tf_bank_id'][] = __('a bank has to be selected');
-                $validate_res = false;
+                $validateRes = false;
             }
         }
-        return $validate_res;
+        return $validateRes;
     }
 }

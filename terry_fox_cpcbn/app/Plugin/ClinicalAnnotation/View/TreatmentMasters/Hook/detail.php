@@ -1,10 +1,9 @@
 <?php
-$structure_links['bottom']['add precision'];
-$structure_links['bottom']['add drug'] = $structure_links['bottom']['add precision'];
+$structureLinks['bottom']['add precision'];
+$structureLinks['bottom']['add drug'] = $structureLinks['bottom']['add precision'];
 
-$final_options['links']['bottom']['add precision'];
-$final_options['links']['bottom']['add drug'] = $structure_links['bottom']['add precision'];
+$finalOptions['links']['bottom']['add precision'];
+$finalOptions['links']['bottom']['add drug'] = $structureLinks['bottom']['add precision'];
 
-unset($final_options['links']['bottom']['add precision']);
-unset($structure_links['bottom']['add precision']);
-	
+unset($finalOptions['links']['bottom']['add precision']);
+unset($structureLinks['bottom']['add precision']);

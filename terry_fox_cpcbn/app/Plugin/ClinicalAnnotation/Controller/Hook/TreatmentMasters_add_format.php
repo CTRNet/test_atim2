@@ -1,13 +1,13 @@
 <?php
-if ($tx_control_data['TreatmentControl']['tx_method'] == 'RP') {
-    $participant_RPs = $this->TreatmentMaster->find('count', array(
+if ($txControlData['TreatmentControl']['tx_method'] == 'RP') {
+    $participantRPs = $this->TreatmentMaster->find('count', array(
         'conditions' => array(
-            'TreatmentMaster.participant_id' => $participant_id,
-            'TreatmentControl.id' => $tx_control_id
+            'TreatmentMaster.participant_id' => $participantId,
+            'TreatmentControl.id' => $txControlId
         )
     ));
-    if ($participant_RPs) {
-        $this->flash(__('a RP can not be created twice for the same participant'), '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id);
+    if ($participantRPs) {
+        $this->atimFlashError(__('a RP can not be created twice for the same participant'), '/ClinicalAnnotation/TreatmentMasters/listall/' . $participantId);
         return;
     }
 }
