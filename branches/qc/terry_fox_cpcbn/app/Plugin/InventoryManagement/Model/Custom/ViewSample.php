@@ -1,10 +1,11 @@
 <?php
 
-class ViewSampleCustom extends ViewSample {
-	
-	var $name = 'ViewSample';
-	
-	static $table_query = '
+class ViewSampleCustom extends ViewSample
+{
+
+    var $name = 'ViewSample';
+
+    static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -56,40 +57,42 @@ SampleMaster.qc_tf_tma_sample_control_bank_id,
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-	
-	function beforeFind($queryData){
-		if(($_SESSION['Auth']['User']['group_id'] != '1')
-				&& is_array($queryData['conditions'])
-				&& AppModel::isFieldUsedAsCondition("ViewSample.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
-			AppController::addWarningMsg(__('your search will be limited to your bank'));
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			$queryData['conditions'][] = array("ViewSample.bank_id" => $user_bank_id);
-		}
-		return $queryData;
-	}
-	
-	function afterFind($results, $primary = false){
-		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewSample']['bank_id']) || isset($results[0]['ViewSample']['qc_tf_bank_participant_identifier'])) {
-				foreach($results as &$result){
-					if((!isset($result['ViewSample']['bank_id'])) || $result['ViewSample']['bank_id'] != $user_bank_id) {		
-						$result['ViewSample']['bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewSample']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-					}
-				}
-			} else if(isset($results['ViewSample'])){
-				pr('TODO afterFind ViewSample');
-				pr($results);
-				exit;
-			}
-		}
-	
-		return $results;
-	}
+
+    function beforeFind($queryData)
+    {
+        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("ViewSample.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
+            AppController::addWarningMsg(__('your search will be limited to your bank'));
+            $GroupModel = AppModel::getInstance("", "Group", true);
+            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $user_bank_id = $group_data['Group']['bank_id'];
+            $queryData['conditions'][] = array(
+                "ViewSample.bank_id" => $user_bank_id
+            );
+        }
+        return $queryData;
+    }
+
+    function afterFind($results, $primary = false)
+    {
+        $results = parent::afterFind($results);
+        if ($_SESSION['Auth']['User']['group_id'] != '1') {
+            $GroupModel = AppModel::getInstance("", "Group", true);
+            $group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $user_bank_id = $group_data['Group']['bank_id'];
+            if (isset($results[0]['ViewSample']['bank_id']) || isset($results[0]['ViewSample']['qc_tf_bank_participant_identifier'])) {
+                foreach ($results as &$result) {
+                    if ((! isset($result['ViewSample']['bank_id'])) || $result['ViewSample']['bank_id'] != $user_bank_id) {
+                        $result['ViewSample']['bank_id'] = CONFIDENTIAL_MARKER;
+                        $result['ViewSample']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+                    }
+                }
+            } elseif (isset($results['ViewSample'])) {
+                pr('TODO afterFind ViewSample');
+                pr($results);
+                exit();
+            }
+        }
+        
+        return $results;
+    }
 }
