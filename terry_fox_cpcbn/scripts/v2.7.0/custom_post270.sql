@@ -1,402 +1,110 @@
+UPDATE users SET flag_active = 0, username = 'system', password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username = 'manager';
+UPDATE groups SET name = 'System' WHERE id = 2;
 
+-- Database Validation Tool : Ccl
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'list all related diagnosis';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add tma slide use';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlideUse' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
 
+-- chronology
 
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Drug/Treatment update
 
+UPDATE structure_formats SET `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='dose' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_treatment_drug_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-### MESSAGE ###
-Created funtion 'Create message (applied to all)'. Run following query to activate the function.
-UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';
-### MESSAGE ###
-Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slides relationship. To customize.
+UPDATE treatment_extend_controls 
+SET detail_form_alias = 'txe_chemos'
+WHERE flag_active = 1;
 
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qc_tf_txe_chemo_drugs', 'qc_tf_txe_horm_drugs', 'qc_tf_txe_bone_drugs', 'qc_tf_txe_HR_drugs'));
+DELETE FROM structures WHERE alias IN ('qc_tf_txe_chemo_drugs', 'qc_tf_txe_horm_drugs', 'qc_tf_txe_bone_drugs', 'qc_tf_txe_HR_drugs');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'drug_id' AND model = 'TreatmentExtendDetail');
+DELETE FROM structure_fields WHERE field = 'drug_id' AND model = 'TreatmentExtendDetail';
+DELETE FROM structure_value_domains WHERE source like 'Drug.Drug::get%' AND domain_name LIKE '%_drug_list';
 
--- -----------------------------------------------------------------------------------------------------------------------------------
--- ATiM v2.6.8 Upgrade Script
---
--- See ATiM wiki for more information: 
---    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
--- -----------------------------------------------------------------------------------------------------------------------------------
---
--- MIGRATION DETAIL:
--- 
---   ### 1 # Added Investigator and Funding sub-models to study tool
---   ---------------------------------------------------------------
---
---      To be able to create one to many investigators or fundings of a study.
---
---      TODO:
---
---      In /app/Plugin/StudyView/StudySummaries/detail.ctp, set the variables $display_study_fundings and/or $display_study_investigators
---      to 'false' to hide the section.
---
---		
---   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
---   ----------------------------------------------------------------------------------------
---
---      Replaced all 'study_summary_id' field with 'select' type and 'domain_name' equals to 'study_list' by the 2 following fields
---			- Study.FunctionManagement.autocomplete_{.*}_study_summary_id for any data creation and update
---			- Study.StudySummary.title for any data display in detail or index form.
---		
---		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
---		
---      The definition of study linked to a created/updated data is now done through an 'autocomplete' field.
---		
---      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---		
---      TODO:
---
---      Review any of these forms:
---         - aliquotinternaluses
---         - aliquot_masters
---         - aliquot_master_edit_in_batchs
---         - consent_masters_study
---         - miscidentifiers_study
---         - orderlines
---         - orders
---         - tma_slides
---         - tma_slide_uses
---         - view_aliquot_joined_to_sample_and_collection
---         - viewaliquotuses
---
---      Update $table_querie variables of the ViewAliquotCustom and ViewAliquotUseCustom models (if exists).
---
---		
---   ### 2 # Added Study Model to the databrowser
---   --------------------------------------------
---
---      TODO:
---
---		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---
---		Activate databrowser links (if required) using following query:
---			UPDATE datamart_browsing_controls 
---          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
---          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Model1') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'Model2');
---
---
---   ### 3 # Added ICD-0-3-Topo Categories (tissue site/category)
---   ------------------------------------------------------------
---
---		The ICD-0-3-Topo categories have been defined based on an internet research (no source file).
---		
---		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
---		and to let user searches on tissue site/category (more generic than tissue description - ex: colon, etc).
---		
---		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
---		
---      Note the StructureValueDomain 'icd_0_3_topography_categories' can also be used to set the site of any record of surgery, radiation, tissue source, etc .
---
---      TODO:
---
---		Check field has been correctly linked to any form displaying the ICD-0-3-Topo tool.
---		
---		Check field diagnosis_masters.icd_0_3_topography_category of existing records has been correctly populated based on diagnosis_masters.topography 
---		
---		field (when the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
---
---		
---   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
---   -----------------------------------------------------------------------------------------------------------------------------------
---
--- 		New field is linked to the StructureValueDomain 'secondary_diagnosis_icd10_code_who' that gathers only ICD-10 codes of secondaries.
---
---      TODO:
---
---		Check any of your secondary diagnosis forms.
---		
---
---   ### 5 # Changed DiagnosisControl.category values
---   ------------------------------------------------
--- 	
---		Changed:	
---         - 'secondary' to 'secondary - distant'
---         - 'progression' to 'progression - locoregional'
---         - 'recurrence' to 'recurrence - locoregional'
---
---      TODO:
---
---		Update custom code if required.
---		
---
---   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
---   --------------------------------------------------------------------------------------------------------------------------------
---
---		Replaced all 'drug_id' field with 'select' type and 'domain_name' equals to 'drug_list' by the 3 following field
---			- ClinicalAnnotation.FunctionManagement.autocomplete_treatment_drug_id for any data creation and update
---			- Protocol.FunctionManagement.autocomplete_protocol_drug_id for any data creation and update
---			- Drug.Drug.generic_name for any data display in detail or index form
---
---      The definition of drug linked to a created/updated data is now done through an 'autocomplete' field.
---		
---      The search of a drug linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---		
---      The drug_id table fields of the models 'TreatmentExtendDetail' and 'ProtocolExtendDetail' should be moved to the Master level (already done for txe_chemos and pe_chemos).
---
---      TODO:
---
---      Review any forms listed in treatment_extend_controls.detail_form_alias and protocol_extend_controls.detail_form_alias 
---      to update any of them containing a drug_id field.
---		
---      Migrate drug_id values of any tablename listed in treatment_extend_controls.detail_tablename and protocol_extend_controls.detail_tablename
--- 		and having a drug_id field to the treatment_extend_masters.drug_id or protocol_extend_masters.drug_id field.
---      
---      UPDATE protocol_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
---      UPDATE protocol_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
---      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
---      ALTER TABLE {tablename} DROP COLUMN drug_id;
---      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
---      
---      UPDATE treatment_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
---      UPDATE treatment_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
---      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
---      ALTER TABLE {tablename} DROP COLUMN drug_id;
---      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
---		
---
---   ### 7 # TMA slide new features
---   ------------------------------
---
---      Created an immunochemistry autocomplete field.
---		
--- 		Created a new object TmaSlideUse linked to a TmaSlide to track any slide scoring or analysis and added this one to the databrowser.
---		
---		Changed code to be able to add a TMA Slide to an Order (see point 8 below).
---
---		TODO:
---
---		Customize the TmaSlideUse controller and forms if required.
---		
---		Activate the TmaSlide to TmaSlideUse databrowser link if required.
---			UPDATE datamart_browsing_controls 
---          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
---          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
---		
---		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---		
---
---   ### 8 # Order tool upgrade
---   --------------------------
---
---      The all Order tool has been redesigned to be able to:
---			- Add tma slide to an order (both aliquot and tma slide will be considered as OrderItem).
---			- Define a shipped item as returned to the bank.
---			- Browse on OrderLine model with the databrowser.
---
---		TODO:
---
---		The OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(). Check if custom code has to be update or not.
---		
---		Core variables 'AddAliquotToOrder_processed_items_limit' and 'AddAliquotToShipment_processed_items_limit' have been renamed to 'AddToOrder_processed_items_limit' and 'AddToShipment_processed_items_limit'
---		plus two new ones have been created 'edit_processed_items_limit'and 'defineOrderItemsReturned_processed_items_limit'. Check if custom code has to be update or not.
---		
---		Set the new core variable 'order_item_type_config' to define the type(s) of item that could be added to order ('both tma slide and aliquot' or 'aliquot only' or 'tma slide only'). Based on this variable,  
---      the fields display properties (flag_index, flag_add, etc) of the following forms 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' will be updated by 
---      the AppController.newVersionSetup() function.
---		
---		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---		
---      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
---		
---
---   ### 9 # New Sample and aliquot controls
---   ---------------------------------------
---
---      Created:
---			- Buffy Coat
---			- Nail
---			- Stool
---			- Vaginal swab
---
---		TODO:
---
---		Activate these sample types if required.
---		
---
---   ### 10 # Removed AliquotMaster.use_counter field
---   ------------------------------------------------
---
--- 		Function AliquotMaster.updateAliquotUseAndVolume() is now deprecated and replaced by AliquotMaster.updateAliquotVolume().
---
---		TODO:
---
---		Validate no custom code or migration script populate/update/use this field.
---		
---		Check custom function AliquotMasterCustom.updateAliquotUseAndVolume() exists and update this one if required.
---		
---
---   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
---   ---------------------------------------------------------------------------------------------------------------------------------------------------------------
---
---		TODO:
---		
---		Run following queries to check if some custom functions and reports have to be reviewed:
---			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
---			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages';
---
---
---   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
---   -------------------------------------------------------------------------------------------------------------
---
---		TODO:
---		
---		Run following query to detect errors
---			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
---
---		
---   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
---   -----------------------------------------------------------------------------------------------------------
---
---		TODO:
---		
---		Check any custom code using AliquotMaster.getDefaultStorageDate().
---
---		
---   ### 14 # Changed displayed pages workflow after treatment creation.
---   ------------------------------------------------------------------
---
---		Based on the created treatment type and the selected protocol (when option exists), the next page displayed after a treatment creation could be:
---			- The treatment detail form.
---			- The treatment detail form with the list of all treatment precisions already attached to the treatment based on the selected protocol (when protocol is itself linked to precisions).
---          - The treatment precision creation form when no protocol is attached to the treatment and treatment precision can be attached to the treatment.
---
---		TODO:
---		
---		Change workflow by hook if required.
---
---
---   ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
---   ------------------------------------------------------------------------------------------------------
---
---		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
---
---		TODO:
---		
---		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
---
---		
---  ### 16 # Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 
---   -----------------------------------------------------------------------------------------------------------------------------------------------------------
---
---		TODO:
---		
---		Run queries to activate the reports:
---			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excisional biopsy';
---			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
---
---
---   ### 17 # Added aliquot in stock detail to ViewAliquot
---   -----------------------------------------------------
---
---      TODO:
---
---      Update $table_querie variable of the ViewAliquotCustom model (if exists).
---
---
---   ### 18 # Added field structure_fields.sortable
---   ---------------------------------------------- 
---
---      In index view, the 'sortable' value will define if the user can sort records based on field column data or not. A field
---      displaying data generated by the system can not be used as sort criteria.
---
---      TODO:
---
---      Review custom fields and set value to 0 if fields can not be used to sort data
---
---
---   ### 19 # Added new password management features
---   -----------------------------------------------
---   
---      Some features have been developed to:
---			- Ban use of a limited number of previous passwords for any user who has to change his password.
---			- Allow users to reset a forgotten password with no support of the administrator.
---
---      TODO:
---
---		Set the new core variables 'reset_forgotten_password_feature' and 'different_passwords_number_before_re_use'.
---		Change the list of questions a user can select to record personal answers that will be used by the 'Reset forgotten password feature'. See the 'Password Reset Questions' list 
---		of the 'Dropdown List Configuration' tool.
---
---
---   ### 20 # Changed trunk code to support sql_mode ONLY_FULL_GROUP_BY
---   ------------------------------------------------------------------
---   
---       TODO:
---
---		Review any custom code if your installation set up includes the sql_mode ONLY_FULL_GROUP_BY.
--- 
--- -----------------------------------------------------------------------------------------------------------------------------------
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('at least one selected drug does not match the type of the treatment', "At least one selected drug does not match the type of the treatment!", ""),
+('biochemical', 'Biochemical', '');
+UPDATE treatment_extend_controls SET type = 'chemotherapy drugs', databrowser_label = 'chemotherapy drugs' WHERE type = 'chemotherpay drugs';
+UPDATE treatment_extend_controls SET type = 'hormonotherapy drugs', databrowser_label = 'hormonotherapy drugs' WHERE type = 'hormonotherpay drugs';
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('chemotherapy drugs','Chemotherapy Drugs', ''),
+('hormonotherapy drugs','Hormonotherapy Drugs',  '');
 
+-- qc_tf_txd_biopsies_and_turps.type
 
+ALTER TABLE qc_tf_txd_biopsies_and_turps 
+  ADD COLUMN type_specification VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN sent_to_chum tinyint(1) DEFAULT '0';
+ALTER TABLE qc_tf_txd_biopsies_and_turps_revs
+  ADD COLUMN type_specification VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN sent_to_chum tinyint(1) DEFAULT '0';  
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_tf_biopsy_type_specifications", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ("Dx", "Dx"),("follow-up", "follow-up"),("prior to Tx", "prior to Tx");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ("Dx", "Dx", ''),("follow-up", "Follow-up", ''),("prior to Tx", "Prior to Tx", '');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_biopsy_type_specifications"), 
+(SELECT id FROM structure_permissible_values WHERE value="Dx" AND language_alias="Dx"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_biopsy_type_specifications"), 
+(SELECT id FROM structure_permissible_values WHERE value="follow-up" AND language_alias="follow-up"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_biopsy_type_specifications"), 
+(SELECT id FROM structure_permissible_values WHERE value="prior to Tx" AND language_alias="prior to Tx"), "1", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_tf_txd_biopsies_and_turps', 'type_specification', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type_specifications') , '0', '', '', '', '', 'specification'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_tf_txd_biopsies_and_turps', 'sent_to_chum', 'checkbox',  NULL , '0', '', '', '', 'sent to chum', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_txd_biopsies_and_turps'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_txd_biopsies_and_turps' AND `field`='type_specification' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type_specifications')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specification'), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_txd_biopsies_and_turps'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_txd_biopsies_and_turps' AND `field`='sent_to_chum' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sent to chum' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ("specification", "Specification", ''),("sent to chum", "Sent To CHUM", '');
+SET @modified = (SELECT NOW() FROM users where username = 'system');
+SET @modified_by = (SELECT id FROM users where username = 'system');
+UPDATE treatment_masters, qc_tf_txd_biopsies_and_turps
+SET type = 'Bx', type_specification = 'Dx', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id 
+AND deleted <> 1
+AND type = 'Bx Dx';
+UPDATE treatment_masters, qc_tf_txd_biopsies_and_turps
+SET type = 'Bx', type_specification = '', sent_to_chum = '1', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id 
+AND deleted <> 1
+AND type = 'Bx CHUM';
+UPDATE treatment_masters, qc_tf_txd_biopsies_and_turps
+SET type = 'Bx', type_specification = 'prior to Tx', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id 
+AND deleted <> 1
+AND type = 'Bx prior to Tx';
+UPDATE treatment_masters, qc_tf_txd_biopsies_and_turps
+SET type = 'TURP', type_specification = 'Dx', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id 
+AND deleted <> 1
+AND type = 'TURP Dx';
+UPDATE treatment_masters, qc_tf_txd_biopsies_and_turps
+SET type = 'Bx TRUS-Guided', type_specification = 'Dx', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id 
+AND deleted <> 1
+AND type = 'Bx Dx TRUS-Guided';
+INSERT INTO treatment_masters_revs (treatment_control_id, qc_tf_disease_free_survival_start_events, id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, participant_id, diagnosis_master_id, modified_by, version_created) 
+(SELECT treatment_control_id, qc_tf_disease_free_survival_start_events, id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, participant_id, diagnosis_master_id, modified_by, modified
+FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+INSERT INTO qc_tf_txd_biopsies_and_turps_revs (sent_to_chum, total_number_taken, treatment_master_id, gleason_score, total_positive, greatest_percent_of_cancer, gleason_grade, type, ctnm, perineural_invasion, type_specification, chum, version_created)
+(SELECT sent_to_chum, total_number_taken, treatment_master_id, gleason_score, total_positive, greatest_percent_of_cancer, gleason_grade, type, ctnm, perineural_invasion, type_specification, chum, modified 
+FROM treatment_masters INNER JOIN qc_tf_txd_biopsies_and_turps ON id = treatment_master_id WHERE modified = @modified AND modified_by = @modified_by);
+UPDATE structure_value_domains_permissible_values 
+SET flag_active = '0'
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_biopsy_turp_type")
+AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value IN ('Bx Dx', 'Bx CHUM', 'Bx prior to Tx', 'Bx Dx TRUS-Guided', 'TURP Dx'));
 
-
-
-
-   ### 3 # Custom AutoCompleteField Function
-   -----------------------------------------------------------
-
-      The autocomplete field did not work in v2.6.8 version for any values having special characters like {\%'"}.
-      See "issue#3398: autoComplete and special characters". 
-   
-      The following functions of controllers and models used to generate the autocomplete lists, to format the displayed values 
-      and to validate the selected values have been modified :
-      
-         - DrugsController.autocompleteDrug() and Drug.getDrugIdFromDrugDataAndCode()
-         	  Field : Drug.generic_name
-         	  Correction : Autocomplete and validation
-         - AliquotMastersController.autocompleteBarcode()
-         	  Field : AliquotMaster.barcode
-         	  Correction : Autocomplete only
-         - StorageMastersController.autocompleteLabel() and StorageMaster.getStorageDataFromStorageLabelAndCode()
-         	  Field : StorageMaster.Selection_label
-         	  Correction : Autocomplete and validation
-         - TmaSlides.autocompleteBarcode()
-         	  Field : TmaSlide.barcode
-         	  Correction : Autocomplete only
-         - TmaSlides.autocompleteTmaSlideImmunochemistry()
-         	  Field : TmaSlide.immunochemistry
-              Correction : Autocomplete only
-         - StudySummaries.autocompleteStudy() and StudySummary.getStudyIdFromStudyDataAndCode()
-         	  Field : StudySummary.title
-              Correction : Autocomplete and validation
-      
-      In Controller function (like autocompleteDrug()) :
-         - Special characters of the $term have been formatted using str_replace()
-   			  $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
-         - Search conditions have been changed  
-   			  from Model.Field LIKE '%" . trim($keyWord) . "%'",
-   			  to Model.Field LIKE " => '%' . trim($keyWord) . '%', 
-         - Returned value has been formatted using str_replace()  
-   			  $result = "";
-   			  foreach ($data as $dataUnit) {
-   			     $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), dataUnit . '", ';
-   			  }
-      
-      In Model funtions (like getDrugIdFromDrugDataAndCode($drugDataAndCode)) :   
-         - Special characters of the submitted value (like $drugDataAndCode) have been formatted using str_replace()
-   			  $submitedValue = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $submittedValue);
-         - Search conditions have been changed
-   			  from Model.Field LIKE '%" . trim($submittedValue) . "%'",
-   			  to Model.Field LIKE " => '%' . trim($submittedValue) . '%',
-   
-      TODO :  
-   
-      Update custom code for any function listed above and being overridden by a custom function.
-
-
-   ### 4 # New content in collection tree view upgrade
-   -----------------------------------------------------------
-   
-      Quality control and path review are now displayed into the collection tree view when they are not linked 
-      to a tested aliquot. See "issue#3427: Add quality control and tissue review to collection tree view when data 
-      not linked to an aliquot". 
-   
-      TODO :  
-   
-      Review structure 'sample_uses_for_collection_tree_view' and function SampleMastersController.contentTreeView() for
-      any customisation.
 
 
 

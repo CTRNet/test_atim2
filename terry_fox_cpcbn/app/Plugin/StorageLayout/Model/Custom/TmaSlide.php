@@ -31,29 +31,31 @@ class TmaSlideCustom extends TmaSlide
             $blocksFromStorageMasterIds = array();
             foreach ($results as &$result) {
                 // Manage confidential information
-                $blockData = null;
-                $tmaBlockStorageMasterId = $result['TmaSlide']['tma_block_storage_master_id'];
-                if (! isset($blocksFromStorageMasterIds[$tmaBlockStorageMasterId])) {
-                    // First time a slide of this block is listed
-                    // Use StorageMaster.afterFind() function to add Block.qc_tf_generated_label_for_display
-                    if (! $StorageMasterModel)
-                        $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
-                    $blockData = $StorageMasterModel->find('first', array(
-                        'conditions' => array(
-                            'StorageMaster.id' => $tmaBlockStorageMasterId
-                        )
-                    ));
-                    $blocksFromStorageMasterIds[$tmaBlockStorageMasterId] = $blockData['StorageMaster'];
-                }
-                $result['Block'] = $blocksFromStorageMasterIds[$tmaBlockStorageMasterId];
-                $setToConfidential = ($userBankId != 'all' && (! isset($result['Block']['qc_tf_bank_id']) || $result['Block']['qc_tf_bank_id'] != $userBankId)) ? true : false;
-                if ($setToConfidential) {
-                    if (isset($result['Block']['qc_tf_bank_id']))
-                        $result['Block']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-                    if (isset($result['Block']['qc_tf_tma_label_site']))
-                        $result['Block']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
-                    if (isset($result['Block']['qc_tf_tma_name']))
-                        $result['Block']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+                if (isset($result['TmaSlide']['tma_block_storage_master_id'])) {
+                    $blockData = null;
+                    $tmaBlockStorageMasterId = $result['TmaSlide']['tma_block_storage_master_id'];
+                    if (! isset($blocksFromStorageMasterIds[$tmaBlockStorageMasterId])) {
+                        // First time a slide of this block is listed
+                        // Use StorageMaster.afterFind() function to add Block.qc_tf_generated_label_for_display
+                        if (! $StorageMasterModel)
+                            $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+                        $blockData = $StorageMasterModel->find('first', array(
+                            'conditions' => array(
+                                'StorageMaster.id' => $tmaBlockStorageMasterId
+                            )
+                        ));
+                        $blocksFromStorageMasterIds[$tmaBlockStorageMasterId] = $blockData['StorageMaster'];
+                    }
+                    $result['Block'] = $blocksFromStorageMasterIds[$tmaBlockStorageMasterId];
+                    $setToConfidential = ($userBankId != 'all' && (! isset($result['Block']['qc_tf_bank_id']) || $result['Block']['qc_tf_bank_id'] != $userBankId)) ? true : false;
+                    if ($setToConfidential) {
+                        if (isset($result['Block']['qc_tf_bank_id']))
+                            $result['Block']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+                        if (isset($result['Block']['qc_tf_tma_label_site']))
+                            $result['Block']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
+                        if (isset($result['Block']['qc_tf_tma_name']))
+                            $result['Block']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+                    }
                 }
                 // Create the TMASLide information label to display
                 if (isset($result['TmaSlide']['barcode'])) {

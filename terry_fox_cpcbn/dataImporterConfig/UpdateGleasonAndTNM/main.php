@@ -1,5 +1,25 @@
 <?php
 
+
+
+
+//-------------------------------------------------------------------------------------------------------------
+//Note on 2018-03-20 from N. Luc
+Please note that the code has been updated considering following rules but not tested:
+  - durg_id field has been moved from TreatmentExtendDetail to TreatmentExtendMaster
+  - qc_tf_txd_biopsies_and_turps.type values 'Bx Dx', 'TURP Dx', 'Bx Dx TRUS-Guided' have
+      been replaced by 'Bx', 'TURP', 'Bx TRUS-Guided' and qc_tf_txd_biopsies_and_turps.type_specification = 'Dx'
+  - qc_tf_txd_biopsies_and_turps.type value 'Bx CHUM' has been replaced by 'Bx'
+      AND qc_tf_txd_biopsies_and_turps.sent_to_chum = '1'
+
+Please test code during next update.
+//-------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 require_once 'Excel/reader.php';
 
 set_time_limit('3600');
@@ -280,7 +300,7 @@ $query = "UPDATE diagnosis_masters dm, ".$controls['DiagnosisControl']['primary'
 	AND tm.deleted <> 1 AND tm.treatment_control_id = ".$controls['TreatmentControl']['biopsy and turp']['treatment_control_id']."
 	AND tm.id = td.treatment_master_id
 	AND tm.participant_id = dm.participant_id
-	AND td.type IN ('Bx Dx', 'TURP Dx','Bx Dx TRUS-Guided')
+	AND td.type_specification = 'Dx'
 	AND tm.modified = '$import_date' AND tm.modified_by = $import_by;";
 customQuery($query, __FILE__, __LINE__, TRUE);	
 

@@ -1,5 +1,18 @@
 <?php
 
+//-------------------------------------------------------------------------------------------------------------
+//Note on 2018-03-20 from N. Luc
+N. Luc conclusion on 2018-03-20 was that the Dataimporter clinic part is not used anymore. Code has not been 
+supported anymore.
+
+If concolusions was wrong, please review all code considering following rules:
+  - durg_id field has been moved from TreatmentExtendDetail to TreatmentExtendMaster
+  - qc_tf_txd_biopsies_and_turps.type values 'Bx Dx', 'TURP Dx', 'Bx Dx TRUS-Guided' have been 
+         replaced by 'Bx', 'TURP', 'Bx TRUS-Guided' and qc_tf_txd_biopsies_and_turps.type_specification = 'Dx'
+  - qc_tf_txd_biopsies_and_turps.type value 'Bx CHUM' has been replaced by 'Bx' 
+         AND qc_tf_txd_biopsies_and_turps.sent_to_chum = '1'
+//-------------------------------------------------------------------------------------------------------------
+
 class Config{
 	const	INPUT_TYPE_CSV = 1;
 	const	INPUT_TYPE_XLS = 2;

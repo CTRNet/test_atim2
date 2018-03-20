@@ -63,7 +63,7 @@ class ParticipantCustom extends Participant
                 // Get Biopsy 'dx Bx'
                 $conditions = array(
                     'TreatmentMaster.diagnosis_master_id' => $allLinkedDiagmosisesIds,
-                    'TreatmentDetail.type' => $treatmentModel->dxBiopsyAndTurpTypes
+                    'TreatmentDetail.type_specification' => 'Dx'
                 );
                 $joins = array(
                     array(
@@ -88,7 +88,9 @@ class ParticipantCustom extends Participant
                     if ($biopsyTurpAtDx['TreatmentMaster']['start_date'] != $newDx['DiagnosisMaster']['dx_date'] || $biopsyTurpAtDx['TreatmentMaster']['start_date_accuracy'] != $newDx['DiagnosisMaster']['dx_date_accuracy']) {
                         AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
                     }
-                    if (($newDx['DiagnosisDetail']['tool'] == 'biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx Dx') || ($newDx['DiagnosisDetail']['tool'] == 'TURP' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'TURP Dx') || ($newDx['DiagnosisDetail']['tool'] == 'TRUS-guided biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx Dx TRUS-Guided')) {
+                    if (($newDx['DiagnosisDetail']['tool'] == 'biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx')
+                    || ($newDx['DiagnosisDetail']['tool'] == 'TURP' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'TURP')
+                    || ($newDx['DiagnosisDetail']['tool'] == 'TRUS-guided biopsy' && $biopsyTurpAtDx['TreatmentDetail']['type'] != 'Bx TRUS-Guided')) {
                         AppController::addWarningMsg(__('the method of the diagnosis (biopsy, TRUS-guided biopsy or TURP) is different than the type set for the biopsy or a turp record'));
                     }
                 }
