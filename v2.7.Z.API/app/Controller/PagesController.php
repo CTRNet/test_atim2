@@ -86,6 +86,9 @@ class PagesController extends AppController
             $useLink = '/menus';
         }
         
+        API::addToBundle(array('result'=>$results, 'link'=>$useLink), API::$errors);
+        API::sendDataAndClear();
+        
         $this->set('atimMenu', $this->Menus->get($useLink));
     }
 }
