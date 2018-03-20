@@ -14,9 +14,14 @@ class BrowserController extends DatamartAppController
         'Datamart.BrowsingIndex',
         'Datamart.BatchSet',
         'Datamart.SavedBrowsingIndex',
-        'ExternalLink'
+        'ExternalLink',
+        'ApiCmalp'
     );
 
+    public function beforeFilter() {
+        parent::beforeFilter();
+    }
+    
     public function index()
     {
         $this->Structures->set("datamart_browsing_indexes");
@@ -166,8 +171,8 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-
-        if(API::isAPIMode()){
+        
+        if(API::isAPIMode() && !API::isStructMode()){
             if (strpos($controlId, '-')!==false){
                 list ($controlId, $subStructCtrlId) = explode("-", $controlId);
             }
@@ -219,7 +224,9 @@ class BrowserController extends DatamartAppController
                 }
             }
         }
+     
         // data handling will redirect to a straight page
+        
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
             if (isset($this->request->data['Browser']['search_for'])) {
@@ -276,7 +283,6 @@ class BrowserController extends DatamartAppController
                 $browsing = $createdNode['browsing'];
                 unset($createdNode);
             }
-
             if(API::isAPIMode()){
                 $browsing = $this->BrowsingResult->getOrRedirect($nodeId);
                 if ($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')) {
@@ -422,6 +428,7 @@ class BrowserController extends DatamartAppController
                     "description" => __($browsing['DatamartStructure']['display_name'])
                 ));
             }
+            
             $this->set('top', "/Datamart/Browser/browse/" . $nodeId . "/" . $lastControlId . "/");
             $this->set('nodeId', $nodeId);
             if ($browsing['DatamartStructure']['adv_search_structure_alias']) {
@@ -949,4 +956,26 @@ class BrowserController extends DatamartAppController
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
     }
+
+    public function getApiCmalp()
+    {
+        $modelName = $this->ApiCmalp->name;
+        if (API::isAPIMode()){
+            $fields = array('controller', 'model', 'action', 'link', 'parameters');
+            $ApiCmalps = $this->ApiCmalp->find('all', array('fields'=>$fields));
+            $response = array();
+            foreach ($ApiCmalps as $ApiCmalp) {
+                $response[$ApiCmalp[$modelName]['controller']][$ApiCmalp[$modelName]['action']] = array(
+                    'urn' => $ApiCmalp[$modelName]['link'],
+                    'model' => $ApiCmalp[$modelName]['model'],
+                    'parameters' => $ApiCmalp[$modelName]['parameters']
+                );
+            }
+            API::addToBundle($response);
+            API::sendDataAndClear();
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+         }
+    }
+    
 }

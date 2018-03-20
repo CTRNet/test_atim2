@@ -246,10 +246,7 @@ class AppModel extends Model
             $message['message']='save_status';
             $message['action']=$result;
             API::addToBundle($message, 'actions');
-            $validationErrors=$this->normalizedValidationErrors($this->validationErrors);
-            if (!empty($validationErrors)){
-                API::addToBundle($validationErrors, 'errors');
-            }
+            $this->normalizedValidationErrors($this->validationErrors);
             $this->moveFiles($moveFiles);              
         }else{
             if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
@@ -1453,9 +1450,7 @@ class AppModel extends Model
         }else{
             $message['method']=$bt[1]['function'];
             $message['action']=__('error_There are no fields matching ID').': '.$id;
-            //API::addToBundle($message, 'errors');
             AppController::getInstance()->atimFlashError($message, '/');            
-            //API::sendDataAndClear();
         }
         return null;
     }
@@ -1910,18 +1905,13 @@ class AppModel extends Model
      * @return array
      */
     protected function normalizedValidationErrors($errors =array()) {
-        $results =array();
         if ($errors !=array() && is_array($errors)) {
             foreach ($errors as $key => $value) {
                 foreach ($value as $message) {
-                    $results[] = array(
-                        'message' => $key,
-                        'action' => $message
-                    );
+                    API::addToBundle($key.": ".$message, API::$errors);
                 }
             }
         }
-        return $results;
     }
         
 }

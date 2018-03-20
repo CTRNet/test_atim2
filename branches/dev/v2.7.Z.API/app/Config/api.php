@@ -29,21 +29,41 @@ class API
     private static $counter=0;
     private static $user;
     private static $structure;
-    
+    public static $errors = 'errors';
+    public static $confirms = 'confirms';
+    public static $warnings = 'warnings';
+    public static $informations = 'informations';
+    public static $data = 'data';
+    public static $redirect = 'redirect';
+    private static $stop = 'stop';
+
+
     /**
      * @param int $counter after $counter time that this function run, it send $message to API
      * @param array $message the message that will be send to API after $counter time of execution of this function
      */
     public static function stop($counter=1, $message=array('message')) 
     {
-        if (!is_array($message)){
-            $message=array($message);
-        }
-        if (self::$counter==$counter){
-            self::addToBundle($message, 'Stop');
+        self::stopCondition(self::$counter, '==', $counter, $message);
+        self::$counter++;
+    }
+    
+    /**
+     * @param int $counter after $counter time that this function run, it send $message to API
+     * @param array $message the message that will be send to API after $counter time of execution of this function
+     */
+    public static function stopCondition($var1, $con, $var2, $message=array()) 
+    {
+        $condition = false;
+        $condition = ($var1==$var2 && $con=="==")?true:$condition;
+        $condition = ($var1!=$var2 && $con=="!=")?true:$condition;
+        $condition = ($var1<$var2 && $con=="<")?true:$condition;
+        $condition = ($var1<=$var2 && $con=="<=")?true:$condition;
+        $condition = ($var1>$var2 && $con==">")?true:$condition;
+        $condition = ($var1>=$var2 && $con==">=")?true:$condition;
+        if ($condition){
+            self::addToBundle($message, self::$stop);
             self::sendDataAndClear();
-        }else{
-            self::$counter++;
         }
     }
     
@@ -63,21 +83,14 @@ class API
             }
             $newMessage = true;
             if (empty($message)){
-                $message = array('This is an empty array.');
+                return;
             }
             $bundle = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             if (!isset($bundle[$type]) || !is_array($bundle[$type])) {
                 $bundle[$type] =array();
             }
-            foreach ($bundle[$type] as $model => &$values) {
-                if ($modelName == $model) {
-                    $newMessage = false;
-                    $bundle[$type][$model][]=$message;
-                }
-            }
-            if ($newMessage) {
-                $bundle[$type][$modelName][]=$message;
-            }
+            
+            $bundle[$type][]=$message;
             $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = $bundle;
         }
     }
@@ -85,14 +98,14 @@ class API
     /**
      * @param $data
      */
-    public static function sendTo($data)
+    public static function sendTo($data, $internal = false)
     {        
-        if (self::isAPIMode()) {
+        if (self::isAPIMode() && (self::getAction()!='getApiCmalp' && self::getAction()!='getBrowserSearchlist' || $internal)) {
             if (ob_get_contents()){
                 ob_end_clean();
             }
             $result = json_encode($data);
-            die($result);
+            exit($result);
         }
     }
 
@@ -101,7 +114,7 @@ class API
         if (self::isAPIMode()) {
             $return = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             unset($_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE]);
-            self::sendTo($return);
+            self::sendTo($return, true);
         }
     }
 
@@ -157,7 +170,8 @@ class API
     /**
      * @return null
      */
-    public static function getApiKey(){
+    public static function getApiKey()
+    {
         if (self::isAPIMode()){
             return $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY];
         }
@@ -171,7 +185,13 @@ class API
      */
     public static function checkData(&$controller)
     {
-        $data = $controller->request->data;
+        if (is_string($controller->request->data)){
+            $data = json_decode($controller->request->data, true);
+        }elseif (is_array($controller->request->data)){
+            $data = $controller->request->data;
+        }else{
+            return false;
+        }       
         if (isset($data['modelName'])){
             $model = $data['modelName'];
             unset($controller->request->data['modelName']);
@@ -184,6 +204,7 @@ class API
         }
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
+                $controller->request->data = $data;
                 Configure::write('debug', 0);
                 $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY]=$data['data_put_options']['atimApiKey'];
                 $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);

@@ -147,7 +147,8 @@ class AppController extends Controller
     /**
      * @return bool
      */
-    private function checkApiKey(){
+    private function checkApiKey()
+    {
         $valide=true;
         if (API::getApiKey()){
             $condition['UserApiKey.api_key']=API::getApiKey();  
@@ -176,7 +177,6 @@ class AppController extends Controller
         if (API::isAPIMode()){
             $this->checkApiKey();
         }
-
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -425,7 +425,7 @@ class AppController extends Controller
             );
             
             if (!in_array(API::getModelName(), array('missingtranslation', 'userlog'))){
-                API::addToBundle(array('message'=>$message), $messageType[$type]);
+                API::addToBundle($message, $messageType[$type]);
             }
             API::sendDataAndClear();
         }else{
@@ -829,7 +829,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
     public static function addWarningMsg($msg, $withTrace = false)
     {
         if (API::isAPIMode()){
-            API::addToBundle($msg, 'warning');
+            API::addToBundle($msg, API::$warnings);
         }
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
@@ -851,7 +851,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
     public static function addInfoMsg($msg)
     {
         if (API::isAPIMode()){
-            API::addToBundle($msg, 'warning');
+            API::addToBundle($msg, API::$warnings);
         }
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
@@ -2203,10 +2203,6 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
      */
     public function set($one, $two = null, $three=null)
     {
-        //if (API::isAPIMode() && !API::isStructMode()){
-            //return false;
-            //API::addToBundle($one, 'testtesttest');
-        //}
         parent::set($one, $two);
         if ($three != null && API::isAPIMode()) {
             if (is_array($one)) {
@@ -2218,7 +2214,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
             } else {
                 $data = array($one => $two);
             }
-            API::addToBundle($data, 'data');
+            API::addToBundle($data, API::$data);
         }
     }
     /*
@@ -2234,7 +2230,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
         if (!API::isAPIMode()){
             parent::redirect($url, $status, $exit);
         }else{
-            API::addToBundle(array('url' => $url, 'status' => $status, 'exit' => $exit), 'redirect');
+            API::addToBundle(array('url' => $url, 'status' => $status, 'exit' => $exit), API::$redirect);
             API::sendDataAndClear();
         }
     }    
