@@ -7,12 +7,6 @@ class TreatmentMasterCustom extends TreatmentMaster
 
     var $name = 'TreatmentMaster';
 
-    var $dxBiopsyAndTurpTypes = array(
-        'TURP Dx',
-        'Bx Dx',
-        'Bx Dx TRUS-Guided'
-    );
-
     public function validates($options = array())
     {
         $result = parent::validates($options);
@@ -52,7 +46,7 @@ class TreatmentMasterCustom extends TreatmentMaster
         }
         
         // check Dx Bx can only be created once per dx
-        if (isset($this->data['TreatmentDetail']) && array_key_exists('type', $this->data['TreatmentDetail']) && in_array($this->data['TreatmentDetail']['type'], $this->dxBiopsyAndTurpTypes) && $this->data['TreatmentMaster']['diagnosis_master_id']) {
+        if (isset($this->data['TreatmentDetail']) && array_key_exists('type_specification', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['type_specification'] == 'Dx' && $this->data['TreatmentMaster']['diagnosis_master_id']) {
             if (! $treatmentControl)
                 $treatmentControl = $this->getTreatmentControlData();
             if ($treatmentControl['TreatmentControl']['tx_method'] == 'biopsy and turp') {
@@ -63,7 +57,7 @@ class TreatmentMasterCustom extends TreatmentMaster
                     // Search existing biopsies linked to this cancer and already flagged as Dx Bx
                 $conditions = array(
                     'TreatmentMaster.diagnosis_master_id' => $allLinkedDiagmosisesIds,
-                    'TreatmentDetail.type' => $this->dxBiopsyAndTurpTypes
+                    'TreatmentDetail.type_specification' => 'Dx'
                 );
                 if ($this->id)
                     $conditions['NOT'] = array(
@@ -164,7 +158,7 @@ class TreatmentMasterCustom extends TreatmentMaster
                     $txGleasonScoreBiopsyTurp = '';
                     $conditions = array(
                         'TreatmentMaster.diagnosis_master_id' => $allLinkedDiagmosisesIds,
-                        'TreatmentDetail.type' => $this->dxBiopsyAndTurpTypes,
+                        'TreatmentDetail.type_specification' => 'Dx',
                         'TreatmentControl.tx_method' => array(
                             'biopsy and turp'
                         )

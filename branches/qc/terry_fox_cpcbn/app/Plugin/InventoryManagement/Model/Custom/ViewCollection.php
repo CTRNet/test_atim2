@@ -5,7 +5,7 @@ class ViewCollectionCustom extends ViewCollection
 
     var $name = 'ViewCollection';
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 --		Collection.bank_id AS bank_id,
@@ -29,7 +29,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-
+    
     public function summary($variables = array())
     {
         $return = false;

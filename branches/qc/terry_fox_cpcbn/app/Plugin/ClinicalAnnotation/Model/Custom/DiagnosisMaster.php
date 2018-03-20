@@ -195,7 +195,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             if ($newSurvival != $previousSurvival)
                 $dataToUpdate['DiagnosisDetail']['survival_in_months'] = $newSurvival;
             if (sizeof($dataToUpdate) != 1) {
-                $thid->data = array();
+                $this->data = array();
                 $this->id = $primaryId;
                 if (! $this->save($dataToUpdate))
                     AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -315,7 +315,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             'age_at_dx'
         ));
         foreach ($dxToUpdate as $dxData) {
-            $thid->data = array();
+            $this->data = array();
             $this->id = $dxData['DiagnosisMaster']['id'];
             if (! $this->save($dxData, false))
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -282,7 +282,7 @@ class ReportsControllerCustom extends ReportsController
 					TreatmentDetail.gleason_grade
 				FROM diagnosis_masters AS DiagnosisMaster
 				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
-				INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentDetail.type IN ('" . implode("','", $TreatmentMasterModel->dxBiopsyAndTurpTypes) . "')
+				INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentDetail.type_specification = 'Dx'
 				WHERE DiagnosisMaster.deleted <> 1 AND $primaryIdsCondition
 				ORDER BY DiagnosisMaster.primary_id ASC;";
             $gleasonGradesBxDx = $this->Report->tryCatchQuery($sql);
@@ -309,7 +309,7 @@ class ReportsControllerCustom extends ReportsController
 								TreatmentDetail.type
 							FROM diagnosis_masters AS DiagnosisMaster
 							INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
-							INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentDetail.type NOT IN ('" . implode("','", $TreatmentMasterModel->dxBiopsyAndTurpTypes) . "')
+							INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND (TreatmentDetail.type != 'Dx' OR TreatmentDetail.type IS NULL)
 							WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.primary_id = $studiedPrimaryId
 							AND TreatmentMaster.start_date IS NOT NULL
 							AND TreatmentMaster.start_date > '" . $newRes['TreatmentMaster']['start_date'] . "'

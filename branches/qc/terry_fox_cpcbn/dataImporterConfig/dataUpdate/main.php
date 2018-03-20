@@ -268,8 +268,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			FROM treatment_masters tm
 			INNER JOIN ".$atim_controls['treatment_controls'][$tx_method]['detail_tablename']." td ON tm.id = td.treatment_master_id
 			LEFT JOIN treatment_extend_masters tem ON tem.treatment_master_id = tm.id AND tem.deleted <> 1 AND tem.treatment_extend_control_id = ".$atim_controls['treatment_controls'][$tx_method]['treatment_extend_control_id']."
-			LEFT JOIN ".$atim_controls['treatment_controls'][$tx_method]['treatment_extend_detail_tablename']." ted ON tem.id = ted.treatment_extend_master_id
-			LEFT JOIN drugs dr ON dr.id = ted.drug_id AND dr.deleted <> 1
+			LEFT JOIN drugs dr ON dr.id = tem.drug_id AND dr.deleted <> 1
 			WHERE tm.deleted <> 1 AND tm.treatment_control_id  = ".$atim_controls['treatment_controls'][$tx_method]['id']." AND tm.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
 		foreach(getSelectQueryResult($query) as $new_record) {
 			if(!isset($atim_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']])) {
@@ -419,9 +418,9 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 												$tx_ext_data = array(
 													'treatment_extend_masters' => array(
 														'treatment_master_id' => $matching_atim_treatment['treatment_master_id'],
-														'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id']),
-													$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array(
-														'drug_id' => $drug_id));
+														'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id'],
+                                                        'drug_id' => $drug_id),
+													$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array());
 												customInsertRecord($tx_ext_data);
 												$updated_tx_data['drug_creation_#'.$created_drug_counter_for_display] = $drug_name;
 											}
@@ -455,9 +454,9 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 											$tx_ext_data = array(
 												'treatment_extend_masters' => array(
 													'treatment_master_id' => $treatment_master_id, 
-													'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id']),
-												$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array(
-													'drug_id' => $drug_id));
+													'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id'],
+													'drug_id' => $drug_id),
+												$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array());
 											customInsertRecord($tx_ext_data);
 										}
 									}
