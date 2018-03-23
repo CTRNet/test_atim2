@@ -216,7 +216,7 @@ class ReportsControllerCustom extends ReportsController
 			
 			WHERE Participant.deleted <> 1 AND ($conditionsStr)
 			
-			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC, StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC;";
+			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC " . ($displayCoresPositions ? ', StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC' : '') . ";";
         
         $mainResults = $this->Report->tryCatchQuery($sql);
         
@@ -712,7 +712,6 @@ class ReportsControllerCustom extends ReportsController
                 $newParticipant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
             }
         }
-        pr($mainResults);
         foreach ($warnings as $newWarning)
             AppController::addWarningMsg($newWarning);
         $arrayToReturn = array(
@@ -724,7 +723,663 @@ class ReportsControllerCustom extends ReportsController
         
         return $arrayToReturn;
     }
+    
+    public function activeSurveillanceReport($parameters)
+    {
+        $conditions = array();
+        $warnings = array();
+        $joinOnStorage = false;
+    
+        $userBankId = null;
+        if ($_SESSION['Auth']['User']['group_id'] != '1') {
+            $GroupModel = AppModel::getInstance("", "Group", true);
+            $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+            $userBankId = (empty($groupData) ? '' : $groupData['Group']['bank_id']);
+        }
+    
+        if (! isset($parameters['exact_search']) || $parameters['exact_search'] != 'on') {
+            $warnings[] = __('only exact search is supported');
+        }
+    
+        // *********** Get Conditions from parameters ***********
+    
+        if (isset($parameters['Browser'])) {
+    
+            // 0-REPORT LAUNCHED FROM DATA BROWSER
+    
+            if (isset($parameters['ViewStorageMaster']['id'])) {
+                $joinOnStorage = true;
+                $criteria = ($parameters['ViewStorageMaster']['id'] == 'all') ? array(
+                    'StorageControl.is_tma_block = 1'
+                ) : array(
+                    'StorageMaster.id' => $parameters['ViewStorageMaster']['id']
+                );
+                $storageModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+                $selectedStorages = $storageModel->find('all', array(
+                    'conditions' => $criteria,
+                    'recursive' => 0
+                ));
+                $tmaStorageMasterIds = array();
+                foreach ($selectedStorages as $newStorage) {
+                    if ($newStorage['StorageControl']['is_tma_block']) {
+                        $tmaStorageMasterIds[] = $newStorage['StorageMaster']['id'];
+                    } else {
+                        $warnings[] = str_replace('%s', $newStorage['StorageMaster']['selection_label'], __('storage [%s] is not a tma block'));
+                    }
+                }
+                if ($tmaStorageMasterIds) {
+                    $conditions[] = 'AliquotMaster.storage_master_id IN (' . implode($tmaStorageMasterIds, ',') . ')';
+                } else {
+                    return array(
+                        'header' => array(),
+                        'data' => array(),
+                        'columns_names' => null,
+                        'error_msg' => 'no tma is selected'
+                    );
+                }
+            } elseif (isset($parameters['Participant']['id'])) {
+                if (($parameters['Participant']['id'] != 'all')) {
+                    $conditions[] = 'Participant.id IN (' . implode($parameters['Participant']['id'], ',') . ')';
+                }
+            } else {
+                die('ERR 9900303');
+            }
+        } else {
+    
+            // 1-BANK
+            $bankIds = array();
+            foreach ($parameters['Participant']['qc_tf_bank_id'] as $newBankId)
+                if (strlen($newBankId))
+                    $bankIds[] = $newBankId;
+                if (! empty($bankIds))
+                    $conditions[] = 'Participant.qc_tf_bank_id IN (' . implode($bankIds, ',') . ')';
+    
+                // 2-STORAGE
+                $matchingStorageIssue = false;
+                $recordedStorageSelectionLabels = array();
+                foreach ($parameters['FunctionManagement']['recorded_storage_selection_label'] as $newLabel)
+                    if (strlen($newLabel))
+                        $recordedStorageSelectionLabels[] = $newLabel;
+                    if (! empty($recordedStorageSelectionLabels)) {
+                        $joinOnStorage = true;
+                        $storageIds = array();
+                        $storageModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+                        foreach ($recordedStorageSelectionLabels as $newRecordedStorageSelectionLabel) {
+                            $storageData = $storageModel->getStorageDataFromStorageLabelAndCode($newRecordedStorageSelectionLabel);
+                            if (isset($storageData['StorageMaster'])) {
+                                if ($storageData['StorageControl']['is_tma_block']) {
+                                    $storageIds[] = $storageData['StorageMaster']['id'];
+                                } else {
+                                    $warnings[] = str_replace('%s', $newRecordedStorageSelectionLabel, __('storage [%s] is not a tma block'));
+                                }
+                            } elseif (isset($storageData['error'])) {
+                                $warnings[] = __($storageData['error']);
+                            }
+                        }
+                        if ($storageIds) {
+                            $conditions[] = 'AliquotMaster.storage_master_id IN (' . implode($storageIds, ',') . ')';
+                        } else {
+                            $matchingStorageIssue = true;
+                        }
+                    }
+    
+                    // 3-PARTICIPANT IDENTIFIER
+                    $participantIdentifierCriteriaSet = false;
+                    if (isset($parameters['Participant']['qc_tf_bank_participant_identifier'])) {
+                        $participantIds = array();
+                        foreach ($parameters['Participant']['qc_tf_bank_participant_identifier'] as $newParticipantId)
+                            if (strlen($newParticipantId))
+                                $participantIds[] = $newParticipantId;
+                            if (! empty($participantIds)) {
+                                $conditions[] = "Participant.qc_tf_bank_participant_identifier IN ('" . implode($participantIds, "','") . "')";
+                                $participantIdentifierCriteriaSet = true;
+                            }
+                    } elseif (isset($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
+                        if (strlen($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
+                            $participantIdentifierCriteriaSet = true;
+                            $conditions[] = 'Participant.qc_tf_bank_participant_identifier >= ' . $parameters['Participant']['qc_tf_bank_participant_identifier_start'];
+                        }
+                        if (strlen($parameters['Participant']['qc_tf_bank_participant_identifier_end'])) {
+                            $participantIdentifierCriteriaSet = true;
+                            $conditions[] = 'Participant.qc_tf_bank_participant_identifier <= ' . $parameters['Participant']['qc_tf_bank_participant_identifier_end'];
+                        }
+                    }
+                    if (($_SESSION['Auth']['User']['group_id'] != '1') && $participantIdentifierCriteriaSet) {
+                        AppController::addWarningMsg(__('your search will be limited to your bank'));
+                        $conditions[] = "Participant.qc_tf_bank_id = '$userBankId'";
+                    }
+    
+                    if (empty($conditions) && $matchingStorageIssue) {
+                        return array(
+                            'header' => array(),
+                            'data' => array(),
+                            'columns_names' => null,
+                            'error_msg' => 'no storage matches the selection labels'
+                        );
+                    }
+        }
+    
+        $conditionsStr = empty($conditions) ? 'true' : implode($conditions, ' AND ');
+    
+        // *********** Get Participant & Primary Prostate Diagnosis & RP ***********
+    
+        $sql = "SELECT DISTINCT
+			Participant.id,
+			Participant.qc_tf_bank_id,
+			Participant.participant_identifier,
+			Participant.qc_tf_bank_participant_identifier,
+			Participant.qc_tf_study_exclusions,
+			Participant.date_of_birth,
+			Participant.date_of_birth_accuracy,
+			Participant.vital_status,
+			Participant.date_of_death,
+			Participant.date_of_death_accuracy,
+			Participant.qc_tf_suspected_date_of_death,
+			Participant.qc_tf_suspected_date_of_death_accuracy,
 
+			Participant.qc_tf_last_contact,
+			Participant.qc_tf_last_contact_accuracy,
+			Participant.qc_tf_death_from_prostate_cancer,
+
+            DiagnosisMaster.id AS primary_id,
+            DiagnosisMaster.dx_date,
+            DiagnosisMaster.dx_date_accuracy,
+            DiagnosisDetail.tool,
+            DiagnosisMaster.age_at_dx,
+            DiagnosisDetail.ptnm,
+	
+			TreatmentMaster.start_date ,
+			TreatmentMaster.start_date_accuracy,
+            TIMESTAMPDIFF(YEAR, Participant.date_of_birth, TreatmentMaster.start_date) AS qc_tf_age_at_rp,
+			TreatmentDetail.qc_tf_lymph_node_invasion ,
+			TreatmentDetail.qc_tf_capsular_penetration,
+			TreatmentDetail.qc_tf_seminal_vesicle_invasion,
+			TreatmentDetail.qc_tf_margin,
+			TreatmentDetail.qc_tf_gleason_grade,
+			TreatmentDetail.qc_tf_gleason_score
+			
+            FROM participants AS Participant" .
+    
+			($joinOnStorage? "
+    			INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.deleted <> 1
+    			INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1 AND aliquot_control_id = 33
+    			INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 " : 
+			    '') . "
+    					
+			LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
+			LEFT JOIN qc_tf_dxd_cpcbn AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+					
+			LEFT JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = 6 AND TreatmentMaster.deleted <> 1
+			LEFT JOIN txd_surgeries AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+				
+			WHERE Participant.deleted <> 1 AND ($conditionsStr)
+				
+			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC;";
+    
+        $mainResults = $this->Report->tryCatchQuery($sql);
+        $primaryIds = array();
+        $participantIds = array();
+        foreach ($mainResults as &$newParticipant) {
+            $participantIds[] = $newParticipant['Participant']['id'];
+            $newParticipant['Generated']['is_suspected_date_of_death'] = '';
+            if (! empty($newParticipant['Participant']['date_of_death'])) {
+                $newParticipant['Generated']['is_suspected_date_of_death'] = 'n';
+            } elseif (! empty($newParticipant['Participant']['qc_tf_suspected_date_of_death'])) {
+                $newParticipant['Participant']['date_of_death'] = $newParticipant['Participant']['qc_tf_suspected_date_of_death'];
+                $newParticipant['Participant']['date_of_death_accuracy'] = $newParticipant['Participant']['qc_tf_suspected_date_of_death_accuracy'];
+                $newParticipant['Generated']['is_suspected_date_of_death'] = 'y';
+            }
+            if (! empty($newParticipant['DiagnosisMaster']['primary_id'])) {
+                $primaryIds[] = $newParticipant['DiagnosisMaster']['primary_id'];
+            }
+        }
+        $primaryIdsCondition = empty($primaryIds) ? '' : 'DiagnosisMaster.primary_id IN (' . implode($primaryIds, ',') . ')';
+        $participantIds = empty($participantIds) ? array('-1') : $participantIds;
+            
+            // *********** Get Bx/TURP DX & Sent to CHUM & Last One ********
+        $biopsyTurpFields = array(
+            'type' => '',
+            'type_specification' => '',
+            'sent_to_chum' => '',
+            'gleason_grade' => '',
+            'gleason_score' => '',
+            'total_positive' => '',
+            'type' => '',
+            'total_number_taken' => '',
+            'greatest_percent_of_cancer' => '',
+            'ctnm' => ''
+        );
+        $biopsyTurpFromPrimaryId = array();
+        if ($primaryIdsCondition) {
+            $sql = "SELECT DISTINCT
+                DiagnosisMaster.primary_id,
+                DiagnosisMaster.participant_id,
+                TreatmentMaster.start_date,
+                TreatmentMaster.start_date_accuracy,
+                TreatmentDetail.type,
+                TreatmentDetail.type_specification,
+                TreatmentDetail.sent_to_chum,
+                TreatmentDetail.gleason_grade,
+                TreatmentDetail.gleason_score,
+                TreatmentDetail.total_positive,
+                TreatmentDetail.total_number_taken,
+                TreatmentDetail.greatest_percent_of_cancer,
+                TreatmentDetail.ctnm
+                FROM diagnosis_masters AS DiagnosisMaster
+                INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
+                INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
+                WHERE DiagnosisMaster.deleted <> 1 AND $primaryIdsCondition
+                ORDER BY DiagnosisMaster.participant_id ASC, DiagnosisMaster.primary_id ASC, TreatmentMaster.start_date DESC;";
+            $bxTurpDx = $this->Report->tryCatchQuery($sql);
+            $tmpNewPrimaryId = '';
+            foreach ($bxTurpDx as $newRes) {
+                $studiedPrimaryId = $newRes['DiagnosisMaster']['primary_id'];
+                if ($newRes['TreatmentMaster']['start_date']) {
+                    if (! isset($biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_last_start_date'])) {
+                        $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_last_start_date'] = $this->formatReportDateForDisplay($newRes['TreatmentMaster']['start_date'], $newRes['TreatmentMaster']['start_date_accuracy']);
+                        $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_last_start_date_accuracy'] = $newRes['TreatmentMaster']['start_date_accuracy'];
+                        foreach ($biopsyTurpFields as $biopsyTurpField => $tmp) {
+                            $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_last_' . $biopsyTurpField] = $newRes['TreatmentDetail'][$biopsyTurpField];
+                        }
+                    }
+                    if ($newRes['TreatmentDetail']['type_specification'] == 'Dx') {
+                        if (! isset($biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_dx_start_date'])) {
+                            $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_dx_start_date'] = $this->formatReportDateForDisplay($newRes['TreatmentMaster']['start_date'], $newRes['TreatmentMaster']['start_date_accuracy']);
+                            $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_dx_start_date_accuracy'] = $newRes['TreatmentMaster']['start_date_accuracy'];
+                            foreach ($biopsyTurpFields as $biopsyTurpField => $tmp) {
+                                $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_dx_' . $biopsyTurpField] = $newRes['TreatmentDetail'][$biopsyTurpField];
+                            }
+                        } else {
+                            die('ERR3878237');
+                        }
+                    }
+                    if ($newRes['TreatmentDetail']['sent_to_chum']) {
+                        if (! isset($biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_chum_start_date'])) {
+                            $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_chum_start_date'] = $this->formatReportDateForDisplay($newRes['TreatmentMaster']['start_date'], $newRes['TreatmentMaster']['start_date_accuracy']);
+                            $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_chum_start_date_accuracy'] = $newRes['TreatmentMaster']['start_date_accuracy'];
+                            foreach ($biopsyTurpFields as $biopsyTurpField => $tmp) {
+                                $biopsyTurpFromPrimaryId[$studiedPrimaryId]['qc_tf_bx_chum_' . $biopsyTurpField] = $newRes['TreatmentDetail'][$biopsyTurpField];
+                            }
+                        } else {
+                            $warnings[] = __('at least one participant has 2 biopsies or turps defined as sent to chum');
+                        }
+                    }
+                }
+            }
+        }
+        
+        // *********** Get Fst Bcr ***********
+    
+        $fstBcrResultsFromPrimaryId = array();
+        if ($primaryIdsCondition) {
+            $sql = "SELECT DISTINCT
+                DiagnosisMaster.primary_id,
+                DiagnosisMaster.participant_id,
+                FstBcrDiagnosisMaster.dx_date AS first_bcr_date,
+                FstBcrDiagnosisMaster.dx_date_accuracy AS first_bcr_date_accuracy,
+                FstBcrDiagnosisDetail.type AS first_bcr_type
+                FROM diagnosis_masters AS DiagnosisMaster
+                INNER JOIN diagnosis_masters AS FstBcrDiagnosisMaster ON DiagnosisMaster.id = FstBcrDiagnosisMaster.primary_id AND FstBcrDiagnosisMaster.diagnosis_control_id = 22 AND FstBcrDiagnosisMaster.deleted <> 1
+                INNER JOIN qc_tf_dxd_recurrence_bio AS FstBcrDiagnosisDetail ON FstBcrDiagnosisDetail.diagnosis_master_id = FstBcrDiagnosisMaster.id AND FstBcrDiagnosisDetail.first_biochemical_recurrence = 1
+                WHERE DiagnosisMaster.deleted <> 1 AND $primaryIdsCondition
+                ORDER BY DiagnosisMaster.primary_id ASC;";
+            $fstBcrResults = $this->Report->tryCatchQuery($sql);
+            $tmpNewPrimaryId = '';
+            foreach ($fstBcrResults as $newRes) {
+                $studiedPrimaryId = $newRes['DiagnosisMaster']['primary_id'];
+                if ($tmpNewPrimaryId != $studiedPrimaryId) {
+                    $tmpNewPrimaryId = $studiedPrimaryId;
+                    unset($newRes['DiagnosisMaster']);
+                    $newRes['FstBcrDiagnosisMaster']['first_bcr_date'] = $this->formatReportDateForDisplay($newRes['FstBcrDiagnosisMaster']['first_bcr_date'], $newRes['FstBcrDiagnosisMaster']['first_bcr_date_accuracy']);
+                    $fstBcrResultsFromPrimaryId[$studiedPrimaryId] = $newRes;
+                } else {
+                    die('ERR 19938939323');
+                }
+            }
+        }
+        
+        // *********** Get All PSA ***********
+        
+        $allPsaFromParticipantId = array();
+        $sql = "SELECT DISTINCT
+            PsaEventMaster.participant_id,
+            PsaEventMaster.event_date AS psa_event_date,
+            PsaEventMaster.event_date_accuracy AS psa_event_date_accuracy,
+            PsaEventDetail.psa_ng_per_ml
+            FROM event_masters AS PsaEventMaster
+            INNER JOIN qc_tf_ed_psa AS PsaEventDetail ON PsaEventDetail.event_master_id = PsaEventMaster.id
+            WHERE PsaEventMaster.deleted <> 1 AND PsaEventMaster.event_control_id = 52 AND PsaEventMaster.event_date IS NOT NULL
+            AND PsaEventMaster.participant_id IN (" . implode(',', $participantIds) . ")
+            ORDER BY PsaEventMaster.participant_id ASC, PsaEventMaster.event_date DESC;";
+        $allPsaResults = $this->Report->tryCatchQuery($sql);
+        foreach ($allPsaResults as $newRes) {
+            $studiedParticipantId = $newRes['PsaEventMaster']['participant_id'];
+            $allPsaFromParticipantId[$studiedParticipantId][] = array(
+                'psa_event_date' => $this->formatReportDateForDisplay($newRes['PsaEventMaster']['psa_event_date'], $newRes['PsaEventMaster']['psa_event_date_accuracy']),
+                'psa_event_date_accuracy' => $newRes['PsaEventMaster']['psa_event_date_accuracy'],
+                'psa_ng_per_ml' => $newRes['PsaEventDetail']['psa_ng_per_ml']
+            );
+        }
+        
+        // *********** Get All Collection ***********
+        
+        $allCollectionsFromParticipantId = array();
+        $sql = "SELECT DISTINCT
+            Collection.participant_id,
+            Collection.collection_datetime,
+            Collection.collection_datetime_accuracy
+            FROM collections AS Collection
+            WHERE Collection.deleted <> 1
+            AND Collection.participant_id IN (" . implode(',', $participantIds) . ");";
+        $allCollections = $this->Report->tryCatchQuery($sql);
+        foreach ($allCollections as $newRes) {
+            $studiedParticipantId = $newRes['Collection']['participant_id'];
+            if(isset($allCollectionsFromParticipantId[$studiedParticipantId])) {
+                $warnings[] = __('at least one participant has 2 collections recorded into ATiM');
+            } else {
+                $allCollectionsFromParticipantId[$studiedParticipantId] = $newRes; 
+            }
+        }
+        
+        // *********** Get Metastasis ***********
+    
+        $metastasisResultsFromPrimaryId = array();
+        if ($primaryIdsCondition) {
+            $sql = "SELECT DISTINCT
+                DiagnosisMaster.primary_id,
+                DiagnosisMaster.participant_id,
+                DiagnosisMaster.dx_date,
+                DiagnosisMaster.dx_date_accuracy,
+                DiagnosisDetail.site
+                FROM diagnosis_masters AS DiagnosisMaster
+                INNER JOIN qc_tf_dxd_metastasis AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+                WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.diagnosis_control_id = 21 AND $primaryIdsCondition
+                ORDER BY DiagnosisMaster.dx_date ASC;";
+            $metastasisResults = $this->Report->tryCatchQuery($sql);
+            $tmpNewPrimaryId = '';
+            $isFirstOneSet = false;
+            $tmpData = array();
+            foreach ($metastasisResults as $newRes) {
+                $studiedPrimaryId = $newRes['DiagnosisMaster']['primary_id'];
+                if ($tmpNewPrimaryId != $studiedPrimaryId) {
+                    $tmpNewPrimaryId = $studiedPrimaryId;
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId] = array(
+                        'Metastasis' => array(
+                            'first_metastasis_dx_date' => '',
+                            'first_metastasis_dx_date_accuracy' => '',
+                            'qc_tf_first_bone_metastasis_date' => '',
+                            'qc_tf_first_bone_metastasis_date_accuracy' => '',
+                            'first_metastasis_type' => '',
+                            'other_types' => ''
+                        )
+                    );
+                }
+                if (empty($metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['first_metastasis_dx_date']) && ! empty($newRes['DiagnosisMaster']['dx_date'])) {
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['first_metastasis_dx_date'] = $this->formatReportDateForDisplay($newRes['DiagnosisMaster']['dx_date'], $newRes['DiagnosisMaster']['dx_date_accuracy']);
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['first_metastasis_dx_date_accuracy'] = $newRes['DiagnosisMaster']['dx_date_accuracy'];
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['first_metastasis_type'] = $newRes['DiagnosisDetail']['site'];
+                } elseif (! empty($newRes['DiagnosisDetail']['site'])) {
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['other_types'][] = __($newRes['DiagnosisDetail']['site']);
+                }
+                if ($newRes['DiagnosisDetail']['site'] == 'bone' && empty($metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['qc_tf_first_bone_metastasis_date']) && ! empty($newRes['DiagnosisMaster']['dx_date'])) {
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['qc_tf_first_bone_metastasis_date'] = $this->formatReportDateForDisplay($newRes['DiagnosisMaster']['dx_date'], $newRes['DiagnosisMaster']['dx_date_accuracy']);
+                    $metastasisResultsFromPrimaryId[$studiedPrimaryId]['Metastasis']['qc_tf_first_bone_metastasis_date_accuracy'] = $newRes['DiagnosisMaster']['dx_date_accuracy'];
+                }
+            }
+        }
+    
+        // *********** Get Trt ***********
+    
+        $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $tmp = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+            'radiotherapy types'
+        ));
+        $radiotherapyTypes = array_merge($tmp['defined'], $tmp['previously_defined']);
+        $treatmentsSummaryTemplate = array(
+            'Generated' => array(
+                'qc_tf_chemo_flag' => 'n',
+                'qc_tf_chemo_first_date' => '',
+                'qc_tf_radiation_flag' => 'n',
+                'qc_tf_radiation_details' => '',
+                'qc_tf_radiation_first_date' => '',
+                'qc_tf_hormono_flag' => 'n',
+                'qc_tf_hormono_first_date' => ''
+            )
+        );
+        $sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
+			FROM treatment_masters TreatmentMaster
+			INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+			LEFT JOIN txd_radiations RadiationDetails ON RadiationDetails.treatment_master_id =  TreatmentMaster.id
+			WHERE TreatmentMaster.deleted <> 1
+			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
+			AND TreatmentMaster.participant_id IN (" . implode(',', $participantIds) . ")
+			ORDER BY TreatmentMaster.start_date ASC";
+        $treatmentResults = $this->Report->tryCatchQuery($sql);
+        $treatmentsSummary = array();
+        foreach ($treatmentResults as $newTrt) {
+            $participantId = $newTrt['TreatmentMaster']['participant_id'];
+            if (! isset($treatmentsSummary[$participantId]))
+                $treatmentsSummary[$participantId] = $treatmentsSummaryTemplate;
+            switch ($newTrt['TreatmentControl']['tx_method']) {
+                case 'hormonotherapy':
+                    $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_flag'] = 'y';
+                    if (strlen($newTrt['TreatmentMaster']['start_date']) && ! $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date']) {
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date'] = $this->formatReportDateForDisplay($newTrt['TreatmentMaster']['start_date'], $newTrt['TreatmentMaster']['start_date_accuracy']);
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date_accuracy'] = $newTrt['TreatmentMaster']['start_date_accuracy'];
+                    }
+                    break;
+                case 'radiation':
+                    $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_flag'] = 'y';
+                    if ($newTrt['RadiationDetails']['qc_tf_type']) {
+                        $radiationType = isset($radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']]) ? $radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']] : $newTrt['RadiationDetails']['qc_tf_type'];
+                        if (! preg_match('/$radiationType/', $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'])) {
+                            $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'] .= (empty($treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details']) ? '' : ', ') . $radiationType;
+                        }
+                    }
+                    if (strlen($newTrt['TreatmentMaster']['start_date']) && ! $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_first_date']) {
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_first_date'] = $this->formatReportDateForDisplay($newTrt['TreatmentMaster']['start_date'], $newTrt['TreatmentMaster']['start_date_accuracy']);
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_first_date_accuracy'] = $newTrt['TreatmentMaster']['start_date_accuracy'];
+                    }
+                    break;
+                case 'chemotherapy':
+                    $treatmentsSummary[$participantId]['Generated']['qc_tf_chemo_flag'] = 'y';
+                    if (strlen($newTrt['TreatmentMaster']['start_date']) && ! $treatmentsSummary[$participantId]['Generated']['qc_tf_chemo_first_date']) {
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_chemo_first_date'] = $this->formatReportDateForDisplay($newTrt['TreatmentMaster']['start_date'], $newTrt['TreatmentMaster']['start_date_accuracy']);
+                        $treatmentsSummary[$participantId]['Generated']['qc_tf_chemo_first_date_accuracy'] = $newTrt['TreatmentMaster']['start_date_accuracy'];
+                    }
+                    break;
+            }
+        }
+    
+        // *********** Merge all data ***********
+        
+        $metastasisTemplate = array(
+            'Metastasis' => array(
+                'first_metastasis_dx_date' => '',
+                'first_metastasis_dx_date_accuracy' => '',
+                'qc_tf_first_bone_metastasis_date' => '',
+                'qc_tf_first_bone_metastasis_date_accuracy' => '',
+                'first_metastasis_type' => '',
+                'other_types' => ''
+            )
+        );
+        $fstBcrTemplate = array(
+            'FstBcrDiagnosisMaster' => array(
+                'first_bcr_date' => '',
+                'first_bcr_date_accuracy' => ''
+            ),
+            'FstBcrDiagnosisDetail' => array(
+                'first_bcr_type' => ''
+            )
+        );
+        $biopsyTurpTemplate = array(
+            'Generated' => array_merge(array(
+                'start_date' => '',
+                'start_date_accuracy' => ''
+            ), $biopsyTurpFields)
+        );
+        foreach ($mainResults as &$newParticipant) {
+            $newParticipantId = $newParticipant['Participant']['id'];
+            $newPrimaryId = $newParticipant['DiagnosisMaster']['primary_id'];
+            // ---- Anonymize data ----
+            if (($_SESSION['Auth']['User']['group_id'] != '1') && ($newParticipant['Participant']['qc_tf_bank_id'] != $userBankId)) {
+                $newParticipant['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+                $newParticipant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+            }
+            // ---- Collection -----
+            if (isset($allCollectionsFromParticipantId[$newParticipantId])) {
+                $newParticipant = array_merge_recursive($newParticipant, $allCollectionsFromParticipantId[$newParticipantId]);
+            } else {
+                $newParticipant['Collection']['collection_datetime'] = '';
+            }
+            // ---- Get Metastasis ----
+            if (isset($metastasisResultsFromPrimaryId[$newPrimaryId])) {
+                $otherTypes = $metastasisResultsFromPrimaryId[$newPrimaryId]['Metastasis']['other_types'];
+                $metastasisResultsFromPrimaryId[$newPrimaryId]['Metastasis']['other_types'] = (empty($otherTypes) || ! is_array($otherTypes)) ? '' : implode($otherTypes, ' | ');
+                $newParticipant = array_merge_recursive($newParticipant, $metastasisResultsFromPrimaryId[$newPrimaryId]);
+            } else {
+                $newParticipant = array_merge_recursive($newParticipant, $metastasisTemplate);
+            }
+            // ---- Get Fst Bcr ----
+            if (isset($fstBcrResultsFromPrimaryId[$newPrimaryId])) {
+                $newParticipant = array_merge_recursive($newParticipant, $fstBcrResultsFromPrimaryId[$newPrimaryId]);
+            } else {
+                $newParticipant = array_merge_recursive($newParticipant, $fstBcrTemplate);
+            }
+            // ---- Get Trt ----
+            if (isset($treatmentsSummary[$newParticipantId])) {
+                $newParticipant = array_merge_recursive($newParticipant, $treatmentsSummary[$newParticipantId]);
+            } else {
+                $newParticipant = array_merge_recursive($newParticipant, $treatmentsSummaryTemplate);
+            }
+            // ---- Get Bx/TURP DX & Sent to CHUM & Last One ----
+            foreach (array('qc_tf_bx_last_', 'qc_tf_bx_dx_', 'qc_tf_bx_chum_') as $key_prefix) {
+                $bxTurpRecorded = (isset($biopsyTurpFromPrimaryId[$newPrimaryId][$key_prefix . 'start_date']) && $biopsyTurpFromPrimaryId[$newPrimaryId][$key_prefix . 'start_date']) ? true : false;
+                foreach ($biopsyTurpTemplate['Generated'] as $fieldWithNoPrefix => $tmp) {
+                    $newParticipant['Generated'][$key_prefix . $fieldWithNoPrefix] = $bxTurpRecorded ? $biopsyTurpFromPrimaryId[$newPrimaryId][$key_prefix . $fieldWithNoPrefix] : '';
+                }
+            }
+            // ---- time calculation ----
+            $dateDiffDef = array(
+                'Participant.qc_tf_last_contact' => 'Generated.qc_tf_rp_to_last_contact',
+                'Metastasis.qc_tf_first_bone_metastasis_date' => 'Generated.qc_tf_rp_to_bone_met',
+                'FstBcrDiagnosisMaster.first_bcr_date' => 'Generated.qc_tf_rp_to_bcr'
+            );
+            foreach ($dateDiffDef as $modelFieldData => $modelFieldCalculated) {
+                list ($modelData, $fieldData) = explode('.', $modelFieldData);
+                list ($modelCalculated, $fieldCalculated) = explode('.', $modelFieldCalculated);
+                $newParticipant[$modelCalculated][$fieldCalculated] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $newParticipant[$modelData][$fieldData]);
+                if ($newParticipant[$modelData][$fieldData . '_accuracy'] . $newParticipant['TreatmentMaster']['start_date_accuracy'] != 'cc' && $newParticipant[$modelData][$fieldData] && $newParticipant['TreatmentMaster']['start_date'])
+                    $warnings[] = __('intervals from rp have been calculated with at least one inaccuracy date');
+            }
+            // ---- PSA completion ----
+            $tmpPsa = array(
+                'qc_tf_last_psa_ng_per_ml' => '',
+                'qc_tf_last_psa' => '',
+                'qc_tf_prior_rp_psa_ng_per_ml' => '',
+                'qc_tf_prior_rp_psa' => '',
+                'qc_tf_after_rp_psa_ng_per_ml' => '',
+                'qc_tf_after_rp_psa' => '',
+                'qc_tf_prior_bx_dx_psa_ng_per_ml' => '',
+                'qc_tf_prior_bx_dx_psa' => '',
+                'qc_tf_after_bx_dx_psa_ng_per_ml' => '',
+                'qc_tf_after_bx_dx_psa' => '',
+                'qc_tf_prior_bx_chum_psa_ng_per_ml' => '',
+                'qc_tf_prior_bx_chum_psa' => '',
+                'qc_tf_after_bx_chum_psa_ng_per_ml' => '',
+                'qc_tf_after_bx_chum_psa' => '',
+                'qc_tf_prior_bx_last_psa_ng_per_ml' => '',
+                'qc_tf_prior_bx_last_psa' => '',
+                'qc_tf_after_bx_last_psa_ng_per_ml' => '',
+                'qc_tf_after_bx_last_psa' => '',
+                'qc_tf_prior_chemo_psa_ng_per_ml' => '',
+                'qc_tf_prior_chemo_psa' => '',
+                'qc_tf_prior_radiation_psa_ng_per_ml' => '',
+                'qc_tf_prior_radiation_psa' => '',
+                'qc_tf_prior_hormono_psa_ng_per_ml' => '',
+                'qc_tf_prior_hormono_psa' => '');
+            $psaAndEventProperties = array(
+                array(
+                    array('TreatmentMaster','start_date'),
+                    'rp',
+                    array('prior', 'after')),
+                array(
+                    array('Generated','qc_tf_bx_dx_start_date'),
+                    'bx_dx',
+                    array('prior', 'after')),
+                array(
+                    array('Generated','qc_tf_bx_chum_start_date'),
+                    'bx_chum',
+                    array('prior', 'after')),
+                array(
+                    array('Generated','qc_tf_bx_last_start_date'),
+                    'bx_last',
+                    array('prior', 'after')),
+                array(
+                    array('Generated','qc_tf_chemo_first_date'),
+                    'chemo',
+                    array('prior', null)),
+                array(
+                    array('Generated','qc_tf_radiation_first_date'),
+                    'radiation',
+                    array('prior', null)),
+                array(
+                    array('Generated','qc_tf_hormono_first_date'),
+                    'hormono',
+                    array('prior', null)));
+            $newParticipant['Generated'] = array_merge($newParticipant['Generated'], $tmpPsa);
+            if (isset($allPsaFromParticipantId[$newParticipantId])) {
+                foreach ($allPsaFromParticipantId[$newParticipantId] as $newPsa) {
+                    // Note: PSA dates DESC
+                    $psaEventDate = $newPsa['psa_event_date'];
+                    $psaEventDateAccuracy = $newPsa['psa_event_date_accuracy'];
+                    $psaNgPerMl = $newPsa['psa_ng_per_ml'];
+                    if ($psaEventDate) {
+                        // Last PSA
+                        if (empty($newParticipant['Generated']['qc_tf_last_psa'])) {
+                            $newParticipant['Generated']['qc_tf_last_psa_ng_per_ml'] = $psaNgPerMl;
+                            $newParticipant['Generated']['qc_tf_last_psa'] = $psaEventDate;
+                        }
+                        // other data
+                        foreach ($psaAndEventProperties as $newPsaAndEventProperty) {
+                            list ($eventModelField, $psaKey, $afterPriorFlag) = $newPsaAndEventProperty;
+                            $studiedDate = $newParticipant[$eventModelField[0]][$eventModelField[1]];
+                            if ($studiedDate) {
+                                if($afterPriorFlag[0]) {
+                                    // Prior
+                                    if (empty($newParticipant['Generated']['qc_tf_prior_' . $psaKey . '_psa']) && $studiedDate >= $psaEventDate) {
+                                        $newParticipant['Generated']['qc_tf_prior_' . $psaKey . '_psa_ng_per_ml'] = $psaNgPerMl;
+                                        $newParticipant['Generated']['qc_tf_prior_' . $psaKey . '_psa'] = $psaEventDate;
+                                    }
+                                }
+                                if($afterPriorFlag[1]) {
+                                    // After
+                                    if ($studiedDate <= $psaEventDate) {
+                                        $newParticipant['Generated']['qc_tf_after_' . $psaKey . '_psa_ng_per_ml'] = $psaNgPerMl;
+                                        $newParticipant['Generated']['qc_tf_after_' . $psaKey . '_psa'] = $psaEventDate;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        foreach ($warnings as $newWarning) {
+            AppController::addWarningMsg($newWarning);
+        }
+        
+        $arrayToReturn = array(
+            'header' => array(),
+            'data' => $mainResults,
+            'columns_names' => null,
+            'error_msg' => null
+        );
+    
+        return $arrayToReturn;
+    }
+    
     public function getDateDiffInMonths($startDate, $endDate)
     {
         $months = '';
