@@ -18,7 +18,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "";
+$db_schema		= "atimoncologyaxisprod268";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -64,7 +64,7 @@ $cd_icm_sardo_data_import_try_final_queries[] = "UPDATE cd_icm_sardo_data_import
 // Load XML file data in DB sardo_* tables
 //==============================================================================================
 
-$file_name = "Export_CRCHUM.XML";
+$file_name = "ATiM.xml";
 $file_path = str_replace('file_name', $file_name, "/ch06chuma6134/file_name");
 //$file_path = str_replace('file_name', $file_name, "C:/_NicolasLuc/Server/www/file_name");
 if(!file_exists($file_path)) {
@@ -1234,9 +1234,11 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			    foreach($multiple_daily_results_level1 as $sardo_formated_date => $multiple_daily_results_level2) {
 			        //ATiM
 			        $atim_day_results = array();
-			        foreach($atim_all_labos_data[$atim_test_title][$sardo_formated_date] as $atim_labo_result) {
-			            $atim_labo_result['value'] =  $atim_labo_result['value'];
-			            $atim_day_results[$atim_labo_result['value']] = $atim_labo_result['value'];
+			        if(isset($atim_all_labos_data[$atim_test_title][$sardo_formated_date])) {
+    			        foreach($atim_all_labos_data[$atim_test_title][$sardo_formated_date] as $atim_labo_result) {
+    			            $atim_labo_result['value'] =  $atim_labo_result['value'];
+    			            $atim_day_results[$atim_labo_result['value']] = $atim_labo_result['value'];
+    			        }
 			        }
 			        ksort($atim_day_results);
 			        $atim_day_results_strg = implode(' & ', $atim_day_results);
