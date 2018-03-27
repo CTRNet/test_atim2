@@ -1,0 +1,37 @@
+
+
+
+
+
+I - Participant
+-------------------------------------------------------------------------------
+
+The Site ID and the Patient ID of a particpant can not be modified.
+The Site ID and Patient ID combination should be unique.
+Only message and inventory could be added to a participant.
+
+II - Collection
+-------------------------------------------------------------------------------
+
+Collection visit should be a 2 digits number.
+Visit of a collection can only be changed when no aliquot exists.
+Collection will be deleted by the deletion of the 'participant to collection' link when no collection sample exists.
+
+
+
+TFRI 4MS Site IDs
+
+
+
+
+
+
+
+
+
+
+X- Tools
+-------------------------------------------------------------------------------
+
+Drug and protocol Tools inactivated.
+SOP module inactivated.

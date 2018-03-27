@@ -1,4 +1,13 @@
 <?php
+/** **********************************************************************
+ * TFRI-4MS Project.
+ * ***********************************************************************
+ *
+ * ClinicalAnnotation plugin custom code
+ *
+ * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
+ * @since 2018-03-16
+ */
 
 class ParticipantCustom extends Participant
 {
@@ -35,6 +44,13 @@ class ParticipantCustom extends Participant
         return $return;
     }
 
+
+    /**
+     * Validate Site Id & Patient Id combination is unique.
+     * 
+     * @param array $options
+     * @return array|bool
+     */
     function validates($options = array())
     {
         $result = parent::validates($options);
