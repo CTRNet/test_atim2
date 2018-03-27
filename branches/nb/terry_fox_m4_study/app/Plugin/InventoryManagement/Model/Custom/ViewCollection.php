@@ -1,5 +1,4 @@
 <?php
-
 /** **********************************************************************
  * TFRI-M4S Project.
  * ***********************************************************************
@@ -11,6 +10,7 @@
  * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
  * @since 2018-03-16
  */
+ 
 class ViewCollectionCustom extends ViewCollection
 {
 
