@@ -414,7 +414,7 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
