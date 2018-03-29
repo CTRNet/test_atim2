@@ -830,6 +830,19 @@ class ReportsControllerCustom extends ReportsController
             ));
         }
         
+        if (sizeof($data) > (Configure::read('databrowser_and_report_results_display_limit'))) {
+            return array(
+                'header' => null,
+                'data' => null,
+                'columns_names' => null,
+                'error_msg' => 'the report contains too many results - please redefine search criteria'
+            );
+        }
+        
+        //-----------------------------------------------------------------------------------
+        // Profile / Treatment / Imagery
+        //-----------------------------------------------------------------------------------
+        
         $participantIdsToDataKeys = array(
             '-1' => array('-1')
         );
@@ -841,15 +854,60 @@ class ReportsControllerCustom extends ReportsController
             }
             
             // participantIdsToDataKeys
-            if(!isset($participantIdsToDataKeys[$newParticipant['Participant']['id']])) {
+            if (!isset($participantIdsToDataKeys[$newParticipant['Participant']['id']])) {
                 $participantIdsToDataKeys[$newParticipant['Participant']['id']] = array();
             }
             $participantIdsToDataKeys[$newParticipant['Participant']['id']][] = $key;            
             
             // Counter 
             $newParticipant['0']['qc_hb_liver_surg_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_surg_counter_undisp_surg'] = '';
             
-            // Hepatectomy Fields
+            // Imagery fields 1/1
+            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_first_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_first_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_first_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_first_step_r_r_nbr'] = '';
+            
+            // Chemo Fields 1/1
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_finish_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_embolization'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_qc_hb_treatment'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_num_cycles'] = '';
+            
+            // Imagery fields 2/1
+            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_first_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_first_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_first_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_first_step_r_r_nbr'] = '';
+            
+            // Chemo Fields 1/1
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_finish_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_embolization'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_qc_hb_treatment'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_num_cycles'] = '';
+            
+            // Imagery fields 3/1
+            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_first_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_first_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_first_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_first_step_r_r_nbr'] = '';
+            
+            // 1st Hepatectomy Fields
             $newParticipant['0']['qc_hb_liver_surg_first_step_start_date'] = '';
             $newParticipant['0']['qc_hb_liver_surg_first_step_age_at_hepatectomy'] = '';
             $newParticipant['0']['qc_hb_liver_surg_first_step_pve'] = '';
@@ -859,7 +917,52 @@ class ReportsControllerCustom extends ReportsController
             $newParticipant['0']['qc_hb_liver_surg_first_step_operative_bleeding'] = '';
             $newParticipant['0']['qc_hb_liver_surg_first_step_two_steps'] = '';
             $newParticipant['0']['qc_hb_liver_surg_first_step_clavien_score'] = '';
-        
+            
+            // Imagery fields 1/2
+            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_scd_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_scd_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_scd_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_scd_step_r_r_nbr'] = '';
+            
+            // Chemo Fields 1/2
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_finish_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_embolization'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_qc_hb_treatment'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_num_cycles'] = '';
+            
+            // Imagery fields 2/2
+            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_scd_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_scd_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_scd_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_scd_step_r_r_nbr'] = '';
+            
+            // Chemo Fields 2/2
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_finish_date'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_embolization'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_qc_hb_treatment'] = '';
+            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_num_cycles'] = '';
+            
+            // Imagery fields 3/2
+            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_scd_step_counter'] = 0;
+            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_scd_step_counter_undisp_img'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_scd_step_r_r_nbr'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_date'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_type'] = '';
+            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_scd_step_r_r_nbr'] = '';
+            
+            // 2nd Hepatectomy Fields
             $newParticipant['0']['qc_hb_liver_surg_scd_step_start_date'] = '';
             $newParticipant['0']['qc_hb_liver_surg_scd_step_age_at_hepatectomy'] = '';
             $newParticipant['0']['qc_hb_liver_surg_scd_step_pve'] = '';
@@ -869,72 +972,15 @@ class ReportsControllerCustom extends ReportsController
             $newParticipant['0']['qc_hb_liver_surg_scd_step_operative_bleeding'] = '';
             $newParticipant['0']['qc_hb_liver_surg_scd_step_two_steps'] = '';
             $newParticipant['0']['qc_hb_liver_surg_scd_step_clavien_score'] = '';
-            
-            // Chemo Fields
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_finish_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_embolization'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_qc_hb_treatment'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_first_step_num_cycles'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_finish_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_embolization'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_qc_hb_treatment'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_first_step_num_cycles'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_finish_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_embolization'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_qc_hb_treatment'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_1_pre_surg_scd_step_num_cycles'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_finish_date'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_embolization'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_qc_hb_treatment'] = '';
-            $newParticipant['0']['qc_hb_liver_chemo_2_pre_surg_scd_step_num_cycles'] = '';
-            
-            // Imagery fields
-            
-            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_first_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_type'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_first_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_type'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_first_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_type'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_imagery_1_pre_surg_scd_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_type'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_imagery_2_pre_surg_scd_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_type'] = '';
-            
-            $newParticipant['0']['qc_hb_liver_imagery_3_pre_surg_scd_step_counter'] = 0;
-            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_type'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_date'] = '';
-            $newParticipant['0']['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_type'] = '';
         }
         
         // Get Liver Surgery
+        $structurePermissibleValuesCustomModel = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $principalSurgeries = $structurePermissibleValuesCustomModel->getCustomDropdown(array(
+            'Surgery: Principal surgery'
+        ));
+        $principalSurgeries = array_merge($principalSurgeries['defined'], $principalSurgeries['previously_defined']);
+        $principalSurgeries[''] = '';
         
         $sql = "SELECT TreatmentMaster.participant_id, 
             TreatmentMaster.id AS treatment_master_id,
@@ -958,24 +1004,24 @@ class ReportsControllerCustom extends ReportsController
         $queryResults = $this->Report->tryCatchQuery($sql);
         foreach ($queryResults as $newSurgery) {
             $participant_id = $newSurgery['TreatmentMaster']['participant_id'];
-            if(!isset($participantIdsToDataKeys[$participant_id])) {
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            foreach($participantIdsToDataKeys[$participant_id] as $key) {
-                if(!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 $data[$key][0]['qc_hb_liver_surg_counter']++;
                 $newSurgery['0']['age_at_hepatectomy'] = '';
-                if($data[$key]['Participant']['date_of_birth'] && $newSurgery['TreatmentMaster']['start_date']) {
+                if ($data[$key]['Participant']['date_of_birth'] && $newSurgery['TreatmentMaster']['start_date']) {
                     $newSurgery['0']['age_at_hepatectomy'] = $this->getDateDiffInYears($data[$key]['Participant']['date_of_birth'], $newSurgery['TreatmentMaster']['start_date']);
                 }
                 $clavien_score = $newSurgery['0']['clavien_score'];
-                if(strlen($clavien_score)) {
+                if (strlen($clavien_score)) {
                     $clavien_score = explode('|',$clavien_score);
                     $newSurgery['0']['clavien_score'] = array_shift($clavien_score);
                 }
-                if(!strlen($data[$key][0]['qc_hb_liver_surg_first_step_start_date'])) {
+                if (!strlen($data[$key][0]['qc_hb_liver_surg_first_step_start_date'])) {
                     $data[$key][0]['qc_hb_liver_surg_first_step_start_date'] = $this->formatDateForDisplay($newSurgery['TreatmentMaster']['start_date'], $newSurgery['TreatmentMaster']['start_date_accuracy']);
                     $data[$key][0]['qc_hb_liver_surg_first_step_age_at_hepatectomy'] = $newSurgery['0']['age_at_hepatectomy'];
                     $data[$key][0]['qc_hb_liver_surg_first_step_principal_surgery'] = $newSurgery['TreatmentDetail']['principal_surgery'];
@@ -984,7 +1030,7 @@ class ReportsControllerCustom extends ReportsController
                     $data[$key][0]['qc_hb_liver_surg_first_step_operative_bleeding'] = $newSurgery['TreatmentDetail']['operative_bleeding'];
                     $data[$key][0]['qc_hb_liver_surg_first_step_two_steps'] = $newSurgery['TreatmentDetail']['two_steps'];
                     $data[$key][0]['qc_hb_liver_surg_first_step_clavien_score'] = $newSurgery['0']['clavien_score'];
-                } elseif(!strlen($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'])) {
+                } elseif (!strlen($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'])) {
                     $data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] = $this->formatDateForDisplay($newSurgery['TreatmentMaster']['start_date'], $newSurgery['TreatmentMaster']['start_date_accuracy']);
                     $data[$key][0]['qc_hb_liver_surg_scd_step_age_at_hepatectomy'] = $newSurgery['0']['age_at_hepatectomy'];
                     $data[$key][0]['qc_hb_liver_surg_scd_step_principal_surgery'] = $newSurgery['TreatmentDetail']['principal_surgery'];
@@ -993,6 +1039,12 @@ class ReportsControllerCustom extends ReportsController
                     $data[$key][0]['qc_hb_liver_surg_scd_step_operative_bleeding'] = $newSurgery['TreatmentDetail']['operative_bleeding'];
                     $data[$key][0]['qc_hb_liver_surg_scd_step_two_steps'] = $newSurgery['TreatmentDetail']['two_steps'];
                     $data[$key][0]['qc_hb_liver_surg_scd_step_clavien_score'] = $newSurgery['0']['clavien_score'];
+                } else {
+                    $data[$key][0]['qc_hb_liver_surg_counter_undisp_surg'] .= 
+                        (empty($data[$key][0]['qc_hb_liver_surg_counter_undisp_surg'])? '' : ' || ' ).
+                        $this->formatDateForDisplay($newSurgery['TreatmentMaster']['start_date'], $newSurgery['TreatmentMaster']['start_date_accuracy']) .
+                        ' ' . 
+                        $principalSurgeries[$newSurgery['TreatmentDetail']['principal_surgery']];                    
                 }
             }            
         }
@@ -1011,20 +1063,20 @@ class ReportsControllerCustom extends ReportsController
         $queryResults = $this->Report->tryCatchQuery($sql);
         foreach ($queryResults as $newPve) {
             $participant_id = $newPve['EventMaster']['participant_id'];
-            if(!isset($participantIdsToDataKeys[$participant_id])) {
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            foreach($participantIdsToDataKeys[$participant_id] as $key) {
-                if(!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                if($newPve['EventMaster']['event_date']) {
-                    if($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newPve['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
-                        if(empty($data[$key][0]['qc_hb_liver_surg_first_step_pve'])) {
+                if ($newPve['EventMaster']['event_date']) {
+                    if ($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newPve['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
+                        if (empty($data[$key][0]['qc_hb_liver_surg_first_step_pve'])) {
                             $data[$key][0]['qc_hb_liver_surg_first_step_pve'] = $this->formatDateForDisplay($newPve['EventMaster']['event_date'], $newPve['EventMaster']['event_date_accuracy']);
                         }
-                    } elseif($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newPve['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
-                        if(empty($data[$key][0]['qc_hb_liver_surg_scd_step_pve'])) {
+                    } elseif ($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newPve['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
+                        if (empty($data[$key][0]['qc_hb_liver_surg_scd_step_pve'])) {
                             $data[$key][0]['qc_hb_liver_surg_scd_step_pve'] = $this->formatDateForDisplay($newPve['EventMaster']['event_date'], $newPve['EventMaster']['event_date_accuracy']);
                         }
                     }
@@ -1040,11 +1092,11 @@ class ReportsControllerCustom extends ReportsController
         $txEmboControlId = null;
         foreach ($queryResults as $newTxControl) {
             $txControls[$newTxControl['TreatmentControl']['id']] = $newTxControl['TreatmentControl']['disease_site'].'-'.$newTxControl['TreatmentControl']['tx_method'];
-            if($newTxControl['TreatmentControl']['tx_method'] == 'chemo-embolization') {
+            if ($newTxControl['TreatmentControl']['tx_method'] == 'chemo-embolization') {
                 $txEmboControlId = $newTxControl['TreatmentControl']['id'];
             }
         }
-        if(sizeof($txControls) != 2 || !in_array('hepatobiliary-chemotherapy', $txControls) || !in_array('hepatobiliary-chemo-embolization', $txControls)) {
+        if (sizeof($txControls) != 2 || !in_array('hepatobiliary-chemotherapy', $txControls) || !in_array('hepatobiliary-chemo-embolization', $txControls)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         $sql = "SELECT TreatmentMaster.participant_id,
@@ -1071,49 +1123,49 @@ class ReportsControllerCustom extends ReportsController
         $queryResults = $this->Report->tryCatchQuery($sql);
         foreach ($queryResults as $newChemo) {
             $participant_id = $newChemo['TreatmentMaster']['participant_id'];
-            if(!isset($participantIdsToDataKeys[$participant_id])) {
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            foreach($participantIdsToDataKeys[$participant_id] as $key) {
-                if(!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                if($newChemo['TreatmentMaster']['start_date']) {
-                    if($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newChemo['TreatmentMaster']['start_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
-                        if(empty($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'])) {
+                if ($newChemo['TreatmentMaster']['start_date']) {
+                    if ($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newChemo['TreatmentMaster']['start_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
+                        if (empty($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'])) {
                             // 2nd chemo pre liver surgery step 1
                             $chemoNbr = '2';
                             $liverSurgStep = 'first';
-                            foreach($chemoReportKeys as $modelField) {
+                            foreach ($chemoReportKeys as $modelField) {
                                 list($model, $field) = explode('.', $modelField);
                                 $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_".$field] = $newChemo[$model][$field];
                             }
                             $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_embolization"] = $newChemo['TreatmentMaster']['treatment_control_id'] == $txEmboControlId? 'y' : 'n';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'])) {
+                        } elseif (empty($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'])) {
                             // 1st chemo pre liver surgery step 1
                             $chemoNbr = '1';
                             $liverSurgStep = 'first';
-                            foreach($chemoReportKeys as $modelField) {
+                            foreach ($chemoReportKeys as $modelField) {
                                 list($model, $field) = explode('.', $modelField);
                                 $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_".$field] = $newChemo[$model][$field];
                             }
                             $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_embolization"] = $newChemo['TreatmentMaster']['treatment_control_id'] == $txEmboControlId? 'y' : 'n';
                         }
-                    } elseif($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newChemo['TreatmentMaster']['start_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
-                        if(empty($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'])) {
+                    } elseif ($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newChemo['TreatmentMaster']['start_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
+                        if (empty($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'])) {
                             // 2nd chemo pre liver surgery step 2
                             $chemoNbr = '2';
                             $liverSurgStep = 'scd';
-                            foreach($chemoReportKeys as $modelField) {
+                            foreach ($chemoReportKeys as $modelField) {
                                 list($model, $field) = explode('.', $modelField);
                                 $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_".$field] = $newChemo[$model][$field];
                             }
                             $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_embolization"] = $newChemo['TreatmentMaster']['treatment_control_id'] == $txEmboControlId? 'y' : 'n';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'])) {
+                        } elseif (empty($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'])) {
                             // 1st chemo pre liver surgery step 2
                             $chemoNbr = '1';
                             $liverSurgStep = 'scd';
-                            foreach($chemoReportKeys as $modelField) {
+                            foreach ($chemoReportKeys as $modelField) {
                                 list($model, $field) = explode('.', $modelField);
                                 $data[$key][0]["qc_hb_liver_chemo_".$chemoNbr."_pre_surg_".$liverSurgStep."_step_".$field] = $newChemo[$model][$field];
                             }
@@ -1132,11 +1184,11 @@ class ReportsControllerCustom extends ReportsController
         $mriControlId = null;
         foreach ($queryResults as $newEvControl) {
             $evControls[$newEvControl['EventControl']['id']] = $newEvControl['EventControl']['event_type'];
-            if($newEvControl['EventControl']['event_type'] == 'medical imaging abdominal MRI') {
+            if ($newEvControl['EventControl']['event_type'] == 'medical imaging abdominal MRI') {
                 $mriControlId = $newEvControl['EventControl']['id'];
             }
         }
-        if(sizeof($evControls) != 2 || !in_array('medical imaging abdominal CT-scan', $evControls) || !in_array('medical imaging abdominal MRI', $evControls)) {
+        if (sizeof($evControls) != 2 || !in_array('medical imaging abdominal CT-scan', $evControls) || !in_array('medical imaging abdominal MRI', $evControls)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
@@ -1144,8 +1196,9 @@ class ReportsControllerCustom extends ReportsController
             EventMaster.id AS treatment_master_id,
             EventMaster.event_date,
             EventMaster.event_date_accuracy,
-            EventMaster.event_control_id
-            FROM event_masters EventMaster
+            EventMaster.event_control_id,
+            EventDetail.request_nbr
+            FROM event_masters EventMaster INNER JOIN qc_hb_ed_hepatobilary_medical_imagings EventDetail ON id = event_master_id
             WHERE EventMaster.deleted <> 1
             AND EventMaster.participant_id IN('".implode("','", array_keys($participantIdsToDataKeys))."')
             AND EventMaster.event_control_id IN (".implode(',', array_keys($evControls)).")
@@ -1153,68 +1206,291 @@ class ReportsControllerCustom extends ReportsController
         $queryResults = $this->Report->tryCatchQuery($sql);
         foreach ($queryResults as $newImagery) {
             $participant_id = $newImagery['EventMaster']['participant_id'];
-            if(!isset($participantIdsToDataKeys[$participant_id])) {
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            foreach($participantIdsToDataKeys[$participant_id] as $key) {
-                if(!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                if($newImagery['EventMaster']['event_date']) {
-                    if($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date']) {
+                if ($newImagery['EventMaster']['event_date']) {                
+                    if ($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_first_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        }
-                    } elseif($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date']) {
+                            $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_first_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_1_pre_surg_first_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
+                        }                        
+                    } elseif ($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_2_pre_surg_first_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_2_pre_surg_first_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } 
-                    } elseif($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
+                            $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_2_pre_surg_first_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_2_pre_surg_first_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
+                        }   
+                    } elseif ($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_3_pre_surg_first_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_first_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        }
-                    } elseif($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date']) {
+                            $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_first_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_3_pre_surg_first_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_3_pre_surg_first_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
+                        }  
+                    } elseif ($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_scd_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_scd_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
+                            $data[$key][0]['qc_hb_liver_imagery_1_1_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_scd_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_1_pre_surg_scd_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
                         }  
-                    } elseif($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date']) {
+                    } elseif ($data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_2_pre_surg_scd_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_2_pre_surg_scd_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_2_2_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
+                            $data[$key][0]['qc_hb_liver_imagery_2_1_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_2_pre_surg_scd_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_2_pre_surg_scd_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
                         }  
-                    } elseif($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
+                    } elseif ($data[$key][0]['qc_hb_liver_surg_scd_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_surg_scd_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_3_pre_surg_scd_step_counter']++;
-                        if(empty($data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_date'])) {
+                        if (empty($data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
-                        } elseif(empty($data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_date'])) {
+                            $data[$key][0]['qc_hb_liver_imagery_3_2_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } elseif (empty($data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_date'])) {
                             $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_date'] = $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_scd_step_event_type'] = $newImagery['EventMaster']['event_control_id'] == $mriControlId? 'medical imaging abdominal MRI': 'medical imaging abdominal CT-scan';
+                            $data[$key][0]['qc_hb_liver_imagery_3_1_pre_surg_scd_step_r_r_nbr'] = $newImagery['EventDetail']['request_nbr'];
+                        } else {
+                            $data[$key][0]['qc_hb_liver_imagery_3_pre_surg_scd_step_counter_undisp_img'] .=
+                                (empty($data[$key][0]['qc_hb_liver_imagery_3_pre_surg_scd_step_counter_undisp_img'])? '' : ' || ' ).
+                                $this->formatDateForDisplay($newImagery['EventMaster']['event_date'], $newImagery['EventMaster']['event_date_accuracy']) .
+                                ' ' .
+                                ($newImagery['EventMaster']['event_control_id'] == $mriControlId? __('medical imaging abdominal MRI'): __('medical imaging abdominal CT-scan'));
                         }  
+                    }
+                }
+            }
+        }
+            
+        // Re-orders chemo and images when previous record is empty
+        foreach ($data as &$tmpNewParticipant) {
+            // Define data to move
+            $moveRules = array();
+            foreach (array( 'first', 'scd') as $step) {
+                $moveRules[$step] = array();
+                if (empty($tmpNewParticipant[0]['qc_hb_liver_chemo_1_pre_surg_' . $step . '_step_start_date']) && ! empty($tmpNewParticipant[0]['qc_hb_liver_chemo_2_pre_surg_' . $step . '_step_start_date'])) {
+                    $moveRules[$step]['chemo_2_to_1'] = '-';
+                } elseif (empty($tmpNewParticipant[0]['qc_hb_liver_chemo_1_pre_surg_' . $step . '_step_start_date']) 
+                && empty($tmpNewParticipant[0]['qc_hb_liver_chemo_2_pre_surg_' . $step . '_step_start_date']) 
+                && $tmpNewParticipant[0]['qc_hb_liver_imagery_3_pre_surg_' . $step . '_step_counter']) {
+                    $moveRules[$step]['no_chemo'] = '-';
+                }
+                for ($tmpId = 1; $tmpId < 4; $tmpId ++) {
+                    if (empty($tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_1_pre_surg_' . $step . '_step_event_date']) && ! empty($tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_2_pre_surg_' . $step . '_step_event_date'])) {
+                        $moveRules[$step]['imagery'][$tmpId] = '-';
+                    }
+                }
+            }
+            // Move data
+            foreach (array('first', 'scd') as $step) {
+                if (isset($moveRules[$step]['imagery'])) {
+                    foreach ($tmpNewParticipant[0] as $field => $value) {
+                        foreach($moveRules[$step]['imagery'] as $tmpId => $unusedData) {
+                            // Move imagery in second position to first position
+                            if (preg_match('/^qc_hb_liver_imagery_' . $tmpId . '_2_pre_surg_' . $step . '_step(.*)$/', $field, $matches)) {
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_1_pre_surg_' . $step . '_step' . $matches[1]] = $value;
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_2_pre_surg_' . $step . '_step' . $matches[1]] = '';
+                            }
+                        }
+                    }
+                }
+                if (isset($moveRules[$step]['chemo_2_to_1']) || isset($moveRules[$step]['no_chemo'])) {
+                    foreach ($tmpNewParticipant[0] as $field => $value) {
+                        if (isset($moveRules[$step]['chemo_2_to_1'])) {
+                            // Move chemo in second position to first position
+                            if (preg_match('/^qc_hb_liver_chemo_2_pre_surg_' . $step . '_step(.*)$/', $field, $matches)) {
+                                $tmpNewParticipant[0]['qc_hb_liver_chemo_1_pre_surg_' . $step . '_step' . $matches[1]] = $value;
+                                $tmpNewParticipant[0]['qc_hb_liver_chemo_2_pre_surg_' . $step . '_step' . $matches[1]] = '';
+                            }
+                            if (preg_match('/^qc_hb_liver_imagery_2(.*)_pre_surg_' . $step . '_step(.*)$/', $field, $matches)) {
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_1' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = $value;
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_2' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = '';
+                            }
+                            if (preg_match('/^qc_hb_liver_imagery_3(.*)_pre_surg_' . $step . '_step(.*)$/', $field, $matches)) {
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_2' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = $value;
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_3' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = '';
+                            }
+                        } else {
+                            // Move 3rd imagery to first imagery position
+                            if (preg_match('/^qc_hb_liver_imagery_3(.*)_pre_surg_' . $step . '_step(.*)$/', $field, $matches)) {
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_1' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = $value;
+                                $tmpNewParticipant[0]['qc_hb_liver_imagery_3' . $matches[1] . '_pre_surg_' . $step . '_step' . $matches[2]] = '';
+                            }
+                        }
+                    }
+                }
+            }
+            // Remove
+            for ($tmpId = 1; $tmpId < 4; $tmpId ++) {
+                if ($tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_pre_surg_' . $step . '_step_counter'] == '0') {
+                    $tmpNewParticipant[0]['qc_hb_liver_imagery_' . $tmpId . '_pre_surg_' . $step . '_step_counter'] = '';
+                }
+            }
+            
+            // Add fields for next section of the report
+            
+            $tmpNewParticipant[0]['qc_hb_liver_surg_first_recurrence_date'] = '';
+            $tmpNewParticipant[0]['qc_hb_liver_surg_first_recurrence_status'] = '';
+            $tmpNewParticipant[0]['localization'] = '';
+            $tmpNewParticipant[0]['qc_hb_liver_last_followup_date'] = '';
+            $tmpNewParticipant[0]['status'] = '';
+            $tmpNewParticipant[0]['qc_hb_recurrence_treatment'] = '';
+
+            $tmpNewParticipant[0]['qc_hb_liver_metastasis_report_date'] = '';
+            $tmpNewParticipant[0]['rubbia_brandt'] = ''; 
+            $tmpNewParticipant[0]['blazer'] = ''; 
+            $tmpNewParticipant[0]['lesions_nbr'] = ''; 
+            $tmpNewParticipant[0]['tumor_size_greatest_dimension'] = ''; 
+            $tmpNewParticipant[0]['additional_dimension_a'] = ''; 
+            $tmpNewParticipant[0]['additional_dimension_b'] = ''; 
+            $tmpNewParticipant[0]['surgical_resection_margin'] = ''; 
+            $tmpNewParticipant[0]['distance_of_tumor_from_closest_surgical_resection_margin'] = ''; 
+            $tmpNewParticipant[0]['distance_unit'] = ''; 
+            $tmpNewParticipant[0]['specify_margin'] = ''; 
+            $tmpNewParticipant[0]['k_ras'] = ''; 
+            $tmpNewParticipant[0]['k_ras_codon'] = ''; 
+            $tmpNewParticipant[0]['k_ras_mutation'] = ''; 
+            $tmpNewParticipant[0]['n_ras'] = ''; 
+            $tmpNewParticipant[0]['n_ras_codon'] = ''; 
+            $tmpNewParticipant[0]['n_ras_mutation'] = '';
+        }
+        
+        //-----------------------------------------------------------------------------------
+        // Follow-up
+        //-----------------------------------------------------------------------------------
+                
+        $sql = "SELECT EventMaster.participant_id,
+            EventMaster.id AS treatment_master_id,
+            EventMaster.event_date,
+            EventMaster.event_date_accuracy,
+            EventMaster.event_control_id,
+            EventDetail.recurrence_status,
+            EventDetail.disease_status,
+            EventDetail.recurrence_status,
+            EventDetail.qc_hb_recurrence_localization,
+            EventDetail.qc_hb_recurrence_treatment
+            FROM event_masters EventMaster INNER JOIN ed_all_clinical_followups EventDetail ON id = event_master_id
+            WHERE EventMaster.deleted <> 1
+            AND EventMaster.participant_id IN('".implode("','", array_keys($participantIdsToDataKeys))."')
+            ORDER BY EventMaster.participant_id ASC, EventMaster.event_date DESC";        
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newFollowUp) {
+            $participant_id = $newFollowUp['EventMaster']['participant_id'];
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+                // 1st recurrence
+                if (preg_match('/systemic/', $newFollowUp['EventDetail']['recurrence_status'])) {
+                    if ($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newFollowUp['EventMaster']['event_date'] >= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
+                        if( !$data[$key][0]['qc_hb_liver_surg_first_recurrence_date']) {
+                            $data[$key][0]['qc_hb_liver_surg_first_recurrence_date'] = $this->formatDateForDisplay($newFollowUp['EventMaster']['event_date'], $newFollowUp['EventMaster']['event_date_accuracy']);
+                            $data[$key][0]['qc_hb_liver_surg_first_recurrence_status'] = $newFollowUp['EventDetail']['recurrence_status'];
+                            $data[$key][0]['localization'] = $newFollowUp['EventDetail']['qc_hb_recurrence_localization'];
+                        }
+                    }
+                    
+                }
+                // Last followup
+                if (!$data[$key][0]['qc_hb_liver_last_followup_date']) {
+                    $data[$key][0]['qc_hb_liver_last_followup_date'] = $this->formatDateForDisplay($newFollowUp['EventMaster']['event_date'], $newFollowUp['EventMaster']['event_date_accuracy']);
+                    $data[$key][0]['status'] = $newFollowUp['EventDetail']['disease_status'];
+                    $data[$key][0]['qc_hb_recurrence_treatment'] = $newFollowUp['EventDetail']['qc_hb_recurrence_treatment'];
+                }
+            }
+        }
+        
+        //-----------------------------------------------------------------------------------
+        // Liver Metastasis Report
+        //-----------------------------------------------------------------------------------
+        
+        $sql = "SELECT EventMaster.participant_id,
+            EventMaster.id AS treatment_master_id,
+            EventMaster.event_date,
+            EventMaster.event_date_accuracy,
+            EventMaster.event_control_id,
+            EventDetail.*
+            FROM event_masters EventMaster INNER JOIN qc_hb_ed_lab_report_liver_metastases EventDetail ON id = event_master_id
+            WHERE EventMaster.deleted <> 1
+            AND EventMaster.participant_id IN('".implode("','", array_keys($participantIdsToDataKeys))."')
+            ORDER BY EventMaster.participant_id ASC, EventMaster.event_date DESC";
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newReport) {
+            $participant_id = $newReport['EventMaster']['participant_id'];
+            if (!isset($participantIdsToDataKeys[$participant_id])) {
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
+            foreach ($participantIdsToDataKeys[$participant_id] as $key) {
+                if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+                // 1st recurrence
+                if ($data[$key][0]['qc_hb_liver_surg_first_step_start_date'] && $newReport['EventMaster']['event_date'] >= $data[$key][0]['qc_hb_liver_surg_first_step_start_date']) {
+                    if( !$data[$key][0]['qc_hb_liver_metastasis_report_date']) {
+                        $data[$key][0]['qc_hb_liver_metastasis_report_date'] = $this->formatDateForDisplay($newReport['EventMaster']['event_date'], $newReport['EventMaster']['event_date_accuracy']);
+                        $data[$key]['EventDetail'] = $newReport['EventDetail'];
                     }
                 }
             }
@@ -1230,11 +1506,11 @@ class ReportsControllerCustom extends ReportsController
     
     private function getDateDiffInYears($startDate, $endDate) {
         $months = '';
-        if(!empty($startDate) && !empty($endDate)) {
+        if (!empty($startDate) && !empty($endDate)) {
             $startDateOb = new DateTime($startDate);
             $endDateOb = new DateTime($endDate);
             $interval = $startDateOb->diff($endDateOb);
-            if($interval->invert) {
+            if ($interval->invert) {
                 $months = 'ERR';
             } else {
                 $months = $interval->y;
