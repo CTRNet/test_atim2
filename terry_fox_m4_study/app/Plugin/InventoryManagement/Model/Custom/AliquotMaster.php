@@ -17,6 +17,8 @@ class AliquotMasterCustom extends AliquotMaster
     
     var $name = "AliquotMaster";
     
+    private $aliquotLabels = array();
+    
     /**
      * Will return an empty array considering that no consent exists into TFRI-M4S version.
      *
@@ -64,7 +66,7 @@ class AliquotMasterCustom extends AliquotMaster
             case 'blood-plasma':
                 $suffix = 'BL-PL';
                 break;
-            case 'blood-pbmc':
+            case 'blood-wbc':
                 $suffix = 'BL-WBC';
                 break;
             // Bone Marrow
@@ -74,14 +76,14 @@ class AliquotMasterCustom extends AliquotMaster
             case 'bone marrow-plasma':
                 $suffix = 'BM-PL';
                 break;
-            case 'bone marrow-pbmc':
+            case 'bone marrow-wbc':
                 $suffix = 'BM-WBC';
                 break;
-            case 'bone marrow-b cell':
+            case 'bone marrow-cd138 cells':
                 $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
                 $joins = array(
                     array(
-                        'table' => 'sd_der_b_cells',
+                        'table' => 'tfri_m4s_sd_der_cd138s',
                         'alias' => 'SampleDetail',
                         'type' => 'INNER',
                         'conditions' => array(
@@ -101,7 +103,7 @@ class AliquotMasterCustom extends AliquotMaster
                 break;
         }
         
-        return $tfriM4sSiteId . '-' . $tfriM4sVisitId . '-' . $tfriM4sSitePatientId . '-' . $suffix;
+        return $tfriM4sSiteId . '-' . $tfriM4sSitePatientId . '-' . $tfriM4sVisitId . '-' . $suffix;
     }
 
     /**
@@ -113,5 +115,78 @@ class AliquotMasterCustom extends AliquotMaster
         $this->tryCatchQuery($queryToUpdate);
         $this->tryCatchQuery(str_replace("aliquot_masters", "aliquot_masters_revs", $queryToUpdate));
     }
+    
+    /**
+     * Additional validation rule to validate aliquot label.
+     *
+     * @see Model::validates()
+     * @param array $options
+     * @return bool
+     */
+    public function validates($options = array())
+    {
+        if (isset($this->data['AliquotMaster']['aliquot_label'])) {
+            $this->checkDuplicatedAliquotLabel($this->data);
+        }
+    
+        return parent::validates($options);
+    }
 
+    /**
+     * Check created barcodes are not duplicated and set error if they are.
+     *
+     * @param $aliquotData
+     * @return Following results array:
+     *         array(
+     * 'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+     * 'messages' => array($message1, $message2, ...)
+     * )
+     * @internal param Aliquots $aliquotsData data stored into an array having structure like either:*            data stored into an array having structure like either:
+     *            - $aliquotsData = array('AliquotMaster' => array(...))
+     *            or
+     *            - $aliquotsData = array(array('AliquotMaster' => array(...)))
+     *
+     * @author N. Luc
+     * @date 2018-04-03
+     */
+    public function checkDuplicatedAliquotLabel($aliquotData)
+    {
+        
+        // check data structure
+        $tmpArrToCheck = array_values($aliquotData);
+        if ((! is_array($aliquotData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['AliquotMaster']))) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        
+        $aliquotLabel = $aliquotData['AliquotMaster']['aliquot_label'];
+        
+        // Check duplicated aliquot_label into submited record
+        if (! strlen($aliquotLabel)) {
+            // Not studied
+        } elseif (isset($this->aliquotLabels[$aliquotLabel])) {
+            $this->validationErrors['aliquot_label'][] = str_replace('%s', $aliquotLabel, __('you can not record aliquot_label [%s] twice'));
+        } else {
+            $this->aliquotLabels[$aliquotLabel] = '';
+        }
+        
+        // Check duplicated aliquot_label into db
+        $criteria = array(
+            'AliquotMaster.aliquot_label' => $aliquotLabel
+        );
+        $aliquotsHavingDuplicatedBarcode = $this->find('all', array(
+            'conditions' => array(
+                'AliquotMaster.aliquot_label' => $aliquotLabel
+            ),
+            'recursive' => - 1
+        ));
+        ;
+        if (! empty($aliquotsHavingDuplicatedBarcode)) {
+            foreach ($aliquotsHavingDuplicatedBarcode as $duplicate) {
+                if ((! array_key_exists('id', $aliquotData['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquotData['AliquotMaster']['id'])) {
+                    $this->validationErrors['aliquot_label'][] = str_replace('%s', $aliquotLabel, __('the aliquot_label [%s] has already been recorded'));
+                }
+            }
+        }
+    }
+    
 }
