@@ -16,9 +16,3 @@ if ($collectionData['Collection']['tfri_m4s_visit_id'] != $this->request->data['
         $this->Collection->validationErrors['participant_id'][] = __('visit of a collection can not be modified when at least one aliquot already exists');
     }
 }
-
-
-
-
-
-

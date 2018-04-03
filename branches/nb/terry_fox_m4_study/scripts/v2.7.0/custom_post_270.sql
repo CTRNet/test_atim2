@@ -203,10 +203,10 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
 -- B Cells
 UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',tfri_m4s_sd_cd_318') WHERE sample_type = 'b cell';
-ALTER TABLE sd_der_b_cells
-   ADD COLUMN tfri_m4s_cd_138 char(1) default null;
-ALTER TABLE sd_der_b_cells_revs
-   ADD COLUMN tfri_m4s_cd_138 char(1) default null;   
+-- ALTER TABLE sd_der_b_cells
+--    ADD COLUMN tfri_m4s_cd_138 char(1) default null;
+-- ALTER TABLE sd_der_b_cells_revs
+--   ADD COLUMN tfri_m4s_cd_138 char(1) default null;   
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_m4s_pos_neg_unk", "", "", NULL);
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("p", "positive"),("n", "negative");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
@@ -244,25 +244,24 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_tubes' AND `field`='concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_concentration_unit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cell_viability' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 ALTER TABLE ad_tubes
-   ADD COLUMN tfri_m4s_freezing_media VARCHAR(50) DEFAULT '';
+   ADD COLUMN tfri_m4s_media VARCHAR(50) DEFAULT '';
 ALTER TABLE ad_tubes_revs
-   ADD COLUMN tfri_m4s_freezing_media VARCHAR(50) DEFAULT '';
-INSERT INTO structure_value_domains (domain_name, source) VALUES ('tfri_m4s_freezing_media', "StructurePermissibleValuesCustom::getCustomDropdown('Freezing Medias')");
+   ADD COLUMN tfri_m4s_media VARCHAR(50) DEFAULT '';
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('tfri_m4s_media', "StructurePermissibleValuesCustom::getCustomDropdown('Medias')");
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
-('Freezing Medias', 1, 50, 'inventory');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Freezing Medias');
+('Medias', 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Medias');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('rna-later', 'RNA-Later',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
-('clonoseq', 'Clonoseq',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+('rna-later', 'RNA-Later',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'tfri_m4s_freezing_media', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_freezing_media') , '0', '', '', '', 'freezing media', '');
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'tfri_m4s_media', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_media') , '0', '', '', '', 'media', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='tfri_m4s_freezing_media' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_freezing_media')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='freezing media' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='tfri_m4s_media' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_media')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='media' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('freezing media', 'Freezing Media', '');
+('media', 'Media', '');
 -- b cell slide
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO structures(`alias`) VALUES ('tfri_m4s_ad_b_cell_slide');
@@ -322,6 +321,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('InventoryManagement', 'AliquotDetail', 'ad_cell_slides', 'tfri_m4s_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_methods') , '0', '', '', '', 'method', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='tfri_m4s_ad_b_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='83' WHERE structure_id=(SELECT id FROM structures WHERE alias='tfri_m4s_ad_b_cell_slide') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_staining' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_stainings') AND `flag_confidential`='0');
 -- b cell tube
 UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',tfri_m4s_ad_b_cell_tube') WHERE databrowser_label = 'b cell|tube';
 INSERT INTO structures(`alias`) VALUES ('tfri_m4s_ad_b_cell_tube');
@@ -334,73 +334,264 @@ ALTER TABLE ad_tubes
 ALTER TABLE ad_tubes_revs
   ADD COLUMN tfri_m4s_purity varchar(250) DEFAULT NULL;
 
-
-
-
-
-
-tfri_m4s_ad_b_cell_slide
-
-
-
- 
-  
-  
-  
-  
-  
-  
- -- Custom Drop Down List
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- Customization after first revision with Dr Alli - 20180403
+-- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_permissible_values_custom_controls 
-SET flag_active = 0
-WHERE id < 18 
-AND name NOT IN ('Laboratory Staff', 'Orders Institutions', 'Orders Contacts', 'Aliquot Use and Event Types', 'Storage Types', 'Storage Coordinate Titles', 'Participant Message Types',
-'Password Reset Questions');
+-- WBC
 
+INSERT INTO sample_controls(sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('wbc', 'derivative', 'sd_undetailed_derivatives,derivatives', 'tfri_m4s_sd_der_wbcs', 'wbc');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'bone marrow'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'),1),
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'blood'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'),1);
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label, volume_unit)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'), 'tube', 'ad_der_cell_tubes_incl_ml_vol,tfri_m4s_ad_der_wbc', 'ad_tubes', '1', 'wbc|tube', 'ml');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'wbc|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'wbc|tube'), '1');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('wbc', 'WBC', '');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(4, 229);
+CREATE TABLE `tfri_m4s_sd_der_wbcs` (
+  `sample_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `tfri_m4s_sd_der_wbcs_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `tfri_m4s_sd_der_wbcs`
+  ADD KEY `FK_tfri_m4s_sd_der_wbcs_sample_masters` (`sample_master_id`);
+ALTER TABLE `tfri_m4s_sd_der_wbcs_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `tfri_m4s_sd_der_wbcs_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tfri_m4s_sd_der_wbcs`
+  ADD CONSTRAINT `FK_tfri_m4s_sd_der_wbcs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+ALTER TABLE ad_tubes
+   ADD COLUMN tfri_m4s_method VARCHAR(50) DEFAULT '';
+ALTER TABLE ad_tubes_revs
+   ADD COLUMN tfri_m4s_method VARCHAR(50) DEFAULT '';
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('tfri_m4s_method', "StructurePermissibleValuesCustom::getCustomDropdown('WBC Methods')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('WBC Methods', 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'WBC Methods');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('clonoseq', 'Clonoseq',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+INSERT INTO structures(`alias`) VALUES ('tfri_m4s_ad_der_wbc');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'tfri_m4s_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_method') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_der_wbc'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='tfri_m4s_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
+-- CD138
 
+INSERT INTO sample_controls(sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('cd138 cells', 'derivative', 'sd_undetailed_derivatives,derivatives,tfri_m4s_sd_cd_318', 'tfri_m4s_sd_der_cd138s', 'cd138 cells');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'bone marrow'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'),1);
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label, volume_unit)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'tube', 'ad_der_cell_tubes_incl_ml_vol,tfri_m4s_ad_b_cell_tube', 'ad_tubes', '1', 'cd138 cells|tube', 'ml');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), '1');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('cd138 cells', 'CD138 Cells', '');
+CREATE TABLE `tfri_m4s_sd_der_cd138s` (
+  `sample_master_id` int(11) NOT NULL,
+  `tfri_m4s_cd_138` char(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `tfri_m4s_sd_der_cd138s_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL,
+  `tfri_m4s_cd_138` char(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `tfri_m4s_sd_der_cd138s`
+  ADD KEY `FK_tfri_m4s_sd_der_cd138s_sample_masters` (`sample_master_id`);
+ALTER TABLE `tfri_m4s_sd_der_cd138s_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `tfri_m4s_sd_der_cd138s_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tfri_m4s_sd_der_cd138s`
+  ADD CONSTRAINT `FK_tfri_m4s_sd_der_cd138s_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'slide', 'ad_der_cell_slides,tfri_m4s_ad_cd138_cell_slide', 'ad_cell_slides', '1', 'cd138 cells|slide');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|slide'), '1');
+INSERT INTO structures(`alias`) VALUES ('tfri_m4s_ad_cd138_cell_slide');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_staining' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_stainings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='staining' AND `language_tag`=''), '1', '83', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_cell_count' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='cell count' AND `language_tag`=''), '1', '72', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_cell_count_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '73', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_purity' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='purity' AND `language_tag`=''), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(231);
 
+-- FMed
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Medias');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('fmed', 'FMED',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
+-- Inactivate custom drop down list not used
 
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'xenog%';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Laboratory Sites';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Specimen Collection Sites';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Specimen Supplier Departments';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'SOP Versions';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Quality Control Tools';
 
+-- Hide Quality Controls and Specimen Reviews
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/QualityCtrls%';
 
+-- Study
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
 
+-- Sample & Aliquot View
 
+UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewSample', '', 'tfri_m4s_site_patient_id', 'input',  NULL , '0', 'size=5', '', '', 'site patient id', ''), 
+('InventoryManagement', 'ViewSample', '', 'tfri_m4s_site_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_site_id') , '0', '', '', '', 'site id', ''), 
+('InventoryManagement', 'ViewSample', '', 'tfri_m4s_visit_id', 'select',  NULL , '0', 'size=2', '', '', 'visit', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='tfri_m4s_site_patient_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='site patient id' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='tfri_m4s_site_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_site_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site id' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='tfri_m4s_visit_id' AND `type`='select' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='visit' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET  `type`='input' WHERE model='ViewSample' AND tablename='' AND field='tfri_m4s_visit_id' AND `type`='select' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', '', 'tfri_m4s_site_patient_id', 'input',  NULL , '0', 'size=5', '', '', 'site patient id', ''), 
+('InventoryManagement', 'ViewAliquot', '', 'tfri_m4s_site_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_site_id') , '0', '', '', '', 'site id', ''), 
+('InventoryManagement', 'ViewAliquot', '', 'tfri_m4s_visit_id', 'select',  NULL , '0', 'size=2', '', '', 'visit', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='tfri_m4s_site_patient_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='site patient id' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='tfri_m4s_site_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_site_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site id' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='tfri_m4s_visit_id' AND `type`='select' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='visit' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET  `type`='input' WHERE model='ViewAliquot' AND tablename='' AND field='tfri_m4s_visit_id' AND `type`='select' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- TMA Block
 
+UPDATE storage_controls SET flag_active = 0 WHERE is_tma_block = 1;
 
+-- DataBrowser and Report
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'FamilyHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
 
-I seek your kind help for this: 
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_5_name';
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'list all related diagnosis';
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'participant identifiers';
 
-After making a couple of sample entries in ATiM, how do we create a report?
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'create quality control';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'create quality control';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'participant identifiers report';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'MiscIdentifier' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ConsentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'FamilyHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'QualityCtrl' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'EventMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'SpecimenReviewMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ParticipantContact' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ReproductiveHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaBlock' AND label = 'create tma slide';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add tma slide use';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlideUse' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
 
-I am looking for a report that gives complete details about the samples covering the unique identifier and all the derivatives obtained from the parent sample.
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'create participant message (applied to all)';
 
+-- Blood type : Change to be a custom drop down list
 
+UPDATE structure_value_domains AS svd 
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id 
+SET `flag_active`="0" 
+WHERE svd.domain_name='blood_type';
+UPDATE structure_value_domains 
+SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Blood Types')"
+WHERE domain_name = 'blood_type';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Blood Types', 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('EDTA', 'EDTA',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('gel CSA', 'gel CSA',  '', '0', @control_id, @modified, @modified, @modified_by, @modified_by),
+('heparin', 'heparin',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('paxgene', 'paxgene',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('unknown', 'unknown',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('ZCSA', 'ZCSA',  '', '0', @control_id, @modified, @modified, @modified_by, @modified_by);
 
+-- Check duplication of aliquot labels
 
+INSERT IGNORE i18n (id,en,fr)
+VALUES
+('the aliquot_label [%s] has already been recorded', 'The aliquot label [%s] has already been recorded!', 'L''étiquette d''aliquot [%s] a déjà été enregistré!'),
+('you can not record aliquot_label [%s] twice', 'You can not record aliquot label [%s] twice!', 'Vous ne pouvez enregistrer l''étiquette d''aliquot [%s] deux fois!');
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = '9999' WHERE version_number = '2.7.0';
-
+UPDATE versions SET branch_build_number = '7054' WHERE version_number = '2.7.0';
