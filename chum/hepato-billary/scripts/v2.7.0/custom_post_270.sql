@@ -818,15 +818,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_hb_report_ivado_results'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='mutation'), '0', '3047', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_hb_report_ivado_results'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_liver_metastasis_report_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '0', '3000', 'lab report - liver metastases', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+-- Aliquot Label - CSV Option
+-- -----------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Order
+-- -----------------------------------------------------------------------------------------------------------------------------
 
-
-
-
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notBlank', '');
 
 -- --------------------------------------------------------------------------------------------------------
 -- VERSION
 -- --------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = 'xxx' WHERE version_number = '2.7.0';
+UPDATE versions SET branch_build_number = '7056' WHERE version_number = '2.7.0';
