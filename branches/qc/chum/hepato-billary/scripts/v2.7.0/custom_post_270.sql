@@ -829,8 +829,10 @@ UPDATE structure_formats SET `flag_override_setting`='1', `setting`='class=file'
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notBlank', '');
 
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='order_number');
+
 -- --------------------------------------------------------------------------------------------------------
 -- VERSION
 -- --------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7056' WHERE version_number = '2.7.0';
+UPDATE versions SET branch_build_number = '7057' WHERE version_number = '2.7.0';
