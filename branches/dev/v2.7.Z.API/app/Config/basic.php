@@ -208,14 +208,14 @@ function stringCorrection($str)
  * @param bool $die If die after write
  * @return void
  */
-function d($var, $screen=true, $log=true, $die=false) 
+function d($var, $screen=true, $log=true, $die=false, $trace=null) 
 {
     if (!Configure::read('debug')) {
         return;
     }
     App::uses('Debugger', 'Utility');
     
-    $trace = Debugger::trace(array('start' => 1, 'depth' => 2, 'format' => 'array'));
+    $trace = (empty($trace))?Debugger::trace(array('start' => 1, 'depth' => 2, 'format' => 'array')):Debugger::trace(array('start' => 2, 'depth' => 3, 'format' => 'array'));
     $file = str_replace(array(CAKE_CORE_INCLUDE_PATH, ROOT), '', $trace[0]['file']);
     $line = $trace[0]['line'];
     $html = <<<HTML
@@ -269,4 +269,29 @@ function dc($number=0)
     }else{
         array_splice($_SESSION['debug']['dl'], 0, $number);
     }
+}
+
+/**
+ * @param $text
+ * @return mixed|string
+ */
+function removeHTMLTags($text)
+{
+    $text=strip_tags($text);
+    $text= trim($text);
+    $text=str_replace('&nbsp;', '', $text);
+    return $text;
+}
+
+
+function associateToIndexArray($data)
+{
+    $response = "{";
+    $i=0;
+    foreach ($data as $value){
+        $part = (isAssoc($value))?"{".json_encode_js($value)."}":"[".json_encode_js($value)."]";
+        $response.="'".$i++."':".$part.",";
+    }
+    $response= substr($response, 0, -1).'}';
+    return $response;
 }

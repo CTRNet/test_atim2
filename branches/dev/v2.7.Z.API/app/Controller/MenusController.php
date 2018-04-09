@@ -26,6 +26,8 @@ class MenusController extends AppController
             $this->AtimAuth->allowedActions = array(
                 'index'
             );
+        }else{
+            $this->redirect('/users/login');
         }
     }
 

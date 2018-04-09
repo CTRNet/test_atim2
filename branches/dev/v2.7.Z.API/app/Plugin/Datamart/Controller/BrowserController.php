@@ -226,7 +226,7 @@ class BrowserController extends DatamartAppController
         }
      
         // data handling will redirect to a straight page
-        
+
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
             if (isset($this->request->data['Browser']['search_for'])) {
@@ -902,17 +902,16 @@ class BrowserController extends DatamartAppController
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
     }
     
-    public function getBrowserSearchlist()
+    private function getBrowserSearchlist()
     {
         if (API::isStructMode()){
-            API::addToBundle($this->Browser->getBrowserDropdownOptions(0, 0, null, null, null, null, null, null));
-            API::sendDataAndClear();
+            return $this->Browser->getBrowserDropdownOptions(0, 0, null, null, null, null, null, null);
         }else{
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
     }
     
-    public function getControlList()
+    private function getControlList()
     {
         if (API::isStructMode()){
             $browsings=$this->DatamartStructure->find('all');
@@ -950,14 +949,13 @@ class BrowserController extends DatamartAppController
                     $response[$model]=$values;
                 }
             }
-            API::addToBundle($response);
-            API::sendDataAndClear();
+            return $response;
         }else{
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
     }
 
-    public function getApiCmalp()
+    private function getApiCmalp()
     {
         $modelName = $this->ApiCmalp->name;
         if (API::isAPIMode()){
@@ -965,17 +963,30 @@ class BrowserController extends DatamartAppController
             $ApiCmalps = $this->ApiCmalp->find('all', array('fields'=>$fields));
             $response = array();
             foreach ($ApiCmalps as $ApiCmalp) {
+                $response[$ApiCmalp[$modelName]['controller']]['model'] = $ApiCmalp[$modelName]['model'];
                 $response[$ApiCmalp[$modelName]['controller']][$ApiCmalp[$modelName]['action']] = array(
                     'urn' => $ApiCmalp[$modelName]['link'],
                     'model' => $ApiCmalp[$modelName]['model'],
                     'parameters' => $ApiCmalp[$modelName]['parameters']
                 );
             }
-            API::addToBundle($response);
+            return $response;
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+         }
+    }
+
+    public function initialAPI()
+    {
+        if (API::isAPIMode()){
+            API::addToBundle($this->getApiCmalp(), "getApiCmalp");
+            API::addToBundle($this->getControlList(), "getControlList");
+            API::addToBundle($this->getBrowserSearchlist(), "getBrowserSearchlist");
             API::sendDataAndClear();
         }else{
            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
          }
     }
+
     
 }
