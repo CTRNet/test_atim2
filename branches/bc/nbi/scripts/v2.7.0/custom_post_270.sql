@@ -8,14 +8,15 @@
 -- Administration
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
--- Set ATiM installation name
+-- Set the ATiM installation name
 
 REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'Northern Biobank Initiative', 'Northern Biobank Initiative');
 
 -- Users & Groups
 -- ...................................................................................................................................
 
--- Manage users account set by default when IT will install the ATiM custom version
+-- Manage users account that will be setup by default after the ATiM installation
+-- (Could be done manually after the first installation using the ATiM functionalities of the "> Administration > Groups (Users & Permissions) " tool.)
 --    . Activate first user
 --    . Change second one to 'MigrationScript' with a complex password for any future data migration done by script
 --    . Inactivate all the other one and assigned them a complex password
@@ -26,10 +27,13 @@ UPDATE users SET flag_active = '1', password_modified = NOW(), force_password_re
 UPDATE users SET flag_active = 0, username = 'MigrationScript', password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE id = 2;
 UPDATE groups SET name = 'System' WHERE id = 2;
 
+UPDATE users SET flag_active = 0, password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE id > 2;
+
 -- Banks
 -- ...................................................................................................................................
 
--- Change name of the first bank
+-- Change name of the first bank from 'Default' to 'Breast'
+-- (Could be done manually after the first installation using the ATiM functionalities of the "> Administration > Banks " tool)
 
 UPDATE banks SET name = 'Breast', description = '';
 
@@ -37,7 +41,8 @@ UPDATE banks SET name = 'Breast', description = '';
 -- Tools
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
--- Menus Update (Unused features)
+-- Tools menus update (unused features)
+-- (Should be completed by setting the permissions of each group using the ATiM functionalities of -- the "> Administration > Groups (Users & Permissions) > Permissions " tool. This action could be suffisant.)
 --    . Hide all tools sub-menus we won't use (protocol, drug, sop)
 
 UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Protocol%';
@@ -48,13 +53,21 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Sop%';
 -- Clinical Annotation
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
--- Menus Update (Unused features)
---    . Hide all clinical annotation sub menus we won't use
---    . Keep only participant messages
-
-UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Protocol%';
-UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Drug%';
-UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Sop%';
+-- Hide Clinical Annotation objects (or sub-menu) that don't have to be used by user in this custom version
+--    . Hide all ClinicalAnnotation menus that we won't use
+--         (Should be completed by setting the permissions of each group using the ATiM functionalities of the "> Administration > Groups (Users & Permissions) > Permissions " tool. This action could be suffisant.)
+--    . Keep only Profile and ParticipantMessages ClinicalAnnotation menus
+--    . Inactivate any Participant to unused Model databrowser links
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
+--    . Inactivate any report or action in batch that could be launched from databrowser result set or a batchset gathering these types of record (TreatmentMaster, etc)
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--    . Activate 'create participant message (applied to all)' action that could be launched from databrowser result set or a batchset gathering Participant record
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--    . Inactivate reports that contain data of these unsed objects.
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--    . Hide custom drop down list linked to field that won't be displayed into this custom version
+--         (Not required. Will just help administartor working on "> Administration > Dropdown List Configuration " tool.)
 
 UPDATE menus SET flag_active = 0  WHERE use_link LIKE '/ClinicalAnnotation/ParticipantContacts%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/DiagnosisMasters/%';
@@ -65,10 +78,41 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/Reprod
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/Participants/chronology/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/MiscIdentifiers/%';
 
--- Participant
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'FamilyHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'participant identifiers report';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'list all related diagnosis';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ConsentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'FamilyHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'QualityCtrl' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ParticipantContact' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ReproductiveHistory' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
+
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'create participant message (applied to all)';
+
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'list all related diagnosis';
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'participant identifiers';
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Consent Form Versions';
+
+-- Participant Profile
 -- ...................................................................................................................................
 
--- Participant Profile 
+-- Manage Profile form fields 
+-- (SQL statements build using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 --    . Hide unused fields
 --    . Participant identifier will be renamed to PHN#
 
@@ -84,15 +128,22 @@ VALUES
 -- Misc-Identifier (Participant Identifiers)
 -- ...................................................................................................................................
 
--- Misc(Participant)-Identifiers
+-- Manage Identifier form fields
+-- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 --    . Hide dates and note fields
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='effective_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
--- Misc(Participant)-Identifiers
---    . Add study to identifier forms
+-- Add study identifier
+--    . Create a new misc_identifier_controls record called 'patient study id' with field 'flag_link_to_study' set to '1'
+--         (SQL statements built using PhpMyAdmin. Will be replaced by a feature of the ATiM tool soon.) 
+--    . Changed miscidentifiers fields properties to display study fields into identifier forms
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Activate StudySummary to MiscIdentifier databrowser link
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
 
 INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, flag_link_to_study) 
 VALUES
@@ -100,23 +151,33 @@ VALUES
 INSERT INTO i18n (id,en,fr) 
 VALUES 
 ('patient study id', 'Patient Study ID', 'ID Patient - Étude');
+
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_detail`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
--- Misc(Participant)-Identifiers
---    . Activate StudySummary to MiscIdentifier databrowser link
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
 
 -- EventMaster
---    . 
 -- ...................................................................................................................................
+
+-- EventMaster sub-menus update (unused features)
+-- (Should be completed by setting the permissions of each group using the ATiM functionalities of the "> Administration > Groups (Users & Permissions) > Permissions " tool. This action could be suffisant.)
+--    . Hide all event sub menus we won't use
+--    . Keep only lab menu and display it as the main sub menu of the Annoation Menus.
 
 UPDATE menus SET flag_active = 0  
 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters%'
 AND use_link NOT LIKE '/ClinicalAnnotation/EventMasters/listall/lab%'
 AND language_title != 'annotation';
 UPDATE menus SET use_link = '/ClinicalAnnotation/EventMasters/listall/lab/%%Participant.id%%' WHERE language_title = 'annotation' AND use_link LIKE '/ClinicalAnnotation/EventMasters%';
+
+-- EventControls management
+--    . Inactivate all existing event controls
+--    . Create a new event_controls record called 'retrospective cancer specimen annotation' plus the linked detail tablename
+--         (SQL statements built using PhpMyAdmin. Will be replaced by a feature of the ATiM tool soon) 
+--         (flag_use_for_ccl set to '1' to let user link a participant collection to this type of record)
+--    . Create new form for the created event_controls
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 
 UPDATE event_controls SET flag_active = 0;
 
@@ -248,25 +309,28 @@ VALUES
 ('bc nbi estrogen receptors', "Estrogen receptors (ER)", ""),
 ('bc nbi acquisition nbr', "Acquisition#", "");
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Inventory Management
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+-- Hide custom drop down list linked to inventory field that won't be displayed into this custom version
+-- (Not required. Will just help administartor working on "> Administration > Dropdown List Configuration " tool.)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'xenog%';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Laboratory Sites';
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'SOP Versions';
 
 -- Collections
 -- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Manage collection fields displayed in many forms accross ATiM ('collections', 'collections_for_collection_tree_view', 'linked_collections', 'clinicalcollectionlinks', 'view_collection', 'collections_adv_search')
+--    . Manage fields display
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Add validation on collection field 'Bank' to make it 'required'
+--    . Hide any fields linked to objects (Consent, Diagnosis and Treatment) of the of 'clinicalcollectionlinks' form
+--         (Object defined above can not be linked to a participant collection with the customized verison of ATiM)
+--    . Populate 'Specimen Collection Sites' custom drop down list by default values
+--         (Could be done manually after the first installation using the ATiM functionalities of the "> Administration > Dropdown List Configuration " tool.)
 
 UPDATE structure_formats 
 SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', 
@@ -291,20 +355,6 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
 
-UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
-
-INSERT INTO i18n (id,en,fr)
-VALUES
-('a created collection should be linked to a participant', 'A created collection should be linked to a participant.', '');
-
--- Collection copy option (limit to participant data or participant data + event)
-UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='col_copy_binding_opt' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="nothing");
-
--- Collection property (limit to participant collection)
-UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='collection_property' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="independent collection" AND language_alias="independent collection");
-
-
 SET @modified = (SELECT NOW() FROM users WHERE id = '2');
 SET @modified_by = (SELECT id FROM users WHERE id = '2');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
@@ -314,18 +364,54 @@ VALUES
 ('terrace', 'Terrace',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('fort st. john', 'Fort St. John',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
+-- Collection can only be linked to a participant meaning that no unlinked collection or 'independant collection' can b created
+--    . Hide option "independent collection" of the 'collection_property' list (see collection property field)
+--         (SQL statements built using the ATiM Formbuilder tool, tab 'Value Domain' [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Hide option "nothing" of the 'col_copy_binding_opt' list (see option when user is copying a collection))
+--         (SQL statements built using the ATiM Formbuilder tool, tab 'Value Domain' [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Inactivate any Collection to unused Model databrowser links
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
 
+UPDATE structure_value_domains AS svd 
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id 
+SET `flag_active`="0" 
+WHERE svd.domain_name='collection_property' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="independent collection" AND language_alias="independent collection");
 
--- Sample & Aliquot Controls
--- Keep tissue aliquots only
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id 
+SET `flag_active`="0" 
+WHERE svd.domain_name='col_copy_binding_opt' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="nothing");
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+('a created collection should be linked to a participant', 'A created collection should be linked to a participant.', '');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+
+-- Sample
 -- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Keep only Tissue sample as sample that could be created into the system
+--         (SQL statements built using the ATiM Inventory Configuration tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/inventory_config/].)
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 138, 203, 188, 142, 220, 143, 141, 144, 192, 7, 130, 8, 9, 101, 102, 194, 140);
 
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Sample Master form update
+--    . Hide 'problematic' field
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Tissue Sample
+--    . Hide 'pathology_reception_datetime' & 'tissue_size' & 'tissue_weight' fields
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Use ICD-O-3 Topo codes for the tissue source drop down list
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -333,152 +419,132 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_weight_unit') AND `flag_confidential`='0');
 
--- Use ICD-O-3 Topo codes for the tissue source drop down list
-
 UPDATE structure_value_domains 
 SET source = "CodingIcd.CodingIcdo3Topo::getTopoCategoriesCodes"
 WHERE domain_name = 'tissue_source_list';
 UPDATE structure_fields SET `default`='C50' WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_source' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list');
 
--- barcode
+-- Aliquot
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_formats SET `flag_add`='0',`flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Inactivate 'print barcodes' action in batch that could be launched from databrowser result set or a batchset gathering SampleMaster or AliquotMaster objetcs
+-- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
 
--- aliquot study
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
 
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Aliquot barcode
+--    . Aliquot Barcode field should not let user to set or modify the vlaue (value generated by the system)
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 
--- aliquot label
+UPDATE structure_formats SET `flag_add`='0',`flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid_readonly`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Aliquot label
+--    . Aliquot label should be comptled
+--    . Aliquot label should always be visibale (on left side) for any data creation in batch (flag_float property)
 
 INSERT INTO structure_validations(structure_field_id, rule, language_message) 
 VALUES
 ((SELECT id FROM structure_fields WHERE `model`='AliquotMaster'  AND `field`='aliquot_label'), 'notBlank', '');
-UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Hide aliquot study field 
+--    . Aliquot Barcode field should not let user to set or modify the vlaue (value generated by the system)
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Inactivate StudySummary to AliquotMaster databrowser link
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+
+-- Hide aliquot lots number field field 
+-- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Specimen Review
+--    . Inactivate the 'breast review (simple)' report
+--    . Rename 'Review Code' to 'Acquisition #'
+--    . Hide fields of the aliquot review form
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+--    . Let any type of tissue aliquot to be linked to a brest tissue review (setting aliquot_type_restriction = 'all')
 
 UPDATE specimen_review_controls SET flag_active = 0 WHERE review_type = 'breast review (simple)';
+
 REPLACE INTO i18n (id,en,fr)
 VALUES
 ('review code', 'Acquisition #', '');
 
-
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='length' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='width' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE aliquot_review_controls SET aliquot_type_restriction = 'all' WHERE review_type = 'breast tissue slide review';
 
-
-
-
--- Inactivate custom drop down list not used
-
-UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'xenog%';
-UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Laboratory Sites';
-UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'SOP Versions';
-UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Quality Control Tools';
-UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Consent Form Versions';
-
-
--- Hide Quality Controls and Specimen Reviews
+-- Hide Quality Controls
+--    . Hide Quality Controls sub-menus (unused features)
+--         (Should be completed by setting the permissions of each group using the ATiM functionalities of the "> Administration > Groups (Users & Permissions) > Permissions " tool. This action could be suffisant.)
+--    . Inactivate custom drop down list not used
+--    . Inactivate QualityControl to AliquotMaster & SampleMaster databrowser links
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
+--    . Inactivate any report or action in batch that could be launched from databrowser result set or a batchset gathering QualityControl records
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/QualityCtrls%';
 
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Quality Control Tools';
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'create quality control';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'create quality control';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Study
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Hide unsued field (disease site) 
+-- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
 
--- DataBrowser and Report
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Storage and TMA slide
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'FamilyHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
-
-UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_5_name';
-UPDATE datamart_reports SET flag_active = '0' WHERE name = 'list all related diagnosis';
-UPDATE datamart_reports SET flag_active = '0' WHERE name = 'participant identifiers';
-
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'create quality control';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'create quality control';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'participant identifiers report';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'list all related diagnosis';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'list all related diagnosis';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ConsentMaster' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentMaster' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'FamilyHistory' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'QualityCtrl' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ParticipantContact' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ReproductiveHistory' AND label = 'number of elements per participant';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
+-- TMA slide will be part of the data that a user can create
+--    . Activate TmaSlideUse & TmaSlide to specific objects databrowser links
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
+--         (Files 'datamart_structures_relationships_fr/en.png' in '\app\webroot\img\dataBrowser' have to be updated to match exactly the datamart_browsing_controls content.)
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
 
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'create participant message (applied to all)';
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Additional Customisation
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Inactivate 'Bank Activity Report (Per Period)' report
+
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_5_name';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Track Install Version
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7054' WHERE version_number = '2.7.0';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
