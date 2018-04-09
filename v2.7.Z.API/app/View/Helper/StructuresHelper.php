@@ -706,13 +706,13 @@ class StructuresHelper extends Helper
         
         if (isset($options['type']) && !in_array($options['type'], array('index', 'summary'))) {
             if (API::isAPIMode()) {
-                $structure=$this->APIGetStructure($tableIndex, $atimStructure, $options);
+                $structure=API::getStructure($tableIndex, $atimStructure, $options);
                 if ($structure){
-                    API::addToBundle($structure, 'structure');
+                    API::addToBundle($structure, API::$structures);
                 }
             }
         }
-        
+
         if (isset($options['extras']['end'])) {
             echo '
 				<div class="extra">' . $options['extras']['end'] . '</div>
@@ -2599,7 +2599,7 @@ class StructuresHelper extends Helper
                         }
                         $current['settings']['options'] = $dropdownResult;
                     }
-                    
+
                     if (! isset($stack[$sfs['display_column']][$sfs['display_order']])) {
                         $stack[$sfs['display_column']][$sfs['display_order']] = array();
                     }
@@ -2614,7 +2614,7 @@ class StructuresHelper extends Helper
                 }
             }
         }
-        
+
         if (Configure::read('debug') > 0 && count($options['override']) > 0) {
             $override = array_merge(array(), $options['override']);
             foreach ($stack as $cell) {
@@ -3374,241 +3374,4 @@ $confirmationMsg); // confirmation message
 		</div>
 		' : '<div>' . __('You are not authorized to access that location.') . '</div>';
     }
-
-    /**
-     * @param $text
-     * @return mixed|string
-     */
-    private function removeHTMLTags($text)
-    {
-        $text=strip_tags($text);
-        $text= trim($text);
-        $text=str_replace('&nbsp;', '', $text);
-        return $text;
-    }
-
-    /**
-     * @param $response
-     * @param $item
-     * @param $suffixes
-     * @param $option
-     */
-    private function APISetField(&$response, $item, $suffixes, $option)
-    {
-        $optionType=$option['type'];
-        $type=$item['type'];
-        $field=null;
-        if($suffixes==null){
-            $response['fields'][$item['field']]['field']=$item['field'];
-            $response['fields'][$item['field']]['name'] = $item['model'] . '[' . $item['field'] . ']';
-            if (in_array($optionType, array("addgrid", "editgrid"))){
-                $response['example'][0][$item['model']][$item['field']] = null;
-                $response['example'][1][$item['model']][$item['field']] = null;
-            }else{
-                $response['example'][$item['model']][$item['field']] = null;
-            }
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$item['field']]['type'] = $item['type'];
-            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
-            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
-            }
-            if (isset($item['settings']['url'])) {
-                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
-            }
-        }else if (is_array($suffixes)){
-            foreach ($suffixes as $suffix){
-                $field=$item['field'].$suffix;
-                $response['fields'][$field]['field']=$field;
-                $response['fields'][$field]['name'] = $item['model'] . '[' . $field. ']';
-                if (in_array($optionType, array("addgrid", "editgrid"))){
-                    $response['example'][0][$item['model']][$field] = null;
-                    $response['example'][1][$item['model']][$field] = null;
-                }else{
-                    $response['example'][$item['model']][$field] = null;
-                }
-                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                    $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
-                }
-                $response['fields'][$field]['type'] = $item['type'];
-                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
-                $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
-                $response['fields'][$field]['help'] = $this->removeHTMLTags($item['help']);
-                if (isset($item['settings']['required'])) {
-                    $response['fields'][$field]['required'] = $item['settings']['required'];
-                }
-                if (isset($item['settings']['url'])) {
-                    $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
-                }
-            }
-        }else{
-            $field=$item['field'];
-            $response['fields'][$item['field']]['field']=$item['field'];
-            $response['fields'][$item['field']]['name'] = $item['model'] . '[' . $item['field'].']'.$suffixes;
-            if (in_array($optionType, array("addgrid", "editgrid"))){
-                $response['example'][0][$item['model']][$field] = array('e1','e2');
-                $response['example'][1][$item['model']][$field] = array('e1','e2');
-            }else{
-                $response['example'][$item['model']][$field] = array('e1','e2');
-            }
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$item['field']]['type'] = $item['type'];
-            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
-            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
-            }
-            if (isset($item['settings']['url'])) {
-                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
-            }
-        }      
-    }
-
-    /**
-     * @param $response
-     * @param $item
-     * @param $suffixes
-     * @param $option
-     * @internal param string $type
-     */
-    private function APISetDate(&$response, $item, $suffixes, $option)
-    {
-        $optionType=$option['type'];
-        $type=$item['type'];
-        if(!$suffixes){
-            $response['fields'][$item['field']]['field']=$item['field'];
-            $response['fields'][$item['field']]['name']['year']['name'] = $item['model'] . '[' . $item['field'] . '][year]';
-            $response['fields'][$item['field']]['name']['year']['defined'] = array('1900..2100');
-            $response['fields'][$item['field']]['name']['month']['name'] = $item['model'] . '[' . $item['field'] . '][month]';
-            $response['fields'][$item['field']]['name']['month']['defined'] = array('01..12');
-            $response['fields'][$item['field']]['name']['day']['name'] = $item['model'] . '[' . $item['field'] . '][day]';
-            $response['fields'][$item['field']]['name']['day']['defined'] = array('01..31');
-            if (in_array($optionType, array("addgrid", "editgrid"))){
-                $response['example'][0][$item['model']][$item['field']] = array('year'=>null, 'month'=>null, 'day'=>null);
-                $response['example'][1][$item['model']][$item['field']] = array('year'=>null, 'month'=>null, 'day'=>null);
-            }else{
-                $response['example'][$item['model']][$item['field']] = array('year'=>null, 'month'=>null, 'day'=>null);
-            }            
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$item['field']]['type'] = $item['type'];
-            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
-            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
-            }
-            if (isset($item['settings']['url'])) {
-                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
-            }
-        }else{
-            foreach ($suffixes as $suffix){
-                $field=$item['field'].$suffix;
-                $response['fields'][$field]['field']=$field;
-                $response['fields'][$field]['name']['year']['name'] = $item['model'] . '[' . $field . '][year]';
-                $response['fields'][$field]['name']['year']['defined'] = array('1900..2100');
-                $response['fields'][$field]['name']['month']['name'] = $item['model'] . '[' . $field . '][month]';
-                $response['fields'][$field]['name']['month']['defined'] = array('01..12');
-                $response['fields'][$field]['name']['day']['name'] = $item['model'] . '[' . $field . '][day]';
-                $response['fields'][$field]['name']['day']['defined'] = array('01..31');
-                if ($type=='datetime'){
-                    $response['fields'][$field]['name']['hour']['name'] = $item['model'] . '[' . $field . '][hour]';
-                    $response['fields'][$field]['name']['hour']['defined'] = array('00..23');
-                    $response['fields'][$field]['name']['min']['name'] = $item['model'] . '[' . $field . '][min]';
-                    $response['fields'][$field]['name']['min']['defined'] = array('00..59');
-                    if (in_array($optionType, array("addgrid", "editgrid"))){
-                        $response['example'][0][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null);
-                        $response['example'][1][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null);
-                    }else{
-                        $response['example'][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null);
-                    }
-                }else if($type=='date'){
-                    if (in_array($optionType, array("addgrid", "editgrid"))){
-                        $response['example'][0][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null);
-                        $response['example'][0][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null);
-                    }else{
-                        $response['example'][$item['model']][$field] = array('year'=>null, 'month'=>null, 'day'=>null);
-                    }
-                }
-                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                    $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
-                }
-                $response['fields'][$field]['type'] = $item['type'];
-                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
-                $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
-                $response['fields'][$field]['help'] = $this->removeHTMLTags($item['help']);
-                if (isset($item['settings']['required'])) {
-                    $response['fields'][$field]['required'] = $item['settings']['required'];
-                }
-                if (isset($item['settings']['url'])) {
-                    $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
-                }
-            }
-        }
-    }
-
-    /**
-     * @param $tableIndex
-     * @param $structures
-     * @param $option
-     * @return array
-     */
-    private function APICreateStructure($tableIndex, $structures, $option)
-    {
-        if (empty($tableIndex)){
-            return null;
-        }
-
-        $response=array('fields'=>array(), 'example'=>array());
-        foreach ($tableIndex as $columns) {
-            foreach ($columns as $column) {
-                foreach ($column as $item) {
-                    if (!$item['flag_confidential'] || $this->Session->read('flag_show_confidential')){
-                        $suffixes=null;
-                        if (API::getAction() == "search") {
-                            $suffixes =in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
-                        }
-                        if (in_array($item['type'], array('date', 'datetime'))) {
-                            $this->APISetDate($response, $item, $suffixes, $option);
-                        } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
-                            $this->APISetField($response, $item, $suffixes, $option);
-                            if ($suffixes && strpos($item['setting'], 'range') && $item['type']=='input'){
-                                $suffixes=array("_start", "_end");
-                                $this->APISetField($response, $item, $suffixes, $option);
-                            }
-                        } else {
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-        $response['phpArray']= "[".convertJSONtoArray($response['example'])."]";
-        $response['jsArray']= (isAssoc($response['example']))?"{".json_encode_js($response['example'])."}":"[".json_encode_js($response['example'])."]";
-        return $response; 
-    }
-
-    /**
-     * @param $tableIndex
-     * @param $structure
-     * @param $option
-     * @return array|null
-     */
-    public function APIGetStructure($tableIndex, $structure, $option)
-    {
-        if (API::isStructMode()){
-            $result=$this->APICreateStructure($tableIndex, $structure, $option);
-            return $result;
-        }else{
-            return null;
-        }
-    }    
 }

@@ -53,7 +53,8 @@ class AppController extends Controller
         'Config',
         'SystemVar',
         'UserApiKey',
-        'User'
+        'User',
+        'ApiCmalp'
     );
 
     public $components = array(
@@ -165,6 +166,18 @@ class AppController extends Controller
         return $valide;
     }
     
+    private function checkControllerAction(){
+        $modelName = $this->ApiCmalp->name;
+        $fields = array('controller', 'model', 'action', 'link', 'parameters');
+        $conditions = array('action' => API::getAction(), 'controller' => API::getController());
+        $ApiCmalps = $this->ApiCmalp->find('all', array('fields' => $fields, 'conditions' => $conditions));
+        if (Count($ApiCmalps == 1)) {
+            return true;
+        } else {
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+    }
+
     /**
      * This function is executed before every action in the controller.
      * It's a
@@ -173,17 +186,26 @@ class AppController extends Controller
     public function beforeFilter()
     {
         parent::beforeFilter(); 
-        API::checkData($this);   
+//$d=$this->request->data;
+        API::checkData($this);
         if (API::isAPIMode()){
-            $this->checkApiKey();
+            if ($this->checkControllerAction()){
+                $this->checkApiKey();
+            }
         }
+//API::addToBundle($this->request->data, API::$warnings);
+//API::sendTo("TEste");
+//API::addToBundle($d, API::$warnings);
+//if (API::getAction() != 'getApiCmalp' && API::getAction() != 'getBrowserSearchlist'){
+//API::sendTo('TestTESTtest123123');
+//die(!API::isAPIMode());
+//}
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
             Cache::clear(false, "structures");
             Cache::clear(false, "menus");
         }
-        
         if ($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')) {
             $this->resetPermissions();
         }
@@ -255,7 +277,7 @@ class AppController extends Controller
         if (!API::isAPIMode()){
             $this->Structures->set();
         }else{
-            $structure = $this->Structures->set(API::getModelName());
+            $structure = $this->Structures->set();
             API::setStructure($structure);
         }
 
