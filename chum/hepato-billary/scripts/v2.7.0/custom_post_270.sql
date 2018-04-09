@@ -836,3 +836,22 @@ DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM str
 -- --------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7057' WHERE version_number = '2.7.0';
+
+-- --------------------------------------------------------------------------------------------------------
+-- 2018-04-09 : Change requests
+-- --------------------------------------------------------------------------------------------------------
+
+-- Don't use use_detail_form_for_index for treatment listall
+
+UPDATE treatment_controls SET use_detail_form_for_index = 0 WHERE flag_active = 1;
+
+-- Display missing fields when treatment creation is done with addgrid setting
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_other_surgeries');
+
+-- i18n error
+
+REPLACE INTO i18n (id,en,fr) VALUES ('study consent', 'Study Consent', 'Consentement d''étude');
+
+UPDATE versions SET branch_build_number = '7062' WHERE version_number = '2.7.0';
