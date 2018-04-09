@@ -41,11 +41,11 @@ class ParticipantCustom extends Participant
             $return = array(
                 'menu' => array(
                     null,
-                    ($result['Participant']['first_name'] . ' - ' . $result['Participant']['last_name'])
+                    ('#' . $result['Participant']['participant_identifier'])
                 ),
                 'title' => array(
                     null,
-                    __('participant', true) . ': ' . ($result['Participant']['first_name'] . ' - ' . $result['Participant']['last_name'])
+                    __('participant identifier', true) . ': ' . ($result['Participant']['participant_identifier'])
                 ),
                 'structure alias' => 'participants,qc_hb_ident_summary',
                 'data' => $result
