@@ -878,6 +878,7 @@ class ReportsControllerCustom extends ReportsController {
     			AliquotMaster.barcode,
     			AliquotMaster.aliquot_label,
     			AliquotMaster.in_stock,
+    	        AliquotDetail.qbcf_block_selected,
     			AliquotInternalUse.type as aliquot_event
     			FROM participants Participant
     			INNER JOIN collections Collection 
@@ -887,6 +888,8 @@ class ReportsControllerCustom extends ReportsController {
     	           ON Collection.id = AliquotMaster.collection_id 
     	           AND AliquotMaster.deleted <> 1 
     	           AND AliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['block']."
+    			INNER JOIN ad_blocks AliquotDetail 
+    	           ON AliquotMaster.id = AliquotDetail.aliquot_master_id
     			LEFT JOIN aliquot_internal_uses AliquotInternalUse 
 	               ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id 
 	               AND AliquotInternalUse.deleted <> 1 
@@ -906,6 +909,7 @@ class ReportsControllerCustom extends ReportsController {
 	            $blocks_details[$aliquot_master_id] = array(
 	               'Participant' => $new_result['Participant'],
 	                'AliquotMaster' => $new_result['AliquotMaster'],
+	                'AliquotDetail' => $new_result['AliquotDetail'],
 	                'ViewAliquot' => array(
 	                    'collection_id' => $new_result['AliquotMaster']['collection_id'],
 	                    'sample_master_id' => $sample_master_id,

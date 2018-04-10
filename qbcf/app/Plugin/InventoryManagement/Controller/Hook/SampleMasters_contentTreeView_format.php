@@ -10,6 +10,16 @@ if(!$sample_master_id) {
 			$this->request->data[] = $tmp_new_sample_level_2;
 		}	
 	}
+} else {
+    foreach($this->request->data as &$tmpQbcfData) {
+        if(isset($tmpQbcfData['AliquotControl'])) {
+            if($tmpQbcfData['AliquotControl']['databrowser_label'] == 'tissue|block' && array_key_exists('qbcf_block_selected', $tmpQbcfData['AliquotDetail'])) {
+                $tmpQbcfData['Generated']['qbcf_block_selected'] = '-' . __('selected').' : '.(empty($tmpQbcfData['AliquotDetail']['qbcf_block_selected'])? __('unknown') : __($tmpQbcfData['AliquotDetail']['qbcf_block_selected']));
+            } else {
+                $tmpQbcfData['Generated']['qbcf_block_selected'] = '';
+            }
+        }
+    }
 }
 
 ?>
