@@ -472,6 +472,10 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @param $data
+     * @param $modelName
+     */
     private function deleteUploadedFile($data, $modelName)
     {
         $ifDelete=Configure::read('deleteUploadedFilePhysically');
@@ -498,14 +502,15 @@ class AppModel extends Model
             }
         }
     }
-    
-/**
- * Run atimDelete which use soft delete.
- *
- * @param int|string $id ID of record to delete
- * @param bool $cascade Set to true to delete records that depend on this record
- * @return bool True on success
-  */    
+
+    /**
+     * Run atimDelete which use soft delete.
+     *
+     * @param null $modelId
+     * @param bool $cascade Set to true to delete records that depend on this record
+     * @return bool True on success
+     * @internal param int|string $id ID of record to delete
+     */
     public function delete($modelId = null, $cascade = true) {
         $this->atimDelete($modelId, $cascade);
     }

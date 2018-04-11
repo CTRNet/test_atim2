@@ -35,8 +35,11 @@ class UsersController extends AppController
         );
         $this->set('atimStructure', $this->Structures->get('form', 'login'));
     }
-    
-    
+
+
+    /**
+     * @return bool
+     */
     private function doLogin()
     {
         $isLdap = Configure::read("if_use_ldap_authentication");

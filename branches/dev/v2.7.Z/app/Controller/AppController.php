@@ -416,6 +416,12 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param array|string $url
+     * @param null $status
+     * @param bool $exit
+     * @return \Cake\Network\Response|null|void
+     */
     public function redirect($url, $status = null, $exit = true) {
         $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         parent::redirect($url, $status, $exit);

@@ -254,11 +254,20 @@ function dc($number=0)
     }
 }
 
+/**
+ * @param array $phpArray
+ * @param $jsArray
+ */
 function convertArrayToJavaScript($phpArray=array(), $jsArray){
     if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray)){
         $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
     }
 }
+
+/**
+ * @param $data
+ * @return array
+ */
 function removeEmptySubArray($data){
     if (is_array($data)) {
         $data = is_integer(key($data)) ? array_values(array_filter($data, 'removeEmptyStringArray')) : array_filter($data, 'removeEmptyStringArray');
@@ -271,6 +280,10 @@ function removeEmptySubArray($data){
     return $data;
 }
 
+/**
+ * @param $value
+ * @return bool
+ */
 function removeEmptyStringArray($value){
     return ($value!="" && $value!=array());
 }
