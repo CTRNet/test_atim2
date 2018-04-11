@@ -194,13 +194,6 @@ class StructuresHelper extends Helper
         'labbook' => null
     );
 
-    /**
-     * @param $x
-     */
-    public function debug12($x){
-        debug($x);
-    }
-
 
     /**
      * StructuresHelper constructor.
@@ -489,7 +482,6 @@ class StructuresHelper extends Helper
      */
     public function build(array $atimStructure = array(), array $options = array())
     {
-
         if (Configure::read('debug')) {
             $tmp = array();
             if (count($atimStructure) != 0) {
@@ -2445,11 +2437,15 @@ class StructuresHelper extends Helper
                         $fieldName .= $modelDotField;
                         $fieldName = str_replace(".", "][", $fieldName); // manually replace . by ][ to counter cake bug
                         $current['name'] = $fieldName;
-                        if (strlen($sfs['setting']) > 0 && ! $current['readonly']) {
+                        $rangeValueSearch = $options['type'] == "search" && in_array($current['type'], StructuresComponent::$rangeTypesNumber);
+                        if (strlen($sfs['setting']) > 0 && ! $current['readonly'] || $rangeValueSearch) {
                             // parse through FORM_FIELDS setting value, and add to helper array
                             $tmpSetting = explode(',', $sfs['setting']);
                             foreach ($tmpSetting as $setting) {
                                 $setting = explode('=', $setting);
+                                if ($rangeValueSearch && strpos($settings['class'], 'range')===false){
+                                    $settings['class'] .= 'range ';
+                                }
                                 if ($setting[0] == 'tool') {
                                     if ($setting[1] == 'csv') {
                                         if ($options['type'] == 'search') {
@@ -2479,7 +2475,7 @@ class StructuresHelper extends Helper
                                 }
                             }
                         }
-                        
+
                         // validation CSS classes
                         if (count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
                             
@@ -2496,7 +2492,6 @@ class StructuresHelper extends Helper
                                 $settings["class"] .= "validation";
                             }
                         }
-                        
                         if ($current['readonly']) {
                             unset($settings['disabled']);
                             $current["format"] = $this->Form->text($fieldName, array(
