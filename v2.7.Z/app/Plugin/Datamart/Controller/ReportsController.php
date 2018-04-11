@@ -1973,6 +1973,10 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     function atimDemoReportParticipantClinicalData($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {

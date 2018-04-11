@@ -2829,7 +2829,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(node).find("span.icon16").css("opacity", 1);
 
                 $("select[name=data\\[0\\]\\[redundancy\\]]").change(function () {
-                    debugger;
                     if ($(this).val() == "same") {
                         lastLine.show();
                     } else {
