@@ -172,8 +172,8 @@ class AppController extends Controller
 
 		// record URL in logs file
 		
-        if(Configure::read('procure_user_log_output_path')) {
-            $userLogFileHandle = fopen(Configure::read('procure_user_log_output_path') . '/user_logs.txt', "a");
+        if(Configure::read('atim_user_log_output_path')) {
+            $userLogFileHandle = fopen(Configure::read('atim_user_log_output_path') . '/user_logs.txt', "a");
             if($userLogFileHandle) {
                 $userLogStrg =  '['.$logActivityData['UserLog']['visited'].'] '.
                         '{user_id:'.(strlen($logActivityData['UserLog']['user_id'])? $logActivityData['UserLog']['user_id'] : 'NULL').'] '.
@@ -181,7 +181,7 @@ class AppController extends Controller
                     fwrite($userLogFileHandle, "$userLogStrg\n");
                 fclose($userLogFileHandle);
             } else {
-                $logDirectory=Configure::read('procure_user_log_output_path');
+                $logDirectory=Configure::read('atim_user_log_output_path');
                 $permission = substr(sprintf('%o', fileperms($logDirectory)), -4);
                 if ($permission!='0777'){
                     AppController::addWarningMsg(__('The permission of "upload" directory is not correct.'));
