@@ -8,7 +8,7 @@ class AnnouncementsController extends AdministrateAppController
 
     public $uses = array(
         'User',
-        'Administrate.Announcement',
+        'Announcement',
         'Administrate.Bank'
     );
 
