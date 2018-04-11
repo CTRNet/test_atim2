@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/material/materials/add/',
+    'top' => '/Material/Materials/add/',
     'bottom' => array(
-        'cancel' => '/material/materials/index/'
+        'cancel' => '/Material/Materials/index/'
     )
 );
 
