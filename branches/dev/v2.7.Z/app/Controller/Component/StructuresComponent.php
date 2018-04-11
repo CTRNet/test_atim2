@@ -15,7 +15,9 @@ class StructuresComponent extends Component
     public static $rangeTypes = array(
         "date",
         "datetime",
-        "time",
+    );
+
+    public static $rangeTypesNumber = array(
         "integer",
         "integer_positive",
         "float",
