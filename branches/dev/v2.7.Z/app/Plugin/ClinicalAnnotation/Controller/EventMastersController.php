@@ -49,12 +49,30 @@ class EventMastersController extends ClinicalAnnotationAppController
             $controlsForSubformDisplay = array(
                 '-1' => array()
             );
+            $notUseDetailFormForIndex = $this->EventMaster->find('first', array(
+                'conditions'=>array(
+                    'EventControl.event_group' => $eventGroup,
+                    'EventMaster.participant_id' => $participantId,
+                    'EventControl.use_detail_form_for_index' => false
+                )
+            ));
+
             foreach ($eventControls as $newCtrl) {
                 if ($newCtrl['EventControl']['use_detail_form_for_index']) {
-                    // Controls that should be listed using detail form
-                    $controlsForSubformDisplay[$newCtrl['EventControl']['id']] = $newCtrl;
-                    $controlsForSubformDisplay[$newCtrl['EventControl']['id']]['EventControl']['ev_header'] = __($newCtrl['EventControl']['event_type']) . (empty($newCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($newCtrl['EventControl']['disease_site']));
-                } else {
+                    $eventType = $this->EventMaster->find('first', array(
+                        'conditions'=>array(
+                            'EventControl.event_group' => $eventGroup,
+                            'EventMaster.participant_id' => $participantId,
+                            'EventControl.event_type' => $newCtrl['EventControl']['event_type'],
+                            'EventControl.disease_site' => $newCtrl['EventControl']['disease_site']
+                        )
+                    ));
+                    if (!empty($eventType)){
+						// Controls that should be listed using detail form
+						$controlsForSubformDisplay[$newCtrl['EventControl']['id']] = $newCtrl;
+						$controlsForSubformDisplay[$newCtrl['EventControl']['id']]['EventControl']['ev_header'] = __($newCtrl['EventControl']['event_type']) . (empty($newCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($newCtrl['EventControl']['disease_site']));
+					}
+                } else if (!empty ($notUseDetailFormForIndex)){
                     $controlsForSubformDisplay['-1']['EventControl'] = array(
                         'id' => '-1',
                         'ev_header' => null
