@@ -1086,27 +1086,29 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         return computeSum(obj, newArr);
     };
     var totalColspan = $(floatingBckGrnd).data("totalColspan");
-    var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
-    if (!lastTd.length) {
-        //no more rows
-        lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
-    }
-    var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
-    width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
-    height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
-    if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
-        $(floatingBckGrnd).data("onlyDimension", true);
-        $(floatingBckGrnd).css({
-            "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
-            "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
-            "width": width + "px",
-            "height": height + "px"
-        });
-    } else {
-        $(floatingBckGrnd).css({
-            "width": width + "px",
-            "height": height + "px"
-        });
+    if (typeof totalColspan !=='undefined'){
+        var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+        if (!lastTd.length) {
+            //no more rows
+            lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
+        }
+        var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
+        width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+        height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
+            $(floatingBckGrnd).data("onlyDimension", true);
+            $(floatingBckGrnd).css({
+                "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
+                "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
+                "width": width + "px",
+                "height": height + "px"
+            });
+        } else {
+            $(floatingBckGrnd).css({
+                "width": width + "px",
+                "height": height + "px"
+            });
+        }
     }
 }
 
