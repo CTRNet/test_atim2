@@ -131,8 +131,8 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES
-	('Previous search', 'Previous search', 'Recherche précédente'),
-	('Reset', 'Reset', 'Réinitialiser');
+	('previous search', 'Previous', 'Précédente'),
+	('reset search', 'Reset', 'Réinitialiser');
 
 	
 -- -------------------------------------------------------------------------------------

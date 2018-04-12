@@ -1934,7 +1934,7 @@ function loadClearSearchData()
     $(this).data('bottom_button_load', 1 - flag);
     var message=loadSearchDataMessage[flag];
     $(this).find('span.button_load_text').html(message);
-    $(this).find('span.icon16').toggleClass('load').toggleClass('reset');
+    $(this).find('span.icon16').toggleClass('searchload').toggleClass('searchreset');
     var form=$(this).parents('form')[0];
     form.reset();
     $(form).find('a.btn_rmv_or').each(function(){

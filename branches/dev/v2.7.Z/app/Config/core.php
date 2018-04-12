@@ -405,6 +405,9 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
+Configure::write('use_compression', $debug>0 ? false : true);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
+
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // UPLOAD FILE
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -419,8 +422,6 @@ Cache::config('default', array(
 $uploadDirectory = substr(APP, 0, strlen(APP) -4);
 
 $uploadDirectory = 'C:\_NicolasLuc\Server/';
-Configure::write('use_compression', $debug>0 ? false : true);
-Configure::write('Session.timeout', $debug ? 3600 : 3600);
 Configure::write('uploadDirectory', $uploadDirectory.'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
 Configure::write('deleteUploadedFilePhysically', false);
