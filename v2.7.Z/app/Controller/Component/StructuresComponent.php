@@ -12,9 +12,19 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
+    public static $dateRange = array(
+        "date",
+        "datetime",
+        "time"
+    );
     public static $rangeTypes = array(
         "date",
         "datetime",
+        "time",
+        "integer",
+        "integer_positive",
+        "float",
+        "float_positive"
     );
 
     public static $rangeTypesNumber = array(

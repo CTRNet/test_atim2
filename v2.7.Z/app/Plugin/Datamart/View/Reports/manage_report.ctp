@@ -44,7 +44,7 @@ if (isset($searchFormStructure)) {
     // DISPLAY RESULT FORM / EXPORT REPORT (CSV)
     // ------------------------------------------
 
-    if ($csvCreation) {
+    if ($resultFormStructureAccuracy) {
         foreach ($resultFormStructureAccuracy as $structureModel => $structureFieldsData) {
             foreach ($structureFieldsData as $structureField => $structureFieldAccuracy) {
                 $resultFormStructure['Accuracy'][$structureModel][$structureField] = $structureFieldAccuracy;
@@ -81,79 +81,78 @@ if (isset($searchFormStructure)) {
         // ** DISPLAY REPORT LINKED TO DATAMART STRUCTURE AND ACTIONS **
         // Report
         
-        if (!empty($this->request->data)) {
-            $structureLinks = array(
-                'top' => '#',
-                'checklist' => array(
-                    "$linkedDatamartStructureModelName.$linkedDatamartStructureKeyName][" => "%%$linkedDatamartStructureModelName.$linkedDatamartStructureKeyName%%"
-                )
+        $structureLinks = array(
+            'top' => '#',
+            'checklist' => array(
+                "$linkedDatamartStructureModelName.$linkedDatamartStructureKeyName][" => "%%$linkedDatamartStructureModelName.$linkedDatamartStructureKeyName%%"
+            )
+        );
+        if (isset($linkedDatamartStructureLinks))
+            $structureLinks['index'] = array(
+                'details' => $linkedDatamartStructureLinks
             );
-            if (isset($linkedDatamartStructureLinks))
-                $structureLinks['index'] = array(
-                    'details' => $linkedDatamartStructureLinks
-                );
 
-            $addToBatchsetHiddenField = $this->Form->input('Report.datamart_structure_id', array(
-                'type' => 'hidden',
-                'value' => $linkedDatamartStructureId
-            ));
+        $addToBatchsetHiddenField = $this->Form->input('Report.datamart_structure_id', array(
+            'type' => 'hidden',
+            'value' => $linkedDatamartStructureId
+        ));
 
-            $settings = array(
-                'form_bottom' => false,
-                'form_inputs' => false,
-                'actions' => false,
-                'pagination' => false,
-                'header' => __('report data table'),
-                'sorting' => array(
-                    $atimMenuVariables['Report.id'],
-                    '0'
-                )
-            );
-            if (!empty($resultHeader)) {
-                $settings['header'] = $resultHeader;
-            }
-
-            $this->Structures->build($resultFormStructure, array(
-                'type' => 'index',
-                'data' => $this->request->data,
-                'settings' => $settings,
-                'links' => $structureLinks,
-                'extras' => array(
-                    'end' => $addToBatchsetHiddenField
-                )
-            ));
-
-            // Actions
-            $structureLinks = array(
-                'top' => '#'
-            );
-            if ($displayNewSearch)
-                $structureLinks['bottom']['new search'] = array(
-                    'link' => '/Datamart/Reports/manageReport/' . $atimMenuVariables['Report.id'],
-                    'icon' => 'search'
-                );
-
-            if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
-                drawCharts($this, $charts, $chartSetting);
-            }            
-            
-            $this->Structures->build(array(), array(
-                'type' => 'add',
-                'settings' => array(
-                    'form_top' => false,
-                    'header' => __('actions', null)
-                ),
-                'links' => $structureLinks,
-                'data' => array(),
-                'extras' => array(
-                    'end' => '<div id="actionsTarget"></div>'
-                )
-            ));
-        }else{
-            if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
-                drawCharts($this, $charts, $chartSetting);
-            }
+        $settings = array(
+            'form_bottom' => false,
+            'form_inputs' => false,
+            'actions' => false,
+            'pagination' => false,
+            'header' => __('report data table'),
+            'sorting' => array(
+                $atimMenuVariables['Report.id'],
+                '0'
+            )
+        );
+        if (!empty($resultHeader)) {
+            $settings['header'] = $resultHeader;
         }
+
+        $this->Structures->build($resultFormStructure, array(
+            'type' => 'index',
+            'data' => $this->request->data,
+            'settings' => $settings,
+            'links' => $structureLinks,
+            'extras' => array(
+                'end' => $addToBatchsetHiddenField
+            )
+        ));
+
+        // Actions
+        $structureLinks = array(
+            'top' => '#'
+        );
+        if ($displayNewSearch)
+            $structureLinks['bottom']['new search'] = array(
+                'link' => '/Datamart/Reports/manageReport/' . $atimMenuVariables['Report.id'],
+                'icon' => 'search'
+            );
+
+        if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
+            drawCharts($this, $charts, $chartSetting);
+        }            
+
+        $this->Structures->build(array(), array(
+            'type' => 'add',
+            'settings' => array(
+                'form_top' => false,
+                'header' => __('actions', null)
+            ),
+            'links' => $structureLinks,
+            'data' => array(),
+            'extras' => array(
+                'end' => '<div id="actionsTarget"></div>'
+            )
+        ));
+        if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
+            drawCharts($this, $charts, $chartSetting);
+        }
+        
+        
     } else {
 
         // ** DISPLAY BASIC REPORT **

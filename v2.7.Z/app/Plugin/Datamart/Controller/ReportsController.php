@@ -482,8 +482,9 @@ class ReportsController extends DatamartAppController
                     // Code to be able to launch actions from report linked to structure and model
                     $this->set('linkedDatamartStructureModelName', $linkedDatamartStructure['DatamartStructure']['model']);
                     $this->set('linkedDatamartStructureKeyName', $linkedModel->primaryKey);
-                    if ($linkedDatamartStructure['DatamartStructure']['index_link'])
+                    if ($linkedDatamartStructure['DatamartStructure']['index_link']){
                         $this->set('linkedDatamartStructureLinks', $linkedDatamartStructure['DatamartStructure']['index_link']);
+                    }
                     $linkedDatamartStructureActions = $this->DatamartStructure->getDropdownOptions($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], $linkedModel->primaryKey, null, null, null, null, false);
                     $csvAction = "javascript:setCsvPopup('Datamart/Reports/manageReport/$reportId/1/');";
                     $linkedDatamartStructureActions[] = array(
@@ -497,7 +498,6 @@ class ReportsController extends DatamartAppController
                     );
                     $this->set('linkedDatamartStructureActions', $linkedDatamartStructureActions);
                 }
-
                 if ($this->layout == false){
                     $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 }
