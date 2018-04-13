@@ -2440,6 +2440,9 @@ class StructuresHelper extends Helper
                         $rangeValueSearch = $options['type'] == "search" && in_array($current['type'], StructuresComponent::$rangeTypesNumber);
                         if (strlen($sfs['setting']) > 0 && ! $current['readonly'] || $rangeValueSearch) {
                             // parse through FORM_FIELDS setting value, and add to helper array
+                            if (empty($sfs['setting'])){
+                                $sfs['setting']="calss=%c";
+                            }
                             $tmpSetting = explode(',', $sfs['setting']);
                             foreach ($tmpSetting as $setting) {
                                 $setting = explode('=', $setting);
