@@ -908,7 +908,7 @@ class StructuresHelper extends Helper
                         
                         // value
                         $currentValue = null;
-                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? array(
+                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$dateRange) ? array(
                             "_start",
                             "_end"
                         ) : array(
