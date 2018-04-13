@@ -133,7 +133,8 @@ class User extends AppModel
                     'password_modified' => date("Y-m-d H:i:s")
                 )
             );
-            $isLdap = !empty($isLdap = Configure::read("if_use_ldap_authentication"));
+            $isLdap = Configure::read("if_use_ldap_authentication");
+            $isLdap = !empty($isLdap);
             if ($isLdap){
                 unset($dataToSave['User']['password']);
             }
@@ -165,7 +166,8 @@ class User extends AppModel
      */
     public function validatePassword(array $data, $createdUserName = null)
     {
-        $isLdap = !empty(Configure::read("if_use_ldap_authentication"));
+        $isLdap = Configure::read("if_use_ldap_authentication");
+        $isLdap = !empty($isLdap);
         $validationErrors = array();
         
         if (! isset($data['User']['new_password'], $data['User']['confirm_password']) || (! $this->id && ! $createdUserName)) {

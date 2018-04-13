@@ -62,7 +62,8 @@ class AdminUsersController extends AdministrateAppController
      */
     public function add($groupId)
     {
-        $isLdap = !empty(Configure::read('if_use_ldap_authentication'));
+        $isLdap = Configure::read("if_use_ldap_authentication");
+        $isLdap = !empty($isLdap);
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
         ));
