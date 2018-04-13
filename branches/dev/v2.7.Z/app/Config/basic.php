@@ -258,7 +258,7 @@ function dc($number=0)
  * @param array $phpArray
  * @param $jsArray
  */
-function convertArrayToJavaScript($phpArray=array(), $jsArray){
+function convertArrayToJavaScript($phpArray, $jsArray){
     if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray)){
         $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
     }
@@ -286,4 +286,29 @@ function removeEmptySubArray($data){
  */
 function removeEmptyStringArray($value){
     return ($value!="" && $value!=array());
+}
+
+function getTotalMemoryCapacity() {
+    $os = substr(PHP_OS, 0, 3);
+    if ($os == "WIN") {
+        $totalMemory = array();
+        exec('wmic memorychip get capacity', $totalMemory);
+        if (is_numeric($totalMemory[1])) {
+            return round($totalMemory[1] / 1024 / 1024);
+        } else {
+            return -1;
+        }
+    } elseif ($os == "Lin") {
+        $fh = fopen('/proc/meminfo', 'r');
+        $mem = 0;
+        while ($line = fgets($fh)) {
+            $pieces = array();
+            if (preg_match('/^MemTotal:\s+(\d+)\skB$/', $line, $pieces)) {
+                $mem = $pieces[1];
+                break;
+            }
+        }
+        fclose($fh);
+        return round($mem / 1024);
+    }
 }

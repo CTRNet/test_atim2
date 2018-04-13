@@ -1,11 +1,12 @@
 <?php
+$chartSetting ='""';
+$charts ="";
+$chartJS = '""';
 if (isset($this->request->data['data'])) {
     $charts = (isset($this->request->data['charts'])) ? $this->request->data['charts'] : "";
     $chartSetting = (isset($this->request->data['setting'])) ? $this->request->data['setting'] : '""';
     $chartJS = json_encode($charts) . "\r\n";
     $this->request->data = $this->request->data['data'];
-} else {
-    $chartJS = '""';
 }
 
 if (isset($searchFormStructure)) {
@@ -17,9 +18,6 @@ if (isset($searchFormStructure)) {
     $structureLinks = array(
         'top' => array(
             'search' => '/Datamart/Reports/manageReport/' . $atimMenuVariables['Report.id']
-        ),
-        'bottom' => array(
-            'reload form' => '/Datamart/Reports/manageReport/' . $atimMenuVariables['Report.id']
         )
     );
 

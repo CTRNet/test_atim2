@@ -1934,14 +1934,14 @@ function loadClearSearchData()
     $(this).data('bottom_button_load', 1 - flag);
     var message=loadSearchDataMessage[flag];
     $(this).find('span.button_load_text').html(message);
-    $(this).find('span.icon16').toggleClass('searchload').toggleClass('searchreset');
+    $(this).find('span.icon16').toggleClass('load-search').toggleClass('reset-search');
     var form=$(this).parents('form')[0];
     form.reset();
     $(form).find('a.btn_rmv_or').each(function(){
         $(this).click();
     });
     if (flag === 1) {
-        if (typeof jsPostData !== 'undefined' && jsPostData.constructor === Object) {
+        if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
             if (typeof jsPostData['exact_search'] === 'undefined'){
                 $("input[type='checkbox'][name*='data[exact_search']").prop('checked', false);
             }
@@ -1979,7 +1979,7 @@ function loadClearSearchData()
 }
 
 function initPostData() {
-    if (typeof jsPostData !== 'undefined' && jsPostData.constructor === Object) {
+    if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
         $this = $('p.bottom_button_load');
         $this.css('display', 'inline-block');
     }
