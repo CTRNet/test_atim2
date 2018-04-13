@@ -3,6 +3,7 @@
 /**
  * Class AnnouncementsController
  */
+App::uses('CustomizeAppController', 'Customize.Controller');
 class AnnouncementsController extends CustomizeAppController
 {
 

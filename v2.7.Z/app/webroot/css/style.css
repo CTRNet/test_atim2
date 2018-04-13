@@ -1635,17 +1635,14 @@ a.icon16.search {
 	color: #000;
 }
 
-.icon16.searchload {
+.icon16.load-search {
 	background-position: -32px -160px;
 }
 
-.icon16.load {
-	background-position: -32px -160px;
-}
-
-.icon16.searchreset {
+.icon16.reset-search {
 	background-position: -48px -160px;
 }
+
 
 /* -=toolbox*/
 .icon32.login {
