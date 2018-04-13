@@ -259,9 +259,29 @@ function dc($number=0)
  * @param $jsArray
  */
 function convertArrayToJavaScript($phpArray, $jsArray){
-    if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray)){
+    if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray) && !is_array_empty($phpArray)){
         $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
     }
+}
+
+/**
+ * @param array $InputVariable
+ * @param $result
+ */
+function is_array_empty($InputVariable) {
+    $result = true;
+    if (is_array($InputVariable) && count($InputVariable) > 0) {
+        foreach ($InputVariable as $Value) {
+            $result = $result && is_array_empty($Value);
+            if (!$result){
+                return false;
+            }
+        }
+    } else {
+        $result = empty($InputVariable);
+    }
+
+    return $result;
 }
 
 /**
