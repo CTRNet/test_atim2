@@ -184,7 +184,7 @@ class AppController extends Controller
                 $logDirectory=Configure::read('atim_user_log_output_path');
                 $permission = substr(sprintf('%o', fileperms($logDirectory)), -4);
                 if ($permission!='0777'){
-                    AppController::addWarningMsg(__('The permission of "upload" directory is not correct.'));
+                    AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
                 }else{
                     AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
                 }
@@ -1444,7 +1444,7 @@ class AppController extends Controller
         $uploadDirectory=Configure::read('uploadDirectory');
         $permission = substr(sprintf('%o', fileperms($uploadDirectory)), -4);
         if ($permission!='0777'){
-            AppController::addWarningMsg(__('The permission of "upload" directory is not correct.'));
+            AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
         }
 
         // *** 2 *** update the i18n string for version
