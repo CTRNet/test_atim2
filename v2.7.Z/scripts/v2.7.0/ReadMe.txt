@@ -184,4 +184,17 @@
       Review structure 'sample_uses_for_collection_tree_view' and function SampleMastersController.contentTreeView() for
       any customisation.
 
-   
+ 
+ 
+ 
+ 
+ 
+ 
+-- v2.7.0
+--   See ATiM Version Release Notes 
+--      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.0)
+-- ----------------------------------------------------------------------------
+
+
+verifier que persistent = false dnas database.php issue 3508
+vérifier jabascript back history dans les custom code . see issue #3444

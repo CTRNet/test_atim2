@@ -112,7 +112,7 @@ if (__('clin_english') == "Anglais") {
 			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
 			var csvWarning = "<?php echo __('csv file warning') ?>";
 			var maxUploadFileSize = "<?php echo Configure::read('maxUploadFileSize'); ?>";
-			var maxUploadFileSizeError = "<?php echo __('The file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
+			var maxUploadFileSizeError = "<?php echo __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
 			var loadSearchDataMessage = Array("<?php echo __('previous search') ?>", "<?php echo __('reset search') ?>");
             <?php if (isset($_SESSION['js_post_data'])){echo ($_SESSION['js_post_data']); unset($_SESSION['js_post_data']);}?>
 		</script>

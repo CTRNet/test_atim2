@@ -37,7 +37,7 @@ VALUES
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES(
-	"The file size should be less than %d bytes", 
+	"the file size should be less than %d bytes", 
 	"The file size should be less than %d bytes", 
 	"La taille de fichier dois être mois que %d octets");
 
@@ -48,7 +48,7 @@ VALUES(
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES(
-	'The permission of "upload" directory is not correct.', 
+	'the permission of "upload" directory is not correct.', 
 	'The permission of "upload" directory is not correct.', 
 	'L\'autorisation du répertoire "upload" n\'est pas correcte.');
 
@@ -121,9 +121,6 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 (null, (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'tumor infiltrating lymphocyte'), 
 (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'tumor infiltrating lymphocyte'), 0, NULL);
 
-
-
-
 -- -------------------------------------------------------------------------------------
 --	Load search data & clear form
 -- -------------------------------------------------------------------------------------
@@ -134,9 +131,8 @@ VALUES
 	('previous search', 'Previous', 'Précédente'),
 	('reset search', 'Reset', 'Réinitialiser');
 
-	
 -- -------------------------------------------------------------------------------------
---	Change <br><br> to <br>
+--	Issue #3424: Replace '<br>' characters in message.
 -- -------------------------------------------------------------------------------------
 UPDATE i18n
 SET 
@@ -146,14 +142,24 @@ WHERE
 	en LIKE '%<br><br>%' OR
 	fr LIKE '%<br><br>%';
 
+-- -------------------------------------------------------------------------------------
+--	issue #3473: There is a type 'adtetime' in structure_fields table
+-- -------------------------------------------------------------------------------------
 
--- -------------------------------------------------------------------------------------
---	issue #3473
--- -------------------------------------------------------------------------------------
 UPDATE structure_fields
 SET `type`='datetime'
 where `type`='adtetime';
 
+
+
+
+
+
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES
+	('file', 'File', 'Fichier'),
+	('open file', 'Open File', 'Ouvrir fichier');
 
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------

@@ -170,7 +170,7 @@ class AppModel extends Model
                         }
                         $maxUploadFileSize = Configure::read('maxUploadFileSize');
                         if ($value['size']>$maxUploadFileSize){
-                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('The file size should be less than %d bytes', Configure::read('maxUploadFileSize')))));
+                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')))));
                             unlink($value['tmp_name']);
                             if ($prevData[$modelName][$fieldName]){
                                 $data[$modelName][$fieldName]=$prevData[$modelName][$fieldName];
