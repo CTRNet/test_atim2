@@ -204,8 +204,8 @@ class CollectionsController extends InventoryManagementAppController
         if (! empty($this->request->data) && ! array_key_exists('collection_property', $this->request->data['Collection'])) {
             // Set collection property to 'participant collection' if field collection property is hidden in add form (default value)
             $this->request->data['Collection']['collection_property'] = 'participant collection';
-            $this->Collection->addWritableField('collection_property'); // Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
         }
+        $this->Collection->addWritableField('collection_property'); // Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
         
         $needToSave = ! empty($this->request->data);
         if (empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])) {
