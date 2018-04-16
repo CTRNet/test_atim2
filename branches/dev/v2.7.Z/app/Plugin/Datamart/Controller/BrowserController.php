@@ -136,6 +136,9 @@ class BrowserController extends DatamartAppController
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
+        $totalMemory = getTotalMemoryCapacity();
+        ini_set("memory_limit", $totalMemory/4 . "M");
+
         if ($controlId!=0){
             $browsing=$this->DatamartStructure->findById($controlId);
             if (isset($browsing['DatamartStructure']['index_link']) && !AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -173,7 +176,7 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        
+
         // data handling will redirect to a straight page
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
@@ -437,6 +440,10 @@ class BrowserController extends DatamartAppController
      */
     public function csv($allFields, $nodeId, $mergeTo)
     {
+        $totalMemory = getTotalMemoryCapacity();
+        ini_set("memory_limit", $totalMemory/4 . "M");
+        ini_set("max_execution_time", -1);
+
         $config = array_merge($this->request->data['Config'], $this->request->data[0]);
         
         unset($this->request->data[0]);

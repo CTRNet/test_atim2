@@ -285,6 +285,8 @@ class ReportsController extends DatamartAppController
      */
     public function manageReport($reportId, $csvCreation = false)
     {
+        $totalMemory = getTotalMemoryCapacity();
+        ini_set("memory_limit", $totalMemory/4 . "M");
         $reportId = !empty($reportId)?$reportId:"-1";
         $plugin="Datamart";
         $controller="Reports";
