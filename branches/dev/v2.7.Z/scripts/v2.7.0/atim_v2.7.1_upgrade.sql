@@ -150,10 +150,24 @@ UPDATE structure_fields
 SET `type`='datetime'
 where `type`='adtetime';
 
+-- -------------------------------------------------------------------------------------
+--	Issue #3484: Define the default number of created tubes when user 
+-- is realiquoting aliquot(s) or creating aliquot(s) from sample
+-- -------------------------------------------------------------------------------------
 
+INSERT INTO structures(`alias`) VALUES ('aliquot_nb_definition');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', '0', '', 'aliquots_nbr_per_parent', 'integer',  NULL , '0', 'size=2', '', '', 'number of created aliquots per parent', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_nb_definition'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='aliquots_nbr_per_parent' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='number of created aliquots per parent' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('number of created aliquots per parent', 'Children Aliquots Number per Parent', 'Nombre aliquots enfants par parent'),
+('nbr of children by default can not be bigger than 20', 'The number of children aliquots by default can not be bigger than 20!', "Le nombre d'aliquots enfants par défaut ne peut pas être supérieur à 20!");
 
-
-
+-- -------------------------------------------------------------------------------------
+--	missing i18n translations
+-- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
