@@ -94,6 +94,9 @@ class BatchSetsController extends DatamartAppController
      */
     public function listall($batchSetId)
     {
+        $totalMemory = getTotalMemoryCapacity();
+        ini_set("memory_limit", $totalMemory/4 . "M");
+
         $this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
         $lookupIds = array();
         $atimMenuVariables = array(
