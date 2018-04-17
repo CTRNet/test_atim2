@@ -232,6 +232,15 @@ class AppController extends Controller
             AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
         }
         
+        if (convertFromKMG(ini_get("upload_max_filesize")) <= Configure::read('maxUploadFileSize')) {
+            AppController::addWarningMsg(__('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading'));
+        }
+        
+        if (convertFromKMG(ini_get("post_max_size")) < convertFromKMG(ini_get("upload_max_filesize")) ) {
+            AppController::addWarningMsg(__('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading'));
+        }
+        
+        
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
         $this->Auth->authError = __('You are not authorized to access that location.');
     }
@@ -255,14 +264,18 @@ class AppController extends Controller
                 }
             }
             $file = Configure::read('uploadDirectory') . DS . $fileName;
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($file) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            readfile($file);
+            if (file_exists($file)){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($file));
+                readfile($file);
+            }else{
+                $this->atimFlashError(__('File not existe.'), '');
+            }
         }
     }
 

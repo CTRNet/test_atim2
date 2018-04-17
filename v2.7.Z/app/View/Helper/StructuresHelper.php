@@ -1039,7 +1039,17 @@ class StructuresHelper extends Helper
      */
     private function getOpenFileLink($currentValue)
     {
-        return '<a href="?file=' . $currentValue . '">' . __("open file") . '</a>';
+        $fileArray = explode(".", $currentValue);
+        $extention = $fileArray[count($fileArray)-1];
+        $name = "";
+        for ($i=3; $i<count($fileArray)-1; $i++){
+            $name .= $fileArray[$i].".";
+        }
+        $shortName = $name;
+        if (strlen($name) > 30){
+            $shortName = substr($name, 0, 30) . '...';
+        }
+        return '<a title = "'.__("download %s", $name.$extention).'" href="?file=' . $currentValue . '">' . $shortName.$extention . '</a>';
     }
 
     /**

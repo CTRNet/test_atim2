@@ -157,9 +157,13 @@ class AppModel extends Model
                                 if (!is_dir($deleteDirectory)) {
                                     mkdir($deleteDirectory);
                                 }
-                                copy($dir.DS.$prevData[$modelName][$fieldName], $deleteDirectory.DS.$prevData[$modelName][$fieldName]);
+                                if (file_exists($dir.DS.$prevData[$modelName][$fieldName])){
+                                    copy($dir.DS.$prevData[$modelName][$fieldName], $deleteDirectory.DS.$prevData[$modelName][$fieldName]);
+                                }
                             }
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            if (file_exists($dir . '/' . $prevData[$modelName][$fieldName])){
+                                unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            }
                         }
                     }
                     if (isset($value['name'])) {
@@ -171,7 +175,9 @@ class AppModel extends Model
                         $maxUploadFileSize = Configure::read('maxUploadFileSize');
                         if ($value['size']>$maxUploadFileSize){
                             $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')))));
-                            unlink($value['tmp_name']);
+                            if (file_exists($value['tmp_name'])){
+                                unlink($value['tmp_name']);
+                            }
                             if ($prevData[$modelName][$fieldName]){
                                 $data[$modelName][$fieldName]=$prevData[$modelName][$fieldName];
                             }else{
@@ -491,12 +497,18 @@ class AppModel extends Model
                         if (!is_dir($deleteDirectory)) {
                             mkdir($deleteDirectory);
                         }
-                        copy($dir.DS.$fileName, $deleteDirectory.DS.$fileName);
-                        unlink($dir.DS.$fileName);
+                        if (file_exists($dir.DS.$fileName)){
+                            copy($dir.DS.$fileName, $deleteDirectory.DS.$fileName);
+                        }
+                        if (file_exists($dir.DS.$fileName)){
+                            unlink($dir.DS.$fileName);
+                        }
                         
                         move_uploaded_file($matches[0][0], $deleteDirectory.DS.$fileName);
                     }else{
-                        unlink($dir.DS.$fileName);
+                        if (file_exists($dir.DS.$fileName)){
+                            unlink($dir.DS.$fileName);
+                        }
                     }
                 }
             }
