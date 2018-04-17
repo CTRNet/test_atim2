@@ -426,8 +426,6 @@ Configure::write('uploadDirectory', $uploadDirectory.'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
 Configure::write('deleteUploadedFilePhysically', false);
 Configure::write('maxUploadFileSize', 10*1024*1024);
-ini_set('upload_max_filesize', '10.1M');
-ini_set('post_max_size', '16M');
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LOGIN & PASSWORD

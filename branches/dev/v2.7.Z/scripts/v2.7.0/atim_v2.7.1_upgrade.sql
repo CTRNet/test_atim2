@@ -28,7 +28,11 @@ VALUES
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES 	
-	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier");
+	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
+	("download %s", "Download %s", "Télécharger %s"),
+	("File not existe.", "", ""),
+	("warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problems in uploading", "", ""),
+	("warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading", "", "");
 
 -- -------------------------------------------------------------------------------------
 --	File size error message
