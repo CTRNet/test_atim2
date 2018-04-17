@@ -714,17 +714,17 @@ class StructuresHelper extends Helper
                     echo '<div class="chartDivHTML" style="height: 300px"><svg></svg></div>';
                     echo '<div class="actions" style ="background: white">
                             <div class="bottom_button">
-                                <a href="javascript:void(0)" title="Detach the chart" class="search pop-up-chart-a" onclick = "createGraph('.$i.', true)">
+                                <a href="javascript:void(0)" title="'.__('detach the chart').'" class="search pop-up-chart-a" onclick = "createGraph('.$i.', true)">
                                 <span class="icon16 charts" style="margin-right: 0px;"></span>'.
                                 '</a>
                             </div>
                         </div>';
                 }else{
-                    echo '<div class="heading_mimic"><h4>' .__("Chart %d", $i+1) . '</h4></div>';
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
                     echo '<div class="actions" style ="background: white">
                             <div class="bottom_button">
-                                <a href="javascript:void(0)" class= "show-chart-popup" title="'.__("Show chart %d", $i+1).'" class="search">
-                                <span class="icon16 charts"></span>'.__("Show chart %d", $i+1).
+                                <a href="javascript:void(0)" class= "show-chart-popup" title="'.__('detach the chart').'" class="search">
+                                <span class="icon16 charts"></span>'.__('detach the chart').
                                 '</a>
                             </div>
                         </div>';

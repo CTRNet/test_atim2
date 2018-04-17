@@ -1,12 +1,12 @@
 <?php
+
 $chartSetting ='""';
 $charts ="";
 $chartJS = '""';
-if (isset($this->request->data['data'])) {
-    $charts = (isset($this->request->data['charts'])) ? $this->request->data['charts'] : "";
-    $chartSetting = (isset($this->request->data['setting'])) ? $this->request->data['setting'] : '""';
+if (isset($chartsData) && $chartsData) {
+    $charts = (isset($chartsData['data'])) ? $chartsData['data'] : "";
+    $chartSetting = (isset($chartsData['setting'])) ? $chartsData['setting'] : "";
     $chartJS = json_encode($charts) . "\r\n";
-    $this->request->data = $this->request->data['data'];
 }
 
 if (isset($searchFormStructure)) {
@@ -44,7 +44,7 @@ if (isset($searchFormStructure)) {
     // DISPLAY RESULT FORM / EXPORT REPORT (CSV)
     // ------------------------------------------
 
-    if ($resultFormStructureAccuracy) {
+    if (isset($resultFormStructureAccuracy) && $resultFormStructureAccuracy) {
         foreach ($resultFormStructureAccuracy as $structureModel => $structureFieldsData) {
             foreach ($structureFieldsData as $structureField => $structureFieldAccuracy) {
                 $resultFormStructure['Accuracy'][$structureModel][$structureField] = $structureFieldAccuracy;
@@ -74,13 +74,13 @@ if (isset($searchFormStructure)) {
         exit();
     } elseif (isset($linkedDatamartStructureModelName) && isset($linkedDatamartStructureKeyName)) {
 
-        if ($chartJS != '""' && (isset($chartSetting['top']) && !$chartSetting['top'])) {
-            drawCharts($this, $charts, $chartSetting);
-        }
-
         // ** DISPLAY REPORT LINKED TO DATAMART STRUCTURE AND ACTIONS **
         // Report
         
+        if ($chartJS != '""' && (isset($chartSetting['top']) && $chartSetting['top'])) {
+            drawCharts($this, $charts, $chartSetting);
+        }
+
         $structureLinks = array(
             'top' => '#',
             'checklist' => array(
@@ -132,7 +132,7 @@ if (isset($searchFormStructure)) {
                 'icon' => 'search'
             );
 
-        if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
+        if ($chartJS != '""' && (!isset($chartSetting['top']) || !$chartSetting['top'])) {
             drawCharts($this, $charts, $chartSetting);
         }            
 
@@ -148,14 +148,14 @@ if (isset($searchFormStructure)) {
                 'end' => '<div id="actionsTarget"></div>'
             )
         ));
-        if ($chartJS != '""' && (!isset($chartSetting['top']) || $chartSetting['top'])) {
-            drawCharts($this, $charts, $chartSetting);
-        }
-        
         
     } else {
-
+            
         // ** DISPLAY BASIC REPORT **
+        
+        if ($chartJS != '""' && (isset($chartSetting['top']) && $chartSetting['top'])) {
+            drawCharts($this, $charts, $chartSetting);
+        }
 
         $structureLinks = array(
             'bottom' => array(
@@ -171,6 +171,7 @@ if (isset($searchFormStructure)) {
         $settings = array(
             'form_inputs' => false,
             'pagination' => false,
+            'actions' => ($chartJS != '""' && (!isset($chartSetting['top']) || !$chartSetting['top']))? false : true,
             'sorting' => array(
                 $atimMenuVariables['Report.id'],
                 '0'
@@ -187,6 +188,18 @@ if (isset($searchFormStructure)) {
             'links' => $structureLinks,
             'settings' => $settings
         ));
+        
+        if ($chartJS != '""' && (! isset($chartSetting['top']) || ! $chartSetting['top'])) {
+            drawCharts($this, $charts, $chartSetting);
+            $settings = array(
+                'actions' => true
+            );
+            $this->Structures->build($emptyStructure, array(
+                'type' => $resultFormType,
+                'links' => $structureLinks,
+                'settings' => $settings
+            ));
+        } 
     }
 }
 if (isset($linkedDatamartStructureActions)) {
@@ -218,7 +231,7 @@ function drawCharts($thisHelper, $charts, $chartSetting)
             'form_inputs' => false,
             'actions' => false,
             'pagination' => false,
-            'header' => __('diagram'),
+            'header' => __('graphics'),
         );
         $title = array();
         $type = array();

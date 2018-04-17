@@ -476,6 +476,8 @@ class ReportsController extends DatamartAppController
                 $this->set('resultColumnsNames', $dataReturnedByFct['columns_names']);
                 $this->set('displayNewSearch', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
                 $this->set('csvCreation', $csvCreation);
+                $this->set('chartsData', (isset($dataReturnedByFct['charts']) ? $dataReturnedByFct['charts'] : null));
+                $this->Structures->set('empty', 'empty_structure');
                 
                 if ($csvCreation) {
                     Configure::write('debug', 0);
@@ -789,7 +791,14 @@ class ReportsController extends DatamartAppController
         
         $arrFormatMonthToString = AppController::getCalInfo(false);
         
-        $tmpRes = array();
+        $tmpRes = array(
+            array(
+                'new_participants_nbr' => array(),
+                'obtained_consents_nbr' => array(),
+                'new_collections_nbr' => array()
+            )
+        );
+        
         $dateKeyList = array();
         
         // Get new participant
@@ -876,6 +885,128 @@ class ReportsController extends DatamartAppController
             'data' => $tmpRes,
             'columns_names' => array_values($dateKeyList),
             'error_msg' => $errorMsg
+        );
+            
+        // Build Graphics
+        
+        $pieCharts = array(
+            'new_participants_nbr' => array(
+                'type' => 'pieChart',
+                'title' => __('participants'),
+                'data' => array()
+            ),
+            'obtained_consents_nbr' => array(
+                'type' => 'pieChart',
+                'title' => __('consents'),
+                'data' => array()
+            ),
+            'new_collections_nbr' => array(
+                'type' => 'pieChart',
+                'title' => __('collections'),
+                'data' => array()
+            )
+        );
+        $tmpMultiBarChartData = array(
+            'new_participants_nbr' => array(),
+            'obtained_consents_nbr' => array(),
+            'new_collections_nbr' => array()
+        );
+        $tmpLineBarChartData = array(
+            'new_participants_nbr' => array(),
+            'obtained_consents_nbr' => array(),
+            'new_collections_nbr' => array()
+        );
+        
+        foreach (array_keys($tmpRes[0]) as $newDataKey) {
+            $keyCounter = 0;
+            foreach ($dateKeyList as $unusedData => $newDatePeriod) {
+                // pieCharts
+                $pieCharts[$newDataKey]['data'][] = array(
+                    $newDatePeriod,
+                    isset($tmpRes[0][$newDataKey][$newDatePeriod]) ? $tmpRes[0][$newDataKey][$newDatePeriod] : '0'
+                );
+                // tmpMultiBarChartData
+                $tmpMultiBarChartData[$newDataKey][] = array(
+                    $newDatePeriod,
+                    isset($tmpRes[0][$newDataKey][$newDatePeriod]) ? $tmpRes[0][$newDataKey][$newDatePeriod] : '0'
+                );
+                // tmpLineBarChartData
+                $previousValue = 0;
+                if ($keyCounter != 0) {
+                    list ($tmpUnusedValue, $previousValue) = $tmpLineBarChartData[$newDataKey][($keyCounter - 1)];
+                }
+                $keyCounter ++;
+                $tmpLineBarChartData[$newDataKey][] = array(
+                    $newDatePeriod,
+                    (isset($tmpRes[0][$newDataKey][$newDatePeriod]) ? $tmpRes[0][$newDataKey][$newDatePeriod] : 0) + $previousValue
+                );
+            }
+        }
+        
+        $multiBarChart = array(
+            'type' => 'multiBarChart',
+            'title' => __('summary'),
+            'xAxis' => array(
+                'ticks' => array(),
+                'axisLabel' => __('date')
+            ),
+            'yAxis' => array(
+                'axisLabel' => __('number of data')
+            ),
+            'data' => array(
+                array(
+                    'key' => __('participants'),
+                    'values' => $tmpMultiBarChartData['new_participants_nbr']
+                ),
+                array(
+                    'key' => __('consents'),
+                    'values' => $tmpMultiBarChartData['obtained_consents_nbr']
+                ),
+                array(
+                    'key' => __('collections'),
+                    'values' => $tmpMultiBarChartData['new_collections_nbr']
+                )
+            )
+        );
+        
+        $lineBarChart = array(
+            'type' => 'lineChart',
+            'title' => __('summary'),
+            'xAxis' => array(
+                'ticks' => array(),
+                'axisLabel' => __('date')
+            ),
+            'yAxis' => array(
+                'axisLabel' => __('number of data')
+            ),
+            'data' => array(
+                array(
+                    'key' => __('participants'),
+                    'values' => $tmpLineBarChartData['new_participants_nbr']
+                ),
+                array(
+                    'key' => __('consents'),
+                    'values' => $tmpLineBarChartData['obtained_consents_nbr']
+                ),
+                array(
+                    'key' => __('collections'),
+                    'values' => $tmpLineBarChartData['new_collections_nbr']
+                )
+            )
+        );
+        
+        $arrayToReturn['charts'] = array(
+            'data' => array(
+                $pieCharts['new_participants_nbr'],
+                $pieCharts['obtained_consents_nbr'],
+                $pieCharts['new_collections_nbr'],
+                $multiBarChart,
+                $lineBarChart
+            ),
+            'setting' => array(
+                'top' => false,
+                'popup' => false
+            )
         );
         
         return $arrayToReturn;
