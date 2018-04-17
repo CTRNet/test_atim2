@@ -176,7 +176,16 @@ VALUES
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES
+	('number of data', 'Number of Data', 'Nombre de données'),
+	('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
+	('detach the chart', 'Open in Pop-up', 'Ouvrir dans pop-up'),
+	('report data table', 'Report', 'Rapport'),
+	('graphics', 'Graphics', 'Graphiques'),
+	('graphic', 'Graphic', 'Graphique'),
+	('diagrams', 'Graphics', 'Graphiques'),
+	('diagram', 'Graphic', 'Graphique'),
 	('file', 'File', 'Fichier'),
+	('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
 	('open file', 'Open File', 'Ouvrir fichier');
 
 -- ----------------------------------------------------------------------------------
