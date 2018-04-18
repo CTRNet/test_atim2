@@ -846,6 +846,7 @@ class ReportsControllerCustom extends ReportsController
         $participantIdsToDataKeys = array(
             '-1' => array('-1')
         );
+        $participantCounter = 0;
         foreach ($data as $key => &$newParticipant) {
             if (! isset($newParticipant['MiscIdentifierControl']['misc_identifier_name'])) {
                 $newParticipant['MiscIdentifierControl']['misc_identifier_name'] = 'N/A';
@@ -856,6 +857,7 @@ class ReportsControllerCustom extends ReportsController
             // participantIdsToDataKeys
             if (!isset($participantIdsToDataKeys[$newParticipant['Participant']['id']])) {
                 $participantIdsToDataKeys[$newParticipant['Participant']['id']] = array();
+                $participantCounter++;
             }
             $participantIdsToDataKeys[$newParticipant['Participant']['id']][] = $key;            
             
@@ -1177,7 +1179,11 @@ class ReportsControllerCustom extends ReportsController
         }
         
         // Get abdominal CT-SCAN or MRI
-               
+             
+        $displayedImageryCounter = 0;
+        $displayedImageryWithRrnCounter = 0;
+        $participantsWithRrnCounter = array();
+        
         $sql = "SELECT id, event_type FROM event_controls EventControl WHERE flag_active =1 AND event_group = 'imagery' AND event_type IN ('medical imaging abdominal CT-scan', 'medical imaging abdominal MRI')";
         $queryResults = $this->Report->tryCatchQuery($sql);
         $evControls = array();
@@ -1213,7 +1219,12 @@ class ReportsControllerCustom extends ReportsController
                 if (!isset($data[$key]) || $participant_id != $data[$key]['Participant']['id']) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                if ($newImagery['EventMaster']['event_date']) {                
+                if ($newImagery['EventMaster']['event_date']) {
+                    $displayedImageryCounter ++;
+                    if (strlen($newImagery['EventDetail']['request_nbr']) > 3) {
+                        $displayedImageryWithRrnCounter ++;
+                        $participantsWithRrnCounter[$participant_id] = '-';
+                    }
                     if ($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_first_step_counter']++;
                         if (empty($data[$key][0]['qc_hb_liver_imagery_1_2_pre_surg_first_step_event_date'])) {
@@ -1320,7 +1331,11 @@ class ReportsControllerCustom extends ReportsController
                 }
             }
         }
-            
+        $participantsWithRrnCounter = sizeof($participantsWithRrnCounter);
+        $displayedImageryWithRrnCounter = "$displayedImageryWithRrnCounter (on $displayedImageryCounter)";
+        $participantsWithRrnCounter = "$participantsWithRrnCounter (on $participantCounter)";
+        AppController::addWarningMsg(__('rr# statistics : %s images displayed are linked to a rr# and %s participants displayed have at least one rr#', array($displayedImageryWithRrnCounter, $participantsWithRrnCounter)));
+        
         // Re-orders chemo and images when previous record is empty
         foreach ($data as &$tmpNewParticipant) {
             // Define data to move
