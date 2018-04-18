@@ -1000,14 +1000,23 @@ class ReportsController extends DatamartAppController
                 $pieCharts['new_participants_nbr'],
                 $pieCharts['obtained_consents_nbr'],
                 $pieCharts['new_collections_nbr'],
-                $multiBarChart,
-                $lineBarChart
+                $multiBarChart
             ),
             'setting' => array(
                 'top' => false,
                 'popup' => false
             )
         );
+        if (! $monthPeriod) {
+            foreach ($lineBarChart['data'] as $keyA => $dataLevelA) {
+                foreach ($dataLevelA['values'] as $keyb => $dataLevelb) {
+                    if (! preg_match('/^[0-9]+$/', $dataLevelb[0])) {
+                        unset($lineBarChart[$keyA]['values'][$keyb]);
+                    }
+                }
+            }
+            $arrayToReturn['charts']['data'][] = $lineBarChart;
+        }
         
         return $arrayToReturn;
     }
