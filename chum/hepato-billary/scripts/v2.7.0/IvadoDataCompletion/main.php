@@ -80,7 +80,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     $excel_participant_key = "$xlsRramq||||$HospitalNumber";
     $xlsStudyDescription = $excel_line_data['Study Description'];
     if(!array_key_exists($excel_participant_key, $excelParticipantToAtimData)) {
-        if(strlen($HospitalNumber) < 4 || strlen($xlsRramq) < 4) {
+        if(strlen($HospitalNumber) < 4 || strlen($xlsRramq) < 3) {
             $messages['Participant with either a RAMQ or a Hospital Nbr too small! No image number will be imported!'][] = "Participant with RAMQ '$xlsRramq' AND St-Luc Nbr '$HospitalNumber'has not been found into ATiM working on both values! (See Line $line_number, etc)";
             $excelParticipantToAtimData[$excel_participant_key] = null;
         } else {

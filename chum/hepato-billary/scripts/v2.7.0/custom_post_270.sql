@@ -855,3 +855,14 @@ UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FR
 REPLACE INTO i18n (id,en,fr) VALUES ('study consent', 'Study Consent', 'Consentement d''étude');
 
 UPDATE versions SET branch_build_number = '7062' WHERE version_number = '2.7.0';
+
+-- --------------------------------------------------------------------------------------------------------
+-- 2018-04-18 : Added IVADO report statisticts
+-- --------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('rr# statistics : %s images displayed are linked to a rr# and %s participants displayed have at least one rr#',
+'R.R.# Statistics : %s images displayed are linked to a rr# and %d participants displayed have at least one R.R.#.', '');
+
+UPDATE versions SET branch_build_number = '7091' WHERE version_number = '2.7.0';
