@@ -17,7 +17,7 @@ class CollectionCustom extends Collection
     var $useTable = 'collections';
 
     var $name = 'Collection';
-
+    
     /**
      * Validate if the collection to participant link could be deleted.
      * Link could be deleted only if no sample exists into the collection 

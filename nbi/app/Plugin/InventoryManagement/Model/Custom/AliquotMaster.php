@@ -46,16 +46,23 @@ class AliquotMasterCustom extends AliquotMaster
      *            Control data of the created aliquot
      * @return string Default aliquot label.
      */
-    public function generateDefaultAliquotLabel($viewSample, $aliquotControlData)
+    public function generateDefaultAliquotLabel($viewSample, $aliquotControlData, $parentAliquotLabel = null)
     {
-            // Parameters check: Verify parameters have been set
+        // Parameters check: Verify parameters have been set
         if (empty($viewSample) || empty($aliquotControlData)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        // TODO if some business rules defined by bank administrator
+        $acquisitionLabel = $viewSample['ViewSample']['acquisition_label'];
+        if ($viewSample['ViewSample']['sample_type'] == 'tissue') {
+            if ($aliquotControlData['AliquotControl']['aliquot_type'] == 'block') {
+                return $acquisitionLabel . 'TI';
+            } elseif ($aliquotControlData['AliquotControl']['aliquot_type'] == 'slide') {
+                return ($parentAliquotLabel ? $parentAliquotLabel : $acquisitionLabel . 'TI??') . 'SL';
+            }
+        }
         
-        return __('participant identifier') . $viewSample['ViewSample']['participant_identifier'] . '-' . '?';
+        return $acquisitionLabel . '??';
     }
 
     /**

@@ -183,10 +183,13 @@ UPDATE event_controls SET flag_active = 0;
 
 INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, detail_form_alias, detail_tablename, display_order, databrowser_label, flag_use_for_ccl, use_addgrid, use_detail_form_for_index)
 VALUES
-('breast', 'lab', 'retrospective cancer specimen annotation', '1', 'bc_nbi_ed_breast_specimen_annotation', 'bc_nbi_ed_breast_specimen_annotations', '0', 'breast|retrospective cancer specimen annotation', '1', '0', '0');
+('breast', 'lab', 'retrospective cancer specimen annotation', '1', 'bc_nbi_ed_breast_specimen_annotation', 'bc_nbi_ed_breast_specimen_annotations', '0', 'breast|retrospective cancer specimen annotation', '1', '0', '1');
 
+ALTER TABLE event_masters
+  ADD COLUMN bc_nbi_acquisition_nbr varchar(150) DEFAULT NULL;
+ALTER TABLE event_masters_revs
+  ADD COLUMN bc_nbi_acquisition_nbr varchar(150) DEFAULT NULL;
 CREATE TABLE `bc_nbi_ed_breast_specimen_annotations` (
-   bc_nbi_acquisition_nbr varchar(150) DEFAULT NULL,
    bc_nbi_pathology_specimen_id varchar(150) DEFAULT NULL,
    bc_nbi_specimen_type_ffpe tinyint(1) DEFAULT '0',
    bc_nbi_specimen_type_he_slide tinyint(1) DEFAULT '0',
@@ -208,7 +211,6 @@ CREATE TABLE `bc_nbi_ed_breast_specimen_annotations` (
   `event_master_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 CREATE TABLE `bc_nbi_ed_breast_specimen_annotations_revs` (
-   bc_nbi_acquisition_nbr varchar(150) DEFAULT NULL,
    bc_nbi_pathology_specimen_id varchar(150) DEFAULT NULL,
    bc_nbi_specimen_type_ffpe tinyint(1) DEFAULT '0',
    bc_nbi_specimen_type_he_slide tinyint(1) DEFAULT '0',
@@ -242,7 +244,7 @@ ALTER TABLE `bc_nbi_ed_breast_specimen_annotations`
 
 INSERT INTO structures(`alias`) VALUES ('bc_nbi_ed_breast_specimen_annotation');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_acquisition_nbr', 'input',  NULL , '1', '', '', '', 'bc nbi acquisition nbr', ''), 
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'bc_nbi_acquisition_nbr', 'input',  NULL , '1', '', '', '', 'bc nbi acquisition nbr', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_pathology_specimen_id', 'input',  NULL , '1', '', '', '', 'bc nbi pathology specimen id', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_specimen_type_ffpe', 'checkbox',  NULL , '0', '', '', '', 'bc nbi specimen type', 'bc nbi specimen type ffpe'), 
 ('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_specimen_type_he_slide', 'checkbox',  NULL , '0', '', '', '', '', 'h and e slide'), 
@@ -262,7 +264,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_progesterone_receptors', 'input',  NULL , '0', '', '', '', 'bc nbi progesterone receptors', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'bc_nbi_ed_breast_specimen_annotations', 'bc_nbi_human_epidermal_growth_factor_receptor2', 'input',  NULL , '0', '', '', '', 'bc nbi human epidermal growth factor receptor2', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_acquisition_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi acquisition nbr' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='bc_nbi_acquisition_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi acquisition nbr' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_pathology_specimen_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi pathology specimen id' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_specimen_type_ffpe' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi specimen type' AND `language_tag`='bc nbi specimen type ffpe'), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_specimen_type_he_slide' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='h and e slide'), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
@@ -281,6 +283,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_estrogen_receptors' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi estrogen receptors' AND `language_tag`=''), '3', '26', 'ancillary studies', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_progesterone_receptors' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi progesterone receptors' AND `language_tag`=''), '3', '27', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_nbi_ed_breast_specimen_annotation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='bc_nbi_ed_breast_specimen_annotations' AND `field`='bc_nbi_human_epidermal_growth_factor_receptor2' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi human epidermal growth factor receptor2' AND `language_tag`=''), '3', '28', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventMaster'  AND `field`='bc_nbi_acquisition_nbr'), 'notBlank', '');
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
@@ -327,16 +332,12 @@ UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE na
 --    . Manage fields display
 --         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 --    . Add validation on collection field 'Bank' to make it 'required'
---    . Hide any fields linked to objects (Consent, Diagnosis and Treatment) of the of 'clinicalcollectionlinks' form
+--    . Hide any fields linked to objects (Consent, Diagnosis and Treatment) of the of 'clinicalcollectionlinks' form plus add Acquistion#
 --         (Object defined above can not be linked to a participant collection with the customized verison of ATiM)
 --    . Populate 'Specimen Collection Sites' custom drop down list by default values
 --         (Could be done manually after the first installation using the ATiM functionalities of the "> Administration > Dropdown List Configuration " tool.)
-
-UPDATE structure_formats 
-SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', 
-`flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', 
-`flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
-WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('sop_master_id', 'acquisition_label'));
+--    . Added the EventMatster.bc_nbi_acquisition_nbr to the collection view
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 
 INSERT INTO structure_validations(structure_field_id, rule, language_message) 
 VALUES
@@ -355,6 +356,9 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='bc_nbi_acquisition_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bc nbi acquisition nbr' AND `language_tag`=''), '1', '403', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
 SET @modified = (SELECT NOW() FROM users WHERE id = '2');
 SET @modified_by = (SELECT id FROM users WHERE id = '2');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
@@ -363,6 +367,14 @@ VALUES
 ('prince george', 'Prince George',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('terrace', 'Terrace',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('fort st. john', 'Fort St. John',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'bc_nbi_acquisition_nbr', 'input',  NULL , '0', 'size=20', '', '', '', 'from pathology report');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='bc_nbi_acquisition_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='from pathology report'), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_fields SET language_label = 'acquisition_label from specimen annotation', language_tag = '' WHERE field = 'bc_nbi_acquisition_nbr' AND model = 'ViewCollection';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('acquisition_label from specimen annotation', 'Acq.# From Speci. Annot.', '');
+UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='bc_nbi_acquisition_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Collection can only be linked to a participant meaning that no unlinked collection or 'independant collection' can b created
 --    . Hide option "independent collection" of the 'collection_property' list (see collection property field)
@@ -391,6 +403,10 @@ VALUES
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+
+-- Update fields labels
+
+REPLACE INTO i18n (id,en,fr) VALUES ('acquisition_label', 'Acquisition#', '');
 
 -- Sample
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -427,13 +443,6 @@ UPDATE structure_fields SET `default`='C50' WHERE model='SampleDetail' AND table
 -- Aliquot
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
--- Inactivate 'print barcodes' action in batch that could be launched from databrowser result set or a batchset gathering SampleMaster or AliquotMaster objetcs
--- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/db_validation/].)
-
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
-
 -- Aliquot barcode
 --    . Aliquot Barcode field should not let user to set or modify the vlaue (value generated by the system)
 --         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
@@ -464,6 +473,13 @@ UPDATE structure_formats SET `flag_search`='0', `flag_batchedit`='0', `flag_inde
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+
+-- Print Barcodes
+--    . Add Aliquot Label field to the output
+--         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].) 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- Hide aliquot lots number field field 
 -- (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
