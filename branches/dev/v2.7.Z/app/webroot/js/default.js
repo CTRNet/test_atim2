@@ -7,6 +7,7 @@ var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt(
 var sessionTimeout = new Object();
 var checkedData = [];
 var DEBUG_MODE_JS = 0;
+columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 
 //window.alert = function(a){
 //    console.log(a);
@@ -1020,6 +1021,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(this).addClass('consents');
             }
         }).click(function () {
+            $(".this_column_1.total_columns_2").css("width", "1%")
             var link = this;
             //remove highlighted stuff
             var td = $(".at").removeClass("at").find("td:last-child");
@@ -1044,13 +1046,33 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     $("#frame").html(data);
                     $(link).data('cached_result', data);
                     initActions();
+                    
+                    dynamicHeight = $("#dynamicHeight");
+                    frame =  $("#frame");
+                    frameHeight = frame.height();
+                    tr = $(link).parents("tr").first().addClass("at");
+                    td = $(tr).find("td").last();
+
+                    var topValue = $(td).position().top - frameHeight;
+                    if (topValue<0){
+                            topValue=0;
+                    }
+                    dynamicHeight.css("height", topValue);
+                    
                 });
             }
             return false;
         });
-        $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
-                '<td class="this_column_2 total_columns2"><div id="frame"></td>'
-                );
+        columnLarge = (typeof columnLarge!='undefined')?columnLarge:false;
+        if (!columnLarge){
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="frame"></td>'
+                    );
+        }else{
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "100%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="dynamicHeight"></div><div id="frame"></div></td>'
+                    );
+        }
 
     }
 }
