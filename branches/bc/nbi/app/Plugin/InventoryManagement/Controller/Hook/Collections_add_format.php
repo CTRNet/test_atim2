@@ -22,4 +22,13 @@ if (! $collectionId && ! $copySource) {
     }
     $this->request->data['Participant'] = $copySrcData['Participant'];
 }
-	
+    
+// Set default values
+if (! $needToSave) {
+    // Set bank_id
+    $this->request->data['Collection']['bank_id'] = 1;
+    // Set the Collection Acquisition number to ther report (event) acquisition number if this one exists
+    if (isset($collectionData['EventMaster']['bc_nbi_acquisition_nbr'])) {
+        $this->request->data['Collection']['acquisition_label'] = $collectionData['EventMaster']['bc_nbi_acquisition_nbr'];
+    }
+}

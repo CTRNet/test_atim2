@@ -20,7 +20,7 @@ if (isset($defaultAliquotLabels)) {
             $counter = 0;
             foreach ($newSampleAndAliquots['children'] as &$newAliquot) {
                 $counter ++;
-                $newAliquot['AliquotMaster']['aliquot_label'] = $defaultAliquotLabels[$sampleMasterId] . '-' . (strlen($counter) == 1 ? '0' . $counter : $counter);
+                $newAliquot['AliquotMaster']['aliquot_label'] = $defaultAliquotLabels[$sampleMasterId] . (strlen($counter) == 1 ? '0' . $counter : $counter);
             }
         }
     }
