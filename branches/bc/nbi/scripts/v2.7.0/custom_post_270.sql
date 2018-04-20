@@ -332,12 +332,30 @@ UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE na
 --    . Manage fields display
 --         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
 --    . Add validation on collection field 'Bank' to make it 'required'
---    . Hide any fields linked to objects (Consent, Diagnosis and Treatment) of the of 'clinicalcollectionlinks' form plus add Acquistion#
+--    . Hide any fields linked to objects (Consent, Diagnosis and Treatment) of the of 'clinicalcollectionlinks' form
 --         (Object defined above can not be linked to a participant collection with the customized verison of ATiM)
 --    . Populate 'Specimen Collection Sites' custom drop down list by default values
 --         (Could be done manually after the first installation using the ATiM functionalities of the "> Administration > Dropdown List Configuration " tool.)
---    . Added the EventMatster.bc_nbi_acquisition_nbr to the collection view
---         (SQL statements built using the ATiM Formbuilder tool [https://ctrnet.svn.cvsdude.com/tools/atimTools/form_builder/].)
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', 
+`flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', 
+`flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('sop_master_id'));
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_add_readonly`='0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('acquisition_label'))
+AND `flag_add`='1' AND `flag_add_readonly`='0';
+
+UPDATE structure_formats 
+SET `flag_edit`='1', `flag_edit_readonly`='1'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('acquisition_label'))
+AND `flag_edit`='1' AND `flag_edit_readonly`='0';
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('system generated a duplicated acquisition number - please try to save data again', 'System generated a duplicated acquisition number! Please try again or contact your administrator if the problem persists!', '');
 
 INSERT INTO structure_validations(structure_field_id, rule, language_message) 
 VALUES
@@ -367,14 +385,6 @@ VALUES
 ('prince george', 'Prince George',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('terrace', 'Terrace',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('fort st. john', 'Fort St. John',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'ViewCollection', '', 'bc_nbi_acquisition_nbr', 'input',  NULL , '0', 'size=20', '', '', '', 'from pathology report');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='bc_nbi_acquisition_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='from pathology report'), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
-UPDATE structure_fields SET language_label = 'acquisition_label from specimen annotation', language_tag = '' WHERE field = 'bc_nbi_acquisition_nbr' AND model = 'ViewCollection';
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('acquisition_label from specimen annotation', 'Acq.# From Speci. Annot.', '');
-UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='bc_nbi_acquisition_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Collection can only be linked to a participant meaning that no unlinked collection or 'independant collection' can b created
 --    . Hide option "independent collection" of the 'collection_property' list (see collection property field)
