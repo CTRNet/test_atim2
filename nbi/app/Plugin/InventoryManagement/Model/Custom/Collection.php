@@ -47,4 +47,51 @@ class CollectionCustom extends Collection
             'msg' => ''
         );
     }
+
+    /**
+     * Generate a unique 7 digits Acquisition Number
+     *
+     * @return string The 7 digits Acquisition Number
+     */
+    function getNextAcquisitionNumber()
+    {
+        // Check no aliquot linked to the collection
+        $randAcquisitionNbr = rand(1, 9999999);
+        $randAcquisitionNbr = sprintf("%06d", $randAcquisitionNbr);
+        return $randAcquisitionNbr;
+    }
+        
+    /**
+     * @param array $options
+     * @return bool
+     */
+    public function validates($options = array())
+    {
+        if (! $this->id && isset($this->data['Collection']['acquisition_label'])) {
+            // acquisition_label should be unique
+            $newLabelFound = false;
+            $continueLoop = true;
+            $loopCounter = 0;
+            while ($continueLoop) {
+                if (! $this->find('count', array(
+                    'conditions' => array(
+                        'Collection.acquisition_label' => $this->data['Collection']['acquisition_label']
+                    )
+                ))) {
+                    $newLabelFound = true;
+                    $continueLoop = false;
+                } else {
+                    $this->data['Collection']['acquisition_label'] = $this->getNextAcquisitionNumber();
+                }
+                $loopCounter ++;
+                if ($loopCounter > 100) {
+                    $continueLoop = false;
+                }
+            }
+            if (! $newLabelFound) {
+                $this->validationErrors['acquisition_label'][] = 'system generated a duplicated acquisition number - please try to save data again';
+            } 
+        }
+        return parent::validates($options);
+    }
 }
