@@ -2896,6 +2896,12 @@ ALTER TABLE participants_revs
   CHANGE procure_patient_withdrawn_reason procure_patient_refusal_withdrawal_reason text;
 UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_date' WHERE field = 'procure_patient_withdrawn_date';
 UPDATE structure_fields SET field = 'procure_patient_refusal_withdrawal_reason' WHERE field = 'procure_patient_withdrawn_reason';
+UPDATE structure_fields SET  `language_help`='procure_patient_refusal_withdrawal_date_help' WHERE model='Participant' AND tablename='participants' AND field='procure_patient_refusal_withdrawal_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('procure_patient_refusal_withdrawal_date_help', 
+"Date of the last update of the fields of the section 'Refusal / Withdrawal / Lost Contact'. To record the changes history (like participant refused new collection from 2013 to 2016) please use the field 'Details'.", 
+"Date de la dernière mise à jour des champs de la section «Refus / Retrait / Contact perdu». Pour enregistrer l'historique des changements (comme le participant a refusé la nouvelle collection de 2013 à 2016), veuillez utiliser le champ 'Détails'.");
 
 -- Drug Type (hide)
 
@@ -3303,26 +3309,141 @@ VALUES
 "Number of clinical exam(s) created + modified",
 "Nombre d'examen(s) clinique9s) créés + modifiés");
 
+-- i18n correction
 
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('procure next followup report description', 'Last data collected during the last followup visit', 'Dernieres données recueillies lors de la dernière visite de suivi');
 
+-- Add PSA BCR system (updated by report)
 
+ALTER TABLE procure_ed_laboratories
+   ADD COLUMN system_biochemical_relapse char(1) DEFAULT '';
+ALTER TABLE procure_ed_laboratories_revs
+   ADD COLUMN system_biochemical_relapse char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'procure_ed_laboratories', 'system_biochemical_relapse', 'yes_no',  NULL , '0', '', '', 'procure_system_biochemical_relapse_help', 'system biochemical relapse', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_laboratories'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='procure_ed_laboratories' AND `field`='system_biochemical_relapse' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_system_biochemical_relapse_help' AND `language_label`='system biochemical relapse' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_laboratories' AND field='system_biochemical_relapse' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('update system biochemical relapse', "Update 'Biochemical Relapse (System)' values", "Mettre à jour les valeurs 'Récidive biochimique (Système)'"),
+('updated field procure_ed_laboratories.system_biochemical_relapse of the listed participants',
+"Sysem updated field 'Biochemical Relapse (System)' for the PSA(s) of the listed participant(s).",
+"Le sytème a mis à jour le champ 'Récidive biochimique (Système)' pour les APS(s) des participants listés dans le rapport."),
+('system biochemical relapse', "Biochemical Relapse (System)", "Récidive biochimique (Système)"),
+('procure_system_biochemical_relapse_help',
+"Biochemical relapse defined by the system and updated following the last execution of the report 'PROCURE - Biochemical Relapses Detection' on this participant.",
+"Récidive biochimique définie par le système et mise à jour suite à la dernière execution du rapport «PROCURE - Détection de rechutes biochimiques» sur ce participant.");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'update_system_biochemical_relapse', 'checkbox',  NULL , '0', '', '', '', 'update system biochemical relapse', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='update_system_biochemical_relapse' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='update system biochemical relapse' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('procure participant attribution number','Attribution# (Deprecated)', 'Attribution# (obsolète)');
 
+-- procure_banks_data_merge_tries & procure_banks_data_merge_messages
 
+DROP TABLE IF EXISTS `procure_banks_data_merge_tries`;
+CREATE TABLE `procure_banks_data_merge_tries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `result` varchar(100) DEFAULT NULL,
+  `ps1_dump_date` datetime DEFAULT NULL,
+  `ps1_dump_versions` varchar(100) DEFAULT NULL,
+  `ps2_dump_date` datetime DEFAULT NULL,
+  `ps2_dump_versions` varchar(100) DEFAULT NULL,
+  `ps3_dump_date` datetime DEFAULT NULL,
+  `ps3_dump_versions` varchar(100) DEFAULT NULL,
+  `ps4_dump_date` datetime DEFAULT NULL,
+  `ps4_dump_versions` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS procure_banks_data_merge_messages;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  type varchar(20) default null,
+  title varchar(1000) default null,
+  details varchar(1000) default null,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+DROP TABLE IF EXISTS procure_banks_data_merge_messages_revs;
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `language_label`='detail' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `language_label`='detail' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `language_label`='detail' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeMessage', 'procure_banks_data_merge_messages', 'type', 'input',  NULL , '0', '', '', '', 'type', ''), 
+('Administrate', 'ProcureBanksDataMergeMessage', 'procure_banks_data_merge_messages', 'title', 'input',  NULL , '0', '', '', '', 'message', ''), 
+('Administrate', 'ProcureBanksDataMergeMessage', 'procure_banks_data_merge_messages', 'details', 'input',  NULL , '0', '', '', '', 'details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='title' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='message' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages');
 
+INSERT INTO structures(`alias`) VALUES ('procure_banks_data_merge_tries');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'datetime', 'datetime',  NULL , '0', '', '', '', 'date', ''), 
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'result', 'input',  NULL , '0', '', '', '', 'status', ''), 
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps1_dump_date', 'datetime',  NULL , '0', '', '', '', 'PS1', ''), 
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps2_dump_date', 'datetime',  NULL , '0', '', '', '', 'PS2', ''), 
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps3_dump_date', 'datetime',  NULL , '0', '', '', '', 'PS4', ''), 
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps4_dump_date', 'datetime',  NULL , '0', '', '', '', 'PS4', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='result' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps1_dump_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='PS1' AND `language_tag`=''), '1', '3', 'procure data dump date', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps2_dump_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='PS2' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps3_dump_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='PS4' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps4_dump_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='PS4' AND `language_tag`=''), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field` LIKE 'procure_banks_data_merge%');
+DELETE FROM structure_fields WHERE `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field` LIKE 'procure_banks_data_merge%';
+DELETE FROM structures WHERE alias='procure_banks_data_merge_summary';
 
-UPDATE versions SET branch_build_number = '6982' WHERE version_number = '2.6.8';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('tries', 'Tries', 'Essais'),
+('procure data dump date', "Dates of Banks Data Copies", "Dates des copies des données des banques");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("procure_bank_merge_summary_help_transferred_participant",
+"Transferred participant: Participant followed by one bank then by another one. In 'ATiM Central', all data will be merged and linked to one participant except the profile. Only the last modified participant profile will be kept.",
+"Participant transféré: Participant suivi dans une banque puis par une autre. Dans 'ATiM Central', toutes les données seront fusionnées et associées à un participant à l'exception du profil. Seul le profil du dernier participant modifié sera conservé."),
+("procure_bank_merge_summary_help_processing_site_participant",
+"'Processing Site' Participant: ATiM participant created initialy by the system into the deprecated 'ATiM-Processing Site' to link aliquots received from bank to a 'system' participant. These participants are now recorded into 'ATiM-PS3', ATiM that gathers aliquots previoulsy recorded into the depreacted 'ATiM-Procure Processing Site'.",
+"Participant 'Processing Site': Participant ATiM créé initialement par le système dans l'ancien 'ATiM-Processing Site' pour relier les aliquots reçus de la banque à un participant créé par le système. Ces participants sont maintenant enregistrés dans le 'ATiM-PS3', ATiM contenant les aliquots précédemment enregistrés dans le 'ATiM-Procure Processing Site' obsoltète."),
+("procure_bank_merge_summary_help_transferred_aliquot",
+"Transferred Aliquot : Aliquot created into one of the banks (PS1, PS2 or PS4) then transferred to PS3 and recorded into 'ATiM-PS3', ATiM that gathers aliquots previoulsy recorded into the depreacted 'ATiM-Procure Processing Site'.",
+"Aliquot transféré : Aliquot créé dans une des banques (PS1, PS2 ou PS4) puis transféré à PS3 et enregistré dans le 'ATiM-PS3', ATiM contenant les aliquots précédemment enregistrés dans le 'ATiM-Procure Processing Site' obsoltète.");
 
--- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- TODO (short time)
--- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps1_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps2_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps3_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions'),
+('Administrate', 'ProcureBanksDataMergeTrie', 'procure_banks_data_merge_tries', 'ps4_dump_versions', 'input',  NULL , '0', '', '', '', '', 'versions');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps1_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps2_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps3_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_tries'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeTrie' AND `tablename`='procure_banks_data_merge_tries' AND `field`='ps4_dump_versions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='versions'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-Revoire le contenenu du fichier 'SampleMasters_contentTreeView_format.php' 'AliquotMasters_contentTreeView_format.php'
-Les TMA seront fait par le chum...
-Importer que les study numebr dans export vers le central - supprimer les contacts et les messages, pas d'info sur les contacts dans study / order, etc...
-Vérifier que dans le processus de fusion le id auto-increment sont bien remis a 0
+INSERT INTO structure_value_domains (domain_name) VALUES ("procure_bank_data_merge_results");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("failed", "failed"),("successfull", "successfull");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_bank_data_merge_results"), (SELECT id FROM structure_permissible_values WHERE value="failed" AND language_alias="failed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_bank_data_merge_results"), (SELECT id FROM structure_permissible_values WHERE value="successfull" AND language_alias="successfull"), "1", "1");
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_bank_data_merge_results')  WHERE model='ProcureBanksDataMergeTrie' AND tablename='procure_banks_data_merge_tries' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE versions SET branch_build_number = '6995' WHERE version_number = '2.6.8';
+
+UPDATE versions SET branch_build_number = '7015' WHERE version_number = '2.6.8';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
