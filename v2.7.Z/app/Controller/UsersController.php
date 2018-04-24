@@ -112,7 +112,7 @@ class UsersController extends AppController
      */
     public function login()
     {
-        
+
         $username=$this->UserLoginAttempt->find('first', array('order' => 'attempt_time DESC'));
         $username=(isset($username["UserLoginAttempt"]["username"])?$username["UserLoginAttempt"]["username"]:null);
         if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
@@ -185,7 +185,7 @@ class UsersController extends AppController
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
                 }
-                $this->_initialsizeNotificationSessionVariables();
+                $this->_initializeNotificationSessionVariables();
 
                 $this->_setSessionSearchId();
                 $this->resetPermissions();
