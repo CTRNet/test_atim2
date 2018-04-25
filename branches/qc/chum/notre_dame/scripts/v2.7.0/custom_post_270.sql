@@ -616,3 +616,13 @@ ALTER TABLE qc_nd_ed_psas_revs MODIFY value decimal(12,3) DEFAULT NULL;
 -- -----------------------------
 
 UPDATE versions SET branch_build_number = '7097' WHERE version_number = '2.7.0';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 20180425
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_nd_ed_ca125s MODIFY value int(8) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_ca125s_revs MODIFY value int(8) DEFAULT NULL;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_ca125s' AND field='value' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+
+UPDATE versions SET branch_build_number = '7098' WHERE version_number = '2.7.0';

@@ -11,14 +11,37 @@ global $import_summary;
 $import_summary = array();
 
 //==============================================================================================
+// Config
+//==============================================================================================
+
+$is_server = true;
+// Database
+
+$db_user 		= "root";
+$db_pwd			= "";
+$db_schema		= "chumonco";
+
+if($is_server) {
+    $db_user 		= "root";
+    $db_pwd			= "am3-y-4606";
+    $db_schema		= "atimoncologyaxisprod268";
+}
+// File
+
+$file_name = "NouveauFichierATiM_short.xml";
+$file_path = "C:/_NicolasLuc/Server/www/";
+
+if($is_server) {
+    $file_name = "ATiM.xml";
+    $file_path = "/ch06chuma6134/";
+}
+
+//==============================================================================================
 // Database Connection
 //==============================================================================================
 
 $db_ip			= "localhost";
 $db_port 		= "";
-$db_user 		= "root";
-$db_pwd			= "";
-$db_schema		= "atimoncologyaxisprod268";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -64,8 +87,7 @@ $cd_icm_sardo_data_import_try_final_queries[] = "UPDATE cd_icm_sardo_data_import
 // Load XML file data in DB sardo_* tables
 //==============================================================================================
 
-$file_name = "ATiM.xml";
-$file_path = str_replace('file_name', $file_name, "/ch06chuma6134/file_name");
+$file_path = $file_path.$file_name;
 //$file_path = str_replace('file_name', $file_name, "C:/_NicolasLuc/Server/www/file_name");
 if(!file_exists($file_path)) {
     importDie("XML File : The file $file_path does not exist!");
@@ -1236,25 +1258,56 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			        $atim_day_results = array();
 			        if(isset($atim_all_labos_data[$atim_test_title][$sardo_formated_date])) {
     			        foreach($atim_all_labos_data[$atim_test_title][$sardo_formated_date] as $atim_labo_result) {
-    			            $atim_labo_result['value'] =  $atim_labo_result['value'];
     			            $atim_day_results[$atim_labo_result['value']] = $atim_labo_result['value'];
     			        }
 			        }
 			        ksort($atim_day_results);
-			        $atim_day_results_strg = implode(' & ', $atim_day_results);
-			        $atim_day_results = implode('#', array_keys($atim_day_results));
 			        //SARDO
 			        $sardo_day_results = array();
+			        $atim_event_date = '';
+			        $atim_event_date_accuracy = '';
 			        foreach($sardo_all_labos_data[$atim_test_title][$sardo_formated_date] as $sardo_labo_result) {
-			            $sardo_labo_result['Resultat'] = $sardo_labo_result['Resultat'];
-			            $sardo_day_results[$sardo_labo_result['Resultat']] = $sardo_labo_result['Resultat'].(isset($sardo_labo_result['sardo_ca125_exact_value'])? ' '.$sardo_labo_result['sardo_ca125_exact_value'] : '');
+			            $sardo_day_results[$sardo_labo_result['Resultat']] = $sardo_labo_result['Resultat'];
+    			        $atim_event_date = $sardo_labo_result['Date'];
+    			        $atim_event_date_accuracy = $sardo_labo_result['Date_accuracy'];
 			        }
 			        ksort($sardo_day_results);
+			        // Define new lab to create
+			        $sardo_day_results_to_create = array_diff($sardo_day_results, $atim_day_results);
+			        $sardo_day_results_to_create_strg = ' No new value has been created';
+			        $msgType = 'MESSAGE';
+			        if($sardo_day_results_to_create) {
+			            $sardo_day_results_created = array();
+    			        foreach($sardo_day_results_to_create as $new_sardo_day_result) {
+    			            if(!in_array($new_sardo_day_result, $atim_day_results)) {
+        			            $atim_event_data_to_create= array(
+        			                'EventMaster' => array(
+        			                    'event_control_id' => $ca125_psa_scc_event_controls[$atim_test_title]['id'],
+        			                    'participant_id' => $pariticpant_id,
+        			                    'event_date' => $atim_event_date,
+        			                    'event_date_accuracy' =>$atim_event_date_accuracy),
+        			                'EventDetail' => array(
+        			                    'value' => $new_sardo_day_result));
+        			            $atim_event_data_to_create['EventMaster']['id'] = getNextReusableId('event_masters');
+        			            $event_master_id = customInsert($atim_event_data_to_create['EventMaster'], 'event_masters', __LINE__, false, true);
+        			            $atim_event_data_to_create['EventDetail']['event_master_id'] = $event_master_id;
+        			            customInsert($atim_event_data_to_create['EventDetail'],  $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'], __LINE__, true, true);
+        			            $sardo_day_results_created[] = $new_sardo_day_result;
+        			        }
+    			        }
+    			        if($sardo_day_results_created) {
+        			        $sardo_day_results_to_create_strg = implode(' & ', $sardo_day_results_created);
+        			        $sardo_day_results_to_create_strg = ' Created following results : '.$sardo_day_results_to_create_strg;
+                            $msgType = 'WARNING';
+    			        }
+			        }
+			        //Generate warning	
+			        $atim_day_results_strg = implode(' & ', $atim_day_results);
+			        $atim_day_results = implode('#', array_keys($atim_day_results));	
 			        $sardo_day_results_strg = implode(' & ', $sardo_day_results);
-			        $sardo_day_results = implode('#', array_keys($sardo_day_results));
-			        //Generate warning			        
+			        $sardo_day_results = implode('#', array_keys($sardo_day_results));	        
 			        if($sardo_day_results != $atim_day_results) {
-			            $import_summary['Labo']['WARNING']["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. Data have to be updated/corrected manually into ATiM"][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [$atim_day_results_strg] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. $sardo_day_results_to_create_strg. Please confirm."][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [$atim_day_results_strg] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 			        }
 			    } 
 			}
