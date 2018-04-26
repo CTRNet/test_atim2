@@ -249,7 +249,7 @@ class User extends AppModel
                         $passwordFormatError = true;
                     }
                 case 2:
-                    if (! preg_match('/[1-9]+/', $data['User']['new_password'])){
+                    if (! preg_match('/[0-9]+/', $data['User']['new_password'])){
                         $passwordFormatError = true;
                     }
                 case 1:
