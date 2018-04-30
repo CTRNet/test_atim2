@@ -59,7 +59,7 @@ INSERT IGNORE INTO
 VALUES(
 	"the file size should be less than %d bytes", 
 	"The file size should be less than %d bytes", 
-	"La taille de fichier dois être mois que %d octets");
+	"La taille de fichier dois être moins que %d octets");
 
 -- -------------------------------------------------------------------------------------
 --	upload directory permission incorrect
