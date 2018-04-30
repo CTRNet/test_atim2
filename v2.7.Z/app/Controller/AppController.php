@@ -229,7 +229,7 @@ class AppController extends Controller
         $this->checkIfDownloadFile();
       
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
-            AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
+            AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit'));
         }
         
         if (convertFromKMG(ini_get("upload_max_filesize")) <= Configure::read('maxUploadFileSize')) {
@@ -274,7 +274,7 @@ class AppController extends Controller
                 header('Content-Length: ' . filesize($file));
                 readfile($file);
             }else{
-                $this->atimFlashError(__('File not existe.'), '');
+                $this->atimFlashError(__('file does not exist'), '');
             }
         }
     }

@@ -28,11 +28,27 @@ VALUES
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES 	
+	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier");
+
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES 	
 	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
 	("download %s", "Download %s", "Télécharger %s"),
-	("File not existe.", "", ""),
-	("warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problems in uploading", "", ""),
-	("warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading", "", "");
+	("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
+	
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES 	
+	('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit', 
+	'The PHP "max_input_vars" defined into the "php.ini" file is less than the "databrowser_and_report_results_display_limit" defined into the ATiM "core.php" file. Configuration will generate problems whenever you display more options than "max_input_vars". Please update either the "php.ini" file or the "core.php" file.',
+	'La variable PHP "max_input_vars" définie dans le fichier "php.ini" est inférieure au "databrowser_and_report_results_display_limit" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque vous afficherez plus de valeurs que "max_input_vars". Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
+    ('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading',
+    'The PHP "upload_max_filesize" defined into the "php.ini" file is less than the "maxUploadFileSize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+	'La variable PHP "upload_max_filesize" définie dans le fichier "php.ini" est inférieure au "maxUploadFileSize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
+    ('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading',
+    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
 
 -- -------------------------------------------------------------------------------------
 --	File size error message
