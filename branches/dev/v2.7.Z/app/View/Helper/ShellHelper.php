@@ -244,7 +244,7 @@ class ShellHelper extends Helper
         }
         
         $return = "";
-        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0) {
+        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0 && !$this->request->is('ajax')) {
             $return .= '
 				<!-- start #validation -->
 				<div class="validation">
