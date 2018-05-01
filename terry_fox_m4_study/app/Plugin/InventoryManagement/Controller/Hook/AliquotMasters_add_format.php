@@ -10,9 +10,17 @@
  */
 
 // Set default aliquot label(s)
-$defaultAliquotLabels = array();
+$defaultAliquotValues = array();
 foreach ($samples as $viewSample) {
     $defaultAliquotLabel = $this->AliquotMaster->generateDefaultAliquotLabel($viewSample, $aliquotControl);
-    $defaultAliquotLabels[$viewSample['ViewSample']['sample_master_id']] = $defaultAliquotLabel;
+    $defaultAliquotValues[$viewSample['ViewSample']['sample_master_id']]['AliquotMaster.aliquot_label'] = $defaultAliquotLabel;
+    switch ($aliquotControl['AliquotControl']['aliquot_type']) {
+        case 'giemsl slide':
+            $defaultAliquotValues[$viewSample['ViewSample']['sample_master_id']]['AliquotDetail.tfri_m4s_staining'] = 'giemsa';
+            break;
+        case 'cytosl slide':
+            $defaultAliquotValues[$viewSample['ViewSample']['sample_master_id']]['AliquotDetail.tfri_m4s_method'] = 'cytospin';
+            break;
+    }
 }
-$this->set('defaultAliquotLabels', $defaultAliquotLabels);
+$this->set('defaultAliquotValues', $defaultAliquotValues);
