@@ -97,8 +97,13 @@ class AliquotMasterCustom extends AliquotMaster
                     'fields' => array('SampleDetail.tfri_m4s_cd_138')
                 ));
                 $suffix = 'CD138'.str_replace(array('p', 'n', 'u'), array('POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
-                if ($aliquotControlData['AliquotControl']['aliquot_type'] == 'slide') {
-                    $suffix .= ' GiemSL?CytoSL';
+                switch ($aliquotControlData['AliquotControl']['aliquot_type']) {
+                    case 'giemsl slide':
+                        $suffix .= ' GiemSL';
+                        break;
+                    case 'cytosl slide':
+                        $suffix .= ' CytoSL';
+                        break;
                 }
                 break;
         }
@@ -111,7 +116,7 @@ class AliquotMasterCustom extends AliquotMaster
      */
     public function regenerateAliquotBarcode()
     {
-        $queryToUpdate = "UPDATE aliquot_masters SET barcode = CONCAT('tmp#',id) WHERE barcode IS NULL OR barcode LIKE '';";
+        $queryToUpdate = "UPDATE aliquot_masters SET barcode = id WHERE barcode IS NULL OR barcode LIKE '';";
         $this->tryCatchQuery($queryToUpdate);
         $this->tryCatchQuery(str_replace("aliquot_masters", "aliquot_masters_revs", $queryToUpdate));
     }

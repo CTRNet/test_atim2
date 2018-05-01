@@ -10,6 +10,8 @@
  */
 
 // Set default aliquot label(s)
-if (isset($defaultAliquotLabels[$data['parent']['ViewSample']['sample_master_id']])) {
-    $finalOptionsChildren['override']['AliquotMaster.aliquot_label'] = $defaultAliquotLabels[$data['parent']['ViewSample']['sample_master_id']];
+if (isset($defaultAliquotValues[$data['parent']['ViewSample']['sample_master_id']])) {
+    foreach ($defaultAliquotValues[$data['parent']['ViewSample']['sample_master_id']] as $keyModelField => $defaultValue) {
+        $finalOptionsChildren['override'][$keyModelField] = $defaultValue;
+    }
 }

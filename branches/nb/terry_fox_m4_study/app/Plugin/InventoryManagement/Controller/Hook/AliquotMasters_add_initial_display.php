@@ -10,14 +10,14 @@
  */
 
 // Set incremental aliquot label(s)
-if (isset($defaultAliquotLabels)) {
+if (isset($defaultAliquotValues)) {
     foreach ($this->request->data as &$newSampleAndAliquots) {
         $sampleMasterId = $newSampleAndAliquots['parent']['ViewSample']['sample_master_id'];
-        if (array_key_exists($sampleMasterId, $defaultAliquotLabels)) {
+        if (array_key_exists($sampleMasterId, $defaultAliquotValues)) {
             $counter = 0;
             foreach ($newSampleAndAliquots['children'] as &$newAliquot) {
                 $counter ++;
-                $newAliquot['AliquotMaster']['aliquot_label'] = $defaultAliquotLabels[$sampleMasterId] . '-' . (strlen($counter) == 1 ? '0' . $counter : $counter);
+                $newAliquot['AliquotMaster']['aliquot_label'] = $defaultAliquotValues[$sampleMasterId]['AliquotMaster.aliquot_label'] . '-' . (strlen($counter) == 1 ? '0' . $counter : $counter);
             }
         }
     }

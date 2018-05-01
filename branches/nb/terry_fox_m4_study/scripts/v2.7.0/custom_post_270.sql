@@ -4,7 +4,7 @@
 -- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'The Terry Fox Research Institute - M.4.S.', 'The Terry Fox Research Institute - M.4.S.');
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'TFRI Reiman M4 Study', 'TFRI Reiman M4 Study');
 UPDATE groups SET flag_show_confidential = '1' WHERE id = 1;
 UPDATE users SET flag_active = '1', password_modified = NOW(), force_password_reset = '0' WHERE id = 1;
 
@@ -190,15 +190,10 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(25
 
 -- Sample Masters
 
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
 -- Specimen
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0',`flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
--- Blood
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_tube_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- Derivative
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
 -- B Cells
@@ -428,12 +423,20 @@ ALTER TABLE `tfri_m4s_sd_der_cd138s_revs`
   MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `tfri_m4s_sd_der_cd138s`
   ADD CONSTRAINT `FK_tfri_m4s_sd_der_cd138s_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+ALTER TABLE `aliquot_controls`
+  MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','giemsl slide','cytosl slide','tube','whatman paper','envelope') NOT NULL COMMENT 'Generic name.';
 INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label)
 VALUES
-((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'slide', 'ad_der_cell_slides,tfri_m4s_ad_cd138_cell_slide', 'ad_cell_slides', '1', 'cd138 cells|slide');
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'giemsl slide', 'ad_der_cell_slides,tfri_m4s_ad_cd138_cell_slide', 'ad_cell_slides', '1', 'cd138 cells|giemsl slide');
 INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
 VALUES
-((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|slide'), '1');
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|giemsl slide'), '1');
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'cytosl slide', 'ad_der_cell_slides,tfri_m4s_ad_cd138_cell_slide', 'ad_cell_slides', '1', 'cd138 cells|cytosl slide');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|cytosl slide'), '1');
 INSERT INTO structures(`alias`) VALUES ('tfri_m4s_ad_cd138_cell_slide');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_staining' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_stainings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='staining' AND `language_tag`=''), '1', '83', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
@@ -442,6 +445,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_purity' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='purity' AND `language_tag`=''), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='tfri_m4s_ad_cd138_cell_slide'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_slides' AND `field`='tfri_m4s_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_m4s_b_cell_slide_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(231);
+INSERT INTO i18n (id,en,fr)
+VALUES
+('giemsl slide', 'GiemSl Slide', 'Lame GiemSl'),
+('cytosl slide', 'CytoSL Slide', 'Lame CytoSL');
 
 -- FMed
 
@@ -595,3 +602,94 @@ VALUES
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7054' WHERE version_number = '2.7.0';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Add tube nbr and volume to bone marrow
+
+INSERT INTO structures(`alias`) VALUES ('tfri_m4s_sd_spe_bone_marrows');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'tfri_m4s_collected_tube_nbr', 'integer_positive',  NULL , '0', 'size=5', '', '', 'collected tubes nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tfri_m4s_sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='collected volume' AND `language_tag`=''), '1', '443', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '444', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tfri_m4s_sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tfri_m4s_collected_tube_nbr' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='collected tubes nbr' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+ALTER TABLE sd_spe_bone_marrows
+  ADD COLUMN tfri_m4s_collected_tube_nbr int(4) DEFAULT NULL;
+ALTER TABLE sd_spe_bone_marrows_revs
+  ADD COLUMN tfri_m4s_collected_tube_nbr int(4) DEFAULT NULL;
+UPDATE sample_controls SET  detail_form_alias = 'specimens,tfri_m4s_sd_spe_bone_marrows' WHERE sample_type = 'bone marrow';
+
+-- Add new cell count unit
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("10e5", "10e5"),("10e4", "10e4"),("10e3", "10e3"),("10e2", "10e2"),("10e1", "10e1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="cell_count_unit"), (SELECT id FROM structure_permissible_values WHERE value="10e5" AND language_alias="10e5"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="cell_count_unit"), (SELECT id FROM structure_permissible_values WHERE value="10e4" AND language_alias="10e4"), "-1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="cell_count_unit"), (SELECT id FROM structure_permissible_values WHERE value="10e3" AND language_alias="10e3"), "-2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="cell_count_unit"), (SELECT id FROM structure_permissible_values WHERE value="10e2" AND language_alias="10e2"), "-3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="cell_count_unit"), (SELECT id FROM structure_permissible_values WHERE value="10e1" AND language_alias="10e1"), "-4", "1");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="8" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e7" AND language_alias="10e7");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="7" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e8" AND language_alias="10e8");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="6" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e6" AND language_alias="10e6");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e5" AND language_alias="10e5");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e4" AND language_alias="10e4");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e3" AND language_alias="10e3");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="2" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e2" AND language_alias="10e2");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="1" WHERE svd.domain_name='cell_count_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="10e1" AND language_alias="10e1");
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('cell count', 'Cell Count', 'Nombre de cellules');
+
+-- Add wbc to dna and rna
+
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'dna'),1),
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'rna'),1);
+
+-- Add wbc to dna and rna
+
+INSERT INTO sample_controls(sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('cell pellet', 'derivative', 'sd_undetailed_derivatives,derivatives', 'tfri_m4s_sd_der_cell_pellets', 'cell pellet');
+CREATE TABLE `tfri_m4s_sd_der_cell_pellets` (
+  `sample_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `tfri_m4s_sd_der_cell_pellets_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `tfri_m4s_sd_der_cell_pellets`
+  ADD KEY `FK_tfri_m4s_sd_der_cell_pellets_sample_masters` (`sample_master_id`);
+ALTER TABLE `tfri_m4s_sd_der_cell_pellets_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `tfri_m4s_sd_der_cell_pellets_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tfri_m4s_sd_der_cell_pellets`
+  ADD CONSTRAINT `FK_tfri_m4s_sd_der_cell_pellets_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT INTO i18n (id,en,fr)
+VALUES
+('cell pellet', 'Cell Pellet', '');
+
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'wbc'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'cell pellet'),1),
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'cell pellet'),1);
+
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label, volume_unit)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cell pellet'), 'tube', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', '1', 'cell pellet|tube', 'ml');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cell pellet|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cell pellet|tube'), '1');
+
+-- Disable cDNA and Amplified Rna
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(23, 136);
+
+UPDATE versions SET branch_build_number = '7103' WHERE version_number = '2.7.0';

@@ -74,5 +74,3 @@ class ParticipantCustom extends Participant
         return $result;
     }
 }
-
-?>

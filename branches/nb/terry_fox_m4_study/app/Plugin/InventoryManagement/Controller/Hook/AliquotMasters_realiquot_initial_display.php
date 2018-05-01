@@ -19,6 +19,14 @@ foreach ($this->data as $newDataSet) {
         'recursive' => - 1
     ));
     $defaultAliquotLabel = $this->AliquotMaster->generateDefaultAliquotLabel($sampleData, $childAliquotCtrl);
-    $defaultAliquotLabels[$sampleMasterId] = $defaultAliquotLabel;
+    $defaultAliquotValues[$sampleMasterId]['AliquotMaster.aliquot_label'] = $defaultAliquotLabel;
+    switch ($childAliquotCtrl['AliquotControl']['aliquot_type']) {
+        case 'giemsl slide':
+            $defaultAliquotValues[$sampleMasterId]['AliquotDetail.tfri_m4s_staining'] = 'giemsa';
+            break;
+        case 'cytosl slide':
+            $defaultAliquotValues[$sampleMasterId]['AliquotDetail.tfri_m4s_method'] = 'cytospin';
+            break;
+    }
 }
-$this->set('defaultAliquotLabels', $defaultAliquotLabels);
+$this->set('defaultAliquotValues', $defaultAliquotValues);
