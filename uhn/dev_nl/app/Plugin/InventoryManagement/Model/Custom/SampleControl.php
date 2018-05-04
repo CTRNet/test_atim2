@@ -1,16 +1,14 @@
 <?php
-
 /** **********************************************************************
  * UHN Project.
  * ***********************************************************************
  *
  * InventoryManagement plugin custom code
- *
- * Class CollectionCustom
  * 
  * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
  * @since 2018-05-04
  */
+ 
 class SampleControlCustom extends SampleControl
 {
     var $useTable = 'sample_controls';
@@ -23,6 +21,11 @@ class SampleControlCustom extends SampleControl
      *    - 'Fluid Sub Types'
      *    - 'Cell Sub Types'
      *    - 'Molecular Sub Types'
+     * 
+     * See new structure_value_domains created by script custom_post_270.sql
+     *  INSERT INTO structure_value_domains (domain_name, source) 
+     *  VALUES
+     *  ('uhn_all_sub_types', "InventoryManagement.SampleControl::getSampleSubTypes");
      * 
      * @return array List of all sample sub types
      */

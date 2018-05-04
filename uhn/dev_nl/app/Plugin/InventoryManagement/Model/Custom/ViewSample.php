@@ -4,18 +4,18 @@
  * ***********************************************************************
  *
  * InventoryManagement plugin custom code
- *
- * Class CollectionCustom
  * 
  * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
  * @since 2018-05-04
  */
-
+ 
 class ViewSampleCustom extends ViewSample
 {
 
     var $name = 'ViewSample';
 
+    // Added SampleMaster.uhn_sample_sub_type to the view
+    
     public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
