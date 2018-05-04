@@ -289,7 +289,7 @@ INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliq
 VALUES
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'cell derivative'), 'tube', '', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'cell derivative|tube'),
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'cell derivative'), 'slide', '', 'ad_der_cell_slides', 'ad_cell_slides', NULL, 1, 'Cells slide', 0, 'cell derivative|slide'),
-(null, (SELECT id FROM sample_controls WHERE sample_type = 'cell derivative'), 'block', '', 'uhn_ad_der_cells', 'ad_blocks', '', 1, '', 0, 'cell derivative|block');
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'cell derivative'), 'block', '', 'uhn_ad_der_cell_blocks', 'ad_blocks', '', 1, '', 0, 'cell derivative|block');
 INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) 
 VALUES
 (null, (SELECT Aq.id FROM sample_controls Smp INNER JOIN aliquot_controls Aq ON Smp.id = Aq.sample_control_id WHERE Smp.sample_type = 'cell derivative' AND Aq.aliquot_type = 'tube'),
@@ -424,6 +424,18 @@ VALUES
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'molecular derivative'), (SELECT id FROM sample_controls WHERE sample_type = 'fluid derivative'), 1, NULL),
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'molecular derivative'), (SELECT id FROM sample_controls WHERE sample_type = 'cell derivative'), 1, NULL),
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'molecular derivative'), (SELECT id FROM sample_controls WHERE sample_type = 'molecular derivative'), 1, NULL);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

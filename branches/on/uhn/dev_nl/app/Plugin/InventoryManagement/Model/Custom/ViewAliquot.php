@@ -4,18 +4,18 @@
  * ***********************************************************************
  *
  * InventoryManagement plugin custom code
- *
- * Class CollectionCustom
  * 
  * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
  * @since 2018-05-04
  */
-
+ 
 class ViewAliquotCustom extends ViewAliquot
 {
 
     var $name = 'ViewAliquot';
 
+    // Added SampleMaster.uhn_sample_sub_type to the view
+    
     public static $tableQuery = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
