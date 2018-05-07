@@ -29,6 +29,8 @@ UPDATE groups SET name = 'System' WHERE id = 2;
 
 UPDATE users SET flag_active = 0, password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE id > 2;
 
+UPDATE users SET first_name = username, email = '';
+
 -- Banks
 -- ...................................................................................................................................
 
@@ -574,3 +576,45 @@ UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_5_name';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7054' WHERE version_number = '2.7.0';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='spr_breast_cancer_types') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='breast_review_type') AND `flag_confidential`='0');
+ALTER TABLE spr_breast_cancer_types
+   ADD COLUMN bc_nbi_ductal char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_lobular char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_d_l_mix char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_tubular char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_mucinous char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_dcis char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_other char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_other_precision varchar(250) DEFAULT NULL;
+ALTER TABLE spr_breast_cancer_types_revs
+   ADD COLUMN bc_nbi_ductal char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_lobular char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_d_l_mix char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_tubular char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_mucinous char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_dcis char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_other char(1) DEFAULT NULL,
+   ADD COLUMN bc_nbi_other_precision varchar(250) DEFAULT NULL;
+UPDATE structure_formats SET display_order = (display_order+30) WHERE structure_id=(SELECT id FROM structures WHERE alias='spr_breast_cancer_types');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_ductal', 'yes_no',  NULL , '0', '', '', '', 'ductal', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_lobular', 'yes_no',  NULL , '0', '', '', '', 'lobular', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_d_l_mix', 'yes_no',  NULL , '0', '', '', '', 'd-l mix', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_tubular', 'yes_no',  NULL , '0', '', '', '', 'tubular', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_mucinous', 'yes_no',  NULL , '0', '', '', '', 'mucinous', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_dcis', 'yes_no',  NULL , '0', '', '', '', 'dcis', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_other', 'yes_no',  NULL , '0', '', '', '', 'other', ''), 
+('InventoryManagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'bc_nbi_other_precision', 'input',  NULL , '0', 'size=20', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_ductal' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ductal' AND `language_tag`=''), '1', '20', 'type', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_lobular' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lobular' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_d_l_mix' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='d-l mix' AND `language_tag`=''), '1', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_tubular' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tubular' AND `language_tag`=''), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_mucinous' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mucinous' AND `language_tag`=''), '1', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_dcis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dcis' AND `language_tag`=''), '1', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_other' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other' AND `language_tag`=''), '1', '26', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='bc_nbi_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '1', '27', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '7107' WHERE version_number = '2.7.0';
