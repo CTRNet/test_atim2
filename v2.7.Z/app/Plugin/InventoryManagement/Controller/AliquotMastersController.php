@@ -196,10 +196,29 @@ class AliquotMastersController extends InventoryManagementAppController
         
         $this->set('aliquotControlId', $aliquotControl['AliquotControl']['id']);
         
+        // GET DEFAULT VALUES
+        
         $templateInitId = null;
         if (isset($this->request->data['template_init_id'])) {
             $templateInitId = $this->request->data['template_init_id'];
             unset($this->request->data['template_init_id']);
+        }
+        
+        // Set default field values defined into the collection template
+        if (isset(AppController::getInstance()->passedArgs['nodeIdWithDefaultValues'])) {
+            $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+            $templateNode = $templateNodeModel->find('first', array(
+                'conditions' => array(
+                    'TemplateNode.id' => AppController::getInstance()->passedArgs['nodeIdWithDefaultValues']
+                )
+            ));
+            $templateNodeDefaultValues = array();
+            foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
+                foreach ($fieldsValues as $field => $Value) {
+                    $templateNodeDefaultValues["$model.$field"] = $Value;
+                }
+            }
+            $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);
         }
         
         // GET SAMPLES DATA

@@ -687,6 +687,23 @@ class SampleMastersController extends InventoryManagementAppController
                     $this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $defaultReceptionDatetimeAccuracy;
                 }
             }
+                
+            // Set default field values defined into the collection template
+            if (isset(AppController::getInstance()->passedArgs['nodeIdWithDefaultValues'])) {
+                $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+                $templateNode = $templateNodeModel->find('first', array(
+                    'conditions' => array(
+                        'TemplateNode.id' => AppController::getInstance()->passedArgs['nodeIdWithDefaultValues']
+                    )
+                ));
+                $templateNodeDefaultValues = array();
+                foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
+                    foreach ($fieldsValues as $field => $Value) {
+                        $templateNodeDefaultValues["$model.$field"] = $Value;
+                    }
+                }
+                $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);
+            }
             
             $hookLink = $this->hook('initial_display');
             if ($hookLink) {
@@ -1370,7 +1387,7 @@ class SampleMastersController extends InventoryManagementAppController
         $this->Structures->set('empty', 'emptyStructure');
         
         $this->set('childrenSampleControlId', $this->request->data['SampleMaster']['sample_control_id']);
-        $this->set('createdSampleOverrideData', array(
+        $this->set('createdSampleStructureOverride', array(
             'SampleControl.sample_type' => $childrenControlData['SampleControl']['sample_type']
         ));
         $this->set('parentSampleControlId', $parentSampleControlId);

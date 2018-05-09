@@ -211,8 +211,7 @@ class TemplateController extends AppController
         $this->Template->id = $templateId;
         $this->request->data = $tmpTemplate;
         $this->set('editProperties', $tmpTemplate['Template']['allow_properties_edition']);
-        
-        $tree = $this->Template->init();
+        $tree = $this->Template->init($this->Structures);
         $this->set('treeData', $tree['']);
         $this->set('templateId', $templateId);
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/index'));
@@ -220,7 +219,8 @@ class TemplateController extends AppController
             'sample_controls' => $sampleControls,
             'samples_relations' => $samplesRelations,
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "id", true),
-            'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id")
+            'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
+            'fomated_nodes_default_values' => $this->TemplateNode->formatTemplateNodeDefaultValuesForDisplay($templateId)
         );
         $this->set('jsData', $jsData);
         $this->set('templateId', $templateId);

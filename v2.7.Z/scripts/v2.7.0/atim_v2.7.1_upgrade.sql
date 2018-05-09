@@ -172,7 +172,7 @@ where `type`='adtetime';
 
 -- -------------------------------------------------------------------------------------
 --	Issue #3484: Define the default number of created tubes when user 
--- is realiquoting aliquot(s) or creating aliquot(s) from sample
+--  is realiquoting aliquot(s) or creating aliquot(s) from sample
 -- -------------------------------------------------------------------------------------
 
 INSERT INTO structures(`alias`) VALUES ('aliquot_nb_definition');
@@ -184,6 +184,14 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ('number of created aliquots per parent', 'Children Aliquots Number per Parent', 'Nombre aliquots enfants par parent'),
 ('nbr of children by default can not be bigger than 20', 'The number of children aliquots by default can not be bigger than 20!', "Le nombre d'aliquots enfants par défaut ne peut pas être supérieur à 20!");
+
+-- -------------------------------------------------------------------------------------
+--	Collection Template & protocol
+--     - Add option to set default values for a collection template node
+-- -------------------------------------------------------------------------------------
+
+ALTER TABLE template_nodes
+   ADD COLUMN default_values TEXT DEFAULT null;
 
 -- -------------------------------------------------------------------------------------
 --	missing i18n translations
