@@ -210,15 +210,19 @@ if (isset($isAjax)) {
 		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
+		defaultValues = '';
+		if(modelsData.fomated_nodes_default_values[Math.abs(treeData.id)]){
+			defaultValues = " | " + modelsData.fomated_nodes_default_values[Math.abs(treeData.id)];
+		}
 		if(treeData.datamartStructureId == 2){
 			label = '<?php echo __('collection'); ?>';
 			type = 'collection';
 		}else if(treeData.datamartStructureId == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
+			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>" + defaultValues;
 		}else{
 			type = 'sample';
-			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"];
+			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"] + defaultValues;
 		}
 
 		if($(node)[0].nodeName != "UL"){
@@ -250,7 +254,8 @@ if (isset($isAjax)) {
 			"controlId" : Math.abs(treeData.controlId), 
 			"nodeId" : treeData.id === 0 ? nodeId -- : treeData.id,
 			"parentId" : treeData.parentId,
-			"quantity" : treeData.quantity
+			"quantity" : treeData.quantity,
+			"defaultValuesExist" : defaultValues == ''? 0 : 1
 		}); 
 		bindButtons(li); 
 		return li;
@@ -378,7 +383,8 @@ if (isset($isAjax)) {
 				url = 'InventoryManagement/SampleMasters/add/<?php echo $collectionId; ?>/' + data.controlId + '/' + parentId + '/';
 			}
 
-			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
+			urlNodeIdParameter = (data.defaultValuesExist == 1)? '/nodeIdWithDefaultValues:' + data.nodeId + '/' : '';
+			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/' + urlNodeIdParameter, function(jsonData){
 				jsonData = $.parseJSON(jsonData);
 				saveSqlLogAjax(jsonData);
 				try{

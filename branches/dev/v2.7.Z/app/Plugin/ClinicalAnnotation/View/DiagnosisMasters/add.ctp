@@ -13,17 +13,17 @@ $structureSettings = array(
     'header' => __('new ' . $dxCtrl['DiagnosisControl']['category']) . ' : ' . __($dxCtrl['DiagnosisControl']['controls_type'], null)
 );
 
-$override = array();
+$structureOverride = array();
 if ($dxCtrl['DiagnosisControl']['id'] == 15) {
     // unknown primary, add a disease code
-    $override['DiagnosisMaster.icd10_code'] = 'D489';
+    $structureOverride['DiagnosisMaster.icd10_code'] = 'D489';
 }
 
 $finalAtimStructure = $atimStructure;
 $finalOptions = array(
     'links' => $structureLinks,
     'settings' => $structureSettings,
-    'override' => $override
+    'override' => $structureOverride
 );
 
 $hookLink = $this->Structures->hook();

@@ -37,6 +37,7 @@ class Template extends AppModel
         );
         foreach ($tree as &$node) {
             $node = $node['TemplateNode'];
+            unset($node['default_values']);
             $result[$node['id']] = $node;
             $result[$node['parent_id']]['children'][] = &$result[$node['id']];
         }

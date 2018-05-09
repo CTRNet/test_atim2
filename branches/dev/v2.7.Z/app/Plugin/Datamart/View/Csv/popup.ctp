@@ -1,5 +1,5 @@
 <?php
-$override = array(
+$structureOverride = array(
     'Config.config_language' => $_SESSION['Config']['language'],
     'Config.define_csv_separator' => CSV_SEPARATOR,
     'Config.define_csv_encoding' => CSV_ENCODING
@@ -9,7 +9,7 @@ $this->Structures->build($atimStructure, array(
     'links' => array(
         'top' => 'Datamart/Csv/csv/'
     ),
-    'override' => $override,
+    'override' => $structureOverride,
     'settings' => array(
         'actions' => false
     )
