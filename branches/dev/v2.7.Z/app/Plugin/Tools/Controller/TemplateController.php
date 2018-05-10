@@ -3,7 +3,7 @@
 /**
  * Class TemplateController
  */
-class TemplateController extends AppController
+class TemplateController extends AppController 
 {
 
     public $uses = array(
@@ -12,19 +12,19 @@ class TemplateController extends AppController
         'Group'
     );
 
-    public function beforeFilter()
-    {
+    public function beforeFilter() 
+{
         parent::beforeFilter();
         $this->Auth->actionPath = 'controllers/';
     }
 
-    public function index()
-    {
+    public function index() 
+{
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/index'));
         $this->Structures->set('template');
-        
+
         $this->request->data = $this->Template->getTemplates('template edition');
-        
+
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -34,26 +34,27 @@ class TemplateController extends AppController
     /*
      * Create the Collection Template setting properties
      */
-    public function add()
-    {
+
+    public function add() 
+{
         $this->Structures->set('template');
-        
+
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
         }
-        
-        if (! empty($this->request->data)) {
+
+        if (!empty($this->request->data)) {
             $submittedDataValidates = true;
-            
+
             $this->Template->setOwnerAndVisibility($this->request->data);
-            
+
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
                 require ($hookLink);
             }
-            
+
             if ($submittedDataValidates && $this->Template->save($this->request->data)) {
                 $templateId = $this->Template->getLastInsertId();
                 $this->atimFlash(__('your data has been saved'), '/Tools/Template/edit/' . $templateId);
@@ -67,8 +68,8 @@ class TemplateController extends AppController
     /**
      * @param $templateId
      */
-    public function edit($templateId)
-    {
+    public function edit($templateId) 
+{
         // the following business rules apply to received data
         // controlId = 0 -> collection root
         // > 0 -> sample
@@ -77,14 +78,14 @@ class TemplateController extends AppController
         // nodeId = 0 -> collection root node
         // < 0 -> node not in database
         // > 0 -> node in database
-        
+
         // validate access
         $tmpTemplate = $this->Template->getTemplates('template edition', $templateId);
         if (empty($tmpTemplate)) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
-        
+
         // js menus required data-------
         $sampleControlModel = AppModel::getInstance("InventoryManagement", "SampleControl", true);
         $parentToDerivativeSampleControlModel = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
@@ -102,16 +103,16 @@ class TemplateController extends AppController
             'recusrive' => - 1
         ));
         AppController::applyTranslation($sampleControls, 'SampleControl', 'sample_type');
-        
+
         foreach ($samplesRelations as &$sampleRelation) {
             unset($sampleRelation['ParentSampleControl']);
             unset($sampleRelation['DerivativeControl']);
         }
         unset($sampleRelation);
-        
+
         $sampleControls = AppController::defineArrayKey($sampleControls, 'SampleControl', 'id', true);
         $samplesRelations = AppController::defineArrayKey($samplesRelations, 'ParentToDerivativeSampleControl', 'parent_sample_control_id');
-        
+
         $aliquotControlModel = AppModel::getInstance("InventoryManagement", "AliquotControl", 1);
         $aliquotControls = $aliquotControlModel->find('all', array(
             'fields' => array(
@@ -126,16 +127,15 @@ class TemplateController extends AppController
         ));
         AppController::applyTranslation($aliquotControls, 'AliquotControl', 'aliquot_type');
         // -----------------------------
-        
+
         $this->Structures->set('template_disabled');
-        
-        if (! empty($this->request->data)) {
+
+        if (!empty($this->request->data)) {
             // correct owner/visibility if needed
 
             // record the tree
             if ($this->request->is('ajax')) {
                 // ajax request are made to save the template info
-                // TODO validate this section is usefull or not
                 Configure::write('debug', 0);
                 $this->request->data['Template']['id'] = $templateId;
                 $this->set('isAjax', true);
@@ -154,17 +154,17 @@ class TemplateController extends AppController
                         if (is_numeric($node->parentId) && is_string($node->parentId)) {
                             $node->parentId = (int) $node->parentId;
                         }
-                        if (isset ($node->parentId) && !is_string($node->parentId)){
+                        if (isset($node->parentId) && !is_string($node->parentId)) {
                             if ($node->parentId <= 0) {
                                 $parentId = $nodesMapping[$node->parentId];
-                            }elseif ($node->parentId > 0) {
+                            } elseif ($node->parentId > 0) {
                                 $parentId = $node->parentId;
                             }
                         }
                         $this->TemplateNode->data = array();
                         $this->TemplateNode->id = null;
-                        
-                        $this->TemplateNode->save(array(
+
+                        $templateNode = array(
                             'TemplateNode' => array(
                                 'template_id' => $templateId,
                                 'parent_id' => $parentId,
@@ -172,20 +172,32 @@ class TemplateController extends AppController
                                 'control_id' => abs($node->controlId),
                                 'quantity' => $node->quantity
                             )
-                        ));
+                        );
+                        
+                        if (!empty($node->defaultValues)) {
+                            $templateNode['TemplateNode']['default_values'] = $node->defaultValues;
+                        }
+                        
+                        $this->TemplateNode->save($templateNode);
                         $nodesMapping[$node->nodeId] = $this->TemplateNode->id;
                         $foundNodes[] = $this->TemplateNode->id;
                     } else {
                         $foundNodes[] = $node->nodeId;
                         $this->TemplateNode->id = $node->nodeId;
-                        $this->TemplateNode->save(array(
+
+                        $templateNode = array(
                             'TemplateNode' => array(
                                 'quantity' => $node->quantity
                             )
-                        ));
+                        );
+
+                        if (!empty($node->defaultValues)) {
+                            $templateNode['TemplateNode']['default_values'] = $node->defaultValues;
+                        }
+                        $this->TemplateNode->save($templateNode);
                     }
                 }
-                
+
                 $nodesToDelete = $this->TemplateNode->find('list', array(
                     'fields' => array(
                         'TemplateNode.id'
@@ -201,7 +213,7 @@ class TemplateController extends AppController
                 foreach ($nodesToDelete as $nodeToDelete) {
                     $this->TemplateNode->delete($nodeToDelete);
                 }
-                
+
                 $this->atimFlash(__('your data has been saved'), '/Tools/Template/edit/' . $templateId);
                 return;
             }
@@ -220,51 +232,51 @@ class TemplateController extends AppController
             'samples_relations' => $samplesRelations,
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "id", true),
             'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
-            'fomated_nodes_default_values' => $this->TemplateNode->formatTemplateNodeDefaultValuesForDisplay($templateId)
+            'fomated_nodes_default_values' => $this->TemplateNode->formatTemplateNodeDefaultValuesForDisplay($templateId),
+            'template_id' => $templateId
         );
         $this->set('jsData', $jsData);
         $this->set('templateId', $templateId);
         $this->set('controls', 1);
         $this->set('collectionId', 0);
-        
+
         $this->render('tree');
     }
 
     /**
      * @param $templateId
      */
-    public function editProperties($templateId)
-    {
+    public function editProperties($templateId) {
         $templateData = $this->Template->getTemplates('template edition', $templateId);
         if (empty($templateData))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        if (! $templateData['Template']['allow_properties_edition']) {
+        if (!$templateData['Template']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
-        
+
         $this->set('atimMenuVariables', array(
             'Template.id' => $templateId
         ));
         $this->Structures->set('template');
-        
+
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
         }
-        
+
         if (empty($this->request->data)) {
             $this->request->data = $templateData;
         } else {
             $submittedDataValidates = true;
-            
+
             $this->Template->setOwnerAndVisibility($this->request->data, $templateData['Template']['created_by']);
-            
+
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
                 require ($hookLink);
             }
-            
+
             if ($submittedDataValidates) {
                 $this->Template->id = $templateId;
                 if ($this->Template->save($this->request->data)) {
@@ -281,16 +293,16 @@ class TemplateController extends AppController
     /**
      * @param $templateId
      */
-    public function delete($templateId)
-    {
+    public function delete($templateId) 
+{
         $templateData = $this->Template->getTemplates('template edition', $templateId);
         if (empty($templateData))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        if (! $templateData['Template']['allow_properties_edition']) {
+        if (!$templateData['Template']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
-        
+
         $nodesToDelete = $this->TemplateNode->find('list', array(
             'fields' => array(
                 'TemplateNode.id'
@@ -304,7 +316,14 @@ class TemplateController extends AppController
             $this->TemplateNode->delete($nodeToDelete);
         }
         $this->Template->delete($templateId);
-        
+
         $this->atimFlash(__('your data has been deleted'), '/Tools/Template/index/');
     }
+
+    public function defaultValue($nodeId, $datamartStructureId, $controlId) {
+        $structure = $this->TemplateNode->getStructureNodeDefaultValue($datamartStructureId, $controlId);
+        $this->set("structure", $structure);
+        $this->set("nodeId", $nodeId);
+    }
+
 }

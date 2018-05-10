@@ -2020,10 +2020,13 @@ function checkBrowseFile()
 }
 
 function saveSqlLogAjax(data){
-    if (data.sqlLog && typeof DEBUGKIT !=="undefined"){
+    if (data && data.sqlLog && typeof DEBUGKIT !=="undefined"){
         var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
         var logs='';
         data.sqlLog.forEach(function(log){
+            if (!log){
+                return false;
+            }
             var infoIndex=log.lastIndexOf('<div id="ajaxSqlLogInformation"');
             if (infoIndex>-1){
                 info=log.substring(infoIndex, log.indexOf('</div>', infoIndex))+'</div>';

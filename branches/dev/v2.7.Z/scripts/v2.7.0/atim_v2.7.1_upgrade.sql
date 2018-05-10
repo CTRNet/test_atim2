@@ -35,6 +35,7 @@ INSERT IGNORE INTO
 VALUES 	
 	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
 	("download %s", "Download %s", "Télécharger %s"),
+	("default_values", "Default values", "Des valeurs par defaux"),
 	("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
 	
 INSERT IGNORE INTO 

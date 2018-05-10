@@ -76,6 +76,7 @@ if (isset($isAjax)) {
 ?>
 
 <script>
+	var DEFAULT_VALUE_TITLE = "<?php echo __('default_values'); ?>";
 	var STR_ADD = "<?php echo __('add'); ?>";
 	var modelsData = '<?php echo addslashes(json_encode($jsData)); ?>';
 	var wizardTreeData = '<?php  echo Inflector::variable(json_encode($treeData)); ?>';
@@ -98,7 +99,9 @@ if (isset($isAjax)) {
 			$("form").append("<input type='hidden' name='data[description]' value='" + $("input[name=tmp_description]").val() + "'/>");
 
 			//posting the tree
-			$.post($("form").attr("action"), $("form").serialize(), function(data){
+                        $(".outerWrapper form a.submit span").removeClass("submit");
+                        $(".outerWrapper form a.submit span").addClass("fetching");
+			$.post($(".outerWrapper form").attr("action"), $("form").serialize(), function(data){
 				data = $.parseJSON(data);
 				saveSqlLogAjax(data);
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
@@ -107,8 +110,10 @@ if (isset($isAjax)) {
 				$(".wrapper").find(".validation").remove();
 				$(".wrapper").prepend($(".validation"));
 				$("#tmp_add").remove();
+                                $(".outerWrapper form a.submit span").addClass("submit");
+                                $(".outerWrapper form a.submit span").removeClass("fetching");
 				if(!data.has_errors){
-					$("form").submit();
+                                    $(".outerWrapper form").submit();
 				}
 			});
 			
@@ -200,11 +205,85 @@ if (isset($isAjax)) {
 			var liParent = $(this).parents("li:first");
 			$("#addDialog").data("node", liParent);
 			$("#addDialog").data("parentId", typeof $(liParent).data("nodeId")==='undefined'?"undefined":$(liParent).data("nodeId"));
-			updateNumInput();
-			$("#addDialog").popup();
-			return false;
-		});
-	}
+                    updateNumInput();
+                    $("#addDialog").popup();
+                    return false;
+                });
+
+                $(scope).find(".default-value").unbind('click').click(function () {
+                    $this = $(this);
+                    var url = $this.attr("data-url");
+                    var id = $this.attr("data-id");
+                    id = (typeof id === 'undefined')?0:id;
+                    var parentId = $this.attr("data-parent-id");
+                    var datamartStructureId = $this.attr("data-datamart-structure-id");
+                    if (parentId != 0) {
+                        url = root_url + "Tools/Template/defaultValue/" + id + "/" + datamartStructureId + "/" + parentId + "";
+
+                        $("#default_popup").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
+                        $("#default_popup").popup();
+                        $.get(url, function (data) {
+                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                            saveSqlLogAjax(ajaxSqlLog);
+
+                            var isVisible = $("#default_popup:visible").length;
+                            $("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
+                            globalInit($("#default_popup"));
+
+                            if(isVisible){
+                                    //recenter popup
+                                    $("#default_popup").popup('close');
+                                    $("#default_popup").popup();
+                            }
+                            $("#default_popup").popup()
+//                            $("#default_popup form").attr('novalidate');
+                            $("#default_popup a.submit").unbind('click').click(function(){
+                                var defaultValueArray = $("#default_popup form").serializeArray();
+                                defaultValue = {};
+                                for (var i=0; i<defaultValueArray.length; i++){
+                                        current = defaultValueArray[i];
+                                        if (current.value!=""){
+                                                name = current.name;
+                                                value = current.value;
+                                                name = name.replace("data[", "");
+                                                name = name.replace("][", ", ");
+                                                name = name.replace("]", "");
+                                                k = name.split(", ")[0];
+                                                v = name.split(", ")[1];
+                                                if (typeof defaultValue[k] !== 'undefined'){
+                                                        defaultValue[k][v]=value;
+                                        }else{
+                                            defaultValue[k] = {};
+                                            defaultValue[k][v]= value;
+                                        }
+
+                                    }
+                                }                                
+                                
+                                defaultValueString = JSON.stringify(defaultValue);
+                                $this.attr("data-default-value", defaultValueString);
+                                
+                                $this.closest("li").data("defaultValues", defaultValueString);
+                                
+                                label = [];
+                                for (k in defaultValue){
+                                        for (c in defaultValue[k]){
+                                                label.push(c + "= [" + defaultValue[k][c] + "]"); 
+                                    }
+                                }
+
+                                label ="|" +label.join(" + ");
+                                
+                                $this.siblings(".template-label").text(label);
+                                $("#default_popup").popup('close');
+                                return false;
+                            });
+                        });
+                    }
+                });
+
+            }
 	
 	function addNode(treeData, node){
 		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
@@ -219,10 +298,10 @@ if (isset($isAjax)) {
 			type = 'collection';
 		}else if(treeData.datamartStructureId == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>" + defaultValues;
+			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
 		}else{
 			type = 'sample';
-			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"] + defaultValues;
+			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"];
 		}
 
 		if($(node)[0].nodeName != "UL"){
@@ -236,8 +315,9 @@ if (isset($isAjax)) {
 				'<div class="nodeBlock">' +
 					'<div class="leftPart">- <a href="#" class="icon16 ' + type + '">&nbsp;</a></div>' +
 					'<div class="rightPart">' + 
-					addButton + '<a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
-					'<span class="nowrap">' + label + '</span></div>' +
+					addButton + '<a href="#" title = "'+DEFAULT_VALUE_TITLE+'" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+'" data-parent-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>\n\
+                                        <a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
+					'<span class= "nowrap">' + label + '</span><span class = "template-label">' + defaultValues + '</span></div>' +
 				'</div>' +
 			'</li>'
 		);
