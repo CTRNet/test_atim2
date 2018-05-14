@@ -130,6 +130,7 @@ echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
 //echo $content_for_layout;
+
 echo $this->fetch('content');
 
 echo $this->Shell->footer();
@@ -137,7 +138,6 @@ echo $this->Shell->footer();
 // echo $this->element('sql_dump');
 
 // JS added to end of DOM tree...
-
 echo $this->Html->script('jquery-1.7.2.min') . "\n";
 echo $this->Html->script('jquery-ui-1.8.20.custom.min') . "\n";
 echo $this->Html->script('jquery.ui-datepicker-fr.js') . "\n";
@@ -155,8 +155,10 @@ echo $this->Html->script('dropdownConfig') . "\n";
 echo $this->Html->script('jquery.fm-menu') . "\n";
 echo $this->Html->script('form/jquery.form.js') . "\n";
 echo $this->Html->script('d3/d3.js') . "\n";    //Chart
-echo $this->Html->script('d3/nv.d3.js') . "\n"; //Chart
 echo $this->Html->script('saveSvgAsPng.js') . "\n"; //Chart
+if ($this->params['plugin'] == 'Datamart' && $this->params['controller'] == 'Reports' && $this->params['action'] == 'manageReport' ){
+    echo $this->Html->script('d3/nv.d3.js') . "\n"; //Chart
+}
 ?>
 
 	<script type="text/javascript">
