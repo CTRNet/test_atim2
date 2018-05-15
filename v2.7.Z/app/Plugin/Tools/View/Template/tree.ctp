@@ -31,7 +31,8 @@ if ($controls) {
         ),
         'settings' => array(
             'return' => true,
-            'form_bottom' => true
+            'form_bottom' => true,
+            'header' => __('template', null)
         ),
         'extras' => $treeHtml
     );

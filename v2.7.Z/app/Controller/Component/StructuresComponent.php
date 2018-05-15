@@ -69,7 +69,7 @@ class StructuresComponent extends Component
             'set_validation' => true, // wheter to set model validations or not
             'model_table_assoc' => array()
         ), // bind a tablename to a model for writable fields
-$parameters);
+        $parameters);
         
         $structure = array(
             'Structure' => array(),
@@ -186,8 +186,8 @@ $parameters);
     }
 
     /**
-     * @param null $mode
-     * @param null $alias
+     * @param null $mode            
+     * @param null $alias            
      * @return array|mixed
      */
     public function get($mode = null, $alias = null)
@@ -219,6 +219,27 @@ $parameters);
         if ($mode == 'rule' || $mode == 'rules') {
             $result = $result['rules'];
         } elseif ($mode == 'form') {
+            if (isset($result['structure']['Sfs'])) {
+                foreach ($result['structure']['Sfs'] as $sfs) {
+                    $tablename = $sfs['tablename'];
+                    if ($tablename) {
+                        foreach (array(
+                            'add',
+                            'edit',
+                            'addgrid',
+                            'editgrid',
+                            'batchedit'
+                        ) as $flag) {
+                            if ($sfs['flag_' . $flag] && ! $sfs['flag_' . $flag . '_readonly'] && $sfs['type'] != 'hidden') {
+                                AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
+                                if ($sfs['type'] == 'date' || $sfs['type'] == 'datetime') {
+                                    AppModel::$writableFields[$tablename][$flag][] = $sfs['field'] . '_accuracy';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             $result = $result['structure'];
         }
         
