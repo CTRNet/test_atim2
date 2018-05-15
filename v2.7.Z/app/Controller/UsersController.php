@@ -25,6 +25,9 @@ class UsersController extends AppController
         } else {
             $this->Auth->allow('login', 'logout');
         }
+        if ($this->request->is('ajax')){
+            $this->Auth->allow('getUserId');
+        }
         $this->Auth->authenticate = array(
             'Form' => array(
                 'userModel' => 'User',
@@ -161,11 +164,7 @@ class UsersController extends AppController
                 return $this->redirect('/Customize/Passwords/index');
             }
             
-            if (isset($this->passedArgs['login'])) {
-                return $this->render('ok');
-            } else {
-                return $this->redirect('/Menus');
-            }
+            return $this->redirect('/Menus');
         } elseif (isset($this->request->data['User']['username'])&&! isset($this->passedArgs['login'])) {
             // Save failed login attempt
             $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
@@ -406,6 +405,18 @@ class UsersController extends AppController
                 $this->request->data['User']['new_password'] = '';
                 $this->request->data['User']['confirm_password'] = '';
             }
+        }
+    }
+    
+    
+    /**
+     * Reset user Id and esncrypte it just in AJAX mode to front-end.
+     *
+     */
+    public function getUserId(){
+        if ($this->request->is('ajax')){
+            ob_clean();
+            die ((!empty($_SESSION['Auth']['User']['id']))? AppController::encrypt($_SESSION['Auth']['User']['id']):AppController::encrypt("nul string"));
         }
     }
 }
