@@ -7,6 +7,7 @@ var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt(
 var sessionTimeout = new Object();
 var checkedData = [];
 var DEBUG_MODE_JS = 0;
+var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 
 //window.alert = function(a){
@@ -1602,6 +1603,8 @@ function getTime(){
     });    
 }
 
+
+
 function sessionExpired() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1671,11 +1674,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             sessionTimeout.expirationTime =  ($.cookie("session_expiration") * 1000)+ sessionTimeout.serverOffset;
         }
         if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
-            $("#loginPopup").popup('close');
+            $.post(root_url + "Users/getUserId", function (data) {
+                if (data!=sessionId){
+                    window.location = root_url + "Menus";
+                }else{
+                    $("#loginPopup").popup('close');
+                }
+            });
         }
     }
 
     if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length === 0) {
+        sessionId = $.cookie("sessionId");
         sessionExpired();
     }
 

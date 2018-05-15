@@ -905,6 +905,16 @@ class AppController extends Controller
         }
         return $result;
     }
+/**
+ * Encrypt a text
+ * 
+ * @param String $string
+ * @return String
+ */
+    public static function encrypt($string){
+        return Security::hash($string, null, true);
+    }
+
 
     /**
      * cookie manipulation to counter cake problems.
@@ -920,6 +930,8 @@ class AppController extends Controller
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
                 setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");
             }
+            $sessionId = (!empty($_SESSION['Auth']['User']['id']))? self::encrypt($_SESSION['Auth']['User']['id']):self::encrypt("nul string");
+            setcookie('sessionId', $sessionId, 0, "/");
         }
     }
 
