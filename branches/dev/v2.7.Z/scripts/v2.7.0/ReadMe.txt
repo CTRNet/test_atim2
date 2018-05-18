@@ -249,15 +249,19 @@
    TODO: 
    
    Check if a ReportsControllerCustom has been developped for your local installation and replace code ['javascript:history.back()'] by [Router::url(null , true)]
+   
+   
+   ### 3 # UserAnnouncementsController
+   -----------------------------------------------------------
+   
+   The AnnouncementsController of the Customize plugin has been renamed to UserAnnouncementsController to remove all conflicts the AnnouncementsController of the 
+   Administrate plugin. 
+   
+   TODO: 
+   
+   Check if custom hooks have been developped for the Announcements controller (\app\Plugin\Customize\Controller\AnnouncementsController.php) 
+   and view (\app\Plugin\Customize\View\Announcements) into the Customize plugin for your local installation.
+   
+   Replace all custom code, custom file names or custom folder names of this plugin that contain Announcements by UserAnnouncements
 
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
+

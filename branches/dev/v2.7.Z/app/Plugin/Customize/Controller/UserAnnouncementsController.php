@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Class AnnouncementsController
+ * Class UserAnnouncementsController
  */
 App::uses('CustomizeAppController', 'Customize.Controller');
-class AnnouncementsController extends CustomizeAppController
+class UserAnnouncementsController extends CustomizeAppController
 {
 
     public $uses = array(
@@ -23,6 +23,8 @@ class AnnouncementsController extends CustomizeAppController
     public function index($listType = '')
     {
         $this->set('listType', $listType);
+        
+        $this->Structures->set('announcements');
         
         if (! in_array($listType, array(
             'all',
@@ -87,6 +89,9 @@ class AnnouncementsController extends CustomizeAppController
      */
     public function detail($announcementId = null)
     {
+        
+        $this->Structures->set('announcements');
+        
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
