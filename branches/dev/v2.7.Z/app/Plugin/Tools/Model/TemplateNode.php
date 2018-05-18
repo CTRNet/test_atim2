@@ -153,7 +153,7 @@ class TemplateNode extends ToolsAppModel
                 }
                 $nodeDefaultValues[$dateModel][$dateField] = $dateFinal;
             } else {
-                unset($defaultValues[$dateModel][$dateField]);
+                unset($nodeDefaultValues[$dateModel][$dateField]);
             }
         }
         return json_encode($nodeDefaultValues);

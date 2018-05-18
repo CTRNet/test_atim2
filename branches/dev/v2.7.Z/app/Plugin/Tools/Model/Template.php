@@ -49,20 +49,28 @@ class Template extends ToolsAppModel
      *            
      * @return array Template name and url
      */
-    public function getAddFromTemplateMenu($collectionId)
+    public function getAddFromTemplateMenu($collectionId, $collectionTempalteId = null)
     {
         $visibleNodes = $this->getTools('template use');
         $options['empty template'] = array(
             'icon' => 'add',
             'link' => '/InventoryManagement/Collections/template/' . $collectionId . '/0'
         );
+        $collectionTemplateMenu = array();
         foreach ($visibleNodes as $template) {
             $options[$template['Template']['name']] = array(
                 'icon' => 'template',
                 'link' => '/InventoryManagement/Collections/template/' . $collectionId . '/' . $template['Template']['id']
             );
+            if ($collectionTempalteId === $template['Template']['id']) {
+                return array(
+                    $template['Template']['name'] => $options[$template['Template']['name']]
+                );
+            }
         }
-        
+        if ($collectionTempalteId) {
+            AppController::addWarningMsg(__("you don't have permissions to use the template defined by the protocol"));
+        }
         return $options;
     }
 
@@ -71,9 +79,12 @@ class Template extends ToolsAppModel
      *
      * @return array List of template
      */
-    public function getTemplatesList()
+    public function getTemplatesList($useDefinition = 'template use')
     {
-        $visibleNodes = $this->getTools('template use');
+        if (empty($useDefinition)) {
+            $useDefinition = 'template use';
+        }
+        $visibleNodes = $this->getTools($useDefinition);
         $templatesList = array();
         foreach ($visibleNodes as $template) {
             $templatesList[$template['Template']['name']] = $template['Template']['id'];
@@ -95,7 +106,20 @@ class Template extends ToolsAppModel
      */
     public function allowDeletion($templateId)
     {
-        // Check aliquot has no use
+        $tmpModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        $returnedNbr = $tmpModel->find('count', array(
+            'conditions' => array(
+                'Collection.template_id' => $templateId
+            ),
+            'recursive' => - 1
+        ));
+        if ($returnedNbr > 0) {
+            return array(
+                'allow_deletion' => false,
+                'msg' => 'template is linked to a collection'
+            );
+        }
+        
         $tmpModel = AppModel::getInstance("Tools", "CollectionProtocolVisit", true);
         $returnedNbr = $tmpModel->find('count', array(
             'conditions' => array(
@@ -103,7 +127,7 @@ class Template extends ToolsAppModel
             ),
             'recursive' => - 1
         ));
-        if (true || $returnedNbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'template is part of a collection protocol visit'

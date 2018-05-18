@@ -41,6 +41,11 @@ class ToolsAppModel extends AppModel
         $conditions = array();
         $findType = $toolId ? 'first' : 'all';
         switch ($useDefintion) {
+            case 'template all':
+            case 'protocol all':
+                // No condition
+                break;
+            
             case 'template edition':
             case 'protocol edition':
                 $conditions = array(
@@ -90,9 +95,6 @@ class ToolsAppModel extends AppModel
                 break;
             
             default:
-                
-                pr($useDefintion);
-                exit();
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
@@ -199,7 +201,7 @@ class ToolsAppModel extends AppModel
      *            
      * @return string Formated string with the default values
      */
-    function formatDefaultValuesForDisplay($linkedStructures, $defaultValues)
+    public function formatDefaultValuesForDisplay($linkedStructures, $defaultValues)
     {
         // Build an array gathering tranlated labels and lists of values for the fields of the structures
         // that will be used to create the inventory data (collection, sample, aliquot).

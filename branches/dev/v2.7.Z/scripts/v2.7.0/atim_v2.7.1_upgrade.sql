@@ -207,7 +207,7 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ("default_values", "Default Values", "Valeurs par defaut");
 	
--- Add collection prootocols
+-- Add collection protocols
 
 UPDATE menus 
 SET use_link = '/Tools/Template/listProtocolsAndTemplates',
@@ -273,6 +273,7 @@ ALTER TABLE `collection_protocol_visits`
 INSERT INTO structures(`alias`) VALUES ('collection_protocol_visit');
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
+('collection_protocol_template_all', "Tools.Template::getTemplatesList('template all')"),
 ('collection_protocol_template', "Tools.Template::getTemplatesList"),
 ("time_from_first_visit_unit", NULL);
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("day", "day"),('week','week');
@@ -288,6 +289,7 @@ VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="time_from_fir
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'name', 'input',  NULL , '0', 'size=20', '', '', 'title', ''), 
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'template_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocol_template') , '0', '', '', '', 'template', ''), 
+('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'template_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocol_template_all') , '0', '', '', '', 'template', ''), 
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'time_from_first_visit', 'integer_positive',  NULL , '0', '', '', '', 'time', ''), 
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'time_from_first_visit_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='time_from_first_visit_unit') , '0', '', '', '', '', ''), 
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'default_values', 'input',  NULL , '0', '', '', '', 'default values', ''), 
@@ -295,7 +297,8 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Tools', 'CollectionProtocolVisit', 'collection_protocol_visits', 'first_visit', 'checkbox',  NULL , '0', '', '', '', 'first visit', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='title' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='template_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocol_template')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='template' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='template_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocol_template')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='template' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='template_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocol_template_all')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='template' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='time_from_first_visit' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='time' AND `language_tag`=''), '0', '3', 'time from first visit', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='time_from_first_visit_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='time_from_first_visit_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='collection_protocol_visit'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocolVisit' AND `tablename`='collection_protocol_visits' AND `field`='default_values' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='default values' AND `language_tag`=''), '0', '5', 'collection default values', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -308,7 +311,12 @@ VALUES
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('template is part of a collection protocol visit', 'The template is part of a collection protocol visit', "Le template fait partie d'une visite de protocole de collection"),
+('unusable_collection_protocol_template', "At least one template is unusable (inactivated template or you don't have permission to use it)", "Au moins un modèle est inutilisable (modèle inactivé ou vous n'êtes pas autorisé à l'utiliser)"),
+('unusable template', 'Unusable Template', 'Modèle inutilisable'),
+('week', 'Week', 'Semaine'),
+('collection protocol is linked to a collection', 'The collection protocol is linked to a collection', "Le protocole de colelction est lié à une collection"),
+('template is already linked to a collection', 'The template is linked to a collection', "Le modèle est lié à une collection"),
+('template is part of a collection protocol visit', 'The template is part of a collections protocol visit', "Le modèle fait partie d'une visite de protocole de collections"),
 ('you do not own that protocol', 'You do not own that protocol', "Vous n'êtes pas propriétaire de ce protocole"),
 ('collection default values', 'Collection Default Values', 'Valeurs par défaut de collection'),
 ('set default values', 'Set Default Values', 'Saisir valeurs par défaut'),
@@ -326,6 +334,65 @@ VALUES
 ('collection templates', 'Collection Templates', 'Modèles de collection'),
 ('templates', 'Templates', 'Modèles'),
 ('template', 'Template', 'Modèle');
+
+-- Add collection protocols at collection and view collection level
+
+ALTER TABLE collections
+  ADD COLUMN collection_protocol_id int(11) unsigned DEFAULT null;
+ALTER TABLE collections_revs
+  ADD COLUMN collection_protocol_id int(11) unsigned DEFAULT null;
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_collection_protocols_collections` FOREIGN KEY (`collection_protocol_id`) REFERENCES `collection_protocols` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("collection visit '%s' has not been created (from protocol)", "The collection '%s' has not been created (from protocol)", "La collection '% s' n'a pas été créée (à partir du protocole)"),
+('new collection protocol', "New Collection Protocol", 'Nouveau protocole de collection');
+
+ALTER TABLE collections
+  ADD COLUMN template_id int(10) unsigned DEFAULT null;
+ALTER TABLE collections_revs
+  ADD COLUMN template_id int(10) unsigned DEFAULT null;
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_collection_templates` FOREIGN KEY (`template_id`) REFERENCES `templates` (`id`);
+
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('collection_protocols', "Tools.CollectionProtocol::getProtocolsList('protocol all')");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'collection_protocol_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') , '0', '', '', '', 'protocol', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_protocol_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='protocol' AND `language_tag`=''), '0', '-5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'collection_protocol_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') , '0', '', '', '', 'protocol', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='protocol' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id'), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('col_copy_protocol_opt');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("col_copy_protocol_opt", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("protocol only", "protocol only"),("protocol and template", "protocol and template");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_protocol_opt"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_protocol_opt"), (SELECT id FROM structure_permissible_values WHERE value="protocol only" AND language_alias="protocol only"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_protocol_opt"), (SELECT id FROM structure_permissible_values WHERE value="protocol and template" AND language_alias="protocol and template"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', 'FunctionManagement', '', 'col_copy_protocol_opt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='col_copy_protocol_opt') , '0', '', 'protocol and template', '', 'protocol copy option', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='col_copy_protocol_opt'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='col_copy_protocol_opt'), '0', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES 
+(NULL, (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='col_copy_protocol_opt'), 'notBlank', '', '');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("you don't have permissions to use the template defined by the protocol", "You don't have permissions to use the template defined by the protocol", "Vous n'avez pas la permission d'utiliser le modèle défini par le protocole"),
+('participant collection link', 'Participant Collection (Link)', 'Collection du participant (lien)'),
+("you don't have permission to use the protocol but this one will be linked to the collections", "You do not have permission to use the protocol but however it will be linked to the collection(s)", "Vous n'avez pas la permission d'utiliser le protocole mais il sera cependant lié aux collection(s)"),
+("you don't have permission to use the protocol", "you don't have permission to use the protocol", "Vous n'avez pas la permission d'utiliser le protocol"),
+('protocol copy option', 'Protocol Copy Option', 'Option de copie du protocole'),
+("protocol only", "Protocol Only", "Protocole seulement"),
+("protocol and template", "Protocole & Template", "Protocole & Modèle");
 
 -- -------------------------------------------------------------------------------------
 --	missing i18n translations
