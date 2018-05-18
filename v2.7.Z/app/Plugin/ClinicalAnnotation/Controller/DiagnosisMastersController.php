@@ -316,7 +316,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             if ($dxCtrl['DiagnosisControl']['category'] != 'primary') {
                 // is not a primary but has no parent
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
-//                return ;
+                return;
             }
         } else {
             $parentDx = $this->DiagnosisMaster->find('first', array(
