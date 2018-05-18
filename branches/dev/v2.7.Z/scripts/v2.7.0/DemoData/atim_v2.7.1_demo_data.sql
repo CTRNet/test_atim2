@@ -2986,11 +2986,6 @@ INSERT INTO `txe_surgeries_revs` (`surgical_procedure`, `version_id`, `version_c
 -- Collection Protocol and Template
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
-UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `language_heading`='collection', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
-
 INSERT INTO `collection_protocols` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `created_by`, `last_activation_date`) VALUES
 (1, 0, 'Breast Bank Prot#2453', 'user', 'user', 1, 1, 1, 1, '2018-05-17'),
 (2, 0, 'Blood Prot#0575', 'user', 'user', 1, 1, 1, 1, '2018-05-17');
@@ -3029,12 +3024,8 @@ INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_struct
 (14, 13, 3, 5, 14, 1, NULL),
 (15, 14, 3, 1, 15, 1, NULL);
 
-
-
-
-
-
-
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 SET FOREIGN_KEY_CHECKS=1;
