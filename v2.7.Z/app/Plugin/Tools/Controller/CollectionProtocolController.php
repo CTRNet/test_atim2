@@ -163,7 +163,6 @@ class CollectionProtocolController extends ToolsAppController
                     $collectionData = array_filter($newCollectionProtocolVisistToSave['Collection'], function ($var) {
                         return (! ($var == '' || is_null($var)));
                     });
-                    $collectionData = $this->CollectionProtocolVisit->fromateProtocolVisitDefaultValuesToSave($collectionData);
                     $newCollectionProtocolVisistToSave['CollectionProtocolVisit']['default_values'] = json_encode(array(
                         'Collection' => $collectionData
                     ));
@@ -258,10 +257,21 @@ class CollectionProtocolController extends ToolsAppController
                 'CollectionProtocolVisit.collection_protocol_id' => $collectionProtocolId
             )
         ));
+        $activeTemplateIds = $this->Template->getTemplatesList($useDefinition = 'template use');
+        $activeTemplateIds = array_keys($activeTemplateIds);
+        $activeTemplateAll = $this->Template->getTemplatesList($useDefinition = 'template all');
+        $displayTemplateWarning = false;
         foreach ($collectionProtocolVisitData as &$tmpProtocolVisitData) {
             if (strlen($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'])) {
                 $tmpProtocolVisitData = array_merge(json_decode($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'], true), $tmpProtocolVisitData);
             }
+            if (! in_array($tmpProtocolVisitData['CollectionProtocolVisit']['template_id'], $activeTemplateIds)) {
+                $displayTemplateWarning = true;
+                $tmpProtocolVisitData['CollectionProtocolVisit']['template_id'] = __('unusable template') . ' : ' . $activeTemplateAll[$tmpProtocolVisitData['CollectionProtocolVisit']['template_id']];
+            }
+        }
+        if ($displayTemplateWarning) {
+            AppController::addWarningMsg(__('unusable_collection_protocol_template'));
         }
         $this->set('collectionProtocolVisitData', $collectionProtocolVisitData);
         $initialCollectionProtocolVisitData = $collectionProtocolVisitData;
@@ -319,7 +329,9 @@ class CollectionProtocolController extends ToolsAppController
             $allCollectionProtocolVisitErrors = array();
             $nbrOfFirstVisit = 0;
             foreach ($collectionProtocolVisitData as $key => &$submittedCollectionProtocolVisistToValidate) {
-                // Aliquot Review Master
+                if (! preg_match('/^[0-9]+$/', $submittedCollectionProtocolVisistToValidate['CollectionProtocolVisit']['template_id'], $matches)) {
+                    unset($submittedCollectionProtocolVisistToValidate['CollectionProtocolVisit']['template_id']);
+                }
                 if ($submittedCollectionProtocolVisistToValidate['CollectionProtocolVisit']['id']) {
                     $tmp = $this->CollectionProtocolVisit->getOrRedirect($submittedCollectionProtocolVisistToValidate['CollectionProtocolVisit']['id']);
                     if (! $tmp || $tmp['CollectionProtocolVisit']['collection_protocol_id'] != $collectionProtocolId) {
@@ -399,7 +411,6 @@ class CollectionProtocolController extends ToolsAppController
                     $collectionData = array_filter($submittedCollectionProtocolVisistToUpdate['Collection'], function ($var) {
                         return (! ($var == '' || is_null($var)));
                     });
-                    $collectionData = $this->CollectionProtocolVisit->fromateProtocolVisitDefaultValuesToSave($collectionData);
                     $submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['default_values'] = json_encode(array(
                         'Collection' => $collectionData
                     ));

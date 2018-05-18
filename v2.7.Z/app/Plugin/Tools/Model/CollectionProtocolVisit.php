@@ -62,44 +62,19 @@ class CollectionProtocolVisit extends ToolsAppModel
         return $collectionProtocolVisitStructure;
     }
 
-    /**
-     * Format the default values enterred for a created/modified protocol visit (collection data)
-     *
-     * @param string $visitDefaultValues
-     *            Collection visit default values
-     *            
-     * @return string Formatted ollection visit default values
-     */
-    function fromateProtocolVisitDefaultValuesToSave($visitDefaultValues)
+    public function getCollectionProtocolVisitsData($collectionProtocolId)
     {
-        foreach ($visitDefaultValues as $tmpField => $tmpData) {
-            if (is_array($tmpData) && array_key_exists('year', $tmpData)) {
-                $dateFinal = '';
-                if ($tmpData['year']) {
-                    $dateFinal = $tmpData['year'];
-                    if ($tmpData['month']) {
-                        $dateFinal .= '-' . $tmpData['month'];
-                        if ($tmpData['day']) {
-                            $dateFinal .= '-' . $tmpData['day'];
-                            if ($tmpData['hour']) {
-                                $dateFinal .= ' ' . $tmpData['hour'];
-                                if ($tmpData['min']) {
-                                    $dateFinal .= ' ' . $tmpData['min'];
-                                    if ($tmpData['sec']) {
-                                        $dateFinal .= ' ' . $tmpData['sec'];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if ($dateFinal) {
-                    $visitDefaultValues[$tmpField] = $dateFinal;
-                } else {
-                    unset($visitDefaultValues[$tmpField]);
-                }
-            }
+        $collectionProtocolVisitsData = $this->find('all', array(
+            'conditions' => array(
+                'CollectionProtocolVisit.collection_protocol_id' => $collectionProtocolId
+            ),
+            'order' => array(
+                'CollectionProtocolVisit.first_visit DESC'
+            )
+        ));
+        foreach ($collectionProtocolVisitsData as &$newVisit) {
+            $newVisit['CollectionProtocolVisit']['default_values'] = json_decode($newVisit['CollectionProtocolVisit']['default_values'], true);
         }
-        return $visitDefaultValues;
+        return $collectionProtocolVisitsData;
     }
 }
