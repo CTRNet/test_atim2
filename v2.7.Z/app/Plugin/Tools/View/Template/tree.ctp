@@ -328,6 +328,10 @@ if (isset($isAjax)) {
                                 $("#default_popup").popup('close');
                                 return false;
                             });
+                            $("#default_popup form" ).unbind('submit').bind('submit', function(){
+                                $("#default_popup a.submit" ).trigger( "click" );
+                                return false;
+                            });
                         });
                     }
                 });
