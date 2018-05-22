@@ -339,7 +339,7 @@ if (isset($isAjax)) {
             }
 	
 	function addNode(treeData, node){
-		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
+		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="javascript:void(0)" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
 		defaultValues = '';
@@ -371,7 +371,7 @@ if (isset($isAjax)) {
                 
                 var addDefaultValueButton = "";
                 if (treeData.controlId!="0"){
-                    addDefaultValueButton = '<a href="#" title = "'
+                    addDefaultValueButton = '<a href="javascript:void(0)" title = "'
                             +DEFAULT_VALUE_TITLE+
                             '" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+
                             '" data-control-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>';
@@ -380,10 +380,10 @@ if (isset($isAjax)) {
 		$(node).append(
 			'<li>' +
 				'<div class="nodeBlock">' +
-					'<div class="leftPart">- <a href="#" class="icon16 ' + type + '">&nbsp;</a></div>' +
+					'<div class="leftPart">- <a href="javascript:void(0)" class="icon16 ' + type + '">&nbsp;</a></div>' +
 					'<div class="rightPart">' + 
 					addButton + addDefaultValueButton+
-                                        '<a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
+                                        '<a href="javascript:void(0)" class="icon16 delete noPrompt">&nbsp;</a>' + 
 					'<span class= "nowrap">' + label + '</span><span class = "template-label">' + defaultValues + '</span></div>' +
 				'</div>' +
 			'</li>'
