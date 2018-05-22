@@ -268,6 +268,7 @@ class TemplateController extends ToolsAppController
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "id", true),
             'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
             'fomated_nodes_default_values' => $this->TemplateNode->formatTemplateNodeDefaultValuesForDisplay($templateId),
+            'default_values_json' => $this->TemplateNode->getDefaultValues($templateId),
             'template_id' => $templateId
         );
         $this->set('jsData', $jsData);
@@ -404,5 +405,11 @@ class TemplateController extends ToolsAppController
         $structure = $this->TemplateNode->getStructuresForNodeDefaultValuesEntry($datamartStructureId, $controlId);
         $this->set("structure", $structure);
         $this->set("nodeId", $nodeId);
+    }
+    public function formatedDefaultValue($nodeDatamartStructureId, $nodeControlId)
+    {
+        $defaultValue = $this->request->data;
+        $formatedDefaultValue = $this->TemplateNode->formatTemplateNodeDefaultValuesForDisplayByControlAndDatamartStructureIdId($nodeDatamartStructureId, $nodeControlId, $defaultValue);
+        $this->set("formatedDefaultValue", $formatedDefaultValue);
     }
 }
