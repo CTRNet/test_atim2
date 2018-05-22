@@ -39,6 +39,48 @@ class TemplateNode extends ToolsAppModel
     }
 
     /**
+     * Generate a string gathering all default values defined for the nodes of a template in a user readable format.
+     * 
+     * 
+     * @param type $nodeDatamartStructureId
+     * @param String $nodeControlId 
+     * 
+     * 
+     * @return String Data gathering formated default values for each node of the template with default values
+     */
+    public function formatTemplateNodeDefaultValuesForDisplayByControlAndDatamartStructureIdId($nodeDatamartStructureId, $nodeControlId, $defaultValue)
+    {
+        $nodeLinkedStructures = $this->getNodeStructrues($nodeDatamartStructureId, $nodeControlId);
+        $temp = $this->formatDefaultValuesForDisplay($nodeLinkedStructures, $defaultValue);
+        return $temp;
+    }
+    
+/**
+ * Generate an array gathering all default values defined for the nodes of a template in JSON format.
+ *  
+ * @param integer $nodeId The node id of the root
+ * 
+ * @return array default values in JSON format related to nodeId as the parent node
+ */
+    public function getDefaultValues($nodeId){
+        $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+        $defaultValuesJSON = array();
+        $templateNodes = $templateNodeModel->find('all', array(
+            'fields' => array('TemplateNode.id', 'TemplateNode.default_values'),
+            'conditions' => array(
+                'TemplateNode.Template_id' => $nodeId,
+                'TemplateNode.default_values IS NOT NULL',
+                "TemplateNode.default_values != ''"
+            )
+        ));
+        foreach ($templateNodes as $newNode) {
+            $defaultValuesJSON[$newNode['TemplateNode']['id']] = $newNode['TemplateNode']['default_values'];
+        }
+        
+        return $defaultValuesJSON;
+    }
+    
+    /**
      * Generate an array gathering all default values defined for the nodes of a template in a user readable format.
      *
      * @param integer $templateId

@@ -4,7 +4,7 @@ App::uses('Helper', 'View');
 /**
  * Class StructuresHelper
  */
-class StructuresHelper extends Helper
+class StructuresHelper extends AppHelper
 {
 
     public $helpers = array(

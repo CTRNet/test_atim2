@@ -54,7 +54,7 @@ $(document).ready(function () {
 
             var domNodes = document.createElement('div');
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -660,7 +660,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             source: function(request, response) {
                     $.get(url, request, function(data){
                         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
                         }                        
@@ -907,7 +907,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
         $.get($(this).prop("href"), null, function (data) {
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -1039,7 +1039,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -1309,7 +1309,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
         saveSqlLogAjax(ajaxSqlLog);
     }
@@ -2276,7 +2276,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         if (flat_url.length > 0) {
             $.get(root_url + json.url + "?t=" + new Date().getTime(), function (data) {
                 if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                     data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                     saveSqlLogAjax(ajaxSqlLog);
                 }
@@ -2375,7 +2375,7 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
             saveSqlLogAjax(ajaxSqlLog);
         }
@@ -2750,7 +2750,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -2975,7 +2975,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     targetDiv.html(data.page);
                 } else {
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -2991,7 +2991,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
     $.get(root_url + button.data('url') + '/noActions:', function (data) {
         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
             saveSqlLogAjax(ajaxSqlLog);
         }
@@ -3070,7 +3070,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     page = data.page;
                 } else {
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -3111,7 +3111,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     indexZone.html(data.page);
                 } else {
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    

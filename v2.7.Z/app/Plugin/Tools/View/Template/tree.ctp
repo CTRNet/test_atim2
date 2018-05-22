@@ -216,15 +216,16 @@ if (isset($isAjax)) {
                     var url = $this.attr("data-url");
                     var id = $this.attr("data-id");
                     id = (typeof id === 'undefined')?0:id;
-                    var parentId = $this.attr("data-parent-id");
+                    var controlId = $this.attr("data-control-id");
                     var datamartStructureId = $this.attr("data-datamart-structure-id");
-                    if (parentId != 0) {
-                        url = root_url + "Tools/Template/defaultValue/" + id + "/" + datamartStructureId + "/" + parentId + "";
-
+                    var defaultValueJSON = $(this).closest("li").data("defaultValueJSON");
+                    if (controlId != 0) {
+                        url = root_url + "Tools/Template/defaultValue/" + id + "/" + datamartStructureId + "/" + controlId;
+                        urlGetDefaultValue = root_url + "Tools/Template/formatedDefaultValue/" + datamartStructureId + "/" + controlId;
                         $("#default_popup").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
                         $("#default_popup").popup();
                         $.get(url, function (data) {
-                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
 
@@ -237,9 +238,44 @@ if (isset($isAjax)) {
                                     $("#default_popup").popup('close');
                                     $("#default_popup").popup();
                             }
-                            $("#default_popup").popup()
+                            $("#default_popup").popup();
+                            if (defaultValueJSON!=""){
+                                defaultValueJSON = JSON.parse(defaultValueJSON);
+                                $popup = $("#default_popup");
+                                for (model in defaultValueJSON){
+                                    values = defaultValueJSON[model];
+                                    if (values.constructor === Object){
+                                        for (attr in values){
+                                            value = values[attr];
+                                            if (value.constructor === Object){
+                                                for (k in value){
+                                                    v = value[k];
+                                                    selector = "[name*='data["+model+"]["+attr+"]["+k+"]']";
+                                                    $(selector).val(v);
+                                                }
+                                            }else if (value.constructor === String){
+                                                selector = "[name*='data["+model+"]["+attr+"]']";
+                                                $selector = $(selector);
+                                                if ($selector.length==1){
+                                                    $selector.val(value);
+                                                }else if ($selector.length>1){
+                                                    tempValue = value.replace(/(-)|( )|(:)/g, ", ").split(", ");
+                                                    for (var i=0; i<$selector.length; i++){
+                                                        j=i;
+                                                        if (i<3){
+                                                            j=(i+1)%3;
+                                                        }
+                                                        $selector.eq(i).val((typeof tempValue[i] !=='undefined')?tempValue[j]:"0");
+                                                        
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 //                            $("#default_popup form").attr('novalidate');
-                            $("#default_popup a.submit").unbind('click').click(function(){
+                            $("#default_popup a.submit").unbind('click keydown').bind("click keydown", function(){
                                 var defaultValueArray = $("#default_popup form").serializeArray();
                                 defaultValue = {};
                                 for (var i=0; i<defaultValueArray.length; i++){
@@ -248,35 +284,47 @@ if (isset($isAjax)) {
                                                 name = current.name;
                                                 value = current.value;
                                                 name = name.replace("data[", "");
-                                                name = name.replace("][", ", ");
+                                                name = name.replace(/\]\[/g, ", ");
                                                 name = name.replace("]", "");
-                                                k = name.split(", ")[0];
-                                                v = name.split(", ")[1];
-                                                if (typeof defaultValue[k] !== 'undefined'){
-                                                        defaultValue[k][v]=value;
-                                        }else{
-                                            defaultValue[k] = {};
-                                            defaultValue[k][v]= value;
+                                                p = name.split(", ");
+                                                k = p[0];
+                                                v = p[1];
+                                                if (p.length===2){
+                                                    if (typeof defaultValue[k] !== 'undefined'){
+                                                            defaultValue[k][v]=value;
+                                                    }else{
+                                                        defaultValue[k] = {};
+                                                        defaultValue[k][v]= value;
+                                                    }
+                                                }else if (p.length>2){
+                                                    if (typeof defaultValue[k][v] !== 'undefined'){
+                                                        defaultValue[k][v][p[2]]=value;
+                                                    }else if (typeof defaultValue[k] === 'undefined'){
+                                                        defaultValue[k] = {};
+                                                        defaultValue[k][v]={};
+                                                        defaultValue[k][v][p[2]]=value;
+                                                    }else if (typeof defaultValue[k][v] === 'undefined'){
+                                                        defaultValue[k][v]={};
+                                                        defaultValue[k][v][p[2]]=value;
+                                                    }
+                                                }
                                         }
-
-                                    }
                                 }                                
                                 
                                 defaultValueString = JSON.stringify(defaultValue);
                                 $this.attr("data-default-value", defaultValueString);
-                                
                                 $this.closest("li").data("defaultValues", defaultValueString);
-                                
-                                label = [];
-                                for (k in defaultValue){
-                                        for (c in defaultValue[k]){
-                                                label.push(c + "= [" + defaultValue[k][c] + "]"); 
-                                    }
-                                }
+                                $this.closest("li").data("defaultValueJSON", defaultValueString);
+                                $this.siblings(".template-label").html("<span class='icon16 fetching'></span>");
+                                $.post(urlGetDefaultValue, defaultValue, function(data){
+                                    ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                                    saveSqlLogAjax(ajaxSqlLog);
+                                    label =" | " +data;
+                                    $this.siblings(".template-label").text(label);
+                                });
+                                    
 
-                                label ="|" +label.join(" + ");
-                                
-                                $this.siblings(".template-label").text(label);
                                 $("#default_popup").popup('close');
                                 return false;
                             });
@@ -293,6 +341,11 @@ if (isset($isAjax)) {
 		defaultValues = '';
 		if(modelsData.fomated_nodes_default_values[Math.abs(treeData.id)]){
 			defaultValues = " | " + modelsData.fomated_nodes_default_values[Math.abs(treeData.id)];
+		}
+                
+                defaultValueJSON = "";
+		if(modelsData.default_values_json[Math.abs(treeData.id)]){
+			defaultValueJSON = modelsData.default_values_json[Math.abs(treeData.id)];
 		}
 		if(treeData.datamartStructureId == 2){
 			label = '<?php echo __('collection'); ?>';
@@ -311,13 +364,22 @@ if (isset($isAjax)) {
 			}
 			node = $(node).find("ul:first");
 		}
+                
+                var addDefaultValueButton = "";
+                if (treeData.controlId!="0"){
+                    addDefaultValueButton = '<a href="#" title = "'
+                            +DEFAULT_VALUE_TITLE+
+                            '" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+
+                            '" data-control-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>';
+                }
+               
 		$(node).append(
 			'<li>' +
 				'<div class="nodeBlock">' +
 					'<div class="leftPart">- <a href="#" class="icon16 ' + type + '">&nbsp;</a></div>' +
 					'<div class="rightPart">' + 
-					addButton + '<a href="#" title = "'+DEFAULT_VALUE_TITLE+'" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+'" data-parent-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>\n\
-                                        <a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
+					addButton + addDefaultValueButton+
+                                        '<a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
 					'<span class= "nowrap">' + label + '</span><span class = "template-label">' + defaultValues + '</span></div>' +
 				'</div>' +
 			'</li>'
@@ -336,7 +398,8 @@ if (isset($isAjax)) {
 			"nodeId" : treeData.id === 0 ? nodeId -- : treeData.id,
 			"parentId" : treeData.parentId,
 			"quantity" : treeData.quantity,
-			"defaultValuesExist" : defaultValues == ''? 0 : 1
+			"defaultValuesExist" : defaultValues == ''? 0 : 1,
+                        "defaultValueJSON": defaultValueJSON
 		}); 
 		bindButtons(li); 
 		return li;

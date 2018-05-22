@@ -5,7 +5,7 @@ App::uses('Helper', 'View');
 /**
  * Class ShellHelper
  */
-class ShellHelper extends Helper
+class ShellHelper extends AppHelper
 {
 
     public $helpers = array(
