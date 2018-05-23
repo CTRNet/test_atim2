@@ -1,2 +1,0 @@
-<?php
-$displayNextSubForm = false;
