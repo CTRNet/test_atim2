@@ -9,6 +9,27 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 
     var $name = 'ViewAliquotUse';
 
+    static $tableCreateQuery = "CREATE TABLE view_aliquot_uses (
+		  id int(20) NOT NULL,
+		  aliquot_master_id int NOT NULL,
+		  use_definition varchar(50) DEFAULT NULL,
+		  use_code varchar(250) DEFAULT NULL,
+		  use_details VARchar(250) DEFAULT NULL,
+		  used_volume decimal(10,5) DEFAULT NULL,
+		  aliquot_volume_unit varchar(20) DEFAULT NULL,
+		  use_datetime datetime DEFAULT NULL,
+		  use_datetime_accuracy char(1) DEFAULT NULL,
+		  duration int(6) DEFAULT NULL,
+		  duration_unit VARCHAR(250) DEFAULT NULL,
+		  used_by VARCHAR(50) DEFAULT NULL,
+		  created datetime DEFAULT NULL,
+		  detail_url varchar(250) DEFAULT NULL,
+		  sample_master_id int(11) NOT NULL,
+		  collection_id int(11) NOT NULL,
+		  study_summary_id int(11) DEFAULT NULL,
+		  study_summary_title varchar(245) DEFAULT NULL
+		)";
+    
     static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
