@@ -626,3 +626,15 @@ ALTER TABLE qc_nd_ed_ca125s_revs MODIFY value int(8) DEFAULT NULL;
 UPDATE structure_fields SET  `type`='integer_positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_ca125s' AND field='value' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
 
 UPDATE versions SET branch_build_number = '7098' WHERE version_number = '2.7.0';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 20180426
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE realiquotings SET realiquoting_datetime = null WHERE CAST(realiquoting_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
+UPDATE realiquotings_revs SET realiquoting_datetime = null WHERE CAST(realiquoting_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
+
+UPDATE shipments SET datetime_shipped = null WHERE CAST(datetime_shipped AS CHAR(20)) = '0000-00-00 00:00:00';
+UPDATE shipments_revs SET datetime_shipped = null WHERE CAST(datetime_shipped AS CHAR(20)) = '0000-00-00 00:00:00';
+
+UPDATE versions SET branch_build_number = '7125' WHERE version_number = '2.7.0';
