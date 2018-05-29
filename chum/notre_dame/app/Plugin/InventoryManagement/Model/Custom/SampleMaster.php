@@ -190,6 +190,9 @@ class SampleMasterCustom extends SampleMaster
             case 'pericardial fluid cell':
             case 'pericardial fluid supernatant':
             case 'tumor infiltrating lymphocyte':
+            case 'stool supernatant':
+            case 'stool pellet':
+            case 'stool dna extr. super.':
                 $newSampleLabel = $qcNdSampleTypeCode . ' ' . $initialSpecimenLabel;
                 break;
             
