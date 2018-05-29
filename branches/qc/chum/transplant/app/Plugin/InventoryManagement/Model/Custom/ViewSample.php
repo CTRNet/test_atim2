@@ -5,6 +5,8 @@ class ViewSampleCustom extends ViewSample
 
     var $name = 'ViewSample';
 
+    // TODO: Kidney transplant customisation
+    // Added Collection.chum_kidney_transp_collection_time to view.
     static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
@@ -44,6 +46,7 @@ MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
+Collection.chum_kidney_transp_collection_time,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 	
 		FROM sample_masters AS SampleMaster

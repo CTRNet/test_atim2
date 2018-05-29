@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+$debug = 2;
 /**
  * CakePHP Debug Level:
  *
@@ -414,7 +414,7 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
@@ -535,3 +535,10 @@ Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMaster
 Configure::write('order_item_type_config', 1);
 
 unset($debug);
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// CHUM - Installation Variable
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+//TODO: Kidney transplant customisation
+Configure::write('chum_atim_conf', 'KIDNEY_TRANSLPANT');
