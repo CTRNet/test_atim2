@@ -13,6 +13,11 @@ class AliquotMasterCustom extends AliquotMaster
         
         if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
             
+            // TODO: Kidney transplant customisation
+            if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+                return parent::summary($variables);
+            }
+            
             $result = $this->find('first', array(
                 'conditions' => array(
                     'AliquotMaster.collection_id' => $variables['Collection.id'],
@@ -42,6 +47,11 @@ class AliquotMasterCustom extends AliquotMaster
 
     public function generateDefaultAliquotLabel($viewSample, $aliquotControlData)
     {
+        // TODO: Kidney transplant customisation
+        if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+            return '';
+        }
+        
         // Parameters check: Verify parameters have been set
         if (empty($viewSample) || empty($aliquotControlData))
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -5,6 +5,8 @@ class ViewAliquotCustom extends ViewAliquot
 
     var $name = 'ViewAliquot';
 
+    // TODO: Kidney transplant customisation
+    // Added Collection.chum_kidney_transp_collection_time to view.
     static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
@@ -65,8 +67,9 @@ MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
-SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
-		
+SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
+Collection.chum_kidney_transp_collection_time
+        
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1

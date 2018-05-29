@@ -12,6 +12,12 @@ class SampleMasterCustom extends SampleMaster
         $return = false;
         
         if (isset($variables['Collection.id']) && isset($variables['SampleMaster.initial_specimen_sample_id'])) {
+            
+            // TODO: Kidney transplant customisation
+            if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+                return parent::specimenSummary($variables);
+            }
+            
             // Get specimen data
             $criteria = array(
                 'SampleMaster.collection_id' => $variables['Collection.id'],
@@ -44,6 +50,12 @@ class SampleMasterCustom extends SampleMaster
         $return = false;
         
         if (isset($variables['Collection.id']) && isset($variables['SampleMaster.initial_specimen_sample_id']) && isset($variables['SampleMaster.id'])) {
+            
+            // TODO: Kidney transplant customisation
+            if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+                return parent::derivativeSummary($variables);
+            }
+            
             // Get derivative data
             $criteria = array(
                 'SampleMaster.collection_id' => $variables['Collection.id'],
@@ -79,6 +91,11 @@ class SampleMasterCustom extends SampleMaster
         }
         
         $prevId = $this->id;
+            
+        // TODO: Kidney transplant customisation
+        if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+            return '';
+        }
         
         // ** Set Data **
         
@@ -190,6 +207,9 @@ class SampleMasterCustom extends SampleMaster
             case 'pericardial fluid cell':
             case 'pericardial fluid supernatant':
             case 'tumor infiltrating lymphocyte':
+            case 'stool supernatant':
+            case 'stool pellet':
+            case 'stool dna extr. super.':
                 $newSampleLabel = $qcNdSampleTypeCode . ' ' . $initialSpecimenLabel;
                 break;
             
@@ -241,7 +261,12 @@ class SampleMasterCustom extends SampleMaster
 
     private function validateLabTypeCodeAndLaterality(&$dataToValidate)
     {
-        $processValidates = true;
+        $processValidates = true;  
+        
+        // TODO: Kidney transplant customisation
+        if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
+            return $processValidates;
+        }
         
         if ((isset($dataToValidate['SampleControl']['sample_category']) && $dataToValidate['SampleControl']['sample_category'] === 'specimen') || (! isset($dataToValidate['SampleControl']['sample_category']) && array_key_exists('SpecimenDetail', $dataToValidate))) {
             // Load model to control data

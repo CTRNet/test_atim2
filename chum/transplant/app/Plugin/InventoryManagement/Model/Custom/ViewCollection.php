@@ -5,6 +5,8 @@ class ViewCollectionCustom extends ViewCollection
 
     var $name = 'ViewCollection';
 
+    // TODO: Kidney transplant customisation
+    // Added Collection.chum_kidney_transp_collection_time to view.
     static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
@@ -28,6 +30,7 @@ MiscIdentifier.identifier_value AS identifier_value,
 MiscIdentifierControl.misc_identifier_name AS identifier_name,
 Collection.visit_label AS visit_label,
 Collection.qc_nd_pathology_nbr,
+Collection.chum_kidney_transp_collection_time,
 TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -115,5 +118,60 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
             }
         }
         return parent::find($type, $query);
+    }
+
+    /**
+     *
+     * @param array $variables            
+     * @return array|bool
+     */
+    public function summary($variables = array())
+    {
+        // TODO: Kidney transplant customisation
+        
+        $return = false;
+        
+        if (isset($variables['Collection.id'])) {
+            
+//             $bankIds = $this->tryCatchQuery("SELECT GROUP_CONCAT(bk.id SEPARATOR ',') as bank_ids
+//                 FROM banks bk 
+//                 INNER JOIN misc_identifier_controls mc ON bk.misc_identifier_control_id = mc.id 
+//                 WHERE mc.misc_identifier_name = 'kidney transplant bank no lab'");
+//             $bankIds = isset($bankIds[0][0]['bank_ids']) ? explode(',', $bankIds[0][0]['bank_ids']) : '';
+            
+            $collectionData = $this->find('first', array(
+                'conditions' => array(
+                    'ViewCollection.collection_id' => $variables['Collection.id']
+                ),
+                'recursive' => - 1
+            ));
+            
+//             if (! in_array($collectionData['ViewCollection']['bank_id'], $bankIds)) {
+                // Keep for futur version merged with the ATiM-Oncology Axis
+            if (Configure::read('chum_atim_conf') != 'KIDNEY_TRANSLPANT') {
+                return parent::summary($variables);
+            } else {
+                $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+                
+                $acquisitionLabel = strlen($collectionData['ViewCollection']['identifier_value']) ? $collectionData['ViewCollection']['identifier_value'] : '?';
+                $acquisitionLabel .= ' - ' . (strlen($collectionData['ViewCollection']['visit_label']) ? $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('qc visit label', $collectionData['ViewCollection']['visit_label']) : '?');
+                $acquisitionLabel .= ' - ' . (strlen($collectionData['ViewCollection']['chum_kidney_transp_collection_time']) ? $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Collection Times', $collectionData['ViewCollection']['chum_kidney_transp_collection_time']) : '?');
+                
+                $return = array(
+                    'menu' => array(
+                        null,
+                        $acquisitionLabel
+                    ),
+                    'title' => array(
+                        null,
+                        __('collection') . ' : ' . $acquisitionLabel
+                    ),
+                    'structure alias' => 'view_collection',
+                    'data' => $collectionData
+                );
+            }
+        }
+        
+        return $return;
     }
 }
