@@ -9,6 +9,7 @@ function initStorageLayout(mode){
 	id = id.pop();
 	$("#firstStorageRow").data('storageId', id);
 	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
+	$("#default_popup").clone().attr("id", "csvDialogPopup").appendTo("body");
 	
 	//bind preparePost to the submit button
 	$("input.submit").first().siblings("a").click(function(){
@@ -20,7 +21,6 @@ function initStorageLayout(mode){
 		return false;
 	});
 	
-	
 	//load the top storage loayout
 	ctrls = $("#firstStorageRow").data("ctrls");
         if (typeof $("#firstStorageRow").data("storageUrl") !=='undefined'){
@@ -31,6 +31,7 @@ function initStorageLayout(mode){
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
+                            $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
                                     $(".RecycleStorage").remove();
                                     $(".TrashStorage").remove();
@@ -41,9 +42,12 @@ function initStorageLayout(mode){
                     $("#firstStorageRow").find(".dragme").data("top", true);
                     $("#firstStorageRow").find(".droppable").data("top", true);
                     $("#firstStorageRow").data('checkConflicts', data.check_conflicts);
+                    $("body").append("<div id='csvDialogPopup'>");
+                    $('#LoadCSVFile').on('change', csvOpen);
+                    $('.clear-loaded-barcodes').on('click', clearLoadedBarcodes);
             });
         }
-	
+        
 	window.onbeforeunload = function(event) {
 		if(modified){
 			return STR_NAVIGATE_UNSAVED_DATA;
@@ -120,6 +124,172 @@ function initStorageLayout(mode){
 	
 	//IE9 fix
 	//$("a[href='#']").click(function (e) { e.preventDefault(); });
+        
+}
+
+function csvOpen(e) {
+    if (this.files.length !== 0) {
+        var file = this.files[0];
+        if (file.size > maxUploadFileSize) {
+            alert(maxUploadFileSizeError);
+            return false;
+        }
+        var data = new FormData();
+        data.append('media', file);
+        var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
+        var url = root_url + "StorageLayout/StorageMasters/getCsvFile/" + storageId;
+        $("#csvDialogPopup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
+        $.ajax({
+            url: url,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function (data) {
+                ajaxSqlLog = {'sqlLog': [$(data.substring(data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                saveSqlLogAjax(ajaxSqlLog);
+                data = data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                var $html = $('<div />', {html: data});
+                $html.find(".actions").eq(0).remove();
+                $html.find(".pop-up-csv-barcode li").each(function () {
+                    barcodeNumber = $.parseJSON($(this).attr("data-aliquot"))["barcode"];
+                    message = $.parseJSON($(this).attr("data-aliquot"))["message"];
+                    dupMessage = DUPLICATED_ALIQUOT;
+                    var existe = false;
+                    if (message.search("dupMessage") == -1) {
+                        $(".just-added span.handle").each(function () {
+                            if ($(this).text() == barcodeNumber) {
+                                existe = true;
+                                return;
+                            }
+                        });
+                    }
+                    if (existe) {
+                        $.parseJSON($(this).attr("data-aliquot"))["message"] = message + "," + dupMessage;
+                        $(this).text($(this).text() + ", " + dupMessage);
+                        $(this).closest("ul").removeClass("confirm").addClass("warning");
+                    }
+                });
+
+                data = $html.html();
+                $("#csvDialogPopup").popup('close');
+                $("#csvDialogPopup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>').popup();
+                $("#csvDialogPopup .actions a.cancel").off("click").on("click", function () {
+                    $("#csvDialogPopup").popup('close');
+                });
+                $("#csvDialogPopup .actions a.add").off("click").on("click", csvToLayout);
+            }
+        });
+    }
+
+    var li = $("#LoadCSVFile").parents().eq(0);
+    li.find("#LoadCSVFile").remove();
+    li.prepend('<input type="file" style="display:none;" id="LoadCSVFile" name="CSVFile" accept=".xlsx, .xls, .csv">')
+    $('#LoadCSVFile').on('change', csvOpen);
+}
+
+function csvToLayout(){
+    confirms = $("#csvDialogPopup").find("ul.confirm li");
+    errors = $("#csvDialogPopup").find("ul.error li");
+    warnings = $("#csvDialogPopup").find("ul.warning li");
+    $html = "<li class='dragme AliquotMaster ui-draggable just-added csv-just-added' data-json='{ \"id\" : \"\", \"type\" : \"AliquotMaster\"}' style='position: relative;' title = ''>\n" +
+            "<a href='javascript:void(0)' data-popup-link='' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>" +
+            "<span class='handle' data-barcode = ''></span>" +
+            "</li>";
+    for (var i = 0; i < confirms.length; i++) {
+        var aliquotData = $.parseJSON($(confirms[i]).attr("data-aliquot"));
+        aliquotClass = "new-aliquot";
+        var li = $('<div />', {html: $html});
+        var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
+        li.find("li").addClass(aliquotClass).attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        li.find('a').attr("data-popup-link", url);
+        li.find('span').attr("data-barcode", aliquotData['barcode']);
+        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+        var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
+        ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + ((aliquotData["y"] == -1) ? "1" : aliquotData["y"]);
+        destination = $("#firstStorageRow").find(ulId).append(li.html());
+
+        destination.find("li:last-child").on("dblclick", function () {
+            var $td = $(this).closest("td");
+            var val = $(this).find("span.handle").attr("data-barcode");
+            $(this).remove();
+            createInput($td);
+            $td.find(".barcode_scanner").val(val);
+            $td.find(".barcode_scanner").select();
+        });
+
+        //make them draggable
+        destination.find("li:last-child").draggable({
+            revert: 'invalid',
+            zIndex: 1,
+            start: function (event, ui) {
+                dragging = true;
+            }, stop: function (event, ui) {
+                dragging = false;
+            }
+        });
+
+        //create the drop zones
+        destination.find("li:last-child").droppable({
+            hoverClass: 'ui-state-active',
+            tolerance: 'pointer',
+            drop: function (event, ui) {
+                moveItem(ui.draggable, this);
+            }
+        });
+
+
+    }
+
+    for (var i = 0; i < warnings.length; i++) {
+        var aliquotData = $.parseJSON($(warnings[i]).attr("data-aliquot"));
+        if (aliquotData["x"]<0 || aliquotData["y"]<0){
+            continue;
+        }
+        var li = $('<div />', {html: $html});
+        var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
+        li.find("li").addClass("warning-aliquot").attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        li.find('a').attr("data-popup-link", url);
+        li.find('span').attr("data-barcode", aliquotData['barcode']);
+        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+        var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
+        ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + aliquotData["y"];
+        destination = $("#firstStorageRow").find(ulId).append(li.html());
+
+        destination.find("li:last-child").on("dblclick", function () {
+            var $ul = $(this).closest("ul");
+            var val = $(this).find("span.handle").attr("data-barcode");
+            $(this).remove();
+            createInput($ul);
+            $ul.find(".barcode_scanner").val(val);
+            $ul.find(".barcode_scanner").select();
+        });
+
+        //make them draggable
+        destination.find("li:last-child").draggable({
+            revert: 'invalid',
+            zIndex: 1,
+            start: function (event, ui) {
+                dragging = true;
+            }, stop: function (event, ui) {
+                dragging = false;
+            }
+        });
+
+        //create the drop zones
+        destination.find("li:last-child").droppable({
+            hoverClass: 'ui-state-active',
+            tolerance: 'pointer',
+            drop: function (event, ui) {
+                moveItem(ui.draggable, this);
+            }
+        });
+    }
+
+    $("#csvDialogPopup").popup("close");
+    
+    checkDuplicatedBarcode();
 }
 
 function initRow(row, data, ctrls){
@@ -130,9 +300,9 @@ function initRow(row, data, ctrls){
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + "' data-json='{ \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
-			+ '<a href="#" data-popup-link="' + jsonOrgItems[i].link + '\" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + ' popupLink" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="javascript:void(0)" data-popup-link="' + jsonOrgItems[i].link + '\" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + ' popupLink" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
-			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
+			+ '<span class="handle" data-barcode = "'+jsonOrgItems[i].barcode+'">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
 			if($("#s_" + id + "_c_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
 				$("#s_" + id + "_c_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).append(appendString);
@@ -201,8 +371,10 @@ function initRow(row, data, ctrls){
 	});
 	
 	row.find(".popupLink").click(function(){
+    if ($(this).data("popup-link")!==""){
 		showInPopup($(this).data("popup-link"));
-		return false;
+    }
+    return false;
 	});
 }
 
@@ -225,7 +397,10 @@ function searchBack(){
  * @return
  */
 function moveItem(draggable, droparea){
-	if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
+        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0)){
+		$(draggable).draggable({ revert : true });
+        }   
+	else if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
 		if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "trash"){
 			deleteItem(draggable);
 		}else if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "unclassified"){
@@ -260,7 +435,6 @@ function deleteItem(scope, item) {
 	$("div.validation ul.confirm").remove();
 	return false;
 }
-
 
 /**
  * Moves an item to the unclassified area and updates the icons accordingly
@@ -333,9 +507,14 @@ function preparePost(){
 function moveStorage(scope, recycle){
 	var elements = scope.find("table.storageLayout ul");
 	for(var i = 0; i < elements.length; ++ i){
+
 		var id = elements[i].id;
 		if(id != null && id.indexOf("s_") == 0){
 			for(var j = $(elements[i]).children().length - 1; j >= 0; -- j){
+                            $elements = $(elements[i]).children().eq(j);
+                            if ($elements.hasClass("just-added")){
+                                continue;
+                            }
 				if(recycle){
 					recycleItem(scope, $(elements[i]).children()[j]);
 				}else{
@@ -373,4 +552,170 @@ function showInPopup(link){
             
 		 $("#otherPopup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
+}
+
+function createInput($this){
+    $input = $("<input type = 'text'>");
+    $input.attr("class", "barcode_scanner");
+    $input.css({"display": "inline-block", "width": "90%"});
+    $this.append($input);
+    var ul = $this.find('ul');
+    if (ul.find("li").length==0){
+        ul.css("min-height", "0px");
+    }
+    $input.focus();
+    checkDuplicatedBarcode();
+    $input.off("keydown").on("keydown", function (e) {
+        var $td = $(this).closest("td");
+        var index = $("#firstStorageRow").find("td.droppable").index($td);
+        var length = $("#firstStorageRow").find("td.droppable").length;
+        if ((e.keyCode == 9 && !e.shiftKey) || (e.keyCode == 13)) {
+            if (index < length - 1) {
+                var $next = $("#firstStorageRow").find("td.droppable").eq(index + 1);
+                if ($next.length != 0) {
+                    $next.trigger('click');
+                }
+                return false;
+            } 
+        }
+    });
+
+    $input.off("focusout").on("focusout", function () {
+        $this = $(this).closest("td");
+        var value = $this.find(".barcode_scanner").val();
+        if (value == "") {
+            $this.find(".barcode_scanner").remove();
+            var ul = $this.find('ul');
+            if (ul.find("li").length==0){
+                ul.css("min-height", "25px");
+            }
+        checkDuplicatedBarcode();
+        } else {
+            checkAliquotBarcode($this);
+        }
+        return false;
+    });
+    
+}
+
+function addAliquotByClick(e){
+    var $this = $(this);
+    if ((e.target == this || e.target.nodeName == "UL") && $(this).find(".barcode_scanner").length == 0) {
+        createInput($this);
+        return false;
+    }
+}
+
+function checkDuplicatedBarcode(li){
+    if (typeof li !== 'undefined'){
+        barcodeValue = li.find('span.handle').attr("data-barcode");
+        searchByBarcode = $("#firstStorageRow").find("td.droppable span:[data-barcode = '"+barcodeValue+"']");
+        if (searchByBarcode.length>1){
+            searchByBarcode.each(function(){
+                var lii = $(this).closest("li");
+                if (!lii.hasClass("warning-aliquot")){
+                    lii.removeClass("new-aliquot");
+                    lii.addClass("warning-aliquot");
+                }
+            });
+        }
+    }
+    
+    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle");
+    searchByBarcodeText = [];
+    searchByBarcode.each(function(){
+        searchByBarcodeText.push($(this).attr("data-barcode"));
+    });
+
+    var sorted_arr = searchByBarcodeText.sort();
+
+    searchDifferentBarcodeText = sorted_arr.filter(function(item){
+        return sorted_arr.lastIndexOf(item) === sorted_arr.indexOf(item);
+    });
+    searchDifferentBarcodeText.forEach(function(item){
+        $liParent = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
+        $liParent.removeClass("warning-aliquot");
+        if ($liParent.hasClass("just-added")){
+            $liParent.addClass("new-aliquot");
+        }
+        
+    });
+
+    searchSameBarcodeText = sorted_arr.filter(function(item){
+        return sorted_arr.lastIndexOf(item) !== sorted_arr.indexOf(item);
+    });
+
+    searchSameBarcodeText.forEach(function(item){
+        $liParent = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
+        $liParent.removeClass("new-aliquot").addClass("warning-aliquot");
+    });
+
+}
+
+function checkAliquotBarcode($this) {
+    var barcode = $this.find(".barcode_scanner").val();
+    $this.find(".barcode_scanner").replaceWith("<span class=\"icon16 fetching\"></span>");
+    var strorageId = $this.find("ul").attr("id").split("_")[1];
+    var url = root_url+"StorageLayout/StorageMasters/getAliquotDetail/"+strorageId+"/"+barcode;
+    $.get(url, function (data){
+        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+        saveSqlLogAjax(ajaxSqlLog);
+        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        data = $.parseJSON(data);
+        $this.find(".fetching").remove();
+        $this.find("ul").append(data.page);
+        var li = $this.find("ul li:last-child");
+        
+        checkDuplicatedBarcode(li);
+        
+        li.find("a").off("click").on("click", function(){
+            var $this = $(this);
+            if ($this.data("popup-link")!==""){
+                showInPopup($this.data("popup-link"));
+            }
+        });
+        li.mouseover(function(){
+            document.onselectstart = function(){ return false; };
+        }).mouseout(function(){
+            if(!dragging){
+                document.onselectstart = null;
+            }
+        });
+
+        //make them draggable
+        li.draggable({
+                revert : 'invalid',
+                zIndex: 1,
+                start: function(event, ui){
+                        dragging = true;
+                }, stop: function(event, ui){
+                        dragging = false;
+                }
+        });
+
+        //create the drop zones
+        li.droppable({
+                hoverClass: 'ui-state-active',
+                tolerance: 'pointer',
+                drop: function(event, ui){
+                        moveItem(ui.draggable, this);
+                }
+        });
+        
+        li.on("dblclick", function(){
+            var $td = $(this).closest("td");
+            var val = $(this).find("span.handle").attr("data-barcode");
+            if ($td.find(".barcode_scanner").length!==0){
+                $td.find(".barcode_scanner").trigger("focusout");
+            }
+            $(this).remove();
+            createInput($td);
+            $td.find(".barcode_scanner").val(val);
+            $td.find(".barcode_scanner").select();
+        });
+    });
+}
+
+function clearLoadedBarcodes(){
+    $("li.just-added").remove();
 }

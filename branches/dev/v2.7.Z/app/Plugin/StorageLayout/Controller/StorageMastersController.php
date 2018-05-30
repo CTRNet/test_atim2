@@ -29,7 +29,7 @@ class StorageMastersController extends StorageLayoutAppController
             'order' => 'ViewStorageMaster.selection_label ASC'
         )
     );
-
+    
     /**
      * @param int $searchId
      * @param bool $fromLayoutPage
@@ -862,7 +862,6 @@ class StorageMastersController extends StorageLayoutAppController
         
         if (! empty($this->request->data)) {
             if ($csvCreation) {
-                
                 if (isset($this->request->data['Config']))
                     $this->configureCsv($this->request->data['Config']);
             } else {
@@ -871,7 +870,6 @@ class StorageMastersController extends StorageLayoutAppController
                 $unclassified = array();
                 
                 $json = (json_decode($this->request->data));
-                
                 $secondStorageId = null;
                 foreach ($json as $element) {
                     if ((int) $element->s && $element->s != $storageMasterId) {
@@ -1082,7 +1080,6 @@ class StorageMastersController extends StorageLayoutAppController
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -1272,5 +1269,30 @@ class StorageMastersController extends StorageLayoutAppController
         if ($hookLink) {
             require ($hookLink);
         }
+    }
+    
+    /**
+     * Get the aliquot detail and send it to view.
+     * 
+     * @param int $storageId
+     * @param string $barcode
+     */
+    public function getAliquotDetail($storageId, $barcode){
+        $result = $this->AliquotMaster->getAliquotByBarcode($storageId, $barcode);
+        $this->set('result', $result['aliquots']);
+        $this->set('isTma', $result['isTma']);
+        $this->set('barcodeSearch', $barcode);
+    }
+    
+    /**
+     * Load a CSV file and add the barcodes into the form.
+     * 
+     * @param int $storageId
+     */
+    public function getCsvFile ($storageId){
+        $dataFile = $_FILES['media'];
+        $response = $this->AliquotMaster->readCsvAndConvertToArray($dataFile, $storageId);
+        $this->set("csvArrayData", $response);
+        $this->Structures->set('empty', 'emptyStructure');
     }
 }
