@@ -39,6 +39,10 @@ VALUES
 	("default_values", "Default values", "Des valeurs par defaux"),
 	("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
 	
+-- -------------------------------------------------------------------------------------
+--	The warning about max_input_vars
+-- -------------------------------------------------------------------------------------
+
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES 	
@@ -74,6 +78,30 @@ VALUES(
 	'The permission of "upload" directory is not correct.', 
 	'L\'autorisation du répertoire "upload" n\'est pas correcte.');
 
+-- -------------------------------------------------------------------------------------
+--	Storage layout
+-- -------------------------------------------------------------------------------------
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES
+	('aliquot does not exist', 'Aliquot does not exist', 'Aliquote n\'existe pas'),
+	('aliquot is not in stock', 'Aliquot is not in stock', 'Aliquote n\'est pas en stock'),
+	('this aliquot is registered in another place. label: %s, x: %s, y: %s', 'This aliquot is registered in another place. label: %s, x: %s, y: %s', 'Cette aliquote est enregistrée dans un autre endroit. étiquette: %s, x: %s, y: %s'),
+	('more than one aliquot have the same barcode', 'More than one aliquot have the same barcode', 'Plus d\'une aliquote a le même code à barres'),
+	('the aliquots list', 'The list of aliquots', 'La liste des aliquotes'),
+	('line %s', 'Line %s', 'Ligne %s'),
+	('load csv', 'Load CSV', 'Charger CSV'),
+	('clear the loaded and scanned barcode', 'Clear the loaded and scanned barcode', 'Effacez le code à barres chargé et numérisé'),
+	('this aliquot is registered in another place', 'This aliquot is registered in another place', 'Cette aliquote est enregistrée dans un autre endroit'),
+	('the y dimension out of range <= %s', 'The Y dimension out of range <= %s', 'La dimension Y hors de portée <=%s'),
+	('the x dimension out of range <= %s', 'The X dimension out of range <= %s', 'La dimension X hors de portée <=%s'),
+	('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Dupliquer le code à barres dans le fichier CSV'),
+	('should have Y column', 'Should have Y column', 'Devrait avoir une colonne Y'),
+	('should have barcode column', 'Should have barcode column', 'Devrait avoir une colonne de code à barres'),
+	('should have X column', 'Should have X column', 'Devrait avoir une colonne X'),
+	('error in csv header file', 'Error in CSV header file', 'Erreur dans le fichier d\'en-tête CSV'),
+	('error in opening %s', 'Error in opening %s', 'Erreur d\'ouverture %s'),
+	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV');
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
 -- -------------------------------------------------------------------------------------
@@ -444,3 +472,5 @@ UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
 ('2.7.1', NOW(),'xxxx','n/a');
+
+Select ">            Nicolas, may you check the translation of storage layout?             <" as ">            Nicolas, may you check the translation of storage layout?             <";	
