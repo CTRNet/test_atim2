@@ -583,7 +583,8 @@ class CollectionsController extends InventoryManagementAppController
             'samples_relations' => $samplesRelations,
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, 'AliquotControl', 'id', true),
             'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
-            'fomated_nodes_default_values' => $templateNodeModel->formatTemplateNodeDefaultValuesForDisplay($templateId)
+            'fomated_nodes_default_values' => $templateNodeModel->formatTemplateNodeDefaultValuesForDisplay($templateId),
+            'default_values_json' => $templateNodeModel->getDefaultValues($templateId),
         );
         
         $this->set('jsData', $jsData);
