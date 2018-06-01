@@ -200,6 +200,9 @@ REPLACE INTO i18n (id,en,fr)
 VALUES
 ('aliquot barcode', 'Barcode', 'Code-barres');
 
+UPDATE aliquot_controls SET flag_active=true WHERE id IN('77');
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN('66');
+
 DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model = 'AliquotMaster');
 -- aliquot_masters
 UPDATE structure_formats SET `display_column`='0', `display_order`='8', `flag_add`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -223,6 +226,14 @@ UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='' WHERE st
 UPDATE structure_formats SET `display_order`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- orderitems
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO `storage_controls` 
+VALUES 
+(null,'box100 1A-10J','column','integer',10,'row','alphabetical',10,0,0,0,0,0,0,0,1,'','std_boxs','custom#storage types#box100 1A-10J',1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('box100 1A-10J', 'Box100 1A-10J',  'Boîte100 1A-10J', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
 -- Tissue
 
@@ -260,6 +271,22 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='type_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_labo_type_code') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='sequence_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_value_domains AS svd 
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id 
+SET `flag_active`="0" WHERE svd.domain_name='blood_type';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Blood Types')" WHERE domain_name='blood_type';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Blood Types', 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('edta (lavender)', 'EDTA (Lavender)',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('heparin (green)', 'Heparin (Green)',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('paxgene', 'PAXGene',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('none (red)', 'None (Red - Serum)',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
 -- DNA
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_dnas'); 
@@ -273,6 +300,30 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 -- Quality Control And Path Review
 
 UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2224', 'inv_CAN_224', 'inv_CAN_225');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Storage
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE storage_controls SET flag_active = 0;
+UPDATE storage_controls SET flag_active = 1 WHERE storage_type IN ('box100', 'rack24', 'shelf', 'nitrogen locator', 'freezer');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Other
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0;
+UPDATE structure_permissible_values_custom_controls SET flag_active = 1 WHERE name IN ('Aliquot Use and Event Types','Amp. RNA : Amp. method','Blood cell : Storage solution','Collection Times','DNA : Extraction method','DNA RNA : Storage solution','Family History Diagnosis List',
+'information source','Institutions & Laboratories','Laboratory Sites','Laboratory Staff','laterality','Orders Contacts','Orders Institutions','Participant Message Types','Password Reset Questions',
+'qc visit label','researchers','RNA : Extraction method','rna purification method',' cie','Specimen Collection Sites','Specimen Supplier Departments','Storage Coordinate Titles','Storage Types','Study Fundings',
+'Study Status','Tissue : Storage method','Tissue : Storage solution','Tissue Core Natures','Tissue Sources List');
+
+
+
+
+
+
+
 
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 13 AND id2 =5) OR (id1 = 5 AND id2 =13);
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 13 AND id2 =1) OR (id1 = 1 AND id2 =13);
