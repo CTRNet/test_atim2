@@ -31,6 +31,7 @@ MiscIdentifierControl.misc_identifier_name AS identifier_name,
 Collection.visit_label AS visit_label,
 Collection.qc_nd_pathology_nbr,
 Collection.chum_kidney_transp_collection_time,
+Collection.chum_kidney_transp_collection_type,
 TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1

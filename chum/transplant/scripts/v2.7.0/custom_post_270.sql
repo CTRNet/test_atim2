@@ -170,6 +170,37 @@ UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id F
 UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('chum_kidney_transp_collection_types', "StructurePermissibleValuesCustom::getCustomDropdown('Collection Types')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Collection Types', 1, 20, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Collection Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('donor', 'Donor',  'Donneur', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('receiver', 'Receiver',  'Receveur', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('unknown', 'Unknown',  'Inconnu', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+ALTER TABLE collections ADD COLUMN chum_kidney_transp_collection_type VARCHAR(20) DEFAULT NULL;
+ALTER TABLE collections_revs ADD COLUMN chum_kidney_transp_collection_type VARCHAR(20) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`)
+(SELECT plugin, model, tablename, 'chum_kidney_transp_collection_type', type, (SELECT id FROM structure_value_domains WHERE domain_name='chum_kidney_transp_collection_types'), flag_confidential, setting, '', '', 'collection participant type', ''
+FROM structure_fields WHERE field = 'chum_kidney_transp_collection_time');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, language_label, language_tag, language_help,
+ `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_id, sfinew.id, display_column, display_order, language_heading, margin, '', '', '',
+flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary, flag_float
+FROM structure_formats sfo 
+INNER JOIN structure_fields sfisource ON sfo.structure_field_id = sfisource.id AND sfisource.field = 'chum_kidney_transp_collection_time'
+INNER JOIN structure_fields sfinew ON sfinew.field = 'chum_kidney_transp_collection_type' AND sfisource.field = 'chum_kidney_transp_collection_time' AND sfinew.model = sfisource.model);
+INSERT INTO i18n (id,en,fr)
+VALUES
+('collection participant type', 'Participant', 'Participant');
+UPDATE structure_fields SET `default` = 'donor' WHERE  `model`='Collection' AND `tablename`='collections' AND `field`='chum_kidney_transp_collection_type';
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='Collection'  AND `field`='chum_kidney_transp_collection_type'), 'notBlank', '');
+
 -- Clinical Colelction Link
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -226,14 +257,6 @@ UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='' WHERE st
 UPDATE structure_formats SET `display_order`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- orderitems
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-INSERT INTO `storage_controls` 
-VALUES 
-(null,'box100 1A-10J','column','integer',10,'row','alphabetical',10,0,0,0,0,0,0,0,1,'','std_boxs','custom#storage types#box100 1A-10J',1);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
-VALUES
-('box100 1A-10J', 'Box100 1A-10J',  'Boîte100 1A-10J', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
 -- Tissue
 
@@ -307,6 +330,19 @@ UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2224', 'inv_CAN_224', 'i
 
 UPDATE storage_controls SET flag_active = 0;
 UPDATE storage_controls SET flag_active = 1 WHERE storage_type IN ('box100', 'rack24', 'shelf', 'nitrogen locator', 'freezer');
+
+INSERT INTO `storage_controls` 
+VALUES 
+(null,'box100 1A-10J','column','integer',10,'row','alphabetical',10,0,0,0,0,0,0,0,1,'','std_boxs','custom#storage types#box100 1A-10J',1),
+(null, 'rack24 4x6', 'position', 'integer', 24, NULL, NULL, NULL, 4, 6, 0, 0, 0, 0, 0, 1, '', 'std_customs', 'custom#storage types#rack24 4x6', 1),
+(null, 'freezer24 6x4', 'position', 'integer', 24, NULL, NULL, NULL, 6, 4, 0, 0, 1, 0, 0, 1, '', 'std_customs', 'custom#storage types#freezer24 6x4', 1);
+--
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('box100 1A-10J', 'Box100 1A-10J',  'Boîte100 1A-10J', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('rack24 4x6', 'Rack24 4x6',  'Râtelier24 4x6', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('freezer24 6x4', 'Freezer24 6x4',  'Congélateur100 1A-10J', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Other

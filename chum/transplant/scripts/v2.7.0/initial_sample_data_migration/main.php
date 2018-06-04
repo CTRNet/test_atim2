@@ -1,6 +1,8 @@
 <?php
-
 require_once __DIR__.'/system.php';
+
+//TODO
+pr("!!!!!!!!!!!!!!!! Replacce Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into excel file");
 
 $is_test_import_process = false;
 if(isset($argv[1])) {
@@ -121,6 +123,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 'participant_id' => $participant_id,
                 'bank_id' => $bank_id, 
                 'visit_label' => $visitId, 
+                'chum_kidney_transp_collection_type' => 'unknown',
                 'collection_property' => 'participant collection')));
 
         // --------------------------------------------------------------------------------------------------------------------
@@ -197,7 +200,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                             'storage_master_id' => $storage_master_id,
                             'storage_coord_x' => $storage_coord_x,
                             'storage_coord_y' => $storage_coord_y,
-                            'notes' => strlen($newTube['quantity'])? 'Quantity = '.$newTube['quantity'] : ''),
+                            'notes' => (strlen($newTube['label'])? 'Position in XLS file : '.$newTube['label'].' p# [' . $newTube['position_string'].']. ' : '').strlen($newTube['quantity'])? 'Quantity = '.$newTube['quantity'] .'.': ''),
                         $atim_controls['aliquot_controls'][$sample_type.'-tube']['detail_tablename'] => array());
                     $aliquot_master_id = customInsertRecord($aliquot_data);
                     $aliquot_counter++;
@@ -306,7 +309,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                             'storage_coord_x' => $storage_coord_x,
                             'storage_coord_y' => $storage_coord_y,
                             'initial_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
-                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : ''),
+                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
+                            'notes' => (strlen($newTube['label'])? 'Position in XLS file : '.$newTube['label'].' p# [' . $newTube['position_string'].']. ' : '')),
                         $atim_controls['aliquot_controls'][$sample_type.'-tube']['detail_tablename'] => array());
                     $aliquot_master_id = customInsertRecord($aliquot_data);
                     $aliquot_counter++;
@@ -414,7 +418,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                             'storage_coord_x' => $storage_coord_x,
                             'storage_coord_y' => $storage_coord_y,
                             'initial_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
-                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : ''),
+                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
+                            'notes' => (strlen($newTube['label'])? 'Position in XLS file : '.$newTube['label'].' p# [' . $newTube['position_string'].']. ' : '')),
                         $atim_controls['aliquot_controls'][$sample_type.'-tube']['detail_tablename'] => array());
                     $aliquot_master_id = customInsertRecord($aliquot_data);
                     $aliquot_counter++;
@@ -473,7 +478,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                             'storage_coord_x' => $storage_coord_x,
                             'storage_coord_y' => $storage_coord_y,
                             'initial_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
-                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : ''),
+                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
+                            'notes' => (strlen($newTube['label'])? 'Position in XLS file : '.$newTube['label'].' p# [' . $newTube['position_string'].']. ' : '')),
                         $atim_controls['aliquot_controls'][$sample_type.'-tube']['detail_tablename'] => array());
                     $aliquot_master_id = customInsertRecord($aliquot_data);
                     $aliquot_counter++;
@@ -587,7 +593,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         }
         unset($new_collection_data[$key]);
         
-        $key = 'Contenant st├®rile 90mL urine';
+        $key = 'Contenant sterile 90mL urine';
         $sample_type = 'urine';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Urine: One urine per visit
@@ -676,7 +682,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                             'storage_coord_x' => $storage_coord_x,
                             'storage_coord_y' => $storage_coord_y,
                             'initial_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
-                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : ''),
+                            'current_volume' => strlen($newTube['quantity'])? $newTube['quantity'] : '',
+                            'notes' => (strlen($newTube['label'])? 'Position in XLS file : '.$newTube['label'].' p# [' . $newTube['position_string'].']. ' : '')),
                         $atim_controls['aliquot_controls'][$sample_type.'-tube']['detail_tablename'] => array());
                     $aliquot_master_id = customInsertRecord($aliquot_data);
                     $aliquot_counter++;
@@ -825,26 +832,36 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
     }
     $positions = null;
     if(preg_match('/^([A-J])(([1-9])|(10))$/', $position_string, $matches)) {
-        $positions = array($matches[1], $matches[2]);
+        //$positions = array($matches[1], $matches[2]);
+        $positions = (strpos("ABCDEFGHIJ", $matches[1])+1) + ($matches[2]-1)*10;
+        $positions = array($positions, '');
     } else {
         pr('TODO 32837982eew239 ' . $position_string);
         return array('', '', '');
     }
     
-    $freezer_selection_label = $storage_short_label[0];
-    $rack_selection_label = $storage_short_label[0].'-'.$storage_short_label[1];
-    $box_selection_label = $storage_short_label[0].'-'.$storage_short_label[1].'-'.$storage_short_label[2];
+    $freezer_short_label = $storage_short_label[0];
+    $rack_short_label = $storage_short_label[1];
+    $initial_rack_short_label = $storage_short_label[1];
+    $box_short_label = $storage_short_label[2];
+    $initial_box_short_label = $storage_short_label[2];
+    
+    $box_short_label = ($rack_short_label - 1)*24 + $box_short_label;
+    
+    $freezer_selection_label = $freezer_short_label;
+    $rack_selection_label = $freezer_short_label.'-'.$rack_short_label;
+    $box_selection_label = $freezer_short_label.'-'.$rack_short_label.'-'.$box_short_label;
     
     $freezer_storage_master_id = null;
     if(!isset($storages[$freezer_selection_label])) {
         $storage_data = array(
             'storage_masters' => array(
                 "code" => 'tmp_storage_'.($created_storage_counters),
-                "short_label" => $storage_short_label[0],
+                "short_label" => $freezer_short_label,
                 "selection_label" => $freezer_selection_label,
-                "storage_control_id" => $atim_controls['storage_controls']['freezer']['id'],
+                "storage_control_id" => $atim_controls['storage_controls']['freezer24 6x4']['id'],
                 'notes' => ''),
-            $atim_controls['storage_controls']['freezer']['detail_tablename'] => array());
+            $atim_controls['storage_controls']['freezer24 6x4']['detail_tablename'] => array());
         $freezer_storage_master_id = customInsertRecord($storage_data);
         $storages[$freezer_selection_label] = $freezer_storage_master_id;
         $created_storage_counters++;
@@ -856,12 +873,16 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
         $storage_data = array(
             'storage_masters' => array(
                 "code" => 'tmp_storage_'.($created_storage_counters),
-                "short_label" => $storage_short_label[1],
+                "short_label" => $rack_short_label,
                 'parent_id' => $freezer_storage_master_id,
                 "selection_label" => $rack_selection_label,
-                "storage_control_id" => $atim_controls['storage_controls']['rack24']['id'],
+                "storage_control_id" => $atim_controls['storage_controls']['rack24 4x6']['id'],
                 'notes' => ''),
-            $atim_controls['storage_controls']['rack24']['detail_tablename'] => array());
+            $atim_controls['storage_controls']['rack24 4x6']['detail_tablename'] => array());
+        if(preg_match('/^((0{0,1}([1-9]))|(1[0-9])|(2[0-4]))$/', $initial_rack_short_label, $matches)) {
+            $parent_storage_coord_x = isset($matches[3])? $matches[3]: (isset($matches[4])? $matches[4]: (isset($matches[5])? $matches[5]: ''));
+            $storage_data['storage_masters']['parent_storage_coord_x'] = $parent_storage_coord_x;
+        }
         $rack_storage_master_id = customInsertRecord($storage_data);
         $storages[$rack_selection_label] = $rack_storage_master_id;
         $created_storage_counters++;
@@ -873,14 +894,13 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
         $storage_data = array(
             'storage_masters' => array(
                 "code" => 'tmp_storage_'.($created_storage_counters),
-                "short_label" => $storage_short_label[1],
+                "short_label" => $box_short_label,
                 'parent_id' => $rack_storage_master_id,
                 "selection_label" => $box_selection_label,
-                "storage_control_id" => $atim_controls['storage_controls']['box100 1A-10J']['id'],
-                'notes' => ''),
-            $atim_controls['storage_controls']['box100 1A-10J']['detail_tablename'] => array());
-        
-        if(preg_match('/^((0{0,1}([1-9]))|(1[0-9])|(2[0-4]))$/', $storage_short_label[2], $matches)) {
+                "storage_control_id" => $atim_controls['storage_controls']['box100']['id'],
+                'notes' => 'Box label from Xls file : '.$storage_short_label[0].$storage_short_label[1].$storage_short_label[2].'.'),
+            $atim_controls['storage_controls']['box100']['detail_tablename'] => array());
+        if(preg_match('/^((0{0,1}([1-9]))|(1[0-9])|(2[0-4]))$/', $initial_box_short_label, $matches)) {
             $parent_storage_coord_x = isset($matches[3])? $matches[3]: (isset($matches[4])? $matches[4]: (isset($matches[5])? $matches[5]: ''));
             $storage_data['storage_masters']['parent_storage_coord_x'] = $parent_storage_coord_x;
         }
@@ -890,7 +910,7 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
     }
     $box_storage_master_id = $storages[$box_selection_label];    
     
-    return array($box_storage_master_id, $positions[1], $positions[0]);
+    return array($box_storage_master_id, $positions[0], $positions[1]);
 }
 
 function addViewUpdate(&$final_queries) {
@@ -918,6 +938,7 @@ MiscIdentifierControl.misc_identifier_name AS identifier_name,
 Collection.visit_label AS visit_label,
 Collection.qc_nd_pathology_nbr,
 Collection.chum_kidney_transp_collection_time,
+Collection.chum_kidney_transp_collection_type,
 TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -968,6 +989,7 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_time,
+Collection.chum_kidney_transp_collection_type,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 
 		FROM sample_masters AS SampleMaster
@@ -1048,7 +1070,8 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
-Collection.chum_kidney_transp_collection_time
+Collection.chum_kidney_transp_collection_time,
+Collection.chum_kidney_transp_collection_type
 
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id

@@ -47,6 +47,7 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_time,
+Collection.chum_kidney_transp_collection_type,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 	
 		FROM sample_masters AS SampleMaster
