@@ -58,54 +58,99 @@ class AliquotMasterCustom extends AliquotMaster
         $tfriM4sVisitId = $viewSample['ViewSample']['tfri_m4s_visit_id'];
         $tfriM4sSitePatientId = $viewSample['ViewSample']['tfri_m4s_site_patient_id'];
         $suffix = '?';
-        switch ($viewSample['ViewSample']['initial_specimen_sample_type'] . '-' . $viewSample['ViewSample']['sample_type']) {
-            // Blood
-            case 'blood-blood':
-                $suffix = 'BL';
-                break;
-            case 'blood-plasma':
-                $suffix = 'BL-PL';
-                break;
-            case 'blood-wbc':
-                $suffix = 'BL-WBC';
-                break;
-            // Bone Marrow
-            case 'bone marrow-bone marrow':
-                $suffix = 'BM';
-                break;
-            case 'bone marrow-plasma':
-                $suffix = 'BM-PL';
-                break;
-            case 'bone marrow-wbc':
-                $suffix = 'BM-WBC';
-                break;
-            case 'bone marrow-cd138 cells':
-                $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
-                $joins = array(
-                    array(
-                        'table' => 'tfri_m4s_sd_der_cd138s',
-                        'alias' => 'SampleDetail',
-                        'type' => 'INNER',
-                        'conditions' => array(
-                            'SampleDetail.sample_master_id = SampleMaster.id'
+        
+        if ($viewSample['ViewSample']['sample_type'] != 'cell pellet') {
+            switch ($viewSample['ViewSample']['initial_specimen_sample_type'] . '-' . $viewSample['ViewSample']['sample_type']) {
+                // Blood
+                case 'blood-blood':
+                    $suffix = 'BL';
+                    break;
+                case 'blood-plasma':
+                    $suffix = 'BL-PL';
+                    break;
+                case 'blood-wbc':
+                    $suffix = 'BL-WBC';
+                    break;
+                    // Bone Marrow
+                case 'bone marrow-bone marrow':
+                    $suffix = 'BM';
+                    break;
+                case 'bone marrow-plasma':
+                    $suffix = 'BM-PL';
+                    break;
+                case 'bone marrow-wbc':
+                    $suffix = 'BM-WBC';
+                    break;
+                case 'bone marrow-cd138 cells':
+                    $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
+                    $joins = array(
+                        array(
+                            'table' => 'tfri_m4s_sd_der_cd138s',
+                            'alias' => 'SampleDetail',
+                            'type' => 'INNER',
+                            'conditions' => array(
+                                'SampleDetail.sample_master_id = SampleMaster.id'
+                            )
                         )
-                    )
-                );
-                $sampleData = $sampleMaster->find('first', array(
-                    'conditions' => array('SampleMaster.id' => $viewSample['ViewSample']['sample_master_id']), 
-                    'joins' => $joins, 'recursive' => '-1', 
-                    'fields' => array('SampleDetail.tfri_m4s_cd_138')
-                ));
-                $suffix = 'CD138'.str_replace(array('p', 'n', 'u'), array('POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
-                switch ($aliquotControlData['AliquotControl']['aliquot_type']) {
-                    case 'giemsl slide':
-                        $suffix .= ' GiemSL';
-                        break;
-                    case 'cytosl slide':
-                        $suffix .= ' CytoSL';
-                        break;
-                }
-                break;
+                    );
+                    $sampleData = $sampleMaster->find('first', array(
+                        'conditions' => array('SampleMaster.id' => $viewSample['ViewSample']['sample_master_id']),
+                        'joins' => $joins, 
+                        'recursive' => '-1',
+                        'fields' => array('SampleDetail.tfri_m4s_cd_138')
+                    ));
+                    $suffix = 'CD138'.str_replace(array('p', 'n', 'u'), array('POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
+                    switch ($aliquotControlData['AliquotControl']['aliquot_type']) {
+                        case 'giemsl slide':
+                            $suffix .= ' GiemSL';
+                            break;
+                        case 'cytosl slide':
+                            $suffix .= ' CytoSL';
+                            break;
+                    }
+                    break;
+            }
+        } else {
+            $sourceAliquot = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+            $existingSourceAliquots = $sourceAliquot->find('all', array(
+                'conditions' => array(
+                    'SourceAliquot.sample_master_id' => $viewSample['ViewSample']['sample_master_id']
+                )
+            ));
+            if (sizeof($existingSourceAliquots) == 1 && isset($existingSourceAliquots[0]['AliquotMaster']['aliquot_label'])) {
+                return $existingSourceAliquots[0]['AliquotMaster']['aliquot_label'] . '-Cell Pellet';
+            } else {
+                $suffix = $viewSample['ViewSample']['initial_specimen_sample_type'] == 'bone marrow' ? 'BM' : ($viewSample['ViewSample']['initial_specimen_sample_type'] == 'blood' ? 'BL' : '?');
+                if ($viewSample['ViewSample']['parent_sample_type'] == 'cd138 cells') {
+                    $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
+                    $joins = array(
+                        array(
+                            'table' => 'tfri_m4s_sd_der_cd138s',
+                            'alias' => 'SampleDetail',
+                            'type' => 'INNER',
+                            'conditions' => array(
+                                'SampleDetail.sample_master_id = SampleMaster.id'
+                            )
+                        )
+                    );
+                    $sampleData = $sampleMaster->find('first', array(
+                        'conditions' => array(
+                            'SampleMaster.id' => $viewSample['ViewSample']['parent_id']
+                        ),
+                        'joins' => $joins,
+                        'recursive' => '-1',
+                        'fields' => array(
+                            'SampleDetail.tfri_m4s_cd_138'
+                        )
+                    ));
+                    $suffix .= '-CD138'.str_replace(array('p', 'n', 'u'), array('POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
+                } elseif ($viewSample['ViewSample']['parent_sample_type'] == 'wbc') {
+                        $suffix .= '-WBC';
+                    } else {
+                        $suffix .= '-?';
+                    }
+                $suffix .= '-01-Cell Pellet';
+            }
         }
         
         return $tfriM4sSiteId . '-' . $tfriM4sSitePatientId . '-' . $tfriM4sVisitId . '-' . $suffix;
