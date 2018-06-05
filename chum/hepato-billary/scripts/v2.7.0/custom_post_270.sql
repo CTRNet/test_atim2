@@ -866,3 +866,33 @@ VALUES
 'R.R.# Statistics : %s images displayed are linked to a rr# and %d participants displayed have at least one R.R.#.', '');
 
 UPDATE versions SET branch_build_number = '7091' WHERE version_number = '2.7.0';
+
+-- --------------------------------------------------------------------------------------------------------
+-- 2018-04-18 : Added IVADO report statisticts
+-- --------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`=display_order*2 WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases') AND display_order < 300;
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='necrosis_perc_list' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_viable_cells_perc') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='blazer' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_blazer_values') AND `flag_confidential`='0');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_hb_blazer_consensus_values", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_blazer_consensus_values"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_blazer_consensus_values"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_blazer_consensus_values"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'rubbia_brandt_consensus', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_rubbia_brandt_values') , '0', '', '', '', '', 'consensus'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'blazer_consensus', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_blazer_consensus_values') , '0', '', '', '', '', 'consensus');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='rubbia_brandt_consensus' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_rubbia_brandt_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='consensus'), '1', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='blazer_consensus' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_blazer_consensus_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='consensus'), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('consensus', 'Consensus','Consensus');
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases 
+  ADD COLUMN rubbia_brandt_consensus varchar(20) DEFAULT NULL,
+  ADD COLUMN blazer_consensus varchar(20) DEFAULT NULL;  
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs 
+  ADD COLUMN rubbia_brandt_consensus varchar(20) DEFAULT NULL,
+  ADD COLUMN blazer_consensus varchar(20) DEFAULT NULL;
+
+UPDATE versions SET branch_build_number = '7136' WHERE version_number = '2.7.0';
