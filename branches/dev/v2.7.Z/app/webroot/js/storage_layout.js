@@ -45,6 +45,7 @@ function initStorageLayout(mode){
                     $("body").append("<div id='csvDialogPopup'>");
                     $('#LoadCSVFile').on('change', csvOpen);
                     $('.clear-loaded-barcodes').on('click', clearLoadedBarcodes);
+                    flyOverComponents();
             });
         }
         
@@ -108,13 +109,16 @@ function initStorageLayout(mode){
                                                                     $("#secondStorageRow").find(".droppable").data("top", false);
                                                                     $("#secondStorageRow").data('checkConflicts', data.check_conflicts);
                                                             }
+                                                        flyOverComponents();
                                                     });
                                             }
                                             return false;
                                     });
+                                flyOverComponents();        
                             });
                             return false;
                     });
+                    flyOverComponents();
             });
         }
 
@@ -179,6 +183,7 @@ function csvOpen(e) {
                     $("#csvDialogPopup").popup('close');
                 });
                 $("#csvDialogPopup .actions a.add").off("click").on("click", csvToLayout);
+                flyOverComponents();
             }
         });
     }
@@ -550,7 +555,8 @@ function showInPopup(link){
                 saveSqlLogAjax(ajaxSqlLog);
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
             
-		 $("#otherPopup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+                $("#otherPopup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+                flyOverComponents();
 	});
 }
 
@@ -713,6 +719,7 @@ function checkAliquotBarcode($this) {
             $td.find(".barcode_scanner").val(val);
             $td.find(".barcode_scanner").select();
         });
+        flyOverComponents();
     });
 }
 
