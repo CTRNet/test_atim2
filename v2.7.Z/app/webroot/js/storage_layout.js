@@ -118,6 +118,8 @@ function initStorageLayout(mode){
                             });
                             return false;
                     });
+
+                    $("#default_popup").popup("close");
                     flyOverComponents();
             });
         }
