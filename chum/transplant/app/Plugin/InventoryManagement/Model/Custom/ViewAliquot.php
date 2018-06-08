@@ -17,7 +17,7 @@ class ViewAliquotCustom extends ViewAliquot
 		
 			Participant.participant_identifier,
 		
-			Collection.acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -68,8 +68,8 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
-Collection.chum_kidney_transp_collection_time,
-Collection.chum_kidney_transp_collection_type
+Collection.chum_kidney_transp_collection_part_type,
+Collection.chum_kidney_transp_collection_time
         
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
