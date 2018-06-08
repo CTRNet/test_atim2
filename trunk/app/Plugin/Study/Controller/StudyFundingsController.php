@@ -13,7 +13,6 @@ class StudyFundingsController extends StudyAppController
 
     public $paginate = array(
         'StudyFunding' => array(
-            'limit' => 5,
             'order' => 'StudyFunding.study_sponsor'
         )
     );

@@ -7,6 +7,8 @@ var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt(
 var sessionTimeout = new Object();
 var checkedData = [];
 var DEBUG_MODE_JS = 0;
+var sessionId = "";
+columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 
 //window.alert = function(a){
 //    console.log(a);
@@ -51,6 +53,12 @@ $(document).ready(function () {
             }
 
             var domNodes = document.createElement('div');
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
             $(domNodes).html(data);
             $(domNodes).find("a[href*=':']").each(function () {
                 if (!$(this).hasClass("submit")) {
@@ -301,7 +309,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if (validateSubmit()) {
                 var action = null;
                 var actionTargetValue = $("#actionsTarget input[type=hidden]").val();
-                if (actionTargetValue.indexOf('javascript:') == 0) {
+                if (actionTargetValue.indexOf('javascript:') >= 0) {
                     action = actionTargetValue;
                 } else if (isNaN(actionTargetValue[0])) {
                     action = root_url + actionTargetValue;
@@ -643,16 +651,22 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
     $(scope).find(".jqueryAutocomplete").each(function () {
-//			var element = $(this);
+//        var element = $(this);
+        var url=(root_url == "/" ? "" : root_url) + $(this).attr("url");
         $(this).autocomplete({
             //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url"),
                     //alternate source for debugging
-//				source: function(request, response) {
-//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//						console.log(data);
-//					});
-//				}
+            source: function(request, response) {
+                    $.get(url, request, function(data){
+                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                            saveSqlLogAjax(ajaxSqlLog);
+                        }                        
+                        response(JSON.parse(data));
+                    });
+            }
         });
     });
 }
@@ -892,6 +906,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
         }
         $.get($(this).prop("href"), null, function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
         });
@@ -1002,6 +1022,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(this).addClass('consents');
             }
         }).click(function () {
+            $(".this_column_1.total_columns_2").css("width", "1%")
             var link = this;
             //remove highlighted stuff
             var td = $(".at").removeClass("at").find("td:last-child");
@@ -1017,16 +1038,42 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     $("#frame").html(data);
                     $(link).data('cached_result', data);
                     initActions();
+                    
+                    dynamicHeight = $("#dynamicHeight");
+                    frame =  $("#frame");
+                    frameHeight = frame.height();
+                    tr = $(link).parents("tr").first().addClass("at");
+                    td = $(tr).find("td").last();
+
+                    var topValue = $(td).position().top - frameHeight;
+                    if (topValue<0){
+                            topValue=0;
+                    }
+                    dynamicHeight.css("height", topValue);
+                    
                 });
             }
             return false;
         });
-        $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
-                '<td class="this_column_2 total_columns2"><div id="frame"></td>'
-                );
+        columnLarge = (typeof columnLarge!='undefined')?columnLarge:false;
+        if (!columnLarge){
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="frame"></td>'
+                    );
+        }else{
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "100%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="dynamicHeight"></div><div id="frame"></div></td>'
+                    );
+        }
 
     }
 }
@@ -1062,27 +1109,29 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         return computeSum(obj, newArr);
     };
     var totalColspan = $(floatingBckGrnd).data("totalColspan");
-    var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
-    if (!lastTd.length) {
-        //no more rows
-        lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
-    }
-    var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
-    width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
-    height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
-    if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
-        $(floatingBckGrnd).data("onlyDimension", true);
-        $(floatingBckGrnd).css({
-            "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
-            "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
-            "width": width + "px",
-            "height": height + "px"
-        });
-    } else {
-        $(floatingBckGrnd).css({
-            "width": width + "px",
-            "height": height + "px"
-        });
+    if (typeof totalColspan !=='undefined'){
+        var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+        if (!lastTd.length) {
+            //no more rows
+            lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
+        }
+        var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
+        width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+        height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
+            $(floatingBckGrnd).data("onlyDimension", true);
+            $(floatingBckGrnd).css({
+                "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
+                "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
+                "width": width + "px",
+                "height": height + "px"
+            });
+        } else {
+            $(floatingBckGrnd).css({
+                "width": width + "px",
+                "height": height + "px"
+            });
+        }
     }
 }
 
@@ -1259,6 +1308,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
+    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        saveSqlLogAjax(ajaxSqlLog);
+    }
 
     $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
     initDatepicker("#default_popup");
@@ -1314,6 +1368,26 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(this).prop("checked", checked);
             });
         }
+    });
+    
+    $(scope).find("input[type=checkbox]").each(function(){
+        $(this).click(function(){
+            $currentCheckBox=$(this);            
+            $parent=$currentCheckBox.parent();
+            $checkBoxesChildren = $parent.children('input[type=checkbox]');
+
+            $required=false;
+            $checkBoxesChildren.each(function () {
+                if ($(this).prop('required')) {
+                    $required=true;
+                    $(this).prop('required', false);
+                }
+            });
+            
+            if ($required){
+                $currentCheckBox.prop('required', true);
+            }
+        });
     });
 }
 
@@ -1375,9 +1449,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1453,6 +1527,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         $.get($(this).attr("href"), function (data) {
             try {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 $(".ajax_search_results").html(data.page);
                 history.replaceState(data.page, "foo");//storing result in history
                 handleSearchResultLinks();
@@ -1527,6 +1603,8 @@ function getTime(){
     });    
 }
 
+
+
 function sessionExpired() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1564,6 +1642,10 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + "Users/Login/login:/", function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        }
+        
         $("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
         $("#loginPopup").popup();
         $("#loginPopup form").submit(submitFunction);
@@ -1577,9 +1659,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1592,11 +1674,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             sessionTimeout.expirationTime =  ($.cookie("session_expiration") * 1000)+ sessionTimeout.serverOffset;
         }
         if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
-            $("#loginPopup").popup('close');
+            $.post(root_url + "Users/getUserId", function (data) {
+                if (data!=sessionId){
+                    window.location = root_url + "Menus";
+                }else{
+                    $("#loginPopup").popup('close');
+                }
+            });
         }
     }
 
     if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length === 0) {
+        sessionId = $.cookie("sessionId");
         sessionExpired();
     }
 
@@ -1708,7 +1797,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             successFct = function (data) {
                 try {
                     data = $.parseJSON(data);
-                    $(".ajax_search_results").html(data.page);
+                    saveSqlLogAjax(data);
+                    $(".ajax_search_results").html(data.page)
                     history.replaceState(data.page, "foo");//storing result in history
                     //update the form action
                     $("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
@@ -1728,6 +1818,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 beforeSubmit: beforeSubmitFct,
                 error: function () {
                     console.log("ERROR");
+                    //$("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             });
         }
@@ -1829,6 +1920,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
+            ).delegate("input.upload", "change", checkBrowseFile
+            ).delegate("p.bottom_button_load", "click", loadClearSearchData
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
@@ -1842,6 +1935,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             //adding date to the request URL to fool IE caching
             $.get(root_url + 'Users/login/1?t=' + (new Date().getTime()), function (data) {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 if (data.logged_in == 1) {
                     document.location = root_url;
                 } else {
@@ -1862,6 +1957,106 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
+    initPostData();
+}
+
+function loadClearSearchData()
+{
+    var flag = $(this).data('bottom_button_load');
+    $(this).data('bottom_button_load', 1 - flag);
+    var message=loadSearchDataMessage[flag];
+    $(this).find('span.button_load_text').html(message);
+    $(this).find('span.icon16').toggleClass('load-search').toggleClass('reset-search');
+    var form=$(this).parents('form')[0];
+    form.reset();
+    $(form).find('a.btn_rmv_or').each(function(){
+        $(this).click();
+    });
+    if (flag === 1) {
+        if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
+            if (typeof jsPostData['exact_search'] === 'undefined'){
+                $("input[type='checkbox'][name*='data[exact_search']").prop('checked', false);
+            }
+            var model = "", modelValues = "", value = "", field = "";
+            //$("input[name*='data[Participant][participant_identifier][]']");
+            for (model in jsPostData) {
+                modelValues = jsPostData[model];
+                if (modelValues.constructor === Object) {
+                    for (field in modelValues) {
+                        value = modelValues[field];
+                        if (value.constructor === Array) {
+                            $("[name*='data[" + model + "][" + field + "][]']").eq(0).val(value[0]);
+                            if (value.length > 1) {
+                                for (var i = 1; i < value.length; i++) {
+                                    $("[name*='data[" + model + "][" + field + "][]']").first().parent().siblings(".btn_add_or").click();
+                                    $("[name*='data[" + model + "][" + field + "][]']").eq(i).val(value[i]);
+                                }
+                            }
+                        } else if (value.constructor === Object) {
+                            for (var i in value) {
+                                $("[name*='data[" + model + "][" + field + "][" + i + "]']").val(value[i]);
+                            }
+                        } else if (value.constructor === String) {
+                            $("[name*='data[" + model + "][" + field + "]']").val(value);
+                        }
+                    }
+                } else if (modelValues.constructor === String) {
+                    if (modelValues === "on") {
+                        $("input[type='checkbox'][name*='data[" + model + "]']").prop('checked', true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+function initPostData() {
+    if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
+        $this = $('p.bottom_button_load');
+        $this.css('display', 'inline-block');
+    }
+}
+
+function checkBrowseFile()
+{
+    if (this.files.length===1){
+        if (this.files[0].size> maxUploadFileSize){
+            alert(maxUploadFileSizeError);
+            this.value="";
+            return false;
+        }
+    }
+    return true;
+}
+
+function saveSqlLogAjax(data){
+    if (data && data.sqlLog && typeof DEBUGKIT !=="undefined"){
+        var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
+        var logs='';
+        data.sqlLog.forEach(function(log){
+            if (!log){
+                return false;
+            }
+            var infoIndex=log.lastIndexOf('<div id="ajaxSqlLogInformation"');
+            if (infoIndex>-1){
+                info=log.substring(infoIndex, log.indexOf('</div>', infoIndex))+'</div>';
+                var t=new Date().toLocaleTimeString()+' ,'+$(info).text();
+            }else if(typeof data.sqlLogInformations !=='undefined'){
+                var t=new Date().toLocaleTimeString()+' ,'+data.sqlLogInformations;
+            }
+            logs+='<div class="sql-log-panel-query-log cake-debug-output">'+
+                    '<div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a> '+t+'</div>'+
+                    '<div>'+log+'</div></div>';
+        });
+        if (debugKit.find("div#ajax_sql_log-tab").length>0){
+            var logNode=debugKit.find("div#ajax_sql_log-tab div.panel-content-data").first();
+            if ($(logNode).children("div.sql-log-panel-query-log").length===0){
+                $(logNode).append(logs);
+            }else{
+                $(logNode).children("div.sql-log-panel-query-log").first().before(logs);
+            }
+        }
+    }
 }
 
 function closeLog(event) {
@@ -1896,7 +2091,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1922,7 +2117,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -2025,7 +2220,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 }
 
-
 function globalInit(scope) {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -2081,6 +2275,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         var flat_url = json.url.replace(/\//g, "_");
         if (flat_url.length > 0) {
             $.get(root_url + json.url + "?t=" + new Date().getTime(), function (data) {
+                if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                    ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                    saveSqlLogAjax(ajaxSqlLog);
+                }
                 $("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
                 if ($("#" + flat_url).find("ul").length == 1) {
                     var currentLi = $(expandButton).parents("li:first");
@@ -2097,7 +2296,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     initTree($(currentLi));
                 }
                 currentUl=currentLi.children("ul").first();
-                findDuplicatedSamples(currentUl);
+                if (typeof duplicatedSamples !=='undefined'){
+                    findDuplicatedSamples(currentUl);
+                }
             });
         }
     }
@@ -2173,6 +2374,12 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         $("#frame").html(data);
         initActions();
     });
@@ -2260,6 +2467,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
     $.get(root_url + link, null, function (data) {
         data = $.parseJSON(data);
+        saveSqlLogAjax(data);
+        
         $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
         $("#default_popup input[type=text]").first().focus();
         $("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
@@ -2307,7 +2516,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2537,16 +2746,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
-
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+           
             var visible = $("#csvPopup:visible").length == 1;
             $("#csvPopup:visible").popup('close');
             $("#csvPopup h4 + div").html(data);
 
             $("#csvPopup form").attr("action", root_url + target);
             $("#csvPopup a.submit").click(function () {
+                $("#csvPopup form input[type=hidden]").remove();
+                $("form:first input[type=checkbox]:checked").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
+                });
+                $(".databrowser .selectableNode.selected").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="data[0][singleLineNodes][]" value="' + $(this).parent("a").data("nodeId") + '"/>');
+                });
+            });
+
+            $("#csvPopup form").submit(function () {
                 $("#csvPopup form input[type=hidden]").remove();
                 $("form:first input[type=checkbox]:checked").each(function () {
                     $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
@@ -2659,6 +2883,10 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if (visible) {
                 $("#csvPopup").popup();
             }
+
+            var attention='<ul class="warning"><li><span class="icon16 warning mr5px"></span>'+csvWarning+'</li></ul>'
+            $("#csvPopup h4").after(attention);
+            
         });
     }
     $("#csvPopup").popup();
@@ -2695,27 +2923,45 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     popup.popup();
 
     var fctLinksToAjax = function (scope) {
-        $(scope).find("a:not(.detail)").click(function () {
-            if ($(this).attr("href").indexOf("javascript:") == 0) {
+        $scope=$(scope);
+        $(scope).find("a:not(.detail)").click(function(){
+            if ($(this).attr("href").indexOf("javascript:") >= 0 || $(this).attr("href")==="#") {
                 return true;
             }
+            var isSubmit= $(this).hasClass("submit");
+            var method = "GET"
+            var url=$(this).attr("href");
+            var data=undefined;
+            if (isSubmit){
+                var form=$scope.find("form");
+                method=form.attr("method");
+                url=form.attr("action");
+                data=form.serialize();
+            }
+
+
             popup.frame.html("<div class='loading'>---" + STR_LOADING + "---</div>");
             popup.popup('center');
-            $.get($(this).attr("href"), function (data) {
-                if (data.indexOf("{") == 0) {
-                    data = $.parseJSON(data);
-                    popup.frame.html(data.page);
-                } else {
-                    popup.frame.html(data);
+
+            $.ajax({
+                type: method,
+                url: url,
+                data: data, 
+                success: function (data) {
+                    if (data.indexOf("{") == 0) {
+                        data = $.parseJSON(data);
+                        popup.frame.html(data.page);
+                    } else {
+                        popup.frame.html(data);
+                    }
+                    popup.popup('center');
+                    fctLinksToAjax(popup.frame);
                 }
-                popup.popup('center');
-                fctLinksToAjax(popup.frame);
             });
 
-            return false;
+            return false;            
         });
-
-        $(scope).find("a.detail").click(function () {
+        $(scope).find("a.detail").click(function(){
             //selection
             popup.popup('close');
             var targetDiv = button.parents(".selectItemZone:first").find(".selectedItem");
@@ -2724,8 +2970,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $.get(targetHref + '/type:index/noActions:/noHeader:/', function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     targetDiv.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     targetDiv.html(data);
                 }
                 targetDiv.append('<input type="hidden" name="' + button.data('name') + '" value="' + targetHref + '"/>');
@@ -2736,16 +2990,23 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + button.data('url') + '/noActions:', function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         popup.frame.html(data);
         initAdvancedControls(popup);
         initDatepicker(popup);
         popup.popup('center');
-
         popup.find("form").submit(function () {
             submitChecks(this);
             $.post(popup.find("form").attr("action") + '/forSelection:/', popup.find("form").serialize(), function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     popup.frame.html(data.page);
                 } else {
                     popup.frame.html(data);
@@ -2796,7 +3057,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
     var fctLinksToAjax = function (scope) {
         $(scope).find("a:not(.icon16)").click(function () {
-            if ($(this).attr("href").indexOf("javascript:") == 0) {
+            if ($(this).attr("href").indexOf("javascript:") >= 0) {
                 return true;
             }
             scope.html("<div class='loading'>---" + STR_LOADING + "---</div>");
@@ -2804,8 +3065,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 var page = null;
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     page = data.page;
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+
                     page = data;
                 }
                 scope.html(page);
@@ -2835,11 +3104,17 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             indexZone.html("<div class='loading'>---" + STR_LOADING + "---</div>");
             var successFct = function (data) {
                 var page = null;
-                if (data.indexOf("{") == 0) {
+                if (data.indexOf("{") === 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
                     page = data.page;
                     indexZone.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
                     page = data;
                 }
                 indexZone.html(page);
@@ -3034,7 +3309,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
         } else {
             submitChecks(this);
-            submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
+            submitData.callBack = setTimeout(fetchingBeamCheck, 0);//check every second (needed for CSV download)
             return true;
         }
     }
@@ -3055,7 +3330,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
 
-    if ($(this).attr("href").indexOf("javascript:") == 0) {
+    if ($(this).attr("href").indexOf("javascript:") >= 0 || $(this).attr("href")==="#") {
         return true;
     }
 

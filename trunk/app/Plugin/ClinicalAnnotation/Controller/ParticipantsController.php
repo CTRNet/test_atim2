@@ -437,7 +437,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
                     $treatmentExtendConditions = array(
                         'TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']
                     );
-                    foreach ($this->TreatmentExtendMaster->find('all', array('conditions' => $treatmentExtendConditions, 'recursive' => '-1')) as $newDrug) {
+                    foreach ($this->TreatmentExtendMaster->find('all', array('conditions' => $treatmentExtendConditions, 'recursive' => -1)) as $newDrug) {
                         if (isset($newDrug['TreatmentExtendMaster']['drug_id']) && isset($allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']])) {
                             $drugs[$allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']]] = $allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']];
                         }

@@ -35,6 +35,10 @@ if (empty($participantId)) {
         ),
         'participant inventory' => array(
             'icon' => 'participant',
+            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $participantId
+        ),
+        'participant collection link' => array(
+            'icon' => 'participant',
             'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $atimMenuVariables['Collection.id']
         )
     );

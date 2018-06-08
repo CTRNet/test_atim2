@@ -4,7 +4,7 @@ App::uses('Helper', 'View');
 /**
  * Class StructuresHelper
  */
-class StructuresHelper extends Helper
+class StructuresHelper extends AppHelper
 {
 
     public $helpers = array(
@@ -50,6 +50,10 @@ class StructuresHelper extends Helper
 
     // default options
     private static $defaults = array(
+        'chartSettings'=>array(),
+        'chartsType'=>array(),
+        'number' => 0,
+        'titles' => '',
         'type' => null,
         'data' => false, // override $this->request->data values, will not work properly for EDIT forms
         'settings' => array(
@@ -189,13 +193,6 @@ class StructuresHelper extends Helper
         'underdevelopment' => null,
         'labbook' => null
     );
-
-    /**
-     * @param $x
-     */
-    public function debug12($x){
-        debug($x);
-    }
 
 
     /**
@@ -709,7 +706,33 @@ class StructuresHelper extends Helper
         } elseif ($type == 'csv') {
             $this->buildCsv($atimStructure, $options, $data);
             $options['settings']['actions'] = false;
-        } else {
+        } elseif ($type == 'chart'){
+            for ($i=0; $i<$options['number']; $i++){
+                if (!isset($options['chartSettings']['popup']) || !$options['chartSettings']['popup']){
+                    $options['titles'][$i] = isset($options['titles'][$i])?$options['titles'][$i]:"";
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
+                    echo '<div class="chartDivHTML" style="height: 300px"><svg></svg></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" title="'.__('detach the chart').'" class="search pop-up-chart-a" onclick = "createGraph('.$i.', true)">
+                                <span class="icon16 charts" style="margin-right: 0px;"></span>'.
+                                '</a>
+                            </div>
+                        </div>';
+                }else{
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" class= "show-chart-popup" title="'.__('detach the chart').'" class="search">
+                                <span class="icon16 charts"></span>'.__('detach the chart').
+                                '</a>
+                            </div>
+                        </div>';
+                }
+            }
+            return;
+        } 
+        else{
             if (Configure::read('debug') > 0) {
                 AppController::addWarningMsg(__("warning: unknown build type [%s]", $type));
             }
@@ -733,6 +756,8 @@ class StructuresHelper extends Helper
                 $linkClass = "search";
                 $linkLabel = __("search", null);
                 $exactSearch = __("exact search") . '<input type="checkbox" name="data[exact_search]"/>';
+            $exactSearch .="\r\n<p class='bottom_button_load' data-bottom_button_load = '1'>\r\n\t<a href='#' tabindex='10' class=''>\r\n\t\t<span class='icon16 load-search'></span>"
+                    ."<span class='button_load_text'>".__("previous search")."</span>\r\n\t</a>\r\n</p>\r\n";
             } else { // other mode
                 $linkClass = "submit";
                 $linkLabel = __("submit", null);
@@ -883,7 +908,7 @@ class StructuresHelper extends Helper
                         
                         // value
                         $currentValue = null;
-                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? array(
+                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$dateRange) ? array(
                             "_start",
                             "_end"
                         ) : array(
@@ -917,7 +942,7 @@ class StructuresHelper extends Helper
                                 
                                 if ($tableRowPart['type'] == 'textarea') {
                                     $display[0] .= '<span>' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix);
-                                } else {
+                                } else {                                
                                     $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
                                 }
                                 
@@ -1014,7 +1039,17 @@ class StructuresHelper extends Helper
      */
     private function getOpenFileLink($currentValue)
     {
-        return '<a href="?file=' . $currentValue . '">' . __("open file") . '</a>';
+        $fileArray = explode(".", $currentValue);
+        $extention = $fileArray[count($fileArray)-1];
+        $name = "";
+        for ($i=3; $i<count($fileArray)-1; $i++){
+            $name .= $fileArray[$i].".";
+        }
+        $shortName = $name;
+        if (strlen($name) > 30){
+            $shortName = substr($name, 0, 30) . '...';
+        }
+        return '<a title = "'.__("download %s", $name.$extention).'" href="?file=' . $currentValue . '">' . $shortName.$extention . '</a>';
     }
 
     /**
@@ -1158,11 +1193,13 @@ class StructuresHelper extends Helper
                 $currentValue = str_replace('\n', "\n", $currentValue);
             } elseif ($tableRowPart['type'] == 'file') {
                 if ($currentValue) {
-                    $display = $this->getOpenFileLink($currentValue);
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
-                    $display .= ' ';
+                    if (!is_array($currentValue)){
+                        $display = $this->getOpenFileLink($currentValue);
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
+                        $display .= ' ';
+                    }
                 }
             }
             $display .= $tableRowPart['format']; // might contain hidden field if the current one is disabled
@@ -1514,6 +1551,7 @@ class StructuresHelper extends Helper
      */
     private function buildCsv($atimStructure, $options, $data)
     {
+
         $csv = $this->Csv;
         if (isset(AppController::getInstance()->csvConfig)) {
             $this->Csv->csvSeparator = AppController::getInstance()->csvConfig['define_csv_separator'];
@@ -1683,8 +1721,8 @@ class StructuresHelper extends Helper
                     if ($displayHeading)
                         $this->Csv->addRow($headingLine);
                     $this->Csv->addRow($line);
-                }
-                
+                }                
+
                 // content
                 if (empty($options['settings']['columns_names'])) {
                     foreach ($data as $dataUnit) {
@@ -2409,11 +2447,18 @@ class StructuresHelper extends Helper
                         $fieldName .= $modelDotField;
                         $fieldName = str_replace(".", "][", $fieldName); // manually replace . by ][ to counter cake bug
                         $current['name'] = $fieldName;
-                        if (strlen($sfs['setting']) > 0 && ! $current['readonly']) {
+                        $rangeValueSearch = $options['type'] == "search" && in_array($current['type'], StructuresComponent::$rangeTypesNumber);
+                        if (strlen($sfs['setting']) > 0 && ! $current['readonly'] || $rangeValueSearch) {
                             // parse through FORM_FIELDS setting value, and add to helper array
+                            if (empty($sfs['setting'])){
+                                $sfs['setting']="calss=%c";
+                            }
                             $tmpSetting = explode(',', $sfs['setting']);
                             foreach ($tmpSetting as $setting) {
                                 $setting = explode('=', $setting);
+                                if ($rangeValueSearch && strpos($settings['class'], 'range')===false){
+                                    $settings['class'] .= 'range ';
+                                }
                                 if ($setting[0] == 'tool') {
                                     if ($setting[1] == 'csv') {
                                         if ($options['type'] == 'search') {
@@ -2431,12 +2476,19 @@ class StructuresHelper extends Helper
                                     if ($setting[0] == 'class' && isset($settings['class'])) {
                                         $settings['class'] .= ' ' . $setting[1];
                                     } else {
-                                        $settings[$setting[0]] = $setting[1];
+                                        if(!array_key_exists(1, $setting)) {
+                                            $settings[$setting[0]] = '';
+                                            if (Configure::read('debug') > 0) {
+                                                AppController::addWarningMsg(__("missing value for the setting [%s] of the structure field [%s]", $setting[0], $fieldName));
+                                            }
+                                        } else {
+                                            $settings[$setting[0]] = $setting[1];
+                                        }
                                     }
                                 }
                             }
                         }
-                        
+
                         // validation CSS classes
                         if (count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
                             
@@ -2453,7 +2505,6 @@ class StructuresHelper extends Helper
                                 $settings["class"] .= "validation";
                             }
                         }
-                        
                         if ($current['readonly']) {
                             unset($settings['disabled']);
                             $current["format"] = $this->Form->text($fieldName, array(
@@ -3280,6 +3331,7 @@ $confirmationMsg); // confirmation message
                 }
             }
         }
+          
         return $currentValue;
     }
 

@@ -45,7 +45,13 @@ $this->Structures->build(array(
 	function loadPresetFrame(){
 		$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 		$.get(root_url + "Administrate/Permissions/loadPreset/", null, function(data){
-			$("#frame").html(data);
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
+                    $("#frame").html(data);
 		});
 	}
 </script>
