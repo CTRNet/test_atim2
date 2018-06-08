@@ -2,7 +2,9 @@
 require_once __DIR__.'/system.php';
 
 //TODO
-pr("!!!!!!!!!!!!!!!! Replacce Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into excel file");
+pr("!!!!!!!!!!!!!!!! Replace Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into excel file");
+pr("!!!!!!!!!!!!!!!! Replace accent for nominal inforamtion file : notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.");
+pr('Géerer patient avec deux ramq');
 
 $is_test_import_process = false;
 if(isset($argv[1])) {
@@ -20,16 +22,56 @@ if($is_test_import_process) truncate();
 //==============================================================================================
 ini_set('memory_limit', '2048M');
 
-if(!testExcelFile(array($excel_file_names))) {
+$excel_file_names = array($excel_file_names['main'], $excel_file_names['participants']);
+if(!testExcelFile($excel_file_names)) {
     dislayErrorAndMessage();
     exit;
 }
 
-displayMigrationTitle("MUHC - Transplant Aliquots Migration", array($excel_file_names));
+displayMigrationTitle("MUHC - Transplant Aliquots Migration - Step 1 : Collections & Aliquots Creation", $excel_file_names);
 
 global $bank_id;
 $atim_data = getSelectQueryResult("SELECT id FROM banks WHERE name = 'Kidney/Rein Transplant.'");
 $bank_id = $atim_data[0]['id'];
+
+global $identValueToNominalInformation;
+$identValueToNominalInformation = array();
+
+// Update participant nominal information
+//---------------------------------------------------------------------------------------------------
+
+$worksheet_name = 'Liste pour migration ATiM';
+$ramqCheck = array();
+$stLucCheck = array();
+while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[1], $worksheet_name, 1)) {
+    if(isset($identValueToNominalInformation[str_pad($excel_line_data['# BD'], 5, "0", STR_PAD_LEFT)])) {
+        pr('TODO 838328732373292387');
+        pr($excel_line_data);
+    }
+    $bankNbr = str_pad($excel_line_data['# BD'], 5, "0", STR_PAD_LEFT);
+    $identValueToNominalInformation[$bankNbr] = $excel_line_data;
+    if(isset($ramqCheck[$excel_line_data['RAMQ']])) {
+        $identValueToNominalInformation[$bankNbr]['RAMQ'] = '';
+        recordErrorAndMessage('Participant creation',
+            '@@WARNING@@',
+            "RAMQ Nbr assigned twice - Second participant won't be linked to this nbr. If it's the same participant please merge participant after migration",
+            "See participant [$bankNbr] & [".$ramqCheck[$excel_line_data['RAMQ']]."] and correct migrated data into ATiM.");
+    } else {
+        $ramqCheck[$excel_line_data['RAMQ']] = $bankNbr;
+    }
+    if(isset($dossCheck[$excel_line_data['# Dossier']])) {
+        $identValueToNominalInformation[$bankNbr]['# Dossier'] = '';
+        recordErrorAndMessage('Participant creation',
+            '@@WARNING@@',
+            "Hospital Nbr assigned twice - Second participant won't be linked to this nbr. If it's the same participant please merge participant after migration",
+            "See participant [$bankNbr] & [".$dossCheck[$excel_line_data['# Dossier']]."] and correct migrated data into ATiM.");    
+    } else {
+        $dossCheck[$excel_line_data['# Dossier']] = $bankNbr;
+    }
+}
+
+// Load invventory
+//---------------------------------------------------------------------------------------------------
 
 $worksheet_name = 'Feuil1';
 $current_participant = null;
@@ -51,9 +93,13 @@ $storages = array();
 global $created_storage_counters;
 $created_storage_counters = 0;
 
-pr('TODO: Remove if($line_number > 353) break;');
-while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names, $worksheet_name, 1)) {
-if($line_number > (60)) break;
+pr('TODO: Remove if($line_number > 351) break;');
+while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[0], $worksheet_name, 1)) {
+if($line_number > (351)) {
+    pr('the last one');
+    pr($excel_line_data);
+    break;
+}
     if($current_participant != $excel_line_data['patient_number']) {
         if(!is_null($current_participant)) {
             loadParticipantCollection($current_participant, $participant_aliquots);
@@ -64,8 +110,159 @@ if($line_number > (60)) break;
         $participants_done[] = $current_participant;
     }
     $participant_aliquots[$excel_line_data['visit_number']][$excel_line_data['name']][$excel_line_data['inventory_id']] = $excel_line_data;
+    if(strlen($excel_line_data['source_worksheet'])) {
+        if(!isset($participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'])) {
+            $participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'] = $excel_line_data['source_worksheet'];
+        } else if($participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'] != $excel_line_data['source_worksheet']) {
+            recordErrorAndMessage('Collection creation', 
+                '@@ERROR@@',
+                "Source_worksheet different between tubes of the same visit",
+                "source_worksheet [".$participant_aliquots[$excel_line_data['visit_number']]['source_worksheet']."] & [".$excel_line_data['source_worksheet']."] does not match. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
+        }
+   }
+   if(in_array($excel_line_data['name'], array('Rate', 'PAXGene ARN', 'Contenant sterile 90mL urine', '6mL red top tube', '6mL lavender top EDTA tube', '5mL Urine'))) {
+       if(!isset($participant_aliquots[$excel_line_data['visit_number']]['created_at'])) {
+           $participant_aliquots[$excel_line_data['visit_number']]['created_at'] = $excel_line_data['created_at'];
+       } else if($participant_aliquots[$excel_line_data['visit_number']]['created_at'] != $excel_line_data['created_at']) {
+           recordErrorAndMessage('Collection creation',
+               '@@ERROR@@',
+               "created_at different between tubes of the same visit",
+               "created_at [".$participant_aliquots[$excel_line_data['visit_number']]['created_at']."] & [".$excel_line_data['created_at']."] does not match. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
+       }
+   }
 }
 loadParticipantCollection($current_participant, $participant_aliquots);
+
+// End of process
+// ----------------------------------------------------------------------------------------------------------------
+
+$participant_with_no_collection_counter = 0;
+$anonymise = false;
+foreach($identValueToNominalInformation as $banknbr => $data) {
+    $consent_status = null;
+    $notes = null;
+    switch(strtolower(utf8_decode($data['Commentaire']))) {
+        case 'greffe annulee':
+        case 'non greffe':
+        case 'non greffee':
+            $anonymise = true;
+            $notes = $data['Commentaire'];
+            break;
+        case 'refus de consentement':
+            $consent_status = 'denied';
+            break;
+        default:
+            recordErrorAndMessage('Participant creation',
+                '@@WARNING@@',
+                "Nominal information for participant with no collection data into Nelson DB",
+                "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
+    }
+    if($consent_status || $notes) {
+        $hospitalNbr = $data['# Dossier'];
+        $ramq = $data['RAMQ'];
+        $date_of_birth = '';
+        $date_of_birth_accuracy = '';
+        if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
+            $date_of_birth = (($matches[1]*1 < 17)? '19' : '20').$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
+            $date_of_birth_accuracy = 'c';
+        } else {
+            recordErrorAndMessage('Participant creation',
+                '@@ERROR@@',
+                "Wrong RAMQ format",
+                "See RAMQ of Participant [$banknbr].");
+        }
+        if($anonymise) {
+            $participant_id = customInsertRecord(array(
+                'participants' => array(
+                    'first_name' =>'n/a',
+                    'last_name' => 'n/a',
+                    'participant_identifier' => "tmp_xxx_$participant_with_no_collection_counter",
+                    'last_modification' => $import_date,
+                    'notes' => $notes)));   
+            $participant_with_no_collection_counter++;
+        } else {
+            $participant_id = customInsertRecord(array(
+                'participants' => array(
+                    'first_name' =>$data['Nom'],
+                    'last_name' => $data['Prénom'],
+                    'participant_identifier' => "tmp_xxx_$participant_with_no_collection_counter",
+                    'date_of_birth' => $date_of_birth,
+                    'date_of_birth_accuracy' => $date_of_birth_accuracy,
+                    'last_modification' => $import_date,
+                    'notes' => $notes)));
+            $participant_with_no_collection_counter++;
+            if($ramq) {
+                customInsertRecord(array(
+                    'misc_identifiers' => array(
+                        'participant_id' => $participant_id,
+                        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                        'flag_unique' => '1',
+                        'identifier_value' => str_replace(' ', '', $hospitalNbr))));
+            }
+            if($hospitalNbr) {
+                customInsertRecord(array(
+                    'misc_identifiers' => array(
+                        'participant_id' => $participant_id,
+                        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['ramq nbr']['id'],
+                        'flag_unique' => '1',
+                        'identifier_value' =>  str_replace(' ', '', $ramq) )));
+            }
+            if($consent_status) {
+                $consent_data = array(
+                    'consent_masters' => array(
+                        'participant_id' => $participant_id,
+                        'consent_status' => $consent_status,
+                        'consent_control_id' => $atim_controls['consent_controls']['kidney transplant']['id'],
+                        'notes' => ''),
+                    $atim_controls['consent_controls']['kidney transplant']['detail_tablename'] => array()
+                );
+                customInsertRecord($consent_data);
+            }
+        }
+        customInsertRecord(array(
+            'misc_identifiers' => array(
+                'participant_id' => $participant_id,
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['kidney transplant bank no lab']['id'],
+                'flag_unique' => '1',
+                'identifier_value' => $banknbr)));
+    }
+}
+
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$participant_counter participants.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$participant_with_no_collection_counter participants with no collection.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$sample_counter samples.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$aliquot_counter aliquots.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_storage_counters storages.");
+
+
+$final_queries = array();
+$final_queries[] = "UPDATE participants SET participant_identifier = id";
+$final_queries[] = "UPDATE participants_revs SET participant_identifier = id";
+$final_queries[] = "UPDATE sample_masters SET sample_code = id";
+$final_queries[] = "UPDATE sample_masters_revs SET sample_code = id";
+$final_queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
+$final_queries[] = "UPDATE sample_masters_revs SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
+$final_queries[] = "UPDATE storage_masters SET code = id";
+$final_queries[] = "UPDATE storage_masters_revs SET code = id";
+
+if(!$is_test_import_process) {
+    $final_queries[] = "UPDATE versions SET permissions_regenerated = 0;";
+} else {
+    addViewUpdate($final_queries);
+}
+
+
+foreach($final_queries as $new_query) customQuery($new_query);
+//TODO
+pr("TODO remove line is_test_import_process = false;");
+$is_test_import_process = false;
+
+insertIntoRevsBasedOnModifiedValues();
+dislayErrorAndMessage(!$is_test_import_process);
+
+//==================================================================================================================================================================================
+// CUSTOM FUNCTIONS
+//==================================================================================================================================================================================
 
 function loadParticipantCollection($current_participant, $participant_aliquots) {
     global $participant_counter;
@@ -75,6 +272,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
     global $import_date;
     global $bank_id;
     global $dupAliquotBarcodesCheck;
+    global $identValueToNominalInformation;
     
     if(empty($current_participant)) die('ERR237628ssssss6237862 '.$current_participant);
     
@@ -84,23 +282,106 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         $identifier_value = $matches[1];
     } else {
         $identifier_value = str_replace('CHUM', '', $current_participant);
-        $identifier_value_new = str_pad($identifier_value, 5, "0", STR_PAD_LEFT);
-        recordErrorAndMessage('Participant creation', '@@ERROR@@', "Participant [$current_participant] bank number does not match expected format (5 digits) and has been replaced by [$identifier_value_new]. Please confirm.");
+        $identifier_value = str_pad($identifier_value, 5, "0", STR_PAD_LEFT);
+        recordErrorAndMessage('Participant creation', 
+            '@@ERROR@@', 
+            "Bank Number Format", 
+            "Participant [$current_participant] bank number does not match expected format (5 digits) and has been replaced by [$identifier_value]. Please confirm.");
     }
     $query = "SELECT participant_id FROM misc_identifiers WHERE identifier_value = '$identifier_value';";
     $atim_data = getSelectQueryResult($query);
     if(sizeof($atim_data) > 0) {
-        recordErrorAndMessage('Participant creation', '@@ERROR@@', "Participant [$current_participant] already exists into ATiM because probably he was already defined above into the excel file. Please review the all invetory of the participant.");
-        pr('TODO 34234234');
-        pr($atim_data);
-        exit;
+        recordErrorAndMessage('Participant creation', 
+            '@@ERROR@@', 
+            "Duplicated Participant", 
+            "Participant [$current_participant] already exists into ATiM because probably he was already defined above into the excel file. No new collaction will be imported. Please review the all invetory of the participant.");
+        return;
     }
     $participant_counter++;
+    
+    $first_name = 'n/a';
+    $last_name = 'n/a';
+    $date_of_birth = '';
+    $date_of_birth_accuracy = '';
+    $ramq = '';
+    $hospitalNbr = '';
+    $vih = '';
+    $notes = '';
+    $vialt_status = '';
+    
+    if(isset($identValueToNominalInformation[$identifier_value])) {
+       $first_name = $identValueToNominalInformation[$identifier_value]['Nom'];
+        $last_name = $identValueToNominalInformation[$identifier_value]['Prénom'];
+        
+        $ramq = $identValueToNominalInformation[$identifier_value]['RAMQ'];
+        if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
+            $date_of_birth = (($matches[1]*1 < 17)? '19' : '20').$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
+            $date_of_birth_accuracy = 'c';
+        } else {
+            recordErrorAndMessage('Participant creation',
+                '@@ERROR@@',
+                "Wrong RAMQ format",
+                "See RAMQ of Participant [$current_participant].");
+        }
+        $hospitalNbr = $identValueToNominalInformation[$identifier_value]['# Dossier'];
+        $comments = $identValueToNominalInformation[$identifier_value]['Commentaire'];
+        unset($identValueToNominalInformation[$identifier_value]);
+    } else {
+        recordErrorAndMessage('Participant creation',
+            '@@ERROR@@',
+            "Participant nominal infomration not known",
+            "Participant [$current_participant] don't have nominal information extracted from participant xls file.");
+    }
+    
+    $consent_status = 'obtained';
+    $should_have_collection = true;
+    switch(strtolower($comments)) {
+        case '':
+            break;
+        case 'greffe annulee':
+        case 'non greffe':
+        case 'non greffee':
+            recordErrorAndMessage('Collection creation', 
+                '@@ERROR@@', 
+                "Untransplanted participant with collection", 
+                "See participant [$current_participant] and correct migrated visit number into ATiM.");
+            $notes = $comments;
+            break;
+        case 'decede':
+        case 'decedee':
+            $vialt_status = 'deceased';
+            break;
+        case 'refus de consentement':
+            $consent_status = 'denied';
+            recordErrorAndMessage('Collection creation', 
+                '@@ERROR@@', 
+                "Participant denied with collection", 
+                "See participant [$current_participant] and correct migrated visit number into ATiM.");
+            break;
+        case '2eme greffe':
+            $notes = $comments;
+            break;
+        case 'retrait de consentementt':
+            $consent_status = 'withdrawn';
+            break;
+        case 'vih':
+            $vih = 'y';
+            break;
+        default:
+            recordErrorAndMessage('Participant creation',
+                '@@WARNING@@',
+                "Unsupported participant comment",
+                "Participant [$current_participant] and comment [$comments].");
+    }
+    
     $participant_id = customInsertRecord(array(
         'participants' => array(
-            'first_name' => 'n/a', 
-            'last_name' => 'n/a', 
+            'first_name' => $first_name, 
+            'last_name' => $last_name, 
             'participant_identifier' => "tmp_$participant_counter", 
+            'date_of_birth' => $date_of_birth,
+            'date_of_birth_accuracy' => $date_of_birth_accuracy,
+            'chum_kidney_transp_vih' => $vih,
             'last_modification' => $import_date)));
     customInsertRecord(array(
         'misc_identifiers' => array(
@@ -108,28 +389,119 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['kidney transplant bank no lab']['id'], 
             'flag_unique' => '1', 
             'identifier_value' => $identifier_value)));
- 
+    
+    if($ramq) {
+        customInsertRecord(array(
+            'misc_identifiers' => array(
+                'participant_id' => $participant_id,
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                'flag_unique' => '1',
+                'identifier_value' => str_replace(' ', '', $hospitalNbr))));
+    }
+    if($hospitalNbr) {
+        customInsertRecord(array(
+            'misc_identifiers' => array(
+                'participant_id' => $participant_id,
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['ramq nbr']['id'],
+                'flag_unique' => '1',
+                'identifier_value' =>  str_replace(' ', '', $ramq) )));
+    }
+    $consent_data = array(
+        'consent_masters' => array(
+            'participant_id' => $participant_id,
+            'consent_status' => $consent_status,
+            'consent_control_id' => $atim_controls['consent_controls']['kidney transplant']['id'],
+            'notes' => ''),
+        $atim_controls['consent_controls']['kidney transplant']['detail_tablename'] => array()
+    );
+    $consent_master_id = customInsertRecord($consent_data);
+    
     // Manage Tissue collection
     foreach ($participant_aliquots as $visitId => $new_collection_data) {
+        //Visit
         if($visitId) {
             if(preg_match('/^[0-9]{1,2}$/', $visitId)) {
                 $visitId = 'V'.str_pad($visitId, 2, "0", STR_PAD_LEFT);
             } else {
-                recordErrorAndMessage('Collection creation', '@@ERROR@@', "Visit number [$visitId] is not a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
+                recordErrorAndMessage('Collection creation', 
+                    '@@ERROR@@', 
+                    "Wrong visit number format", 
+                    "Visit number [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
+            }
+        } else {
+            recordErrorAndMessage('Collection creation', '@@ERROR@@', "No Visit Id", "See participant [$current_participant] and correct migrated visit number into ATiM.");
+        }
+        // Collection participant type and time
+        $source_worksheet_identifier_value ='?';
+        $source_worksheet_collection_part_type = '?';
+        $source_worksheet_collection_time = '?';
+        if(!isset($new_collection_data['source_worksheet'])) {
+            recordErrorAndMessage('Collection creation', 
+                '@@ERROR@@', 
+                "No source_worksheet value for the collection visit. Collection Time and Collection Participant Type can not be defined.", 
+                "See visit [$visitId] for the participant [$current_participant] and correct missing collection information into ATiM."); 
+        } else {
+            $source_worksheet = $new_collection_data['source_worksheet'];
+            if(preg_match('/^([0-9]{5})([DCR]{2}[0-9])(.+)/', $source_worksheet, $matches)) {
+                $source_worksheet_identifier_value = $matches[1];
+                $source_worksheet_collection_part_type = $matches[2];
+                $source_worksheet_collection_time = $matches[3];
+                if(!preg_match('/^((DC)|(DV)|(RR))(([1-9])|([1-9][0-9]))$/', $source_worksheet_collection_part_type)) {
+                    recordErrorAndMessage('Collection creation', 
+                        '@@ERROR@@', 
+                        "Wrong collection Participant Type (based on source_worksheet)", 
+                        "Collection Participant Type [$source_worksheet_collection_part_type] created from source_worksheet [$source_worksheet] of visit [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated data into ATiM.");
+                }
+                if(!preg_match('!^(([0-9]+)(([EN])|(N/E))([0-9]*))$!', $source_worksheet_collection_time)) {
+                    recordErrorAndMessage('Collection creation', 
+                        '@@ERROR@@', 
+                        "Wrong collection Time (based on source_worksheet)", 
+                        "Collection Time [$source_worksheet_collection_time] created from source_worksheet [$source_worksheet] of visit [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated data into ATiM.");
+                }
+                if($identifier_value != $source_worksheet_identifier_value) {
+                    recordErrorAndMessage('Collection creation', 
+                        '@@ERROR@@', 
+                        "Wrong participant bank number (based on source_worksheet)", 
+                        "Participant bank number [$source_worksheet_identifier_value] created from source_worksheet [$source_worksheet] of visit [$visitId] is different than the number [$identifier_value] defined from 'patient_number' excel field. See participant [$current_participant] and correct migrated data into ATiM.");
+                }
+            } else {
+                recordErrorAndMessage('Collection creation', 
+                    '@@ERROR@@',
+                    "Wrong source_worksheet format. Collection Time and Collection Participant Type can not be defined.",
+                    "source_worksheet [$source_worksheet] does not match expected format for visit [$visitId] of the participant [$current_participant] and correct migrated data into ATiM.");
             }
         }
+        unset($new_collection_data['source_worksheet']);
+        //Collection dateteim
+        $collection_date_time = str_replace('/', '-', $new_collection_data['created_at']);
+        if(!preg_match('/^((0[1-9])|([1-2][0-9])|(3[0-1]))\-((0[1-9])|(1[0-2]))\-([0-9]{4}) ([0-9]{2}:[0-9]{2})$/', $collection_date_time, $matches)) {
+            recordErrorAndMessage('Collection creation', '@@ERROR@@',
+                "Wrong collection date format",
+                "date [".$new_collection_data['created_at']."] does not match expected format for visit [$visitId] of participant [$current_participant]. Correct migrated data into ATiM.");
+            $collection_date_time = '';
+        } else {
+            $collection_date_time = $matches[8].'-'.$matches[5].'-'.$matches[1].' '.$matches[9];
+        }
+        unset($new_collection_data['created_at']);
+        
         $collection_id = customInsertRecord(array(
             'collections' => array(
                 'participant_id' => $participant_id,
+                'consent_master_id' => $consent_master_id,
                 'bank_id' => $bank_id, 
-                'visit_label' => $visitId, 
-                'chum_kidney_transp_collection_type' => 'unknown',
+                'collection_datetime' => $collection_date_time,
+                'collection_datetime_accuracy' => 'c',
+                'chum_kidney_transp_collection_part_type' => $source_worksheet_collection_part_type,
+                'chum_kidney_transp_collection_time' => $source_worksheet_collection_time,
+                'visit_label' => $visitId,
                 'collection_property' => 'participant collection')));
 
+        $aliquot_label = $source_worksheet_identifier_value . ' '. $source_worksheet_collection_part_type.' '.$source_worksheet_collection_time;
+        
         // --------------------------------------------------------------------------------------------------------------------
         // Tissue Tube
         // --------------------------------------------------------------------------------------------------------------------
-                
+         
         // Create rates tubes
         $rateAliquots = array();
         $key = 'Rate';    
@@ -150,14 +522,16 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                         'sample_code' => "tmp_$sample_counter",
                         'notes' => ''),
                     'specimen_details' => array(),
-                    $atim_controls['sample_controls'][$sample_type]['detail_tablename'] => array()
+                    $atim_controls['sample_controls'][$sample_type]['detail_tablename'] => array(
+                        'tissue_source' => 'spleen'
+                    )
                 );
                 $sample_master_id = customInsertRecord($sample_data);
                 $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -192,7 +566,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => '',
+                            "aliquot_label" => $aliquot_label, 
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -241,11 +615,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
-                }$barcode = trim($newTube['inventory_id']);
+                }
+                $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -300,7 +675,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => '',
+                            "aliquot_label" => $aliquot_label, 
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -350,11 +725,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
-                }$barcode = trim($newTube['inventory_id']);
+                }
+                $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -409,7 +785,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => '',
+                            "aliquot_label" => $aliquot_label, 
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -469,7 +845,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => '',
+                            "aliquot_label" => $aliquot_label, 
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -519,11 +895,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
-                }$barcode = trim($newTube['inventory_id']);
+                }
+                $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -567,14 +944,20 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     'collected_volume_unit' => 'ml'));
             $sample_master_id = customInsertRecord($sample_data);
             foreach($new_collection_data[$key] as $newTube) {
-                if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
+                if(strlen($newTube['label'].$newTube['position_string'])) {
+                    recordErrorAndMessage('Storage creation', 
+                        '@@ERROR@@', 
+                        "Storage Label and/or position defined for a $key. No storage position will be defined for the created aliquot.", 
+                        "Please check data for aliquot [$barcode].");
+                } else if(strlen($newTube['parent_inventory_id'].$newTube['quantity'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
-                }$barcode = trim($newTube['inventory_id']);
+                }
+                $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -614,11 +997,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
-                }$barcode = trim($newTube['inventory_id']);
+                }
+                $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => '',
+                        "aliquot_label" => $aliquot_label, 
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -673,7 +1057,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => '',
+                            "aliquot_label" => $aliquot_label, 
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -697,52 +1081,13 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         }
         unset($new_collection_data[$key]);
         
+        // Check nothing else has to be created
         if(!empty($new_collection_data)) {
             pr('234587234897234897238947293');
             pr($new_collection_data);
-        }
-
-        
-        
+        }        
     }
 }
-
-
-
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$participant_counter participants.");
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$sample_counter samples.");
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$aliquot_counter aliquots.");
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_storage_counters storages.");
-
-
-$final_queries = array();
-$final_queries[] = "UPDATE participants SET participant_identifier = id";
-$final_queries[] = "UPDATE participants_revs SET participant_identifier = id";
-$final_queries[] = "UPDATE sample_masters SET sample_code = id";
-$final_queries[] = "UPDATE sample_masters_revs SET sample_code = id";
-$final_queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
-$final_queries[] = "UPDATE sample_masters_revs SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
-$final_queries[] = "UPDATE storage_masters SET code = id";
-$final_queries[] = "UPDATE storage_masters_revs SET code = id";
-
-if(!$is_test_import_process) {
-    $final_queries[] = "UPDATE versions SET permissions_regenerated = 0;";
-} else {
-    addViewUpdate($final_queries);
-}
-
-
-foreach($final_queries as $new_query) customQuery($new_query);
-//TODO
-pr("TODO remove line is_test_import_process = false;");
-$is_test_import_process = false;
-
-insertIntoRevsBasedOnModifiedValues();
-dislayErrorAndMessage(!$is_test_import_process);
-
-//==================================================================================================================================================================================
-// CUSTOM FUNCTIONS
-//==================================================================================================================================================================================
 
 function truncate() {
     global $migration_user_id;
@@ -752,7 +1097,8 @@ function truncate() {
 
     $truncate_queries = array(
         "SET FOREIGN_KEY_CHECKS=0;",
-        
+        "TRUNCATE aliquot_internal_uses ;",
+        "TRUNCATE aliquot_internal_uses_revs;",
         "TRUNCATE realiquotings ;",
         "TRUNCATE realiquotings_revs;",
         "TRUNCATE source_aliquots ;",
@@ -791,6 +1137,12 @@ function truncate() {
         "TRUNCATE misc_identifiers;",
         "TRUNCATE misc_identifiers_revs;",
         
+        "TRUNCATE hum_kidney_transp_cd_generics;",
+        "TRUNCATE hum_kidney_transp_cd_generics_revs;",
+        
+        "TRUNCATE consent_masters;",
+        "TRUNCATE consent_masters_revs;",
+               
         "TRUNCATE participants;",
         "TRUNCATE participants_revs;", 
         
@@ -802,7 +1154,7 @@ function truncate() {
         "TRUNCATE std_racks_revs;", 
         "TRUNCATE storage_masters;",
         "TRUNCATE storage_masters_revs;",
-        
+                
         "SET FOREIGN_KEY_CHECKS=1;"       
     );
 
@@ -811,7 +1163,7 @@ function truncate() {
         customQuery($query, __FILE__, __LINE__);
     }
     
-//    global $db_connection;mysqli_commit($db_connection);exit;
+   // global $db_connection;mysqli_commit($db_connection);pr('truncate');exit;
 }
 
 function getStorageData($barcode, $box_selection_label, $position_string) {
@@ -824,9 +1176,9 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
         $storage_short_label = array($matches[1], $matches[2], $matches[3]);
     } else {
         if(empty($box_selection_label)) {
-            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Storage Label is null.", "No aliquot storage and position will be set but the aliquot in stock value will be est to 'available'. Please check data for aliquot [$barcode].");
+            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Storage Label is null.", "No aliquot storage and position will be set but the aliquot in stock value will be set to 'available'. Please check data for aliquot [$barcode].");
         } else {
-            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Wrong Storage Label", "Label [$visitId] is not a supported format. No aliquot storage and position will be set but the aliquot in stock value will be est to 'available'. Please check data for aliquot [$barcode].");
+            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Wrong Storage Label", "Label [$visitId] does not match a supported format. No aliquot storage and position will be set but the aliquot in stock value will be set to 'available'. Please check data for aliquot [$barcode].");
         }
         return array('', '', '');
     }
@@ -937,8 +1289,8 @@ MiscIdentifier.identifier_value AS identifier_value,
 MiscIdentifierControl.misc_identifier_name AS identifier_name,
 Collection.visit_label AS visit_label,
 Collection.qc_nd_pathology_nbr,
+Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
-Collection.chum_kidney_transp_collection_type,
 TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -988,8 +1340,8 @@ MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
+Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
-Collection.chum_kidney_transp_collection_type,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 
 		FROM sample_masters AS SampleMaster
@@ -1070,8 +1422,8 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
-Collection.chum_kidney_transp_collection_time,
-Collection.chum_kidney_transp_collection_type
+Collection.chum_kidney_transp_collection_part_type,
+Collection.chum_kidney_transp_collection_time
 
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id

@@ -19,7 +19,7 @@ class ViewSampleCustom extends ViewSample
 	
 		Participant.participant_identifier,
 	
-		Collection.acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
 	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -46,8 +46,8 @@ MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
+Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
-Collection.chum_kidney_transp_collection_type,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 	
 		FROM sample_masters AS SampleMaster

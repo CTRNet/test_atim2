@@ -49,7 +49,7 @@ class AliquotMasterCustom extends AliquotMaster
     {
         // TODO: Kidney transplant customisation
         if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
-            return '';
+            return $viewSample['ViewSample']['acquisition_label'];
         }
         
         // Parameters check: Verify parameters have been set
