@@ -24,6 +24,12 @@ $this->Structures->build($empty, array(
 <script type="text/javascript">
 var popupSearch = function(){
 	$.post(root_url + "CodingIcd/CodingIcd10s/search/<?php echo($useIcdType); ?>/1", $("#me form").serialize(), function(data){
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 	return false;

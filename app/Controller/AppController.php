@@ -169,6 +169,28 @@ class AppController extends Controller
         }
         
         $logActivityModel->save($logActivityData);
+
+		// record URL in logs file
+		
+        if(Configure::read('atim_user_log_output_path')) {
+            $userLogFileHandle = fopen(Configure::read('atim_user_log_output_path') . '/user_logs.txt', "a");
+            if($userLogFileHandle) {
+                $userLogStrg =  '['.$logActivityData['UserLog']['visited'].'] '.
+                        '{user_id:'.(strlen($logActivityData['UserLog']['user_id'])? $logActivityData['UserLog']['user_id'] : 'NULL').'] '.
+                        $logActivityData['UserLog']['url'].' (allowed:'.$logActivityData['UserLog']['allowed'].')';
+                    fwrite($userLogFileHandle, "$userLogStrg\n");
+                fclose($userLogFileHandle);
+            } else {
+                $logDirectory=Configure::read('atim_user_log_output_path');
+                $permission = substr(sprintf('%o', fileperms($logDirectory)), -4);
+                if ($permission!='0777'){
+                    AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
+                }else{
+                    AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+                }
+            }
+        }
+
         
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
@@ -203,17 +225,58 @@ class AppController extends Controller
         }
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
-        
-        if (isset($this->request->query['file'])) {
-            pr($this->request->query['file']);
-        }
-        
+
+        $this->checkIfDownloadFile();
+      
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
-            AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
+            AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit'));
         }
+        
+        if (convertFromKMG(ini_get("upload_max_filesize")) <= Configure::read('maxUploadFileSize')) {
+            AppController::addWarningMsg(__('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading'));
+        }
+        
+        if (convertFromKMG(ini_get("post_max_size")) < convertFromKMG(ini_get("upload_max_filesize")) ) {
+            AppController::addWarningMsg(__('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading'));
+        }
+        
         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
         $this->Auth->authError = __('You are not authorized to access that location.');
+    }
+
+    private function checkIfDownloadFile() 
+    {
+        if (isset($this->request->query['file']) && $this->Auth->isAuthorized()) {
+            $plugin = $this->request->params['plugin'];
+            $modelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
+            $fileName = $this->request->query['file'];
+            if (!$this->Session->read('flag_show_confidential')) {
+                preg_match('/(' . $modelName . ')\.(.+)\.([0-9]+)\.(.+)/', $fileName, $matches, PREG_OFFSET_CAPTURE);
+                if (!empty($matches)) {
+                    if ($matches[1][0] == $modelName) {
+                        $model = AppModel::getInstance($plugin, $modelName, true);
+                        $fields = $model->schema();
+                        if (isset($fields[$matches[2][0]])) {
+                            $this->atimFlashError(__('You are not authorized to access that location.'), '/Menus');
+                        }
+                    }
+                }
+            }
+            $file = Configure::read('uploadDirectory') . DS . $fileName;
+            if (file_exists($file)){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($file));
+                readfile($file);
+            }else{
+                $this->atimFlashError(__('file does not exist'), '');
+            }
+        }
     }
 
     /**
@@ -319,6 +382,11 @@ class AppController extends Controller
                 '_data' => $data
             ));
         }
+        
+        if ($this->layout=='ajax'){
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        }
+        
     }
 
     public function afterFilter()
@@ -362,13 +430,23 @@ class AppController extends Controller
     }
 
     /**
+     * @param array|string $url
+     * @param null $status
+     * @param bool $exit
+     * @return \Cake\Network\Response|null|void
+     */
+    public function redirect($url, $status = null, $exit = true) {
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        parent::redirect($url, $status, $exit);
+    }
+    
+    /**
      * @param $message
      * @param $url
      * @param int $type
      */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         if (strpos(strtolower($url), 'javascript')===false){
             if ($type == self::CONFIRM) {
                 $_SESSION['ctrapp_core']['confirm_msg'] = $message;
@@ -391,7 +469,7 @@ class AppController extends Controller
             $this->set('url', Router::url($url));
             $this->set('message', $message);
             $this->set('pageTitle', $message);
-            $this->render(false, "Flash");
+            $this->render(false, "flash");
         }
     }
 
@@ -827,6 +905,16 @@ class AppController extends Controller
         }
         return $result;
     }
+/**
+ * Encrypt a text
+ * 
+ * @param String $string
+ * @return String
+ */
+    public static function encrypt($string){
+        return Security::hash($string, null, true);
+    }
+
 
     /**
      * cookie manipulation to counter cake problems.
@@ -842,6 +930,8 @@ class AppController extends Controller
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
                 setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");
             }
+            $sessionId = (!empty($_SESSION['Auth']['User']['id']))? self::encrypt($_SESSION['Auth']['User']['id']):self::encrypt("nul string");
+            setcookie('sessionId', $sessionId, 0, "/");
         }
     }
 
@@ -1078,6 +1168,13 @@ class AppController extends Controller
         $structure = $this->Structures->get('form', $structureAlias);
         $this->set('atimStructure', $structure);
         if (empty($searchId)) {
+            $plugin=$this->request->params['plugin'];
+            $controller=$this->request->params['controller'];
+            $action=$this->request->params['action'];
+            if (isset($_SESSION['postData'][$plugin][$controller][$action])){
+                convertArrayToJavaScript($_SESSION['postData'][$plugin][$controller][$action], 'jsPostData');
+            }
+
             $this->Structures->set('empty', 'emptyStructure');
         } else {
             if ($this->request->data) {
@@ -1367,9 +1464,15 @@ class AppController extends Controller
         // *** 1 *** regen permissions
         $this->PermissionManager->buildAcl();
         AppController::addWarningMsg(__('permissions have been regenerated'));
-        
+
+        // *** 1.5 *** Check the upload, temp and local directory permission
+        $uploadDirectory=Configure::read('uploadDirectory');
+        $permission = substr(sprintf('%o', fileperms($uploadDirectory)), -4);
+        if ($permission!='0777'){
+            AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
+        }
+
         // *** 2 *** update the i18n string for version
-        
         $storageControlModel = AppModel::getInstance('StorageLayout', 'StorageControl', true);
         $isTmaBlock = $storageControlModel->find('count', array(
             'condition' => array(
@@ -1498,6 +1601,7 @@ class AppController extends Controller
             AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
             AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
         );
+
         foreach ($viewModels as $viewModel) {
             $this->Version->query('DROP TABLE IF EXISTS ' . $viewModel->table);
             $this->Version->query('DROP VIEW IF EXISTS ' . $viewModel->table);
@@ -1510,6 +1614,9 @@ class AppController extends Controller
                 }
             } else {
                 $this->Version->query('CREATE TABLE ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $viewModel::$tableQuery) . ')');
+                if($viewModel->table=='view_aliquots'){
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_barcode_index` (`barcode`)');
+                }
             }
             $desc = $this->Version->query('DESC ' . $viewModel->table);
             $fields = array();
@@ -1521,8 +1628,20 @@ class AppController extends Controller
                 }
             }
             $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
+/*
+$database = new DATABASE_CONFIG();
+$database = $database->default['database'];
+$columns = $this->Version->query("SELECT column_name FROM information_schema.columns WHERE  table_name = '".$viewModel->table."' && TABLE_SCHEMA='".$database."' order by column_name ;");
+foreach($columns as $column){
+    $c= $column['columns']['column_name'];
+    try {
+        $this->Version->query("ALTER TABLE ".$viewModel->table." ADD INDEX (".$c.");");
+    } catch (Exception $exc) {
+    }
+}
+*/
         }
-        
+
         AppController::addWarningMsg(__('views have been rebuilt'));
         
         // *** 6 *** Current Volume clean up
@@ -1600,8 +1719,9 @@ class AppController extends Controller
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
-        if ($currentVolumesUpdated)
+        if ($currentVolumesUpdated){
             AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ') . (implode(', ', $currentVolumesUpdated)));
+        }
         // -C-Used Volume
         $usedVolumeUpdated = array();
         // Search all aliquot internal use having used volume not null but no volume unit
@@ -1812,7 +1932,7 @@ class AppController extends Controller
         $storageCtrlModel = AppModel::getInstance('Administrate', 'StorageCtrl', true);
         $storageCtrlModel->validatesAllStorageControls();
         
-        // *** 12 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
+        // *** 13 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
         
         $tmpSql = "SELECT DISTINCT `flag_detail`
 			FROM structure_formats
@@ -1820,8 +1940,9 @@ class AppController extends Controller
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
         $flagDetailResult = $aliquotMasterModel->query($tmpSql);
         $aliquotLabelFlagDetail = '1';
-        if ($flagDetailResult)
+        if ($flagDetailResult){
             $aliquotLabelFlagDetail = empty($flagDetailResult[0]['structure_formats']['flag_detail']) ? '0' : '1';
+        }
         
         $structureFormatsQueries = array();
         switch (Configure::read('order_item_type_config')) {
@@ -2046,8 +2167,14 @@ class AppController extends Controller
             
             default:
         }
-        foreach ($structureFormatsQueries as $tmpSql)
+        $ldap = Configure::read('if_use_ldap_authentication');
+        if (!empty($ldap)){
+            $structureFormatsQueries[] = "update structure_formats SET `flag_edit`='0', `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='users_form_for_admin') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='User' AND `tablename`='users' AND `field`='force_password_reset')";
+        }
+        
+        foreach ($structureFormatsQueries as $tmpSql){
             $aliquotMasterModel->query($tmpSql);
+        }
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------

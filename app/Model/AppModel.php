@@ -136,9 +136,9 @@ class AppModel extends Model
         if (! is_array($data)) {
             return $moveFiles;
         }
-        
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
+        
         
         $prevData = $this->id ? $this->read() : null;
         $dir = Configure::read('uploadDirectory');
@@ -148,21 +148,48 @@ class AppModel extends Model
             }
             foreach ($fields as $fieldName => $value) {
                 if (is_array($value)) {
+                    if (isset($value['option']) && in_array($value['option'], array('delete', 'replace'))){
+                        if ($prevData[$modelName][$fieldName]) {
+                            // delete previous file
+                            $ifDelete=Configure::read('deleteUploadedFilePhysically');
+                            if (!$ifDelete){
+                                $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                                if (!is_dir($deleteDirectory)) {
+                                    mkdir($deleteDirectory);
+                                }
+                                if (file_exists($dir.DS.$prevData[$modelName][$fieldName])){
+                                    copy($dir.DS.$prevData[$modelName][$fieldName], $deleteDirectory.DS.$prevData[$modelName][$fieldName]);
+                                }
+                            }
+                            if (file_exists($dir . '/' . $prevData[$modelName][$fieldName])){
+                                unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            }
+                        }
+                    }
                     if (isset($value['name'])) {
                         if (! $value['size']) {
                             // no file
-                            $data[$modelName][$fieldName] = '';
+                            $data[$modelName][$fieldName] = $value['name'];
                             continue;
+                        }
+                        $maxUploadFileSize = Configure::read('maxUploadFileSize');
+                        if ($value['size']>$maxUploadFileSize){
+                            $this->validationErrors= array_merge($this->validationErrors, array('size'=>array(__('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')))));
+                            if (file_exists($value['tmp_name'])){
+                                unlink($value['tmp_name']);
+                            }
+                            if ($prevData[$modelName][$fieldName]){
+                                $data[$modelName][$fieldName]=$prevData[$modelName][$fieldName];
+                            }else{
+                                $data[$modelName][$fieldName]=null;
+                            }
+                            return null;
                         }
                         if (! file_exists($value['tmp_name'])) {
                             die('Error with temporary file');
                         }
                         $targetName = $modelName . '.' . $fieldName . '.%%key_increment%%.' . $value['name'];
                         
-                        if ($prevData[$modelName][$fieldName]) {
-                            // delete previous file
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
-                        }
                         $targetName = $this->getKeyIncrement('atim_internal_file', $targetName);
                         array_push($moveFiles, array(
                             'tmpName' => $value['tmp_name'],
@@ -170,9 +197,9 @@ class AppModel extends Model
                         ));
                         $data[$modelName][$fieldName] = $targetName;
                     } elseif (isset($value['option'])) {
-                        if ($value['option'] == 'delete' && $prevData[$modelName][$fieldName]) {
+                        if (in_array($value['option'], array('delete', 'replace')) && $prevData[$modelName][$fieldName]) {
                             $data[$modelName][$fieldName] = '';
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            //unlink($dir . '/' . $prevData[$modelName][$fieldName]);
                         } else {
                             unset($data[$modelName][$fieldName]);
                         }
@@ -183,7 +210,7 @@ class AppModel extends Model
         
         // Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $this->data = $thisDataTmpBackup;
-        
+
         return $moveFiles;
     }
 
@@ -234,7 +261,7 @@ class AppModel extends Model
             // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
             $data[$this->name]['-'] = "foo";
         }
-        
+
         $moveFiles = $this->filterMoveFiles($data);
         $result = parent::save($data, $validate, $fieldList);
         $this->moveFiles($moveFiles);
@@ -451,6 +478,55 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @param $data
+     * @param $modelName
+     */
+    private function deleteUploadedFile($data, $modelName)
+    {
+        $ifDelete=Configure::read('deleteUploadedFilePhysically');
+        $dir=Configure::read('uploadDirectory');
+        
+        foreach ($data[$modelName] as $field => $value) {
+            preg_match('/('.$modelName.')\.('.$field.')\.([0-9]+)\.(.+)/', $value, $matches, PREG_OFFSET_CAPTURE);
+            if (!empty($matches)){
+                if (file_exists($dir.DS.$matches[0][0])){
+                    $fileName=$matches[0][0];
+                    if (!$ifDelete){
+                        $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                        if (!is_dir($deleteDirectory)) {
+                            mkdir($deleteDirectory);
+                        }
+                        if (file_exists($dir.DS.$fileName)){
+                            copy($dir.DS.$fileName, $deleteDirectory.DS.$fileName);
+                        }
+                        if (file_exists($dir.DS.$fileName)){
+                            unlink($dir.DS.$fileName);
+                        }
+                        
+                        move_uploaded_file($matches[0][0], $deleteDirectory.DS.$fileName);
+                    }else{
+                        if (file_exists($dir.DS.$fileName)){
+                            unlink($dir.DS.$fileName);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Run atimDelete which use soft delete.
+     *
+     * @param null $modelId
+     * @param bool $cascade Set to true to delete records that depend on this record
+     * @return bool True on success
+     * @internal param int|string $id ID of record to delete
+     */
+    public function delete($modelId = null, $cascade = true) {
+        $this->atimDelete($modelId, $cascade);
+    }
+
     /*
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
@@ -463,16 +539,20 @@ class AppModel extends Model
     public function atimDelete($modelId, $cascade = true)
     {
         $this->id = $modelId;
+        $data=$this->read();
+        
         $this->registerModelsToCheck();
         
         // delete DATA as normal
         $this->addWritableField('deleted');
-        $this->delete($modelId, $cascade);
         
+        parent::delete($modelId, $cascade);
+
         // do a FIND of the same DATA, return FALSE if found or TRUE if not found
         if ($this->read()) {
             return false;
         }
+        $this->deleteUploadedFile($data, $this->name);
         $this->updateRegisteredModels();
         return true;
     }
@@ -944,7 +1024,7 @@ class AppModel extends Model
         }
         
         $this->checkFloats();
-        
+
         parent::validates($options);
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;

@@ -34,16 +34,14 @@ if ($isFromTreeViewOrLayout == 1) {
     $settings = array(
         'header' => __($isTma ? 'TMA-blc' : 'storage')
     );
-} else 
-    if ($isFromTreeViewOrLayout == 2) {
+} elseif ($isFromTreeViewOrLayout == 2) {
         // Display Detail From Storage Layout
         $structureLinks = array();
         $structureLinks['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/' . $atimMenuVariables['StorageMaster.id'];
         $settings = array(
             'header' => __($isTma ? 'TMA-blc' : 'storage')
         );
-    } else 
-        if ($isTma) {
+    } elseif ($isTma) {
             // Main TMA Display
             $settings = array(
                 'actions' => false

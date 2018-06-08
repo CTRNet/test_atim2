@@ -31,9 +31,9 @@ class MaterialsController extends MaterialAppController
     public function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
         
-        $this->searchHandler($searchId, $this->Material, 'materials', '/material/materials/search');
+        $this->searchHandler($searchId, $this->Material, 'materials', '/Material/Materials/search');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -44,7 +44,7 @@ class MaterialsController extends MaterialAppController
 
     public function add()
     {
-        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -65,7 +65,7 @@ class MaterialsController extends MaterialAppController
                 if ($hookLink) {
                     require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $this->Material->id);
+                $this->atimFlash(__('your data has been updated'), '/Material/Materials/detail/' . $this->Material->id);
             }
         }
     }
@@ -104,7 +104,7 @@ class MaterialsController extends MaterialAppController
                     if ($hookLink) {
                         require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $materialId);
+                    $this->atimFlash(__('your data has been updated'), '/Material/Materials/detail/' . $materialId);
                 }
             }
         }
@@ -152,9 +152,9 @@ class MaterialsController extends MaterialAppController
         }
         
         if ($this->Material->atimDelete($materialId)) {
-            $this->atimFlash(__('your data has been deleted'), '/material/materials/index/');
+            $this->atimFlash(__('your data has been deleted'), '/Material/Materials/index/');
         } else {
-            $this->atimFlashError(__('error deleting data - contact administrator'), '/material/materials/listall/');
+            $this->atimFlashError(__('error deleting data - contact administrator'), '/Material/Materials/listall/');
         }
     }
 }

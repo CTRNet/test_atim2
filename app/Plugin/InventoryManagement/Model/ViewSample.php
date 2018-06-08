@@ -57,6 +57,7 @@ class ViewSample extends InventoryManagementAppModel
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
+		Collection.collection_protocol_id AS collection_protocol_id,
 		
 		Participant.participant_identifier, 
 		
@@ -104,12 +105,12 @@ class ViewSample extends InventoryManagementAppModel
 
     /**
      * ViewSample constructor.
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
-     * @param null $baseModelName
-     * @param null $detailTable
-     * @param null $previousModel
+     * @param bool $id            
+     * @param null $table            
+     * @param null $ds            
+     * @param null $baseModelName            
+     * @param null $detailTable            
+     * @param null $previousModel            
      */
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {

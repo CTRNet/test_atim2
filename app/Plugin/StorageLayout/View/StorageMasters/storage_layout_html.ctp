@@ -28,11 +28,25 @@ function axisLoopCondition(&$var, $reverseOrder, $limit)
 ob_start();
 ?>
 <div style="display: table-cell; vertical-align: top;">
-	<ul style='margin-right: 10px';>
+	<ul style='margin-right: 10px'>
 		<li><span class="button RecycleStorage" style='width: 80%;'><span
 				class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items")); ?></span></li>
 		<li><span class="button TrashStorage" style='width: 80%;'><span
 				class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items")); ?></span></li>
+		<li>
+                    <input type="file" style="display:none;" id="LoadCSVFile" name="CSVFile" accept=".xlsx, .xls, .csv">
+                    <span class="button LoadCSV" style='width: 80%;' onclick="document.getElementById('LoadCSVFile').click();">
+                    <span class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
+                        <?php echo(__("load csv")); ?>
+                    </span>
+                </li>
+		<li>
+                    <span class="button clear-loaded-barcodes" style='width: 80%;' title ="<?php echo(__("clear the loaded and scanned barcode")); ?>">
+                        <span class="ui-icon ui-icon-arrowrefresh-1-e"></span>
+                            <?php echo(__("delete")); ?>
+                    </span>
+                </li>
+               
 	</ul>
 </div>
 <div
@@ -110,8 +124,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 $useValue = $xVal . "_" . $yVal;
                 if ($useHeight == 1) {
                     $displayValue = $xVal;
-                } else 
-                    if ($useWidth == 1) {
+                } elseif ($useWidth == 1) {
                         $displayValue = $yVal;
                     } else {
                         $displayValue = $xVal . "-" . $yVal;
