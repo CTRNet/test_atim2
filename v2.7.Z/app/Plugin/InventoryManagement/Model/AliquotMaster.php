@@ -1094,7 +1094,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
         $storage = $storageMasterModel->find('all', array(
             'conditions'=> array(
-                'storageMaster.id' => $storageId
+                'StorageMaster.id' => $storageId
             )
         ));
         $isTma = $storage[0]['StorageControl']['is_tma_block'];
@@ -1197,7 +1197,7 @@ class AliquotMaster extends InventoryManagementAppModel
         $storageMasterModel = AppModel::getInstance('StorageLayout', 'StorageMaster');
         $storage = $storageMasterModel->find('all', array(
             'conditions'=> array(
-                'storageMaster.id' => $storageId
+                'StorageMaster.id' => $storageId
             )
         ));
         $coordXSize = $storage[0]['StorageControl']['coord_x_size'];
