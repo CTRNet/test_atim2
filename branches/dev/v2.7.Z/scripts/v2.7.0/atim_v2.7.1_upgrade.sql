@@ -53,8 +53,8 @@ VALUES
     'The PHP "upload_max_filesize" defined into the "php.ini" file is less than the "maxUploadFileSize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
 	'La variable PHP "upload_max_filesize" définie dans le fichier "php.ini" est inférieure au "maxUploadFileSize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
     ('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading',
-    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
-	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
+    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the "php.ini" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier "php.ini". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
 
 -- -------------------------------------------------------------------------------------
 --	File size error message
@@ -444,7 +444,7 @@ UPDATE menus SET use_link = REPLACE(use_link, '/Customize/Announcements/', '/Cus
 
 
 
-/Customize/Announcements/
+-- /Customize/Announcements/
 
 -- -------------------------------------------------------------------------------------
 --	missing i18n translations
