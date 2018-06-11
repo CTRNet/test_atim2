@@ -33,6 +33,8 @@ function initStorageLayout(mode){
                             initRow($("#firstStorageRow"), data, ctrls);
                             $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
+                                    $(".clear-loaded-barcodes").remove();
+                                    $(".LoadCSV").remove();
                                     $(".RecycleStorage").remove();
                                     $(".TrashStorage").remove();
                                     $(".trash_n_unclass").remove();
