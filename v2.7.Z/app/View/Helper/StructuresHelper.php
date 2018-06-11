@@ -756,7 +756,7 @@ class StructuresHelper extends AppHelper
                 $linkClass = "search";
                 $linkLabel = __("search", null);
                 $exactSearch = __("exact search") . '<input type="checkbox" name="data[exact_search]"/>';
-            $exactSearch .="\r\n<p class='bottom_button_load' data-bottom_button_load = '1'>\r\n\t<a href='#' tabindex='10' class=''>\r\n\t\t<span class='icon16 load-search'></span>"
+            $exactSearch .="\r\n<p class='bottom_button_load' data-bottom_button_load = '1'>\r\n\t<a href='javascript:void(0)' tabindex='10' class=''>\r\n\t\t<span class='icon16 load-search'></span>"
                     ."<span class='button_load_text'>".__("previous search")."</span>\r\n\t</a>\r\n</p>\r\n";
             } else { // other mode
                 $linkClass = "submit";
