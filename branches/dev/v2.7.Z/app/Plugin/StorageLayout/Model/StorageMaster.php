@@ -1081,7 +1081,8 @@ class StorageMaster extends StorageLayoutAppModel
             $childrenArray['DisplayData']['y'] = '';
         
         $childrenArray['DisplayData']['label'] = $this->getLabel($childrenArray, $typeKey, $labelKey);
-        $childrenArray['DisplayData']['barcode'] = $this->getLabel($childrenArray, 'AliquotMaster', 'barcode');
+//        $childrenArray['DisplayData']['barcode'] = $this->getLabel($childrenArray, 'AliquotMaster', 'barcode');
+        $childrenArray['DisplayData']['barcode'] = $childrenArray['AliquotMaster']['barcode'];
         $childrenArray['DisplayData']['type'] = $typeKey;
         $childrenArray['DisplayData']['link'] = $link;
         $childrenArray['DisplayData']['icon_name'] = $iconName;

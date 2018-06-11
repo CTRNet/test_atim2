@@ -33,8 +33,9 @@ if ($valid !=0){
     $barcode = $result['AliquotMaster']['barcode'];
     $label = (!empty($result['AliquotMaster']['aliquot_label'])) ? $result['AliquotMaster']['aliquot_label'] : $barcode;
     $warningAliquot = ($valid == 2)?"warning-aliquot": "new-aliquot";
+    $rootUrl = $this->request->webroot;
     $page = "<li class='dragme $warningAliquot AliquotMaster ui-draggable just-added' data-json='{ \"id\" : \"$id\", \"type\" : \"AliquotMaster\"}' style='position: relative;' title = \"$message\">
-                <a href='javascript:void(0)' data-popup-link='/ATiMs/atim_z/InventoryManagement/AliquotMasters/detail/$collectionId/$sampleMasterId/$id/2' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>
+                <a href='javascript:void(0)' data-popup-link='".$rootUrl."InventoryManagement/AliquotMasters/detail/$collectionId/$sampleMasterId/$id/2' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>
                 <span class='handle' data-barcode = '$barcode'>$label</span>
             </li>";
 }else{
