@@ -566,7 +566,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $(cell).find("span:first").addClass("specific_span");
 
             var baseName = $(cell).find("input").prop("name");
-            baseName = baseName.substr(0, baseName.length - 1);
+            if (baseName.substr(baseName.length-3,baseName.length-1)=="][]"){
+                baseName = baseName.substr(0, baseName.length - 3);
+            }else{
+                baseName = baseName.substr(0, baseName.length - 1);
+            }
             tabindex = $(cell).find("input").prop("tabindex");
             $(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> "
                     + STR_TO
