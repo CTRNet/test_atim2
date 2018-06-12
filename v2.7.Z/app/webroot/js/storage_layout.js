@@ -31,7 +31,6 @@ function initStorageLayout(mode){
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
-                            $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
                                     $(".clear-loaded-barcodes").remove();
                                     $(".LoadCSV").remove();
@@ -107,6 +106,9 @@ function initStorageLayout(mode){
                                                             data = $.parseJSON(data);
                                                             if(data.valid){
                                                                     initRow($("#secondStorageRow"), data, true);
+                                                                    $("#secondStorageRow .clear-loaded-barcodes").remove();
+                                                                    $("#secondStorageRow .LoadCSV").remove();
+
                                                                     $("#secondStorageRow").find(".dragme").data("top", false);
                                                                     $("#secondStorageRow").find(".droppable").data("top", false);
                                                                     $("#secondStorageRow").data('checkConflicts', data.check_conflicts);
