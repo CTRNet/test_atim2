@@ -2878,7 +2878,7 @@ $confirmationMsg); // confirmation message
                 $returnLinks[$linkName] = $linkResults[$linkName];
             } else {
                 $linksAppend = '
-							<a href="#"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
+							<a href="javascript:void(0)"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu' . (count($linkResults) > 7 ? ' scroll' : '') . '">
 								
