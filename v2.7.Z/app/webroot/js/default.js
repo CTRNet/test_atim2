@@ -1973,7 +1973,7 @@ function loadClearSearchData()
     $(this).find('span.icon16').toggleClass('load-search').toggleClass('reset-search');
     var form=$(this).parents('form')[0];
     form.reset();
-    $(form).find('a.btn_rmv_or').each(function(){
+    $(form).find('a.btn_rmv_or, a.specific.specific_btn').each(function(){
         $(this).click();
     });
     if (flag === 1) {
@@ -2001,6 +2001,13 @@ function loadClearSearchData()
                                 $("[name*='data[" + model + "][" + field + "][" + i + "]']").val(value[i]);
                             }
                         } else if (value.constructor === String) {
+                            if ($("[name*='data[" + model + "][" + field + "]']").length === 0) {
+                                if (field.search("_start") == field.length - 6) {
+                                    $("[name*='data[" + model + "][" + field.replace("_start", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                } else if (field.search("_end") == field.length - 4) {
+                                    $("[name*='data[" + model + "][" + field.replace("_end", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                }
+                            }
                             $("[name*='data[" + model + "][" + field + "]']").val(value);
                         }
                     }
