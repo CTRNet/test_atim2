@@ -1039,6 +1039,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if ($(link).data('cached_result')) {
                 $("#frame").html($(link).data('cached_result'));
                 initActions();
+                dynamicHeight = $("#dynamicHeight");
+                frame =  $("#frame");
+                frameHeight = frame.height();
+                tr = $(link).parents("tr").first().addClass("at");
+                td = $(tr).find("td").last();
+
+                var topValue = $(td).position().top - frameHeight;
+                if (topValue<0){
+                        topValue=0;
+                }
+                dynamicHeight.css("height", topValue);
+
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
