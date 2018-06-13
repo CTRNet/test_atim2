@@ -5,6 +5,7 @@ require_once __DIR__.'/system.php';
 pr("!!!!!!!!!!!!!!!! Replace Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into excel file");
 pr("!!!!!!!!!!!!!!!! Replace accent for nominal inforamtion file : notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.");
 pr('Géerer patient avec deux ramq');
+pr("!!!!!!!!!!!!!!!! Au début = patient = ND Après SL modifier le code de création de ID.");
 
 $is_test_import_process = false;
 if(isset($argv[1])) {
@@ -95,11 +96,11 @@ $created_storage_counters = 0;
 
 pr('TODO: Remove if($line_number > 351) break;');
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[0], $worksheet_name, 1)) {
-if($line_number > (351)) {
-    pr('the last one');
-    pr($excel_line_data);
-    break;
-}
+// if($line_number > (351)) {
+//     pr('the last one');
+//     pr($excel_line_data);
+//     break;
+// }
     if($current_participant != $excel_line_data['patient_number']) {
         if(!is_null($current_participant)) {
             loadParticipantCollection($current_participant, $participant_aliquots);
@@ -152,25 +153,8 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
             $consent_status = 'denied';
             break;
         default:
-            recordErrorAndMessage('Participant creation',
-                '@@WARNING@@',
-                "Nominal information for participant with no collection data into Nelson DB",
-                "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
     }
     if($consent_status || $notes) {
-        $hospitalNbr = $data['# Dossier'];
-        $ramq = $data['RAMQ'];
-        $date_of_birth = '';
-        $date_of_birth_accuracy = '';
-        if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
-            $date_of_birth = (($matches[1]*1 < 17)? '19' : '20').$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
-            $date_of_birth_accuracy = 'c';
-        } else {
-            recordErrorAndMessage('Participant creation',
-                '@@ERROR@@',
-                "Wrong RAMQ format",
-                "See RAMQ of Participant [$banknbr].");
-        }
         if($anonymise) {
             $participant_id = customInsertRecord(array(
                 'participants' => array(
@@ -180,26 +164,48 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
                     'last_modification' => $import_date,
                     'notes' => $notes)));   
             $participant_with_no_collection_counter++;
+            recordErrorAndMessage('Participant creation',
+                '@@MESSAGE@@',
+                "Anonymized participant : participant with no collection data into Nelson DB.",
+                "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
         } else {
+            $hospitalNbr = $data['# Dossier'];
+            $ramq = $data['RAMQ'];
+            $date_of_birth = '';
+            $date_of_birth_accuracy = '';
+            if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
+                $date_of_birth = '19'.$matches[1].'-'.((($matches[2]*1) > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
+                $date_of_birth_accuracy = 'c';
+            } else if(strlen($ramq)) {
+                recordErrorAndMessage('Participant creation',
+                    '@@ERROR@@',
+                    "Wrong RAMQ format for participant created with no collection",
+                    "See RAMQ of Participant [$banknbr].");
+            } else {
+                recordErrorAndMessage('Participant creation',
+                    '@@ERROR@@',
+                    "No RAMQ for participant created with no collection",
+                    "See RAMQ of Participant [$banknbr].");
+            }
             $participant_id = customInsertRecord(array(
                 'participants' => array(
-                    'first_name' =>$data['Nom'],
-                    'last_name' => $data['Prénom'],
+                    'first_name' =>$data['Prénom'],
+                    'last_name' => $data['Nom'],
                     'participant_identifier' => "tmp_xxx_$participant_with_no_collection_counter",
                     'date_of_birth' => $date_of_birth,
                     'date_of_birth_accuracy' => $date_of_birth_accuracy,
                     'last_modification' => $import_date,
                     'notes' => $notes)));
             $participant_with_no_collection_counter++;
-            if($ramq) {
+            if( $hospitalNbr) {
                 customInsertRecord(array(
                     'misc_identifiers' => array(
                         'participant_id' => $participant_id,
-                        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['notre-dame id nbr']['id'],
                         'flag_unique' => '1',
-                        'identifier_value' => str_replace(' ', '', $hospitalNbr))));
+                        'identifier_value' => 'N'.str_replace(' ', '', $hospitalNbr))));
             }
-            if($hospitalNbr) {
+            if($ramq) {
                 customInsertRecord(array(
                     'misc_identifiers' => array(
                         'participant_id' => $participant_id,
@@ -225,6 +231,15 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
                 'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['kidney transplant bank no lab']['id'],
                 'flag_unique' => '1',
                 'identifier_value' => $banknbr)));
+        recordErrorAndMessage('Participant creation',
+            '@@MESSAGE@@',
+            "Created participant with nominal information but no collection data into Nelson DB.",
+            "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
+    } else {
+        recordErrorAndMessage('Participant creation',
+            '@@WARNING@@',
+            "Nominal information for participant with no collection data into Nelson DB. Participant won't be created but please validate.",
+            "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
     }
 }
 
@@ -288,7 +303,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             "Bank Number Format", 
             "Participant [$current_participant] bank number does not match expected format (5 digits) and has been replaced by [$identifier_value]. Please confirm.");
     }
-    $query = "SELECT participant_id FROM misc_identifiers WHERE identifier_value = '$identifier_value';";
+    $query = "SELECT participant_id FROM misc_identifiers WHERE deleted <> 1 AND identifier_value = '$identifier_value';";
     $atim_data = getSelectQueryResult($query);
     if(sizeof($atim_data) > 0) {
         recordErrorAndMessage('Participant creation', 
@@ -310,17 +325,22 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
     $vialt_status = '';
     
     if(isset($identValueToNominalInformation[$identifier_value])) {
-       $first_name = $identValueToNominalInformation[$identifier_value]['Nom'];
-        $last_name = $identValueToNominalInformation[$identifier_value]['Prénom'];
+       $first_name = $identValueToNominalInformation[$identifier_value]['Prénom'];
+        $last_name = $identValueToNominalInformation[$identifier_value]['Nom'];
         
         $ramq = $identValueToNominalInformation[$identifier_value]['RAMQ'];
         if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
-            $date_of_birth = (($matches[1]*1 < 17)? '19' : '20').$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
+            $date_of_birth = '19'.$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
             $date_of_birth_accuracy = 'c';
-        } else {
+        } else if(strlen($ramq)) {
             recordErrorAndMessage('Participant creation',
                 '@@ERROR@@',
                 "Wrong RAMQ format",
+                "See RAMQ of Participant [$current_participant].");
+        } else {
+            recordErrorAndMessage('Participant creation',
+                '@@ERROR@@',
+                "No RAMQ",
                 "See RAMQ of Participant [$current_participant].");
         }
         $hospitalNbr = $identValueToNominalInformation[$identifier_value]['# Dossier'];
@@ -361,8 +381,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         case '2eme greffe':
             $notes = $comments;
             break;
-        case 'retrait de consentementt':
+        case 'retrait de consentement':
             $consent_status = 'withdrawn';
+            recordErrorAndMessage('Collection creation', 
+                '@@WARNING@@', 
+                "Participant withdrawn with collection", 
+                "See participant [$current_participant] and correct migrated colelction into ATiM if required (collection date > withdrawn date).");
             break;
         case 'vih':
             $vih = 'y';
@@ -382,6 +406,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             'date_of_birth' => $date_of_birth,
             'date_of_birth_accuracy' => $date_of_birth_accuracy,
             'chum_kidney_transp_vih' => $vih,
+            'vital_status' => $vialt_status,
+            'notes' => $notes,
             'last_modification' => $import_date)));
     customInsertRecord(array(
         'misc_identifiers' => array(
@@ -390,15 +416,15 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             'flag_unique' => '1', 
             'identifier_value' => $identifier_value)));
     
-    if($ramq) {
+    if($hospitalNbr) {
         customInsertRecord(array(
             'misc_identifiers' => array(
                 'participant_id' => $participant_id,
-                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['notre-dame id nbr']['id'],
                 'flag_unique' => '1',
-                'identifier_value' => str_replace(' ', '', $hospitalNbr))));
+                'identifier_value' => 'N'.str_replace(' ', '', $hospitalNbr))));
     }
-    if($hospitalNbr) {
+    if($ramq) {
         customInsertRecord(array(
             'misc_identifiers' => array(
                 'participant_id' => $participant_id,
@@ -1163,7 +1189,7 @@ function truncate() {
         customQuery($query, __FILE__, __LINE__);
     }
     
-   // global $db_connection;mysqli_commit($db_connection);pr('truncate');exit;
+//    global $db_connection;mysqli_commit($db_connection);pr('truncate');exit;
 }
 
 function getStorageData($barcode, $box_selection_label, $position_string) {
@@ -1266,7 +1292,7 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
 }
 
 function addViewUpdate(&$final_queries) {
-    $final_queries[] = 'INSERT INTO view_collections (
+    $final_queries[] = "INSERT INTO view_collections (
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -1277,7 +1303,7 @@ function addViewUpdate(&$final_queries) {
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 		Participant.participant_identifier AS participant_identifier,
-		Collection.acquisition_label AS acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, '?'), ' ', Collection.chum_kidney_transp_collection_part_type, ' ', Collection.chum_kidney_transp_collection_time) acquisition_label,
 		Collection.collection_site AS collection_site,
 		Collection.collection_datetime AS collection_datetime,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
@@ -1299,22 +1325,22 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
 			WHERE Collection.deleted <> 1
-    )';
+    )";
 
     $final_queries[] = 'INSERT INTO view_samples (
     SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-
+	
 		Collection.bank_id,
 		Collection.sop_master_id,
 		Collection.participant_id,
-
+	
 		Participant.participant_identifier,
-
-		Collection.acquisition_label,
-
+	
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
+	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -1323,19 +1349,19 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-
+	
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-
+		
 		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
-		
+		 
 MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
@@ -1343,7 +1369,7 @@ Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
-
+	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -1357,29 +1383,29 @@ SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-		WHERE SampleMaster.deleted != 1
+		WHERE SampleMaster.deleted != 1 
     )';
 
     $final_queries[] = 'INSERT INTO view_aliquots (
-    SELECT
+   SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
 			Collection.bank_id,
 			AliquotMaster.storage_master_id AS storage_master_id,
 			Collection.participant_id,
-
+		
 			Participant.participant_identifier,
-
-			Collection.acquisition_label,
-
+		
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
+		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 			ParentSampleControl.sample_type AS parent_sample_type,
 			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
 			SampleControl.sample_type,
 			SampleMaster.sample_control_id,
-
+		
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
@@ -1388,17 +1414,17 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 			AliquotMaster.in_stock_detail,
 			StudySummary.title AS study_summary_title,
 			StudySummary.id AS study_summary_id,
-
+		
 			StorageMaster.code,
 			StorageMaster.selection_label,
 			AliquotMaster.storage_coord_x,
 			AliquotMaster.storage_coord_y,
-
+		
 			StorageMaster.temperature,
 			StorageMaster.temp_unit,
-
+		
 			AliquotMaster.created,
-
+		
 			IF(AliquotMaster.storage_datetime IS NULL, NULL,
 			 IF(Collection.collection_datetime IS NULL, -1,
 			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
@@ -1414,9 +1440,9 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-
+	
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
-
+		
 MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
@@ -1424,7 +1450,7 @@ Collection.consent_master_id AS consent_master_id,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time
-
+        
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
