@@ -101,6 +101,10 @@ VALUES
 	('should have X column', 'Should have X column', 'Devrait avoir une colonne X'),
 	('error in csv header file', 'Error in CSV header file', 'Erreur dans le fichier d\'en-tête CSV'),
 	('error in opening %s', 'Error in opening %s', 'Erreur d\'ouverture %s'),
+	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur en dimension X: %s'),
+	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur en dimension Y: %s'),
+	('the x dimension should be a-z or 1-26', 'The X dimension should be A-Z or 1-26', 'La dimension X doit être A-Z ou 1-26'),
+	('the y dimension should be a-z or 1-26', 'The Y dimension should be A-Z or 1-26', 'La dimension Y doit être A-Z ou 1-26'),
 	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV');
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)

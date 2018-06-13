@@ -31,6 +31,7 @@ function initStorageLayout(mode){
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
+                            $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
                                     $(".clear-loaded-barcodes").remove();
                                     $(".LoadCSV").remove();
@@ -214,6 +215,9 @@ function csvToLayout(){
         var li = $('<div />', {html: $html});
         var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
         li.find("li").addClass(aliquotClass).attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        if ($(confirms[i]).attr("data-class-name")!==""){
+            li.find("li").addClass($(confirms[i]).attr("data-class-name"));
+        }
         li.find('a').attr("data-popup-link", url);
         li.find('span').attr("data-barcode", aliquotData['barcode']);
         li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
@@ -261,6 +265,9 @@ function csvToLayout(){
         var li = $('<div />', {html: $html});
         var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
         li.find("li").addClass("warning-aliquot").attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        if ($(warnings[i]).attr("data-class-name")!==""){
+            li.find("li").addClass($(warnings[i]).attr("data-class-name"));
+        }
         li.find('a').attr("data-popup-link", url);
         li.find('span').attr("data-barcode", aliquotData['barcode']);
         li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
@@ -633,7 +640,7 @@ function checkDuplicatedBarcode(li){
         }
     }
     
-    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle");
+    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
     searchByBarcodeText = [];
     searchByBarcode.each(function(){
         searchByBarcodeText.push($(this).attr("data-barcode"));
