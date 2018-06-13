@@ -68,7 +68,14 @@ UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_co
 
 INSERT INTO i18n (id,en,fr)
 VALUES 
-('kidney transplant bank no lab', "Kidney/Transplant Bank #","No banque Rein/Transplant.");
+('kidney transplant bank no lab', "Kidney/Transplant Bank #","No banque Rein/Transplant");
+
+INSERT INTO misc_identifier_controls (misc_identifier_name , flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_confidential, flag_unique, pad_to_length, reg_exp_validation, user_readable_format, flag_link_to_study)
+VALUES
+('other kidney transplant bank no lab','1','1','',null,'0','0','1','0','','','0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('other kidney transplant bank no la', "Other Kidney/Transplant Bank #","No banque Rein/Transplant - Autre");
 
 -- Identifiers Report
 
@@ -85,7 +92,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Event/Diagnosis/Treatment/Consent/Family History/Reproductive History
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE consent_controls SET flag_active = 1 WHERE  controls_type != 'study consent';
+UPDATE consent_controls SET flag_active = 0 WHERE  controls_type != 'study consent';
  
 UPDATE diagnosis_controls SET flag_active = 0;
 UPDATE event_controls SET flag_active = 0;
@@ -107,19 +114,19 @@ UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1
 
 INSERT INTO `consent_controls` 
 VALUES 
-(null,'kidney transplant',1,'hum_kidney_transp_cd_generics','hum_kidney_transp_cd_generics',1,'kidney transplant');
-CREATE TABLE `hum_kidney_transp_cd_generics` (
+(null,'kidney transplant',1,'chum_kidney_transp_cd_generics','chum_kidney_transp_cd_generics',1,'kidney transplant');
+CREATE TABLE `chum_kidney_transp_cd_generics` (
   `consent_master_id` int(11) NOT NULL,
   KEY `consent_master_id` (`consent_master_id`),
-  CONSTRAINT `hum_kidney_transp_cd_generics_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
+  CONSTRAINT `chum_kidney_transp_cd_generics_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-CREATE TABLE `hum_kidney_transp_cd_generics_revs` (
+CREATE TABLE `chum_kidney_transp_cd_generics_revs` (
   `consent_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+INSERT INTO structures(`alias`) VALUES ('chum_kidney_transp_cd_generics');
 
 INSERT INTO i18n (id,en,fr)
 VALUES 
@@ -135,7 +142,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`= '0'
-WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` LIKE 'qc_nd_pathology_nbr%');
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` LIKE 'qc_nd_pathology_nbr_from_sardo');
 
 UPDATE structure_formats SET `flag_override_default`='1', `default`= (SELECT id FROM banks WHERE name = 'Kidney/Rein Transplant.') 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') 
@@ -207,12 +214,16 @@ UPDATE structure_formats SET `display_order`='-1' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
 
+UPDATE structure_fields SET  `language_tag`='' WHERE field='qc_nd_pathology_nbr' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_nd_pathology_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_nd_pathology_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_nd_pathology_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
 -- Clinical Colelction Link
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` LIKE 'Treatment%');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` LIKE 'Event%');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_nd_pathology_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -294,7 +305,8 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Sources List');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('spleen', 'Spleen',  'Rate', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+('spleen', 'Spleen',  'Rate', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('kidney', 'Kidney',  'Rein', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 UPDATE structure_fields SET  `default`='spleen' WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_source';
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='tmp_gleason_primary_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gleason_grade_values') AND `flag_confidential`='0');
@@ -344,7 +356,7 @@ UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2224', 'inv_CAN_224', 'i
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE storage_controls SET flag_active = 0;
-UPDATE storage_controls SET flag_active = 1 WHERE storage_type IN ('box100', 'rack24', 'shelf', 'nitrogen locator', 'freezer');
+UPDATE storage_controls SET flag_active = 1 WHERE storage_type IN ('box100', 'rack24', 'shelf', 'nitrogen locator', 'freezer', 'blocks box', 'room');
 
 INSERT INTO `storage_controls` 
 VALUES 
@@ -367,7 +379,10 @@ UPDATE structure_permissible_values_custom_controls SET flag_active = 0;
 UPDATE structure_permissible_values_custom_controls SET flag_active = 1 WHERE name IN ('Aliquot Use and Event Types','Amp. RNA : Amp. method','Blood cell : Storage solution','Collection Times','DNA : Extraction method','DNA RNA : Storage solution','Family History Diagnosis List',
 'information source','Institutions & Laboratories','Laboratory Sites','Laboratory Staff','laterality','Orders Contacts','Orders Institutions','Participant Message Types','Password Reset Questions',
 'qc visit label','researchers','RNA : Extraction method','rna purification method',' cie','Specimen Collection Sites','Specimen Supplier Departments','Storage Coordinate Titles','Storage Types','Study Fundings',
-'Study Status','Tissue : Storage method','Tissue : Storage solution','Tissue Core Natures','Tissue Sources List');
+'Study Status','Tissue : Storage method','Tissue : Storage solution','Tissue Core Natures','Tissue Sources List', 'qc consent version');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'qc consent version');
+UPDATE structure_permissible_values_customs SET deleted = 1 WHERE control_id = @control_id;
 
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 13 AND id2 =5) OR (id1 = 5 AND id2 =13);
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 13 AND id2 =1) OR (id1 = 1 AND id2 =13);
@@ -398,5 +413,15 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
 
 
+
+
+SET @modified = (SELECT NOW() FROM users WHERE id = '1');
+SET @modified_by = (SELECT id FROM users WHERE id = '1');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('hotel-dieu hospital', 'Hôtel-Dieu Hospital',  'Hôpital Hôtel-Dieu', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('notre-dame hospital', 'Notre-Dame Hospital',  'Hôpital Notre-Dame', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('saint-luc hospital', 'Saint-Luc Hospital',  'Hôpital Saint-Luc', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 
 
