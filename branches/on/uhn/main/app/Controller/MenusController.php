@@ -73,6 +73,18 @@ class MenusController extends AppController
                         array(
                             "Announcement.date_start <= '" . date("Y-m-d") . "'",
                             "Announcement.date_end >= '" . date("Y-m-d") . "'"
+                        ),
+                        array(
+                            "Announcement.date_start <= '" . date("Y-m-d") . "'",
+                            "Announcement.date_end >= '" . date("Y-m-d") . "'"
+                        ),
+                        array(
+                            "Announcement.date_start <= '" . date("Y-m-d") . "'",
+                            "Announcement.date_end IS NULL"
+                        ),
+                        array(
+                            "Announcement.date_start  IS NULL",
+                            "Announcement.date_end >= '" . date("Y-m-d") . "'"
                         )
                     )
                 )

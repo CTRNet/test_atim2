@@ -17,6 +17,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         
         'InventoryManagement.Collection',
         
+        'Tools.CollectionProtocol',
+        
         'Codingicd.CodingIcd10Who',
         'Codingicd.CodingIcd10Ca',
         'Codingicd.CodingIcdo3Morpho',
@@ -44,11 +46,13 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             $this->atimFlashError(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
         }
     }
-
+    
     // var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));
-
+    
     /**
-     * @param $participantId
+     *
+     * @param
+     *            $participantId
      */
     public function listall($participantId)
     {
@@ -166,6 +170,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             'Participant.id' => $participantId
         ));
         
+        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('protocol use'));
+        
         // BUILD COLLECTION CONTENT TREE VIEW
         
         $this->set('isAjax', $this->request->is('ajax'));
@@ -192,8 +198,11 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     /**
-     * @param $participantId
-     * @param $collectionId
+     *
+     * @param
+     *            $participantId
+     * @param
+     *            $collectionId
      */
     public function detail($participantId, $collectionId)
     {
@@ -242,14 +251,28 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     /**
-     * @param $participantId
+     *
+     * @param
+     *            $participantId
      */
-    public function add($participantId)
+    public function add($participantId, $collectionProtocolId = null)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
         
         // Set collections list
         $this->set('collectionId', isset($this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null);
+        // Set collection protocol
+        if ($collectionProtocolId) {
+            pr('la');
+            $collectionProtocolLists = $this->CollectionProtocol->getProtocolsList('protocol use');
+            if (! array_key_exists($collectionProtocolId, $collectionProtocolLists)) {
+                AppController::addWarningMsg(__("you don't have permission to use the protocol"));
+                $collectionProtocolId = null;
+            } else {
+                $this->set('collectionProtocolId', $collectionProtocolId);
+                $this->set('collectionProtocolName', $collectionProtocolLists[$collectionProtocolId]);
+            }
+        }
         
         // Set consents list
         $consentData = $this->ConsentMaster->find('all', array(
@@ -339,7 +362,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 'treatment_master_id',
                 'event_master_id'
             );
-            if ($this->request->data['Collection']['id']) {
+            if (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) {
                 // test if the collection exists and is available
                 $collectionData = $this->Collection->find('first', array(
                     'conditions' => array(
@@ -356,9 +379,13 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 $fields[] = 'deleted';
                 $fields[] = 'created_by';
                 $fields[] = 'modified_by';
+                if ($collectionProtocolId) {
+                    $this->request->data['Collection']['collection_protocol_id'] = $collectionProtocolId;
+                    $fields[] = 'collection_protocol_id';
+                }
             }
             $this->request->data['Collection']['participant_id'] = $participantId;
-            $this->Collection->id = $this->request->data['Collection']['id'] ?: null;
+            $this->Collection->id = (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) ?  : null;
             unset($this->request->data['Collection']['id']);
             
             $this->Collection->addWritableField($fields);
@@ -377,7 +404,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 }
                 
                 if (isset($this->request->data['Collection']['deleted'])) {
-                    $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                     $this->redirect('/InventoryManagement/Collections/add/' . $this->Collection->getLastInsertId());
                 } else {
                     $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $this->Collection->id);
@@ -388,8 +414,11 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     /**
-     * @param $participantId
-     * @param $collectionId
+     *
+     * @param
+     *            $participantId
+     * @param
+     *            $collectionId
      */
     public function edit($participantId, $collectionId)
     {
@@ -520,8 +549,11 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     /**
-     * @param $participantId
-     * @param $collectionId
+     *
+     * @param
+     *            $participantId
+     * @param
+     *            $collectionId
      */
     public function delete($participantId, $collectionId)
     {

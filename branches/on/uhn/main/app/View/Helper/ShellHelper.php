@@ -5,7 +5,7 @@ App::uses('Helper', 'View');
 /**
  * Class ShellHelper
  */
-class ShellHelper extends Helper
+class ShellHelper extends AppHelper
 {
 
     public $helpers = array(
@@ -202,11 +202,10 @@ class ShellHelper extends Helper
             $confirmMsgHtml = '<ul class="confirm"><li><span class="icon16 confirm mr5px"></span>' . $_SESSION['ctrapp_core']['confirm_msg'] . '</li></ul>';
             unset($_SESSION['ctrapp_core']['confirm_msg']);
         }
-        
         if (isset($_SESSION['ctrapp_core']['warning_trace_msg']) && count($_SESSION['ctrapp_core']['warning_trace_msg'])) {
             $confirmMsgHtml .= '<ul class="warning">';
             foreach ($_SESSION['ctrapp_core']['warning_trace_msg'] as $traceMsg) {
-                if (isset($traceMsg['msg']) && isset($traceMsg['trace']) && strlen($traceMsg['trace'])>1) {
+                if (isset($traceMsg['msg']) && isset($traceMsg['trace']) && is_array($traceMsg['trace'])) {
                     $confirmMsgHtml .= $this->getValidationLine('warning', $traceMsg['msg'], $traceMsg['trace']);
                 } else {
                     $confirmMsgHtml .= '<li><span class="icon16 warning mr5px"></span>' . $traceMsg.'</li>';
@@ -245,7 +244,7 @@ class ShellHelper extends Helper
         }
         
         $return = "";
-        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0) {
+        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0 && !$this->request->is('ajax')) {
             $return .= '
 				<!-- start #validation -->
 				<div class="validation">

@@ -253,3 +253,95 @@ function dc($number=0)
         array_splice($_SESSION['debug']['dl'], 0, $number);
     }
 }
+
+/**
+ * @param array $phpArray
+ * @param $jsArray
+ */
+function convertArrayToJavaScript($phpArray, $jsArray){
+    if (is_string($jsArray) && is_array($phpArray) && !empty($phpArray) && !is_array_empty($phpArray)){
+        $_SESSION['js_post_data']="\r\n".'var '.$jsArray . "=". json_encode($phpArray)."\r\n";
+    }
+}
+
+/**
+ * @param array $InputVariable
+ * @param $result
+ */
+function is_array_empty($InputVariable) {
+    $result = true;
+    if (is_array($InputVariable) && count($InputVariable) > 0) {
+        foreach ($InputVariable as $Value) {
+            $result = $result && is_array_empty($Value);
+            if (!$result){
+                return false;
+            }
+        }
+    } else {
+        $result = empty($InputVariable);
+    }
+
+    return $result;
+}
+
+/**
+ * @param $data
+ * @return array
+ */
+function removeEmptySubArray($data){
+    if (is_array($data)) {
+        $data = is_integer(key($data)) ? array_values(array_filter($data, 'removeEmptyStringArray')) : array_filter($data, 'removeEmptyStringArray');
+
+        foreach ($data as &$v) {
+            $v = removeEmptySubArray($v);
+        }
+        $data = is_integer(key($data)) ? array_values(array_filter($data, 'removeEmptyStringArray')) : array_filter($data, 'removeEmptyStringArray');
+    }
+    return $data;
+}
+
+/**
+ * @param $value
+ * @return bool
+ */
+function removeEmptyStringArray($value){
+    return ($value!="" && $value!=array());
+}
+
+function getTotalMemoryCapacity() {
+    $os = substr(PHP_OS, 0, 3);
+    if ($os == "WIN") {
+        $totalMemory = array();
+        exec('wmic memorychip get capacity', $totalMemory);
+        if (is_numeric($totalMemory[1])) {
+            return round($totalMemory[1] / 1024 / 1024);
+        } else {
+            return -1;
+        }
+    } elseif ($os == "Lin") {
+        $fh = fopen('/proc/meminfo', 'r');
+        $mem = 0;
+        while ($line = fgets($fh)) {
+            $pieces = array();
+            if (preg_match('/^MemTotal:\s+(\d+)\skB$/', $line, $pieces)) {
+                $mem = $pieces[1];
+                break;
+            }
+        }
+        fclose($fh);
+        return round($mem / 1024);
+    }
+}
+
+function convertFromKMG($data){
+    if (substr($data, -1)=='K'){
+        $number = floatval(substr($data, 0, -1))*1024;
+    }elseif (substr($data, -1)=='M'){
+        $number = floatval(substr($data, 0, -1))*1024*1024;
+    }elseif (substr($data, -1)=='G'){
+        $number = floatval(substr($data, 0, -1))*1024*1024*1024;
+    }else if (is_numeric($data)){
+        $number = floatval($data);
+    }
+    return $number;
+}

@@ -149,6 +149,12 @@ class Structure extends AppModel
                             $rule[0] = $validation['rule'];
                         } elseif (strlen($validation['rule']) > 0) {
                             $rule = explode(',', $validation['rule']);
+                            if ($rule[0]=='custom'){
+                                $rule = array(
+                                    'custom',
+                                    substr($validation['rule'], strpos($validation['rule'], ',')+1)
+                                );
+                            }
                         }
                         
                         if (count($rule) == 1) {

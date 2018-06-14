@@ -13,7 +13,6 @@ class StudyInvestigatorsController extends StudyAppController
 
     public $paginate = array(
         'StudyInvestigator' => array(
-            'limit' => 5,
             'order' => 'StudyInvestigator.last_name'
         )
     );

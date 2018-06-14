@@ -94,6 +94,9 @@ class BatchSetsController extends DatamartAppController
      */
     public function listall($batchSetId)
     {
+        $totalMemory = getTotalMemoryCapacity();
+        ini_set("memory_limit", $totalMemory/4 . "M");
+
         $this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
         $lookupIds = array();
         $atimMenuVariables = array(
@@ -326,7 +329,7 @@ class BatchSetsController extends DatamartAppController
                 $this->BatchId->saveAll($saveArray);
                 
                 // done
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/BatchSets/listall/' . $targetBatchSetId);
             } else {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -434,8 +437,7 @@ class BatchSetsController extends DatamartAppController
         }
         // clear SESSION after done...
         $_SESSION['ctrapp_core']['datamart']['process'] = array();
-        
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');        
         $this->redirect('/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id']);
         
         exit();
@@ -567,7 +569,7 @@ class BatchSetsController extends DatamartAppController
         }
         
         // redirect back to list Batch SET
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');        
         $this->redirect('/Datamart/BatchSets/listall/' . $batchSetId);
         exit();
     }

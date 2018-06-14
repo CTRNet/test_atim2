@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/material/materials/edit/' . $atimMenuVariables['Material.id'],
+    'top' => '/Material/Materials/edit/' . $atimMenuVariables['Material.id'],
     'bottom' => array(
-        'cancel' => '/material/materials/detail/' . $atimMenuVariables['Material.id']
+        'cancel' => '/Material/Materials/detail/' . $atimMenuVariables['Material.id']
     )
 );
 

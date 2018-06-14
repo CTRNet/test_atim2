@@ -3,12 +3,13 @@
 /**
  * Class AnnouncementsController
  */
+App::uses('AdministrateAppController', 'Administrate.Controller');
 class AnnouncementsController extends AdministrateAppController
 {
 
     public $uses = array(
         'User',
-        'Administrate.Announcement',
+        'Announcement',
         'Administrate.Bank'
     );
 
