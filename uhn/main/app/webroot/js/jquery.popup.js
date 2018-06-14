@@ -22,7 +22,7 @@ jQuery.fn.popup = function(options){
 	if(fmPopup.popupOuter == null){
 		$("body").append("<div class='popup_outer'>"
 				+ "<div class='popup_container'></div>"
-				+ "<div class='popup_close'><a href='#'>X</a></div>"
+				+ "<div class='popup_close'><a href='javascript:void(0)'>X</a></div>"
 				+ "</div>");
 		fmPopup.popupOuter = $("body div.popup_outer:last");
 		fmPopup.popupOuter.data("FmPopup.prototype.id", FmPopup.prototype.id ++);

@@ -56,7 +56,6 @@ class PermissionsController extends AdministrateAppController
         list ($type, $id) = explode('::', $aro['Aro']['alias']);
         switch ($type) {
             case 'Group':
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Administrate/Permissions/tree/' . $id);
                 break;
             case 'User':
@@ -66,7 +65,6 @@ class PermissionsController extends AdministrateAppController
                     'recursive' => - 1
                 ));
                 list ($type, $gid) = explode('::', $parent['Aro']['alias']);
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Administrate/Permissions/tree/' . $gid . '/' . $id);
                 break;
         }
@@ -143,6 +141,7 @@ class PermissionsController extends AdministrateAppController
         }
         $this->set('aro', $aro);
         $this->set('knownAcos', $knownAcos);
+
         if ($this->request->data) {
             $this->Group->id = $groupId;
             $this->Aro->pkeySafeguard = false;
@@ -380,6 +379,9 @@ class PermissionsController extends AdministrateAppController
         foreach ($this->request->data as &$unit) {
             $unit['PermissionsPreset']['json'] = json_encode(unserialize($unit['PermissionsPreset']['serialized_data']));
         }
+        if (!empty($this->request->data)){
+            $this->request->data[0]['PermissionsPreset']['delete']='/Administrate/Permissions/deletePreset/';
+        }
     }
 
     /**
@@ -390,5 +392,6 @@ class PermissionsController extends AdministrateAppController
         $this->layout = false;
         $this->render(false);
         $this->PermissionsPreset->atimDelete($presetId);
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
     }
 }

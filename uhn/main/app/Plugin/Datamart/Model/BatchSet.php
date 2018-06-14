@@ -194,12 +194,12 @@ class BatchSet extends DatamartAppModel
         }
         
         if (! $allowed) {
-            AppController::getInstance()->flash(__('you are not allowed to work on this batchset'), 'javascript:history.back()', 5);
+            AppController::getInstance()->atimFlashError(__('you are not allowed to work on this batchset'), 'javascript:history.back()');
             return false;
         }
         
         if ($mustBeUnlocked && $batchset['BatchSet']['locked']) {
-            AppController::getInstance()->flash(__('this batchset is locked'), 'javascript:history.back()', 5);
+            AppController::getInstance()->atimFlashError(__('this batchset is locked'), 'javascript:history.back()');
             return false;
         }
         

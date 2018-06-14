@@ -12,10 +12,22 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
+    public static $dateRange = array(
+        "date",
+        "datetime",
+        "time"
+    );
     public static $rangeTypes = array(
         "date",
         "datetime",
         "time",
+        "integer",
+        "integer_positive",
+        "float",
+        "float_positive"
+    );
+
+    public static $rangeTypesNumber = array(
         "integer",
         "integer_positive",
         "float",
@@ -57,7 +69,7 @@ class StructuresComponent extends Component
             'set_validation' => true, // wheter to set model validations or not
             'model_table_assoc' => array()
         ), // bind a tablename to a model for writable fields
-$parameters);
+        $parameters);
         
         $structure = array(
             'Structure' => array(),
@@ -174,8 +186,8 @@ $parameters);
     }
 
     /**
-     * @param null $mode
-     * @param null $alias
+     * @param null $mode            
+     * @param null $alias            
      * @return array|mixed
      */
     public function get($mode = null, $alias = null)
@@ -207,6 +219,27 @@ $parameters);
         if ($mode == 'rule' || $mode == 'rules') {
             $result = $result['rules'];
         } elseif ($mode == 'form') {
+            if (isset($result['structure']['Sfs'])) {
+                foreach ($result['structure']['Sfs'] as $sfs) {
+                    $tablename = $sfs['tablename'];
+                    if ($tablename) {
+                        foreach (array(
+                            'add',
+                            'edit',
+                            'addgrid',
+                            'editgrid',
+                            'batchedit'
+                        ) as $flag) {
+                            if ($sfs['flag_' . $flag] && ! $sfs['flag_' . $flag . '_readonly'] && $sfs['type'] != 'hidden') {
+                                AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
+                                if ($sfs['type'] == 'date' || $sfs['type'] == 'datetime') {
+                                    AppModel::$writableFields[$tablename][$flag][] = $sfs['field'] . '_accuracy';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             $result = $result['structure'];
         }
         
@@ -417,6 +450,11 @@ $parameters);
         
         // parse DATA to generate SQL conditions
         // use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
+        $plugin=$this->controller->request->params['plugin'];
+        $controller=$this->controller->request->params['controller'];
+        $action=$this->controller->request->params['action'];
+        $_SESSION['postData'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
+
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {
                 foreach ($fields as $key => $data) {

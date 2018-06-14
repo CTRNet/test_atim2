@@ -1081,13 +1081,15 @@ class StorageMaster extends StorageLayoutAppModel
             $childrenArray['DisplayData']['y'] = '';
         
         $childrenArray['DisplayData']['label'] = $this->getLabel($childrenArray, $typeKey, $labelKey);
+//        $childrenArray['DisplayData']['barcode'] = $this->getLabel($childrenArray, 'AliquotMaster', 'barcode');
+        $childrenArray['DisplayData']['barcode'] = $childrenArray['AliquotMaster']['barcode'];
         $childrenArray['DisplayData']['type'] = $typeKey;
         $childrenArray['DisplayData']['link'] = $link;
         $childrenArray['DisplayData']['icon_name'] = $iconName;
     }
 
     /**
-     * Checks wheter a storage position is already occupied or not.
+     * Checks whether a storage position is already occupied or not.
      * This is a
      * quick check up that will not behave properly on bogus positions.
      *

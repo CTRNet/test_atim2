@@ -132,13 +132,16 @@ class AliquotMastersController extends InventoryManagementAppController
         
         // Manage structure and menus
         $this->AliquotMaster; // lazy load
+        $defaultAliquotControlId = null;
         foreach ($initData['possibilities'] as $possibility) {
             AliquotMaster::$aliquotTypeDropdown[$possibility['AliquotControl']['id']] = __($possibility['AliquotControl']['aliquot_type']);
+            $defaultAliquotControlId = $possibility['AliquotControl']['id'];
         }
+        $this->set('defaultAliquotControlId', $defaultAliquotControlId);
         
         $this->set('ids', $initData['ids']);
         
-        $this->Structures->set('aliquot_type_selection');
+        $this->Structures->set('aliquot_type_selection,aliquot_nb_definition');
         $this->setBatchMenu(array(
             'SampleMaster' => $initData['ids']
         ));
@@ -193,10 +196,29 @@ class AliquotMastersController extends InventoryManagementAppController
         
         $this->set('aliquotControlId', $aliquotControl['AliquotControl']['id']);
         
+        // GET DEFAULT VALUES
+        
         $templateInitId = null;
         if (isset($this->request->data['template_init_id'])) {
             $templateInitId = $this->request->data['template_init_id'];
             unset($this->request->data['template_init_id']);
+        }
+        
+        // Set default field values defined into the collection template
+        if (isset(AppController::getInstance()->passedArgs['nodeIdWithDefaultValues'])) {
+            $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+            $templateNode = $templateNodeModel->find('first', array(
+                'conditions' => array(
+                    'TemplateNode.id' => AppController::getInstance()->passedArgs['nodeIdWithDefaultValues']
+                )
+            ));
+            $templateNodeDefaultValues = array();
+            foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
+                foreach ($fieldsValues as $field => $Value) {
+                    $templateNodeDefaultValues["$model.$field"] = $Value;
+                }
+            }
+            $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);
         }
         
         // GET SAMPLES DATA
@@ -204,6 +226,7 @@ class AliquotMastersController extends InventoryManagementAppController
         $sampleMasterIds = array();
         if ($isIntialDisplay) {
             $sampleMasterIds = explode(",", $this->request->data[0]['ids']);
+            $quantity = isset($this->request->data[0]['aliquots_nbr_per_parent']) ? $this->request->data[0]['aliquots_nbr_per_parent'] : $quantity;
             unset($this->request->data[0]);
         } else {
             unset($this->request->data[0]);
@@ -2036,10 +2059,13 @@ class AliquotMastersController extends InventoryManagementAppController
         
         $aliquotCtrls = $this->AliquotControl->findAllById($possibleCtrlIds);
         assert(! empty($aliquotCtrls));
+        $defaultChildrenAliquotControlId = null;
         foreach ($aliquotCtrls as $aliquotCtrl) {
             $dropdown[$aliquotCtrl['AliquotControl']['id']] = __($aliquotCtrl['AliquotControl']['aliquot_type']);
+            $defaultChildrenAliquotControlId = $aliquotCtrl['AliquotControl']['id'];
         }
         AliquotMaster::$aliquotTypeDropdown = $dropdown;
+        $this->set('defaultChildrenAliquotControlId', sizeof($dropdown) == 1 ? $defaultChildrenAliquotControlId : null);
         
         // Set data
         $this->request->data = array();
@@ -2061,7 +2087,7 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->set('processType', $processType);
         
         // Set structure and menu
-        $this->Structures->set('aliquot_type_selection');
+        $this->Structures->set('aliquot_type_selection'.(($processType == 'definition')? '' : ',aliquot_nb_definition'));
         
         if (empty($aliquotId)) {
             $this->set('atimMenu', $this->Menus->get('/InventoryManagement/'));
@@ -2178,6 +2204,7 @@ class AliquotMastersController extends InventoryManagementAppController
         // Get parent an child control data
         $parentAliquotCtrlId = isset($this->request->data['realiquot_from']) ? $this->request->data['realiquot_from'] : null;
         $childAliquotCtrlId = isset($this->request->data[0]['realiquot_into']) ? $this->request->data[0]['realiquot_into'] : (isset($this->request->data['realiquot_into']) ? $this->request->data['realiquot_into'] : null);
+        $childAliquotsNbrPerParentNbr = isset($this->request->data[0]['aliquots_nbr_per_parent']) ? $this->request->data[0]['aliquots_nbr_per_parent'] : null;
         $parentAliquotCtrl = $this->AliquotControl->findById($parentAliquotCtrlId);
         $childAliquotCtrl = ($parentAliquotCtrlId == $childAliquotCtrlId) ? $parentAliquotCtrl : $this->AliquotControl->findById($childAliquotCtrlId);
         if (empty($parentAliquotCtrl) || empty($childAliquotCtrl)) {
@@ -2302,6 +2329,17 @@ class AliquotMastersController extends InventoryManagementAppController
             $this->AliquotMaster->sortForDisplay($parentAliquots, $parentAliquotsIds);
             
             // build data array
+            $childAliquotsNbrPerParentNbr = $childAliquotsNbrPerParentNbr ? $childAliquotsNbrPerParentNbr : 1;
+            if ($childAliquotsNbrPerParentNbr > 20) {
+                $childAliquotsNbrPerParentNbr = 20;
+                AppController::addWarningMsg(__('nbr of children by default can not be bigger than 20'));
+            }
+            $tmpChildArray = array();
+            while ($childAliquotsNbrPerParentNbr) {
+                $tmpChildArray[] = array();
+                $childAliquotsNbrPerParentNbr --;
+            }
+            
             $this->request->data = array();
             foreach ($parentAliquots as $parentAliquot) {
                 if ($parentAliquotCtrlId != $parentAliquot['AliquotMaster']['aliquot_control_id']) {
@@ -2309,7 +2347,7 @@ class AliquotMastersController extends InventoryManagementAppController
                 }
                 $this->request->data[] = array(
                     'parent' => $parentAliquot,
-                    'children' => array()
+                    'children' => $tmpChildArray
                 );
             }
             
@@ -3689,5 +3727,7 @@ class AliquotMastersController extends InventoryManagementAppController
         } else {
             $this->atimFlashWarning(__('there are no barcodes to print'), 'javascript:history.back();');
         }
+
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
     }
 }
