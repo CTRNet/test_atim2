@@ -53,8 +53,8 @@ VALUES
     'The PHP "upload_max_filesize" defined into the "php.ini" file is less than the "maxUploadFileSize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
 	'La variable PHP "upload_max_filesize" définie dans le fichier "php.ini" est inférieure au "maxUploadFileSize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
     ('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading',
-    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
-	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
+    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the "php.ini" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier "php.ini". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
 
 -- -------------------------------------------------------------------------------------
 --	File size error message
@@ -101,6 +101,10 @@ VALUES
 	('should have X column', 'Should have X column', 'Devrait avoir une colonne X'),
 	('error in csv header file', 'Error in CSV header file', 'Erreur dans le fichier d\'en-tête CSV'),
 	('error in opening %s', 'Error in opening %s', 'Erreur d\'ouverture %s'),
+	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur en dimension X: %s'),
+	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur en dimension Y: %s'),
+	('the x dimension should be a-z or 1-26', 'The X dimension should be A-Z or 1-26', 'La dimension X doit être A-Z ou 1-26'),
+	('the y dimension should be a-z or 1-26', 'The Y dimension should be A-Z or 1-26', 'La dimension Y doit être A-Z ou 1-26'),
 	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV');
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
@@ -444,7 +448,7 @@ UPDATE menus SET use_link = REPLACE(use_link, '/Customize/Announcements/', '/Cus
 
 
 
-/Customize/Announcements/
+-- /Customize/Announcements/
 
 -- -------------------------------------------------------------------------------------
 --	missing i18n translations
@@ -472,5 +476,3 @@ UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
 ('2.7.1', NOW(),'xxxx','n/a');
-
-Select ">            Nicolas, may you check the translation of storage layout?             <" as ">            Nicolas, may you check the translation of storage layout?             <";	

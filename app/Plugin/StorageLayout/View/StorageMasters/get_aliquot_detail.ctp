@@ -19,7 +19,7 @@ if (empty($result)){
         $valid = 0;
         $message = __('only sample core can be stored into tma block');
     }else if (!empty($x) || !empty($y) || !empty($storageLabel)){
-        $valid = 2;
+        $valid = 3;
         $message = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabel, $x, $y);
     }
 }elseif (count($result) >1){
@@ -32,9 +32,16 @@ if ($valid !=0){
     $sampleMasterId = $result['AliquotMaster']['sample_master_id'];
     $barcode = $result['AliquotMaster']['barcode'];
     $label = (!empty($result['AliquotMaster']['aliquot_label'])) ? $result['AliquotMaster']['aliquot_label'] : $barcode;
-    $warningAliquot = ($valid == 2)?"warning-aliquot": "new-aliquot";
+    if ($valid == 1){
+        $warningAliquot = "new-aliquot";
+    }elseif ($valid == 2){
+        $warningAliquot = "warning-aliquot";
+    }elseif ($valid == 3){
+        $warningAliquot = "warning-aliquot duplicated-aliquot";
+    }
+    $rootUrl = $this->request->webroot;
     $page = "<li class='dragme $warningAliquot AliquotMaster ui-draggable just-added' data-json='{ \"id\" : \"$id\", \"type\" : \"AliquotMaster\"}' style='position: relative;' title = \"$message\">
-                <a href='javascript:void(0)' data-popup-link='/ATiMs/atim_z/InventoryManagement/AliquotMasters/detail/$collectionId/$sampleMasterId/$id/2' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>
+                <a href='javascript:void(0)' data-popup-link='".$rootUrl."InventoryManagement/AliquotMasters/detail/$collectionId/$sampleMasterId/$id/2' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>
                 <span class='handle' data-barcode = '$barcode'>$label</span>
             </li>";
 }else{

@@ -127,6 +127,11 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
+        if (empty($_SESSION['url'])){
+            $_SESSION['url'] = array();
+        }
+        $_SESSION['url'][] = "/".Router::getPaths($this->here)->url;
+
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -447,6 +452,9 @@ class AppController extends Controller
      */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
+        if (empty($url)){
+            $url = "/atim_z/Menus";
+        }
         if (strpos(strtolower($url), 'javascript')===false){
             if ($type == self::CONFIRM) {
                 $_SESSION['ctrapp_core']['confirm_msg'] = $message;
@@ -1178,6 +1186,7 @@ class AppController extends Controller
             $this->Structures->set('empty', 'emptyStructure');
         } else {
             if ($this->request->data) {
+
                 // newly submitted search, parse conditions and store in session
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {

@@ -566,7 +566,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $(cell).find("span:first").addClass("specific_span");
 
             var baseName = $(cell).find("input").prop("name");
-            baseName = baseName.substr(0, baseName.length - 3);
+            if (baseName.substr(baseName.length-3,baseName.length-1)=="][]"){
+                baseName = baseName.substr(0, baseName.length - 3);
+            }else{
+                baseName = baseName.substr(0, baseName.length - 1);
+            }
             tabindex = $(cell).find("input").prop("tabindex");
             $(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> "
                     + STR_TO
@@ -1035,6 +1039,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if ($(link).data('cached_result')) {
                 $("#frame").html($(link).data('cached_result'));
                 initActions();
+                dynamicHeight = $("#dynamicHeight");
+                frame =  $("#frame");
+                frameHeight = frame.height();
+                tr = $(link).parents("tr").first().addClass("at");
+                td = $(tr).find("td").last();
+
+                var topValue = $(td).position().top - frameHeight;
+                if (topValue<0){
+                        topValue=0;
+                }
+                dynamicHeight.css("height", topValue);
+
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
@@ -1969,7 +1985,7 @@ function loadClearSearchData()
     $(this).find('span.icon16').toggleClass('load-search').toggleClass('reset-search');
     var form=$(this).parents('form')[0];
     form.reset();
-    $(form).find('a.btn_rmv_or').each(function(){
+    $(form).find('a.btn_rmv_or, a.specific.specific_btn').each(function(){
         $(this).click();
     });
     if (flag === 1) {
@@ -1997,6 +2013,13 @@ function loadClearSearchData()
                                 $("[name*='data[" + model + "][" + field + "][" + i + "]']").val(value[i]);
                             }
                         } else if (value.constructor === String) {
+                            if ($("[name*='data[" + model + "][" + field + "]']").length === 0) {
+                                if (field.search("_start") == field.length - 6) {
+                                    $("[name*='data[" + model + "][" + field.replace("_start", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                } else if (field.search("_end") == field.length - 4) {
+                                    $("[name*='data[" + model + "][" + field.replace("_end", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                }
+                            }
                             $("[name*='data[" + model + "][" + field + "]']").val(value);
                         }
                     }

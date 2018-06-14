@@ -134,7 +134,8 @@ class StorageControlsController extends AdministrateAppController
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         if ($storageControlData['StorageCtrl']['flag_active']) {
-            $this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
+//            $this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
+            $this->atimFlashError(__('you are not allowed to work on active storage type'), $_SESSION['url'][count($_SESSION['url'])-2]);
             return;
         } elseif ($this->StorageMaster->find('count', array(
             'conditions' => array(
@@ -145,7 +146,8 @@ class StorageControlsController extends AdministrateAppController
                 )
             )
         ))) {
-            $this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
+//            $this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
+            $this->atimFlashError(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), $_SESSION['url'][count($_SESSION['url'])-2]);
             return;
         }
         
@@ -211,7 +213,8 @@ class StorageControlsController extends AdministrateAppController
                 )
             ));
             if ($existingStorageCount) {
-                $this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), 'javascript:history.go(-1)');
+//                $this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), 'javascript:history.go(-1)');
+                $this->atimFlashError(__('this storage type has already been used to build a storage - active status can not be changed'), $_SESSION['url'][count($_SESSION['url'])-2]);
                 return;
             }
             $newData['StorageCtrl']['flag_active'] = '0';
