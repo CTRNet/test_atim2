@@ -335,13 +335,13 @@ function getTotalMemoryCapacity() {
 
 function convertFromKMG($data){
     if (substr($data, -1)=='K'){
-        $number = intval(substr($data, 0, -1))*1024;
+        $number = floatval(substr($data, 0, -1))*1024;
     }elseif (substr($data, -1)=='M'){
-        $number = intval(substr($data, 0, -1))*1024*1024;
+        $number = floatval(substr($data, 0, -1))*1024*1024;
     }elseif (substr($data, -1)=='G'){
-        $number = intval(substr($data, 0, -1))*1024*1024*1024;
+        $number = floatval(substr($data, 0, -1))*1024*1024*1024;
     }else if (is_numeric($data)){
-        $number = intval($data);
+        $number = floatval($data);
     }
     return $number;
 }

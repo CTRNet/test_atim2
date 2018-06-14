@@ -126,7 +126,7 @@ if (isset($isAjax)) {
 			initWizardMode(<?php echo $templateId; ?>);
 		}
 
-		setTimeout(dataSavedFadeout, 3500);
+//		setTimeout(dataSavedFadeout, 3500);
 	}
 
 	function drawTreeRecur(treeData, node){
