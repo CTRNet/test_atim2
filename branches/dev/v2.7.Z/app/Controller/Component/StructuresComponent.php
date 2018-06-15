@@ -377,7 +377,8 @@ class StructuresComponent extends Component
                     'float',
                     'float_positive'
                 ));
-                if (in_array($valueType, self::$rangeTypes) || (strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
+
+                if ((in_array($valueType, self::$rangeTypes) || strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
                     $keyStart = $formFieldsKey . '_start';
                     $formFields[$keyStart]['plugin'] = $value['plugin'];
                     $formFields[$keyStart]['model'] = $value['model'];
