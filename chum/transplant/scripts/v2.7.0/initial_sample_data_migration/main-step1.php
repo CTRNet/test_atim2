@@ -6,6 +6,7 @@ pr("!!!!!!!!!!!!!!!! Replace Contenant st├®rile 90mL urine by Contenant steri
 pr("!!!!!!!!!!!!!!!! Replace accent for nominal inforamtion file : notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.");
 pr('Géerer patient avec deux ramq');
 pr("!!!!!!!!!!!!!!!! Au début = patient = ND Après SL modifier le code de création de ID.");
+pr('!!!!!!!!!!! Créer champ created_at_date avec la formule =ENT(H2*1) ou H2 est la colonne de created_at et created_at_time avec la formule =H2-ENT(H2)');
 
 $is_test_import_process = false;
 if(isset($argv[1])) {
@@ -94,13 +95,19 @@ $storages = array();
 global $created_storage_counters;
 $created_storage_counters = 0;
 
-pr('TODO: Remove if($line_number > 351) break;');
+//pr('TODO: Remove if($line_number > 351) break;');
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[0], $worksheet_name, 1)) {
 // if($line_number > (351)) {
 //     pr('the last one');
 //     pr($excel_line_data);
 //     break;
 // }
+    $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date'], $excel_line_data['created_at_time'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
+    if(strlen($tmp_date[0])) {
+       $excel_line_data['created_at'] = $tmp_date[0];
+    } else {
+       $excel_line_data['created_at'] = '';
+    }
     if($current_participant != $excel_line_data['patient_number']) {
         if(!is_null($current_participant)) {
             loadParticipantCollection($current_participant, $participant_aliquots);
@@ -266,11 +273,7 @@ if(!$is_test_import_process) {
     addViewUpdate($final_queries);
 }
 
-
 foreach($final_queries as $new_query) customQuery($new_query);
-//TODO
-pr("TODO remove line is_test_import_process = false;");
-$is_test_import_process = false;
 
 insertIntoRevsBasedOnModifiedValues();
 dislayErrorAndMessage(!$is_test_import_process);
@@ -498,17 +501,10 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             }
         }
         unset($new_collection_data['source_worksheet']);
-        //Collection dateteim
-        $collection_date_time = str_replace('/', '-', $new_collection_data['created_at']);
-        if(!preg_match('/^((0[1-9])|([1-2][0-9])|(3[0-1]))\-((0[1-9])|(1[0-2]))\-([0-9]{4}) ([0-9]{2}:[0-9]{2})$/', $collection_date_time, $matches)) {
-            recordErrorAndMessage('Collection creation', '@@ERROR@@',
-                "Wrong collection date format",
-                "date [".$new_collection_data['created_at']."] does not match expected format for visit [$visitId] of participant [$current_participant]. Correct migrated data into ATiM.");
-            $collection_date_time = '';
-        } else {
-            $collection_date_time = $matches[8].'-'.$matches[5].'-'.$matches[1].' '.$matches[9];
-        }
-        unset($new_collection_data['created_at']);
+
+        //Collection datetime
+        $collection_date_time = $new_collection_data['created_at'];
+         unset($new_collection_data['created_at']);
         
         $collection_id = customInsertRecord(array(
             'collections' => array(

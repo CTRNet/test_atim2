@@ -412,9 +412,6 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TreatmentExtendMaster' AND label = 'number of elements per participant';
 
-
-
-
 SET @modified = (SELECT NOW() FROM users WHERE id = '1');
 SET @modified_by = (SELECT id FROM users WHERE id = '1');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
