@@ -2906,3 +2906,9 @@ div#default_popup{
     border: none!important;
     text-align: left;
 }
+
+div.plugin_StorageLayout.controller_StorageMasters.action_storageLayout .trash_n_unclass li{
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
