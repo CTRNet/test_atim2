@@ -13,7 +13,7 @@ $db_schema		= "chumtransplant";
 $isserver = false;
 if($isserver) {
     $db_pwd			= "am3-y-4606";
-    $db_schema		= "";
+    $db_schema		= "atimkidneytransplanttest";
 }
 
 $db_charset		= "utf8";
@@ -39,7 +39,12 @@ $excel_file_names = array(
         'Transpl. Rein_2014 _SL.xls',
         'Transpl. Rein_2014_HD.xls',
         'Transpl. Rein_2014_ND.xls'),
-    'slides' => array('Transpl. Rein_Lames 2014.xls'),
+    'slides' => array(
+        'Transpl. Rein_ Lames 2011.xls',
+        'Transpl. Rein_ Lames 2012.xls',
+        'Transpl. Rein_ Lames 2013.xls',
+        'Transpl. Rein_ Lames 2014 HD.xls',
+        'Transpl. Rein_Lames 2014.xls'),
     //Step3
     'aliquot_uses' => array('Degel et retrait de la BDD.xls') 
 );

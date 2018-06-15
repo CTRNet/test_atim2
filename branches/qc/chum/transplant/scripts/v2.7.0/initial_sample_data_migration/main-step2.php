@@ -43,9 +43,15 @@ $storages = array();
 $worksheet_name = 'Blocks';
 $participant_detection =  array();
 $dateValidationDone = array('0', '0');
+$createdBlockCounterPerFile = array();
+
+$createdBlocks = array();
+$createdBlocksSlidesFromSampleMasterId = array();
 foreach($excel_file_names['blocks'] as $new_file) {
-    recordErrorAndMessage('Summary', '@@MESSAGE@@', "File Parsed", "$new_file");
+    $createdBlockCounterPerFile[$new_file] = array('lines' => 0, 'aliquot studied' => 0, 'aliquot created' => 0);
     while(list($line_number, $excel_line_data) = getNextExcelLineData($new_file, $worksheet_name, 1)) {
+        $createdBlockCounterPerFile[$new_file]['lines']++;
+        
         $excel_first_name = $excel_line_data['Prenom'];
         $excel_last_name = $excel_line_data['Nom'];
         $excel_dossier = $excel_line_data['No de dossier'];
@@ -54,7 +60,10 @@ foreach($excel_file_names['blocks'] as $new_file) {
         $excel_collectiondate = $excel_line_data['Date du prelevement'];
         $excel_collection_site = $excel_line_data['Lieu du Prelevement ND, SL, HD'];
         $excel_patho = $excel_line_data['No Patho'];
-        $collection_notes = isset($excel_line_data['Note de collection'])? $excel_line_data['Note de collection'] : '';
+        $collection_notes = isset($excel_line_data['Note de collection'])? $excel_line_data['Note de collection'] : (isset($excel_line_data['Notes de collection'])? $excel_line_data['Notes de collection'] : '');
+        if(!isset($excel_line_data['Note de collection']) && !isset($excel_line_data['Notes de collection'])) {
+            pr('TODO 8we4343447 23782');pr($excel_line_data);
+        }
         
         $excel_block_nbr = $excel_line_data['Enumeration des blocs'];
         $excel_tissue_notes = isset($excel_line_data['Traitement description'])? $excel_line_data['Traitement description'] : 'Biopsie du greffon rénal.';
@@ -62,9 +71,12 @@ foreach($excel_file_names['blocks'] as $new_file) {
         if(!strlen($excel_patho)) {
             recordErrorAndMessage('Block creation',
                 '@@WARNING@@',
-                "Patho number unknown (reason could be that no data exist in the line). No blocks will be imported. Please validate.",
+                "Patho number unknown (reason could be that the all line is empty). No blocks will be imported. Please validate.",
                 "RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
         } else {
+
+            $createdBlockCounterPerFile[$new_file]['aliquot studied']++;
+            
             if($excel_line_data['Traitement description'] != 'Biopsie du greffon rénal' ||  $excel_line_data['Traitement'] != 'BIOP') {
                 pr('TODO 24353456346 file '.$new_file.' line '.$line_number); pr($excel_line_data);
             }
@@ -82,43 +94,47 @@ foreach($excel_file_names['blocks'] as $new_file) {
             } else {
                 if(!strlen($excel_ramq)) {
                     pr('TODO 43435634636 file '.$new_file.' line '.$line_number); pr($excel_line_data);
-                } elseif(!isset($participant_detection[$excel_ramq])) {
+                } else {
+                                        
+                    if(!isset($participant_detection[$excel_ramq])) {
                     
-                    // ----------------------------------------------------------------------------------------------------------------------------------
-                    // Find Participant on RAMQ only
-                    // ----------------------------------------------------------------------------------------------------------------------------------
-                    
-                    $query = "SELECT RAMQ.participant_id, Participant.first_name, last_name, 
-                        SL.identifier_value AS StLuc, HD.identifier_value AS HotelDieu, ND.identifier_value AS NotreDame, 
-                        CM.id as consent_master_id, CM.consent_status
-                        FROM misc_identifiers RAMQ
-                        INNER JOIN participants Participant ON Participant.id = RAMQ.participant_id 
-                        LEFT JOIN misc_identifiers SL ON Participant.id = SL.participant_id AND SL.deleted <> 1 AND SL.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['saint-luc id nbr']['id']."
-                        LEFT JOIN misc_identifiers HD ON Participant.id = HD.participant_id AND HD.deleted <> 1 AND HD.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['hotel-dieu id nbr']['id']."
-                        LEFT JOIN misc_identifiers ND ON Participant.id = ND.participant_id AND ND.deleted <> 1 AND ND.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['notre-dame id nbr']['id']."
-                        LEFT JOIN consent_masters CM ON CM.participant_id = Participant.id AND CM.deleted <> 1
-                        WHERE RAMQ.deleted <> 1 AND RAMQ.identifier_value = '$excel_ramq' AND RAMQ.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['ramq nbr']['id'].";";
-                    $atim_data = getSelectQueryResult($query);
-                    if(sizeof($atim_data) > 1) {
-                        pr('TODO 5523467857 file '.$new_file.' line '.$line_number); pr($excel_line_data);
-                        $participant_detection[$excel_ramq]['participant_id'] = null;
-                    } elseif(!$atim_data) {
-                        $participant_not_found[$excel_ramq] = '-';
-                        recordErrorAndMessage('Participant definition',
-                            '@@ERROR@@',
-                            "Participant not found based on RAMQ. No blocks will be imported. Please validate.",
-                            "RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
-                        $participant_detection[$excel_ramq]['participant_id'] = null;
-                    } else {
-                        $participant_found[$excel_ramq] = '-';
-                        $atim_data = $atim_data[0];
-                        if(!$atim_data['NotreDame']) {
-                          //We suppose that all hospital numbers created by step1 are from notre dame 
-                            pr('TODO 4343563443434636 file '.$new_file.' line '.$line_number); pr($excel_line_data);pr($atim_data);
+                        // ----------------------------------------------------------------------------------------------------------------------------------
+                        // Find Participant on RAMQ only
+                        // ----------------------------------------------------------------------------------------------------------------------------------
+                        
+                        $query = "SELECT RAMQ.participant_id, Participant.first_name, last_name, 
+                            SL.identifier_value AS StLuc, HD.identifier_value AS HotelDieu, ND.identifier_value AS NotreDame, 
+                            CM.id as consent_master_id, CM.consent_status
+                            FROM misc_identifiers RAMQ
+                            INNER JOIN participants Participant ON Participant.id = RAMQ.participant_id 
+                            LEFT JOIN misc_identifiers SL ON Participant.id = SL.participant_id AND SL.deleted <> 1 AND SL.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['saint-luc id nbr']['id']."
+                            LEFT JOIN misc_identifiers HD ON Participant.id = HD.participant_id AND HD.deleted <> 1 AND HD.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['hotel-dieu id nbr']['id']."
+                            LEFT JOIN misc_identifiers ND ON Participant.id = ND.participant_id AND ND.deleted <> 1 AND ND.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['notre-dame id nbr']['id']."
+                            LEFT JOIN consent_masters CM ON CM.participant_id = Participant.id AND CM.deleted <> 1
+                            WHERE RAMQ.deleted <> 1 AND RAMQ.identifier_value = '$excel_ramq' AND RAMQ.misc_identifier_control_id = ".$atim_controls['misc_identifier_controls']['ramq nbr']['id'].";";
+                        $atim_data = getSelectQueryResult($query);
+                        if(sizeof($atim_data) > 1) {
+                            pr('TODO 5523467857 file '.$new_file.' line '.$line_number); pr($excel_line_data);
+                            $participant_detection[$excel_ramq]['participant_id'] = null;
+                        } elseif(!$atim_data) {
+                            $participant_not_found[$excel_ramq] = '-';
+                            recordErrorAndMessage('Participant definition',
+                                '@@ERROR@@',
+                                "Participant not found based on RAMQ. No blocks will be imported. Please validate.",
+                                "RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+                            $participant_detection[$excel_ramq]['participant_id'] = null;
+                        } else {
+                            $participant_found[$excel_ramq] = '-';
+                            $atim_data = $atim_data[0];
+                            if(!$atim_data['NotreDame']) {
+                              //We suppose that all hospital numbers created by step1 are from notre dame 
+                                pr('TODO 4343563443434636 file '.$new_file.' line '.$line_number); pr($excel_line_data);pr($atim_data);
+                            }
+                            $participant_detection[$excel_ramq] = $atim_data;
+                            $participant_detection[$excel_ramq]['collections'] = array();
                         }
-                        $participant_detection[$excel_ramq] = $atim_data;
-                        $participant_detection[$excel_ramq]['collections'] = array();
                     }
+                    
                     if(isset($participant_detection[$excel_ramq]['participant_id'])) {
                                                 
                         // ----------------------------------------------------------------------------------------------------------------------------------
@@ -249,7 +265,7 @@ foreach($excel_file_names['blocks'] as $new_file) {
                                     $coll_found_msg = array();
                                     if($atim_data) {
                                         foreach($atim_data as $new_collection) {
-                                            $coll_found_msg[] = "<font color='red'>".$new_collection['chum_kidney_transp_collection_part_type'].' '.$new_collection['chum_kidney_transp_collection_time'].'</font> on <b>'.substr($new_collection['collection_datetime'], 0, 7).'</b>';                                    
+                                            $coll_found_msg[] = "<font color='red'>".$new_collection['chum_kidney_transp_collection_part_type'].' '.$new_collection['chum_kidney_transp_collection_time'].'</font> on <b>'.substr($new_collection['collection_datetime'], 0, 10).'</b>';                                    
                                         }
                                         $coll_found_msg = implode(' && ', $coll_found_msg);
                                         recordErrorAndMessage('Block creation',
@@ -319,11 +335,15 @@ foreach($excel_file_names['blocks'] as $new_file) {
                         }
                         if($sampleKey) {
                             $participant_detection[$excel_ramq]['collections'][$collection_key]['samples'][$sampleKey] = $sample_master_id;
+                        } else {
+                            $participant_detection[$excel_ramq]['collections'][$collection_key]['samples']['___with no key___'][] = $sample_master_id;
                         }
                         
                         // ----------------------------------------------------------------------------------------------------------------------------------
                         // Create block
                         // ----------------------------------------------------------------------------------------------------------------------------------
+                        
+                        $aliquot_label = $excel_patho.(strlen($excel_block_nbr)? "-$excel_block_nbr" : '');
                         
                         $storage_master_id = '';
                         $storage_coord_x = '';
@@ -360,13 +380,13 @@ foreach($excel_file_names['blocks'] as $new_file) {
                                 recordErrorAndMessage('Storage creation',
                                     '@@WARNING@@',
                                     "Wrong drawer",
-                                    "See drawer [".$excel_line_data['Tiroir']."] for block [$excel_block_nbr] of the collection on date [$excel_collectiondate] for patient with RAMQ number [$excel_ramq] at line $line_number in file [$new_file].");
+                                    "See drawer [".$excel_line_data['Tiroir']."] for block [$aliquot_label] of the collection on date [$excel_collectiondate] for patient with RAMQ number [$excel_ramq] at line $line_number in file [$new_file].");
                             }
                         }
                         $aliquot_data = array(
                             'aliquot_masters' => array(
                                 "barcode" => 'tmp_block_'.($created_block_counter),
-                                "aliquot_label" => "$excel_patho-$excel_block_nbr",
+                                "aliquot_label" => $aliquot_label,
                                 "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
                                 "collection_id" => $collection_id,
                                 "sample_master_id" => $sample_master_id,
@@ -380,28 +400,9 @@ foreach($excel_file_names['blocks'] as $new_file) {
                                 'sample_position_code' => $excel_block_nbr));
                         $aliquot_master_id = customInsertRecord($aliquot_data);
                         $created_block_counter++;
-                        
-                        
-                        
-
-                        
-                        
-                        
-                        
-                        
-        
-                        /*
-                         * $collection_notes
-                         * $excel_block_nbr
-                         $excel_ = 
-                         
-                         customInsertRecord(array('realiquotings' => array('parent_aliquot_master_id' => $parent_aliquot_master_id, 'child_aliquot_master_id' => $aliquot_master_id)));
-                         */
-                        
-                        
-                        
-                                 
-                    
+                        $createdBlockCounterPerFile[$new_file]['aliquot created']++;
+                        $createdBlocks[$aliquot_label][] = array($aliquot_master_id, $sample_master_id, $collection_id, $excel_ramq, $excel_dossier, $excel_line_data['Date du prelevement']);
+                        $createdBlocksSlidesFromSampleMasterId[$sample_master_id][] = 'Block : '.$aliquot_label;
                     }
                 }  
             }
@@ -409,16 +410,212 @@ foreach($excel_file_names['blocks'] as $new_file) {
     }
 }
 
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Participants Found", sizeof($participant_found).'/'.(sizeof($participant_found)+sizeof($participant_not_found)));
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_identifier_counter new participant identifiers.");
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_collection_counter new collections.");
+// Slides
+//---------------------------------------------------------------------------------------------------
+
+$worksheet_name = 'Slides';
+$created_slide_counter = 0;
+$createdSlideCounterPerFile = array();
+
+$createdSlideCounterPerFile = array();
+foreach(array('Enumeration des blocs', 'No Patho', 'Note de collection', 'Date du prelevement', 'RAMQ', 'Notes de collection') as $field_label) {
+recordErrorAndMessage('Slide creation',
+    '@@WARNING@@',
+    "Slide creation is based on a limited list of excel fields. Please check the followinf fields and validate.",
+    "$field_label");
+}
+foreach($excel_file_names['slides'] as $new_file) {
+    $createdSlideCounterPerFile[$new_file] = array('lines' => 0, 'aliquot studied' => 0, 'aliquot created' => 0);
+    while(list($line_number, $excel_line_data) = getNextExcelLineData($new_file, $worksheet_name, 1)) {
+        $createdSlideCounterPerFile[$new_file]['lines']++;
+        $createdSlideCounterPerFile[$new_file]['aliquot studied']++;
+
+        $excel_first_name = $excel_line_data['Prenom'];
+        $excel_last_name = $excel_line_data['Nom'];
+        $excel_dossier = $excel_line_data['No de dossier'];
+        $excel_ramq = $excel_line_data['RAMQ'];
+
+        $excel_collectiondate = $excel_line_data['Date du prelevement'];
+        $excel_collection_site = $excel_line_data['Lieu du Prelevement ND, SL, HD'];
+        $excel_patho = $excel_line_data['No Patho'];
+        $collection_notes = isset($excel_line_data['Note de collection'])? $excel_line_data['Note de collection'] : (isset($excel_line_data['Notes de collection'])? $excel_line_data['Notes de collection'] : '');
+        if(!isset($excel_line_data['Note de collection']) && !isset($excel_line_data['Notes de collection'])) {
+            pr('TODO 8weqwqwqw207 23782');pr($excel_line_data);
+        }
+        $excel_block_nbr = $excel_line_data['Enumeration des blocs'];
+        $excel_tissue_notes = isset($excel_line_data['Traitement description'])? $excel_line_data['Traitement description'] : 'Biopsie du greffon rénal.';
+        
+        // ----------------------------------------------------------------------------------------------------------------------------------
+        // Find block or Tissue or Collection
+        // ----------------------------------------------------------------------------------------------------------------------------------
+        
+        $aliquot_label = $excel_patho.(strlen($excel_block_nbr)? "-$excel_block_nbr" : '');
+        $collection_key = "$excel_collectiondate-$excel_collection_site-$excel_patho";
+        $sampleKey = '';
+        if(preg_match('/^([A-Z])([0-9]*)$/', $excel_block_nbr, $matches)) {
+            $sampleKey = $matches[1];
+        }
+        
+        $collection_id = null;
+        $sample_master_id = null;
+        $parent_aliquot_master_id = null;
+        if(!strlen($excel_patho)) {
+            recordErrorAndMessage('Slide creation',
+                '@@WARNING@@',
+                "Patho number unknown (reason could be that the all line is empty). Slide won't be imported. Please validate.",
+                "RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+        } else if($collection_notes == 'ABSENT' || (strlen($excel_block_nbr) &&  $excel_block_nbr == 'NUL')) {
+                recordErrorAndMessage('Slide creation',
+                    '@@MESSAGE@@',
+                    "Notes of the slide is flagged as 'Absent'. No slide will be imported. Please validate.",
+                    "RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+            if($excel_line_data['Boite'] != 'NUL') {
+                pr('TODO 823errerer034 7207 23782');pr($excel_line_data);
+            }
+        } else if(isset($createdBlocks[$aliquot_label])) {
+            if(sizeof($createdBlocks[$aliquot_label] == 1)) {
+                // Block found
+                list($parent_aliquot_master_id, $sample_master_id, $collection_id, $block_ramq, $block_dossier, $block_collection_date) = $createdBlocks[$aliquot_label][0];
+                if($block_ramq != $excel_ramq || $block_dossier != $excel_dossier || $block_collection_date != $excel_collectiondate) {
+                    pr('TODO 823794827 987230 827034 7207 23782');pr($createdBlocks[$aliquot_label][0]);pr($excel_line_data);
+                }   
+            } else {
+                //More than one aliquot match the label: link slide to sample if it's the same one
+                pr('TODO 828778888882');pr($createdBlocks[$aliquot_label][0]);pr($excel_file_names);
+            }
+        } else if(isset($participant_detection[$excel_ramq]['collections'][$collection_key]['samples'][$sampleKey])) {
+            // aliquot label does not match a block aliquot label but can be linked to an existing sample
+            $collection_id = $participant_detection[$excel_ramq]['collections'][$collection_key]['collection_id'];
+            $sample_master_id = $participant_detection[$excel_ramq]['collections'][$collection_key]['samples'][$sampleKey];
+            recordErrorAndMessage('Slide creation',
+                '@@MESSAGE@@',
+                "Block used to create slide can not be found based on aliquot label ('No Patho' + 'Enumeration des blocs') but the sample linked to this block has been created previously by the script. Slide will be linked to the sample but not to the block. Please validate.",
+                "See slide '$aliquot_label' and blocks [".implode('], [', $createdBlocksSlidesFromSampleMasterId[$sample_master_id])."] linked to the sample of the slide for participant with RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+        } else if(isset($participant_detection[$excel_ramq]['collections'][$collection_key]['collection_id'])) {
+            // Create a new tissue
+            $collection_id = $participant_detection[$excel_ramq]['collections'][$collection_key]['collection_id'];
+            $sample_counter++;
+            $sample_data = array(
+                'sample_masters' => array(
+                    'sample_code' => 'tmp_'.$sample_counter,
+                    'collection_id' => $collection_id,
+                    'sample_control_id' => $atim_controls['sample_controls']['tissue']['id'],
+                    'initial_specimen_sample_type' => 'tissue',
+                    'notes' => $excel_tissue_notes),
+                'specimen_details' => array(),
+                $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
+                    'tissue_source' => 'kidney'
+                )
+            );
+            $sample_master_id = customInsertRecord($sample_data);
+            if($sampleKey) {
+                $participant_detection[$excel_ramq]['collections'][$collection_key]['samples'][$sampleKey] = $sample_master_id;
+            } else {
+                $participant_detection[$excel_ramq]['collections'][$collection_key]['samples']['___with no key___'][] = $sample_master_id;
+            }
+            recordErrorAndMessage('Slide creation',
+                '@@WARNING@@',
+                "Block and tissue used to create slide can not be found based on aliquot label ('No Patho' + 'Enumeration des blocs') but the collection linked to this block has been created previously by the script. A new tissue sample will be created and the slide will be linked to this new sample instead  to the block. Please validate.",
+                "See slide '$aliquot_label' and new sample created for collection with collection date '$excel_collectiondate', site '$excel_collection_site' and patho# '$excel_patho' for participant with RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+        } else {
+            // Collection not found
+            recordErrorAndMessage('Slide creation',
+                '@@ERROR@@',
+                "No collection used to create the slide can be found based on collection date, ramq and paho nunber. Slide won't be created. Please validate and create slide manually.",
+                "See slide '$aliquot_label' for participant with RAMQ number [$excel_ramq], name = '$excel_first_name $excel_last_name', hospital number = '$excel_dossier'. See excel line $line_number in file [$new_file].");
+        }
+        
+        if($sample_master_id) {
+            
+            // ----------------------------------------------------------------------------------------------------------------------------------
+            // Create slide
+            // ----------------------------------------------------------------------------------------------------------------------------------
+            
+            $storage_master_id = '';
+            $storage_coord_x = '';
+            $storage_coord_y = '';
+            if(!isset($storages['room-----------'])) {
+                $storage_data = array(
+                    'storage_masters' => array(
+                        "code" => 'tmp_storage_'.sizeof($storages),
+                        "short_label" => 'HD.B.B.Room',
+                        "selection_label" => 'HD.B.B.Room',
+                        "storage_control_id" => $atim_controls['storage_controls']['room']['id'],
+                        'notes' => ''),
+                    $atim_controls['storage_controls']['room']['detail_tablename'] => array());
+                $storages['room-----------'] = customInsertRecord($storage_data);
+            }
+            if(strlen($excel_line_data['Boite'])) {
+                if(!isset($storages[$excel_line_data['Boite']])) {
+                    $storage_data = array(
+                        'storage_masters' => array(
+                            "code" => 'tmp_storage_'.sizeof($storages),
+                            "short_label" => $excel_line_data['Boite'],
+                            "selection_label" => 'HD.B.B.Room-'.$excel_line_data['Boite'],
+                            "storage_control_id" => $atim_controls['storage_controls']['blocks box']['id'],
+                            'notes' => ''),
+                        $atim_controls['storage_controls']['blocks box']['detail_tablename'] => array());
+                    $storages[$excel_line_data['Boite']] = customInsertRecord($storage_data);
+                }
+                $storage_master_id = $storages[$excel_line_data['Boite']];
+            }
+            if($storage_master_id) {
+                if(preg_match('/^[1-8]$/', $excel_line_data['Tiroir'])) {
+                    $storage_coord_x = $excel_line_data['Tiroir'];
+                } else {
+                    recordErrorAndMessage('Storage creation',
+                        '@@WARNING@@',
+                        "Wrong drawer",
+                        "See drawer [".$excel_line_data['Tiroir']."] for slide [$aliquot_label] of the collection on date [$excel_collectiondate] for patient with RAMQ number [$excel_ramq] at line $line_number in file [$new_file].");
+                }
+            }
+            $aliquot_label = $excel_patho.(strlen($excel_block_nbr)? "-$excel_block_nbr" : '');
+            $aliquot_data = array(
+                'aliquot_masters' => array(
+                    "barcode" => 'tmp_slide_'.($created_slide_counter),
+                    "aliquot_label" => $aliquot_label,
+                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-slide']['id'],
+                    "collection_id" => $collection_id,
+                    "sample_master_id" => $sample_master_id,
+                    'in_stock' => 'yes - available',
+                    'storage_master_id' => $storage_master_id,
+                    'storage_coord_x' => $storage_coord_x,
+                    'storage_coord_y' => $storage_coord_y,
+                    'notes' => $collection_notes),
+                $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array());
+            $aliquot_master_id = customInsertRecord($aliquot_data);
+            $created_slide_counter++;
+            $createdSlideCounterPerFile[$new_file]['aliquot created']++;
+            $createdBlocksSlidesFromSampleMasterId[$sample_master_id][] = 'Slide : '.$aliquot_label;
+            if($parent_aliquot_master_id) {
+                customInsertRecord(array('realiquotings' => array('parent_aliquot_master_id' => $parent_aliquot_master_id, 'child_aliquot_master_id' => $aliquot_master_id)));
+            }
+        }  
+    }
+}
+
+// End of the process
+//---------------------------------------------------------------------------------------------------
+
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Participants Found in blocks files", sizeof($participant_found).'/'.(sizeof($participant_found)+sizeof($participant_not_found)));
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter from block files", "$created_identifier_counter new participant identifiers.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter from block files", "$created_collection_counter new collections.");
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$sample_counter tissues.");
-recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_block_counter blocks.");
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", sizeof($storages)." storages.");
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter from block files", "$created_block_counter blocks.");
+foreach($createdBlockCounterPerFile as $new_file => $stat) {
+    recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "File $new_file : created ".$stat['aliquot created']."/".$stat['aliquot studied']." blocks from ".$stat['lines']." lines.");
+}
+recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter from block files", "$created_slide_counter slides.");
+foreach($createdSlideCounterPerFile as $new_file => $stat) {
+    recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "File $new_file : created ".$stat['aliquot created']."/".$stat['aliquot studied']." slides from ".$stat['lines']." lines.");
+}
 
 $final_queries = array();
 $final_queries[] = "UPDATE aliquot_masters SET barcode = CONCAT('BlockATiM#',id) WHERE barcode like 'tmp_block_%';";
 $final_queries[] = "UPDATE aliquot_masters_revs SET barcode = CONCAT('BlockATiM#',id) WHERE barcode like 'tmp_block_%';";
+$final_queries[] = "UPDATE aliquot_masters SET barcode = CONCAT('BlockATiM#',id) WHERE barcode like 'tmp_slide_%';";
+$final_queries[] = "UPDATE aliquot_masters_revs SET barcode = CONCAT('BlockATiM#',id) WHERE barcode like 'tmp_slide_%';";
 $final_queries[] = "UPDATE sample_masters SET sample_code = id";
 $final_queries[] = "UPDATE sample_masters_revs SET sample_code = id";
 $final_queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
@@ -497,7 +694,7 @@ function truncate() {
         customQuery($query, __FILE__, __LINE__);
     }
     
-//    global $db_connection;mysqli_commit($db_connection);pr('truncate');exit;
+ //   global $db_connection;mysqli_commit($db_connection);pr('truncate');exit;
 }
 
 function addViewUpdate(&$final_queries) {
