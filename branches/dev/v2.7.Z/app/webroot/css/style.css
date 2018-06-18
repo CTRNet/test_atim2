@@ -2912,3 +2912,7 @@ div.plugin_StorageLayout.controller_StorageMasters.action_storageLayout .trash_n
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+.display-none{
+    display: none;
+}

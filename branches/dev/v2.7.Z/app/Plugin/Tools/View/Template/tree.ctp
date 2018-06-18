@@ -1,4 +1,8 @@
 <?php
+if (!isset($showDefaultIcon)){
+    $showDefaultIcon = true;
+}
+$defaultValueClass = ($showDefaultIcon)?"default-value":"display-none";
 $treeHtml = '<table class="structure">
 	<tbody>
 		<tr>
@@ -373,7 +377,7 @@ if (isset($isAjax)) {
                 if (treeData.controlId!="0"){
                     addDefaultValueButton = '<a href="javascript:void(0)" title = "'
                             +DEFAULT_VALUE_TITLE+
-                            '" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+
+                            '" class="icon16 annotation <?=$defaultValueClass?>" data-datamart-structure-id="'+treeData.datamartStructureId+
                             '" data-control-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>';
                 }
                
