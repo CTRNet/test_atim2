@@ -22,7 +22,7 @@ $optionsParent = array_merge($options, array(
     )
 ));
 
-$structureOverride = array();
+$structureOverride = $overrideData;
 
 if (isset($templateNodeDefaultValues)) {
     $templateNodeDefaultValues = array_filter($templateNodeDefaultValues, function ($var) {
