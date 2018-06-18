@@ -757,3 +757,21 @@ VALUES
 UPDATE sample_controls SET detail_form_alias = 'sd_undetailed_derivatives,derivatives' WHERE detail_tablename = 'qc_nd_sd_der_stools_derivatives';
 
 UPDATE versions SET branch_build_number = '7130' WHERE version_number = '2.7.0';
+
+-- 2018-06-18
+-- -----------------------------------------------------------------------------------------------
+
+-- Kidney consent
+
+ALTER TABLE `cd_icm_generics` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
+ALTER TABLE `cd_icm_generics_revs` ADD COLUMN stool char(1) NOT NULL DEFAULT '';
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_cd_chum_kidneys');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'stool', 'yes_no',  NULL , '0', '', '', '', 'stool', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_kidneys'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='stool' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stool' AND `language_tag`=''), '2', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE consent_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_nd_cd_chum_kidneys') WHERE controls_type = 'chum - kidney';
+
+UPDATE versions SET branch_build_number = '7170' WHERE version_number = '2.7.0';
+
