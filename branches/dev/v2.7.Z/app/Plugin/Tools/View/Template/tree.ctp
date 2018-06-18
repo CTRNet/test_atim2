@@ -297,14 +297,14 @@ if (isset($isAjax)) {
                                                         defaultValue[k][v]= value;
                                                     }
                                                 }else if (p.length>2){
-                                                    if (typeof defaultValue[k][v] !== 'undefined'){
-                                                        defaultValue[k][v][p[2]]=value;
-                                                    }else if (typeof defaultValue[k] === 'undefined'){
+                                                    if (typeof defaultValue[k] === 'undefined'){
                                                         defaultValue[k] = {};
                                                         defaultValue[k][v]={};
                                                         defaultValue[k][v][p[2]]=value;
                                                     }else if (typeof defaultValue[k][v] === 'undefined'){
                                                         defaultValue[k][v]={};
+                                                        defaultValue[k][v][p[2]]=value;
+                                                    }else if (typeof defaultValue[k][v] !== 'undefined'){
                                                         defaultValue[k][v][p[2]]=value;
                                                     }
                                                 }
