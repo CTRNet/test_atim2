@@ -513,8 +513,11 @@ function preparePost(){
 	
 	if(gotConflicts){
 		if($('#conflictPopup').length == 0){
-			buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
+			buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ 
+                                    $('#conflictPopup').popup('close'); 
+                                } }]);
 		}
+                $("#firstStorageRow").closest("form").find("a.submit span").removeClass("fetching");
 		$('#conflictPopup').popup();
 	}else{
 		var cells = '';
