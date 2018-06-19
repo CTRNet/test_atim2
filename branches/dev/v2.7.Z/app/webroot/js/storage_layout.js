@@ -225,9 +225,12 @@ function csvToLayout(){
         ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + ((aliquotData["y"] == -1) ? "1" : aliquotData["y"]);
         destination = $("#firstStorageRow").find(ulId).append(li.html());
 
-        destination.find("li:last-child").on("dblclick", function () {
+        destination.find("li:last-child").off("dblclick").on("dblclick", function () {
             var $td = $(this).closest("td");
             var val = $(this).find("span.handle").attr("data-barcode");
+            if ($td.find(".barcode_scanner").length!==0){
+                $td.find(".barcode_scanner").trigger("focusout");
+            }
             $(this).remove();
             createInput($td);
             $td.find(".barcode_scanner").val(val);
@@ -275,13 +278,16 @@ function csvToLayout(){
         ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + aliquotData["y"];
         destination = $("#firstStorageRow").find(ulId).append(li.html());
 
-        destination.find("li:last-child").on("dblclick", function () {
-            var $ul = $(this).closest("ul");
+        destination.find("li:last-child").off("dblclick").on("dblclick", function () {
+            var $td = $(this).closest("td");
             var val = $(this).find("span.handle").attr("data-barcode");
+            if ($td.find(".barcode_scanner").length!==0){
+                $td.find(".barcode_scanner").trigger("focusout");
+            }
             $(this).remove();
-            createInput($ul);
-            $ul.find(".barcode_scanner").val(val);
-            $ul.find(".barcode_scanner").select();
+            createInput($td);
+            $td.find(".barcode_scanner").val(val);
+            $td.find(".barcode_scanner").select();
         });
 
         //make them draggable
@@ -640,7 +646,8 @@ function checkDuplicatedBarcode(li){
         }
     }
     
-    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
+    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle");
+//    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
     searchByBarcodeText = [];
     searchByBarcode.each(function(){
         searchByBarcodeText.push($(this).attr("data-barcode"));
@@ -653,10 +660,12 @@ function checkDuplicatedBarcode(li){
     });
     searchDifferentBarcodeText.forEach(function(item){
         $liParent = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
-        $liParent.removeClass("warning-aliquot");
-        if ($liParent.hasClass("just-added")){
-            $liParent.addClass("new-aliquot");
-        }
+        $liParent.each(function(){
+            $(this).removeClass("warning-aliquot");
+            if ($(this).hasClass("just-added")){
+                $(this).addClass("new-aliquot");
+            }
+        });
         
     });
 
@@ -721,7 +730,7 @@ function checkAliquotBarcode($this) {
                 }
         });
         
-        li.on("dblclick", function(){
+        li.off("dblclick").on("dblclick", function(){
             var $td = $(this).closest("td");
             var val = $(this).find("span.handle").attr("data-barcode");
             if ($td.find(".barcode_scanner").length!==0){
@@ -738,4 +747,5 @@ function checkAliquotBarcode($this) {
 
 function clearLoadedBarcodes(){
     $("li.just-added").remove();
+    checkDuplicatedBarcode();
 }
