@@ -2,7 +2,6 @@
 $valid = 1;
 $message = "";
 $page = "";
-$title = "";
 $url = "";
 $id=-1;
 $rootUrl = $this->request->webroot;
@@ -22,7 +21,6 @@ if (empty($result)){
     $sampleMasterId = $result['AliquotMaster']['sample_master_id'];
     $barcode = $result['AliquotMaster']['barcode'];
     $label = (!empty($result['AliquotMaster']['aliquot_label'])) ? $result['AliquotMaster']['aliquot_label'] : $barcode;
-    $title = $label .", ";
     $url = $rootUrl."InventoryManagement/AliquotMasters/detail/$collectionId/$sampleMasterId/$id/2";
     if ($available == 'no'){
         $valid = 0;
@@ -38,7 +36,7 @@ if (empty($result)){
     $valid = 0;
     $message = __('more than one aliquot have the same barcode');
 }
-$message = $title . $message;
+$message = ($label!="" && $message!="")?$label .", ". $message:$label . $message;
 if ($valid !=0){
     if ($valid == 1){
         $warningAliquot = "new-aliquot";

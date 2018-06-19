@@ -209,18 +209,22 @@ function csvToLayout(){
             "<a href='javascript:void(0)' data-popup-link='' title='Detail' class='icon16 aliquot popupLink' style='text-decoration: none;'>&nbsp;</a>" +
             "<span class='handle' data-barcode = ''></span>" +
             "</li>";
+    $title = "";
     for (var i = 0; i < confirms.length; i++) {
         var aliquotData = $.parseJSON($(confirms[i]).attr("data-aliquot"));
         aliquotClass = "new-aliquot";
         var li = $('<div />', {html: $html});
         var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
-        li.find("li").addClass(aliquotClass).attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        var label = (aliquotData['label']!="")?aliquotData['label']:"";
+        var message = (aliquotData['message']!="" && label!="")?label+", "+ aliquotData['message']:label+ aliquotData['message'];
+        li.find("li").addClass(aliquotClass).attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", message);
         if ($(confirms[i]).attr("data-class-name")!==""){
             li.find("li").addClass($(confirms[i]).attr("data-class-name"));
         }
         li.find('a').attr("data-popup-link", url);
         li.find('span').attr("data-barcode", aliquotData['barcode']);
-        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+//        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+        li.find('span').text(aliquotData['barcode']);
         var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
         ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + ((aliquotData["y"] == -1) ? "1" : aliquotData["y"]);
         destination = $("#firstStorageRow").find(ulId).append(li.html());
@@ -267,13 +271,16 @@ function csvToLayout(){
         }
         var li = $('<div />', {html: $html});
         var url = root_url + "InventoryManagement/AliquotMasters/detail/" + aliquotData['collectionId'] + "/" + aliquotData['sampleMasterId'] + "/" + aliquotData['id'] + "/2";
-        li.find("li").addClass("warning-aliquot").attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", aliquotData['message']);
+        var label = (aliquotData['label']!="")?aliquotData['label']:"";
+        var message = (aliquotData['message']!="" && label!="")?label+", "+ aliquotData['message']:label+ aliquotData['message'];
+        li.find("li").addClass(aliquotClass).attr("data-json", '{"id": "' + aliquotData['id'] + '", "type" : "AliquotMaster"}').attr("title", message);
         if ($(warnings[i]).attr("data-class-name")!==""){
             li.find("li").addClass($(warnings[i]).attr("data-class-name"));
         }
         li.find('a').attr("data-popup-link", url);
         li.find('span').attr("data-barcode", aliquotData['barcode']);
-        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+//        li.find('span').text((aliquotData['label'] != "") ? aliquotData['label'] : aliquotData['barcode']);
+        li.find('span').text(aliquotData['barcode']);
         var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
         ulId = "#s_" + storageId + "_c_" + aliquotData["x"] + "_" + aliquotData["y"];
         destination = $("#firstStorageRow").find(ulId).append(li.html());
@@ -312,7 +319,12 @@ function csvToLayout(){
     }
 
     $("#csvDialogPopup").popup("close");
-    
+    $("#firstStorageRow").find("a").off("click").on("click", function(){
+        var $this = $(this);
+        if ($this.data("popup-link")!==""){
+            showInPopup($this.data("popup-link"));
+        }
+    });
     checkDuplicatedBarcode();
 }
 
@@ -634,7 +646,7 @@ function addAliquotByClick(e){
 function checkDuplicatedBarcode(li){
     if (typeof li !== 'undefined'){
         barcodeValue = li.find('span.handle').attr("data-barcode");
-        searchByBarcode = $("#firstStorageRow").find("td.droppable span:[data-barcode = '"+barcodeValue+"']");
+        searchByBarcode = $("#firstStorageRow").find("span:[data-barcode = '"+barcodeValue+"']");
         if (searchByBarcode.length>1){
             searchByBarcode.each(function(){
                 var lii = $(this).closest("li");
@@ -646,8 +658,8 @@ function checkDuplicatedBarcode(li){
         }
     }
     
-    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle");
-//    searchByBarcode = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
+    searchByBarcode = $("#firstStorageRow").find("li:not(.error-aliquot) span.handle");
+//    searchByBarcode = $("#firstStorageRow").find("li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
     searchByBarcodeText = [];
     searchByBarcode.each(function(){
         searchByBarcodeText.push($(this).attr("data-barcode"));
@@ -659,7 +671,7 @@ function checkDuplicatedBarcode(li){
         return sorted_arr.lastIndexOf(item) === sorted_arr.indexOf(item);
     });
     searchDifferentBarcodeText.forEach(function(item){
-        $liParent = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
+        $liParent = $("#firstStorageRow").find("li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
         $liParent.each(function(){
             $(this).removeClass("warning-aliquot");
             if ($(this).hasClass("just-added")){
@@ -674,7 +686,7 @@ function checkDuplicatedBarcode(li){
     });
 
     searchSameBarcodeText.forEach(function(item){
-        $liParent = $("#firstStorageRow").find("td.droppable li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
+        $liParent = $("#firstStorageRow").find("li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
         $liParent.removeClass("new-aliquot").addClass("warning-aliquot");
     });
 
