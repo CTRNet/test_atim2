@@ -598,6 +598,8 @@ class CollectionsController extends InventoryManagementAppController
         ));
         $this->Structures->set('template');
         $this->request->data = empty($template) ? null : $template;
+        
+        $this->set('showDefaultIcon', false);
         $this->render('/../../Tools/View/Template/tree');
     }
 
