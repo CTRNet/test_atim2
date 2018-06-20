@@ -75,6 +75,11 @@ class CollectionsController extends InventoryManagementAppController
             $this->Structures->set('view_collection');
             $this->request->data = $this->paginate($this->ViewCollection, $conditions);
         } else {
+            $hookLink = $this->hook('pre_search_handler');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+        
             $this->searchHandler($searchId, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
         }
         

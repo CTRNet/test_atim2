@@ -322,6 +322,12 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->ParticipantMessage, 'participantmessages', '/ClinicalAnnotation/ParticipantMessages/search');
         $this->Structures->set('participantmessages');
         

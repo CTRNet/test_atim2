@@ -42,6 +42,12 @@ class StorageMastersController extends StorageLayoutAppController
         if ($fromLayoutPage) {
             $topRowStorageId = $this->request->data['current_storage_id'];
             unset($this->request->data['current_storage_id']);
+        
+            $hookLink = $this->hook('pre_search_handler');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+        
             $this->searchHandler($searchId, $modelToUse, $structureAlias, $structureIndex, false, 21);
             if (count($this->request->data) > 20) {
                 $this->request->data = array();
@@ -71,6 +77,12 @@ class StorageMastersController extends StorageLayoutAppController
                 }
             }
         } else {
+
+            $hookLink = $this->hook('pre_search_handler_2');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+            
             $this->searchHandler($searchId, $modelToUse, $structureAlias, $structureIndex);
         }
         $this->set('fromLayoutPage', $fromLayoutPage);

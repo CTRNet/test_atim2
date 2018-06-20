@@ -57,6 +57,11 @@ class SampleMastersController extends InventoryManagementAppController
         $this->SampleControl;
         $this->AliquotControl;
         
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->ViewSample, 'view_sample_joined_to_collection', '/InventoryManagement/SampleMasters/search');
         
         $helpUrl = $this->ExternalLink->find('first', array(
