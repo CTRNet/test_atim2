@@ -3627,6 +3627,38 @@ UPDATE diagnosis_controls SET flag_compare_with_cap = 0;
 UPDATE `versions` SET branch_build_number = '6902' WHERE version_number = '2.6.8';
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2018-06-20
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Add stool to inventory
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(222, 224, 225);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(68);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(71);
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'stool'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1);
+
+UPDATE `versions` SET branch_build_number = '7183', permissions_regenerated = '0' WHERE version_number = '2.6.8';
+
+
+
+
+
+
+
+
+
+
+
+
+
+Note de 2018-06-20 Le code suivant ne semble pas avoir été executé. La version actuelle sauf erreur de ma part est 6902.
+
+
+
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- 2017-10-19
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -3647,14 +3679,6 @@ UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SEL
 UPDATE structure_formats SET `language_heading`='aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
 
--- Add stool to inventory
-
-UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(222, 224, 225);
-UPDATE aliquot_controls SET flag_active=true WHERE id IN(68);
-UPDATE realiquoting_controls SET flag_active=true WHERE id IN(71);
-INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
-VALUES
-((SELECT id FROM sample_controls WHERE sample_type = 'stool'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1);
 
 -- Event
 
@@ -4033,6 +4057,10 @@ UPDATE `versions` SET branch_build_number = '6906' WHERE version_number = '2.6.8
 
 
 
+
+
+As of date de medical history devrait être date de consentement
+ajouter concomitent a treatmetn intent
 
 
   TODO
