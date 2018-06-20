@@ -8,8 +8,6 @@
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  @since 2018-05-28
  */
-
-// Hide delete button.
-// Collection is deleted automatically by participant to collection link deletion.
-unset($finalOptions['links']['bottom']['print barcodes']);
-unset($structureLinks['bottom']['print barcodes']);
+ 
+unset($finalOptions['links']['bottom']['print barcode']);
+unset($structureLinks['bottom']['print barcode']);

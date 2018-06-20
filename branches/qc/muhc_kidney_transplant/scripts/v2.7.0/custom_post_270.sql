@@ -4,7 +4,8 @@
 -- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC - Kidney Transplant', 'CUSM - Transplantation rénale');
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC - Kidney Disease Biorepository', 'CUSM - Banques de tissus des maladies rénales'); 
+
 UPDATE groups SET flag_show_confidential = '1' WHERE id = 1;
 UPDATE users SET flag_active = '1', password_modified = NOW(), force_password_reset = '0' WHERE id = 1;
 
@@ -15,7 +16,12 @@ SET @modified_by = (SELECT id FROM users WHERE id = '2');
 
 UPDATE users SET flag_active = 0, password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE id > 2;
 
-UPDATE `banks` SET name = 'Kidney Transplant' WHERE id = 1;
+UPDATE `banks` SET name = 'Kidney Transplant (adult)' WHERE id = 1;
+INSERT INTO `banks` 
+VALUES 
+(null,'Native kidney (adult)','',NULL,@modified_by,@modified,@modified_by,@modified,0),
+(null,'kidney (pediatric)','',NULL,@modified_by,@modified,@modified_by,@modified,0);
+
 
 -- Menus Update - Unused features/functionnalities at step 1
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -27,16 +33,18 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Sop%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/DiagnosisMasters/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ConsentMasters/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/TreatmentMasters/%';
-UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/%' AND use_link NOT LIKE '/ClinicalAnnotation/EventMasters/listall/Clinical%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/FamilyHistories/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ReproductiveHistories/%';
+
+REPLACE INTO i18n (id,en,fr) VALUES ('clinical annotation', 'Participant Annotation', 'Annotation du participant'); 
 
 -- Participant Profile
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0', `flag_batchedit`='0'
 WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') 
-AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('title', 'middle_name', 'cod_confirmation_source', 'secondary_cod_icd10_code', 'language_preferred'));
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('title', 'middle_name', 'cod_confirmation_source', 'secondary_cod_icd10_code', 'language_preferred', 'marital_status'));
 
 -- Participant Identifier
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -46,16 +54,16 @@ INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_acti
 VALUES
 (null, 'ramq nbr', 1, 10, '', '', 
 1, 1, 1, 0, '', '', 0),
-(null, 'MGH-MRN', 1, 15, '', '', 
+(null, 'MGH MRN', 1, 15, '', '', 
 1, 1, 1, 0, '', '', 0),
-(null, 'RVC-MRN', 1, 15, '', '', 
+(null, 'RVH MRN', 1, 15, '', '', 
 1, 1, 1, 0, '', '', 0);
 
 INSERT IGNORE  into i18n (id,en,fr)
 VALUES
 ('ramq nbr', 'RAMQ', 'RAMQ'),
-('MGH-MRN', 'MGH-MRN', 'MGH-MRN'),
-('RVC-MRN', 'RVC-MRN', 'RVC-MRN');
+('MGH MRN', 'MGH MRN', 'MGH MRN'),
+('RVH MRN', 'RVH MRN', 'RVH MRN');
 
 -- Add study to identifier forms
 
@@ -74,6 +82,37 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='effective_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Event
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE event_controls SET flag_active = 0;
+INSERT INTO `event_controls` VALUES (null,'kidney','clinical','pathology',1,'cusm_ed_kidney_pathology','cusm_ed_kidney_pathologies',0,'clinical|kidney|pathology',1,0,0);
+DROP TABLE IF EXISTS `cusm_ed_kidney_pathologies`;
+CREATE TABLE `cusm_ed_kidney_pathologies` (
+  `path_number` varchar(50) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `breast_tumour_size` varchar(50) NOT NULL DEFAULT '',
+  KEY `event_master_id` (`event_master_id`),
+  CONSTRAINT `cusm_ed_kidney_pathologies_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `cusm_ed_kidney_pathologies_revs`;
+CREATE TABLE `cusm_ed_kidney_pathologies_revs` (
+  `path_number` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO structures(`alias`) VALUES ('cusm_ed_kidney_pathology');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_kidney_pathologies', 'path_number', 'input',  NULL , '1', 'size=10', '', '', 'path report', 'number');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_ed_kidney_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_kidney_pathologies' AND `field`='path_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='path report' AND `language_tag`='number'), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_kidney_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_kidney_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '99', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('kidney', 'Kidney', 'Rein');
 
 -- Collections
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -106,7 +145,7 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Collection Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('pre-tx (native kidney)', 'Pre-Tx (native kidney)',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('Native kidney', 'Native kidney',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('post-tx', 'Post-Tx',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('family member', 'Family member',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
 ('tx donor', 'Tx donor',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
@@ -134,10 +173,32 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('collection type', 'Collection Type', 'Type de collection');
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('glen - rvh', 'Glen RVH',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('glen - mgh', 'Glen MGH',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('glen - mch', 'Glen MCH',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('Takano Tech', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('RI Biobank Tech', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('Other', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Supplier Departments');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('HLA Lab', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('HLA Clinics', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('Other', '',  '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+
 -- Clinical Collection Link
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
-AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model` IN ('Collection','ViewCollection'));
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model` IN ('Collection','ViewCollection','EventMaster','EventControl'));
 
 -- Sample
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -307,7 +368,6 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
@@ -316,7 +376,6 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'FamilyHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'QualityCtrl') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');

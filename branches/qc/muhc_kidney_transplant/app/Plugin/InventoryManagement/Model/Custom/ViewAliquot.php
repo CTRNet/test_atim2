@@ -8,7 +8,7 @@
  *
  * Class ViewCollectionCustom
  * 
- * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
+ * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  @since 2018-05-28
  */
 class ViewAliquotCustom extends ViewAliquot
