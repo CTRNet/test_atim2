@@ -30,6 +30,12 @@ class ShipmentsController extends OrderAppController
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
+    
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
         
         $hookLink = $this->hook('format');

@@ -264,4 +264,13 @@
    
    Replace all custom code, custom file names or custom folder names of this plugin that contain Announcements by UserAnnouncements
 
-
+   
+   ### 3 # New pre_search_handler Hooks
+   -----------------------------------------------------------
+   
+   A new hook call has been added before any searchHandler() call.
+   
+   TODO: 
+   
+   Check if custom hook 'format' has been developped for the search function of the StudySummaries controller. One of the hook
+   has been replaced by the new hook name.
