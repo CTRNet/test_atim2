@@ -39,7 +39,6 @@ update users set flag_active = 0, force_password_reset = 1, password = '29c5f24d
 ALTER TABLE `participants` ADD COLUMN `uhn_mrn_number` VARCHAR(50) DEFAULT NULL AFTER `id`;
 CREATE UNIQUE INDEX `uhn_mrn_number_unique` 
   ON `participants`(`uhn_mrn_number`);
-CREATE UNIQUE INDEX uhn_mrn_number_unique ON participants(uhn_mrn_number) WHERE uhn_mrn_number IS NOT NULL;
   
 ALTER TABLE `participants_revs` ADD `uhn_mrn_number` VARCHAR(50) AFTER `id`;
 
