@@ -843,7 +843,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     if (buttons != null && buttons.length > 0) {
         for (i in buttons) {
             buttonsHtml +=
-                    '<div id="' + id + i + '" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
+                    '<div id="' + id + i + '" class="bottom_button"><a href="javascript:void(0)" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
         }
         buttonsHtml = '<div class="actions split">' + buttonsHtml + '</div>';
     }
