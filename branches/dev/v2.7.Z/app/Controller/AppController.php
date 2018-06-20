@@ -453,7 +453,7 @@ class AppController extends Controller
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
         if (empty($url)){
-            $url = "/atim_z/Menus";
+            $url = "/Menus";
         }
         if (strpos(strtolower($url), 'javascript')===false){
             if ($type == self::CONFIRM) {
