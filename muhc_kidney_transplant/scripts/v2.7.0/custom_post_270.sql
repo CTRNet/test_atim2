@@ -92,13 +92,13 @@ DROP TABLE IF EXISTS `cusm_ed_kidney_pathologies`;
 CREATE TABLE `cusm_ed_kidney_pathologies` (
   `path_number` varchar(50) DEFAULT NULL,
   `event_master_id` int(11) NOT NULL,
-  `breast_tumour_size` varchar(50) NOT NULL DEFAULT '',
   KEY `event_master_id` (`event_master_id`),
   CONSTRAINT `cusm_ed_kidney_pathologies_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS `cusm_ed_kidney_pathologies_revs`;
 CREATE TABLE `cusm_ed_kidney_pathologies_revs` (
   `path_number` varchar(50) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
@@ -410,6 +410,10 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'create participant message (applied to all)';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'EventMaster' AND label = 'number of elements per participant';
+
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 16 AND id2 =23) OR (id1 = 23 AND id2 =16);
+	
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7103' WHERE version_number = '2.7.0';
+UPDATE versions SET branch_build_number = '7187' WHERE version_number = '2.7.0';
