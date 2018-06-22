@@ -111,46 +111,36 @@ class AliquotMasterCustom extends AliquotMaster
                     break;
             }
         } else {
-            $sourceAliquot = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-            $existingSourceAliquots = $sourceAliquot->find('all', array(
-                'conditions' => array(
-                    'SourceAliquot.sample_master_id' => $viewSample['ViewSample']['sample_master_id']
-                )
-            ));
-            if (sizeof($existingSourceAliquots) == 1 && isset($existingSourceAliquots[0]['AliquotMaster']['aliquot_label'])) {
-                return $existingSourceAliquots[0]['AliquotMaster']['aliquot_label'] . '-Cell Pellet';
-            } else {
-                $suffix = $viewSample['ViewSample']['initial_specimen_sample_type'] == 'bone marrow' ? 'BM' : ($viewSample['ViewSample']['initial_specimen_sample_type'] == 'blood' ? 'BL' : '?');
-                if ($viewSample['ViewSample']['parent_sample_type'] == 'cd138 cells') {
-                    $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
-                    $joins = array(
-                        array(
-                            'table' => 'tfri_m4s_sd_der_cd138s',
-                            'alias' => 'SampleDetail',
-                            'type' => 'INNER',
-                            'conditions' => array(
-                                'SampleDetail.sample_master_id = SampleMaster.id'
-                            )
-                        )
-                    );
-                    $sampleData = $sampleMaster->find('first', array(
+            $suffix = $viewSample['ViewSample']['initial_specimen_sample_type'] == 'bone marrow' ? 'BM' : ($viewSample['ViewSample']['initial_specimen_sample_type'] == 'blood' ? 'BL' : '?');
+            if ($viewSample['ViewSample']['parent_sample_type'] == 'cd138 cells') {
+                $sampleMaster = AppModel::getInstance("InvetoryManagement", "SampleMaster", true);
+                $joins = array(
+                    array(
+                        'table' => 'tfri_m4s_sd_der_cd138s',
+                        'alias' => 'SampleDetail',
+                        'type' => 'INNER',
                         'conditions' => array(
-                            'SampleMaster.id' => $viewSample['ViewSample']['parent_id']
-                        ),
-                        'joins' => $joins,
-                        'recursive' => '-1',
-                        'fields' => array(
-                            'SampleDetail.tfri_m4s_cd_138'
+                            'SampleDetail.sample_master_id = SampleMaster.id'
                         )
-                    ));
-                    $suffix .= '-CD138'.str_replace(array('p', 'n', 'u'), array('POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
-                } elseif ($viewSample['ViewSample']['parent_sample_type'] == 'wbc') {
-                        $suffix .= '-WBC';
-                    } else {
-                        $suffix .= '-?';
-                    }
-                $suffix .= '-01-Cell Pellet';
+                    )
+                );
+                $sampleData = $sampleMaster->find('first', array(
+                    'conditions' => array(
+                        'SampleMaster.id' => $viewSample['ViewSample']['parent_id']
+                    ),
+                    'joins' => $joins,
+                    'recursive' => '-1',
+                    'fields' => array(
+                        'SampleDetail.tfri_m4s_cd_138'
+                    )
+                ));
+                $suffix .= '-CD138' . str_replace(array('p', 'n', 'u'), array( 'POS', 'NEG', '?'), $sampleData['SampleDetail']['tfri_m4s_cd_138']);
+            } elseif ($viewSample['ViewSample']['parent_sample_type'] == 'wbc') {
+                $suffix .= '-WBC';
+            } else {
+                $suffix .= '-?';
             }
+            $suffix .= '-Cell Pellet';
         }
         
         return $tfriM4sSiteId . '-' . $tfriM4sSitePatientId . '-' . $tfriM4sVisitId . '-' . $suffix;
