@@ -334,11 +334,11 @@ function getTotalMemoryCapacity() {
 }
 
 function convertFromKMG($data){
-    if (substr($data, -1)=='K'){
+    if (strtoupper(substr($data, -1))=='K'){
         $number = floatval(substr($data, 0, -1))*1024;
-    }elseif (substr($data, -1)=='M'){
+    }elseif (strtoupper(substr($data, -1))=='M'){
         $number = floatval(substr($data, 0, -1))*1024*1024;
-    }elseif (substr($data, -1)=='G'){
+    }elseif (strtoupper(substr($data, -1))=='G'){
         $number = floatval(substr($data, 0, -1))*1024*1024*1024;
     }else if (is_numeric($data)){
         $number = floatval($data);
