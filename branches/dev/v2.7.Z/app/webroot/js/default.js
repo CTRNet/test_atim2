@@ -1941,6 +1941,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
+    $("span.default-value-template").hover(showDefaultValues);
     $(window).bind("pageshow", function (event) {
         //remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
         //don't bother using console.log, console is not ready yet
@@ -2150,19 +2151,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
 function showHint(event) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   //debugger ;
-		}
-	}catch(ex){
-	}
-}
-
     if (event.type === "mouseenter") {
         if (countLines(this) >= 3) {
             this.title = $(this).text();
@@ -2175,20 +2163,15 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
-function countLines(item) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   //debugger ;
-		}
-	}catch(ex){
-	}
+function showDefaultValues(event) {
+    if (event.type === "mouseenter") {
+        this.title = $(this).text();
+    } else if (event.type === "mouseleave") {
+        this.title = "";
+    }
 }
 
+function countLines(item) {
     var divHeight = $(item).outerHeight();
     var lineHeight = parseInt($(item).css("lineHeight"));
     var lines = Math.round(divHeight / lineHeight);
