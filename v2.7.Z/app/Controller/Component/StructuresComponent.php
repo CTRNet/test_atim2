@@ -401,7 +401,14 @@ class StructuresComponent extends Component
                         $formFields[$keyStart . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                         $formFields[$keyEnd . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                     }
-                } else {
+                }elseif(in_array($valueType, self::$rangeTypes)){
+                    $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
+                    $formFields[$formFieldsKey]['model'] = $value['model'];
+                    $formFields[$formFieldsKey]['field'] = $value['field'];
+                    $formFields[$formFieldsKey]['key'] = $formFieldsKey . ' =';
+                    $formFields[$formFieldsKey]['is_float'] = $isFloat;
+                    $formFields[$formFieldsKey]['tablename'] = $value['tablename'];
+                }else {
                     $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
                     $formFields[$formFieldsKey]['model'] = $value['model'];
                     $formFields[$formFieldsKey]['field'] = $value['field'];
