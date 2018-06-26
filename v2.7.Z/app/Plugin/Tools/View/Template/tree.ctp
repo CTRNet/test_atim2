@@ -319,13 +319,14 @@ if (isset($isAjax)) {
                                 $this.attr("data-default-value", defaultValueString);
                                 $this.closest("li").data("defaultValues", defaultValueString);
                                 $this.closest("li").data("defaultValueJSON", defaultValueString);
-                                $this.siblings(".template-label").html("<span class='icon16 fetching'></span>");
+                                $this.siblings(".default-value-template").html("<span class='icon16 fetching'></span>");
                                 $.post(urlGetDefaultValue, defaultValue, function(data){
                                     ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                                     data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                                     saveSqlLogAjax(ajaxSqlLog);
                                     label =" | " +data;
-                                    $this.siblings(".template-label").text(label);
+                                    $this.siblings(".default-value-template").text(label);
+                                    $("span.default-value-template").hover(showDefaultValues);
                                 });
                                     
 
@@ -385,10 +386,11 @@ if (isset($isAjax)) {
 			'<li>' +
 				'<div class="nodeBlock">' +
 					'<div class="leftPart">- <a href="javascript:void(0)" class="icon16 ' + type + '">&nbsp;</a></div>' +
-					'<div class="rightPart">' + 
+					'<span class = "template-label">'+
+                                        '<div class="rightPart">' + 
 					addButton + addDefaultValueButton+
                                         '<a href="javascript:void(0)" class="icon16 delete noPrompt">&nbsp;</a>' + 
-					'<span class= "nowrap">' + label + '</span><span class = "template-label">' + defaultValues + '</span></div>' +
+					'<span class= "nowrap">' + label + '</span><span class = "default-value-template">' + defaultValues + '</span></span></div>' +
 				'</div>' +
 			'</li>'
 		);
