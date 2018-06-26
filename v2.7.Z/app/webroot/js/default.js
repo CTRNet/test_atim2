@@ -3006,12 +3006,25 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 url: url,
                 data: data, 
                 success: function (data) {
-                    if (data.indexOf("{") == 0) {
+                    if (isJSON(data)){
                         data = $.parseJSON(data);
+                        saveSqlLogAjax(data);
                         popup.frame.html(data.page);
-                    } else {
+                    }else{
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        data = $.parseJSON(data);
+                        saveSqlLogAjax(ajaxSqlLog);
                         popup.frame.html(data);
                     }
+
+//                    if (data.indexOf("{") == 0) {
+//                        data = $.parseJSON(data);
+//                        popup.frame.html(data.page);
+//                    } else {
+//                        popup.frame.html(data);
+//                    }
+
                     popup.popup('center');
                     fctLinksToAjax(popup.frame);
                 }

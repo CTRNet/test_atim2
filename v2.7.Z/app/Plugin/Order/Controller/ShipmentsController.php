@@ -747,7 +747,8 @@ class ShipmentsController extends OrderAppController
             $contactsModel->save($shipmentData);
             
             echo __('your data has been saved');
-            exit();
+            $this->render(false);
+//            exit();
         }
     }
 
@@ -758,6 +759,7 @@ class ShipmentsController extends OrderAppController
     {
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
         $contactsModel->atimDelete($contactId);
-        exit();
+        $this->render(false);
+//        exit();
     }
 }
