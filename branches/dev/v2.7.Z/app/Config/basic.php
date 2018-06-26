@@ -278,7 +278,7 @@ function is_array_empty($InputVariable) {
             }
         }
     } else {
-        $result = empty($InputVariable);
+        $result = empty($InputVariable) && $InputVariable!=0 && $InputVariable!='0';
     }
 
     return $result;
