@@ -2052,6 +2052,49 @@ function checkBrowseFile()
     return true;
 }
 
+function isJSON(text) {
+    try {
+        if (typeof text !== "string") {
+            return false;
+        } else {
+            $.parseJSON(text);
+            return true;
+        }
+    } catch (error) {
+        return false;
+    }
+}
+
+function normalisedAjaxData(data){
+    var response = {'data': [], 'sqlLog': {'sqlLog': undefined, 'sqlLogInformations': undefined}};
+    if (typeof data !== 'undefined'){
+        if (data.indexOf("ajaxSqlLog")>-1 ||  data.indexOf("\"sqlLog\":")>-1 ){
+            if (isJSON(data)){
+                data = $.parseJSON(data);
+                if (typeof data.sqlLog !== 'undefined'){
+                    response.sqlLog.sqlLog = data.sqlLog;
+                }
+                if (typeof data.sqlLogInformations !== 'undefined'){
+                    response.sqlLog.sqlLogInformations = data.sqlLogInformations;
+                }
+                if (typeof data.page !== 'undefined'){
+                    response.data = data.page;
+                }
+            }else if($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                response.data = data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                response.sqlLog = {'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            }
+        }else if (data.indexOf("ajaxSqlLog")===-1){
+            response.data = data;
+            response.sqlLog = undefined;
+        }
+    }else{
+            response.data = undefined;
+            response.sqlLog = undefined;
+    }
+    return response;
+}
+
 function saveSqlLogAjax(data){
     if (data && data.sqlLog && typeof DEBUGKIT !=="undefined"){
         var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
@@ -2513,7 +2556,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
     $.post(url, $("#default_popup form").serialize(), function (data) {
-        data = $.parseJSON(data);
+        if (isJSON(data)){
+            data = $.parseJSON(data);
+            saveSqlLogAjax(data);
+        }else{
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            data = $.parseJSON(data);
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+
         if (data.type == 'form') {
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
