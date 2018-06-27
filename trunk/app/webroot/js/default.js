@@ -843,7 +843,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     if (buttons != null && buttons.length > 0) {
         for (i in buttons) {
             buttonsHtml +=
-                    '<div id="' + id + i + '" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
+                    '<div id="' + id + i + '" class="bottom_button"><a href="javascript:void(0)" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
         }
         buttonsHtml = '<div class="actions split">' + buttonsHtml + '</div>';
     }
@@ -1941,6 +1941,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
+    $("span.default-value-template").hover(showDefaultValues);
     $(window).bind("pageshow", function (event) {
         //remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
         //don't bother using console.log, console is not ready yet
@@ -2052,6 +2053,49 @@ function checkBrowseFile()
     return true;
 }
 
+function isJSON(text) {
+    try {
+        if (typeof text !== "string") {
+            return false;
+        } else {
+            $.parseJSON(text);
+            return true;
+        }
+    } catch (error) {
+        return false;
+    }
+}
+
+function normalisedAjaxData(data){
+    var response = {'data': [], 'sqlLog': {'sqlLog': undefined, 'sqlLogInformations': undefined}};
+    if (typeof data !== 'undefined'){
+        if (data.indexOf("ajaxSqlLog")>-1 ||  data.indexOf("\"sqlLog\":")>-1 ){
+            if (isJSON(data)){
+                data = $.parseJSON(data);
+                if (typeof data.sqlLog !== 'undefined'){
+                    response.sqlLog.sqlLog = data.sqlLog;
+                }
+                if (typeof data.sqlLogInformations !== 'undefined'){
+                    response.sqlLog.sqlLogInformations = data.sqlLogInformations;
+                }
+                if (typeof data.page !== 'undefined'){
+                    response.data = data.page;
+                }
+            }else if($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                response.data = data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                response.sqlLog = {'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            }
+        }else if (data.indexOf("ajaxSqlLog")===-1){
+            response.data = data;
+            response.sqlLog = undefined;
+        }
+    }else{
+            response.data = undefined;
+            response.sqlLog = undefined;
+    }
+    return response;
+}
+
 function saveSqlLogAjax(data){
     if (data && data.sqlLog && typeof DEBUGKIT !=="undefined"){
         var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
@@ -2107,19 +2151,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
 function showHint(event) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   //debugger ;
-		}
-	}catch(ex){
-	}
-}
-
     if (event.type === "mouseenter") {
         if (countLines(this) >= 3) {
             this.title = $(this).text();
@@ -2132,20 +2163,15 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
-function countLines(item) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   //debugger ;
-		}
-	}catch(ex){
-	}
+function showDefaultValues(event) {
+    if (event.type === "mouseenter") {
+        this.title = $(this).text();
+    } else if (event.type === "mouseleave") {
+        this.title = "";
+    }
 }
 
+function countLines(item) {
     var divHeight = $(item).outerHeight();
     var lineHeight = parseInt($(item).css("lineHeight"));
     var lines = Math.round(divHeight / lineHeight);
@@ -2513,7 +2539,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
     $.post(url, $("#default_popup form").serialize(), function (data) {
-        data = $.parseJSON(data);
+        if (isJSON(data)){
+            data = $.parseJSON(data);
+            saveSqlLogAjax(data);
+        }else{
+            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            data = $.parseJSON(data);
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+
         if (data.type == 'form') {
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
@@ -2971,12 +3006,25 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 url: url,
                 data: data, 
                 success: function (data) {
-                    if (data.indexOf("{") == 0) {
+                    if (isJSON(data)){
                         data = $.parseJSON(data);
+                        saveSqlLogAjax(data);
                         popup.frame.html(data.page);
-                    } else {
+                    }else{
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        data = $.parseJSON(data);
+                        saveSqlLogAjax(ajaxSqlLog);
                         popup.frame.html(data);
                     }
+
+//                    if (data.indexOf("{") == 0) {
+//                        data = $.parseJSON(data);
+//                        popup.frame.html(data.page);
+//                    } else {
+//                        popup.frame.html(data);
+//                    }
+
                     popup.popup('center');
                     fctLinksToAjax(popup.frame);
                 }

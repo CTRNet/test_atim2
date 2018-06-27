@@ -4,6 +4,12 @@ function manageContacts(){
 		buildDialog("manageContactPopup", null, null, null);
 		$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 		$.get(root_url + "Order/Shipments/manageContact/", function(data){
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }                    
+
 			var isVisible = $("#manageContactPopup:visible").length == 1;
 			$("#manageContactPopup").popup('close');
 			$("#manageContactPopup").find("div").first().html(data);
@@ -38,6 +44,12 @@ function saveContact(){
 	$("#saveContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#saveContactPopup").popup();
 	$.post(root_url + "Order/Shipments/saveContact/", $("form").serialize(), function(data){
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }                    
+
 		var isVisible = $("#saveContactPopup:visible").length == 1;
 		$("#saveContactPopup").popup('close');
 		buildDialog("saveContactPopup", data, null, new Array({ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
@@ -54,7 +66,13 @@ function deleteContact(id){
 	$("#manageContactPopup").popup('close');
 	$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#manageContactPopup").popup();
-	$.get(root_url + "Order/Shipments/deleteContact/" + id, function(){
+	$.get(root_url + "Order/Shipments/deleteContact/" + id, function(data){
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }                    
+
 		var isVisible = $("#manageContactPopup:visible").length == 1;
 		$("#manageContactPopup").popup('close');
 		$("#manageContactPopup").remove();

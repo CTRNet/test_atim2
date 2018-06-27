@@ -1,4 +1,8 @@
 <?php
+if (!isset($showDefaultIcon)){
+    $showDefaultIcon = true;
+}
+$defaultValueClass = ($showDefaultIcon)?"default-value":"display-none";
 $treeHtml = '<table class="structure">
 	<tbody>
 		<tr>
@@ -297,14 +301,14 @@ if (isset($isAjax)) {
                                                         defaultValue[k][v]= value;
                                                     }
                                                 }else if (p.length>2){
-                                                    if (typeof defaultValue[k][v] !== 'undefined'){
-                                                        defaultValue[k][v][p[2]]=value;
-                                                    }else if (typeof defaultValue[k] === 'undefined'){
+                                                    if (typeof defaultValue[k] === 'undefined'){
                                                         defaultValue[k] = {};
                                                         defaultValue[k][v]={};
                                                         defaultValue[k][v][p[2]]=value;
                                                     }else if (typeof defaultValue[k][v] === 'undefined'){
                                                         defaultValue[k][v]={};
+                                                        defaultValue[k][v][p[2]]=value;
+                                                    }else if (typeof defaultValue[k][v] !== 'undefined'){
                                                         defaultValue[k][v][p[2]]=value;
                                                     }
                                                 }
@@ -315,13 +319,14 @@ if (isset($isAjax)) {
                                 $this.attr("data-default-value", defaultValueString);
                                 $this.closest("li").data("defaultValues", defaultValueString);
                                 $this.closest("li").data("defaultValueJSON", defaultValueString);
-                                $this.siblings(".template-label").html("<span class='icon16 fetching'></span>");
+                                $this.siblings(".default-value-template").html("<span class='icon16 fetching'></span>");
                                 $.post(urlGetDefaultValue, defaultValue, function(data){
                                     ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                                     data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                                     saveSqlLogAjax(ajaxSqlLog);
                                     label =" | " +data;
-                                    $this.siblings(".template-label").text(label);
+                                    $this.siblings(".default-value-template").text(label);
+                                    $("span.default-value-template").hover(showDefaultValues);
                                 });
                                     
 
@@ -373,7 +378,7 @@ if (isset($isAjax)) {
                 if (treeData.controlId!="0"){
                     addDefaultValueButton = '<a href="javascript:void(0)" title = "'
                             +DEFAULT_VALUE_TITLE+
-                            '" class="icon16 annotation default-value" data-datamart-structure-id="'+treeData.datamartStructureId+
+                            '" class="icon16 annotation <?=$defaultValueClass?>" data-datamart-structure-id="'+treeData.datamartStructureId+
                             '" data-control-id = "'+Math.abs(treeData.controlId)+'" data-id = "'+treeData.id+'"></a>';
                 }
                
@@ -381,10 +386,11 @@ if (isset($isAjax)) {
 			'<li>' +
 				'<div class="nodeBlock">' +
 					'<div class="leftPart">- <a href="javascript:void(0)" class="icon16 ' + type + '">&nbsp;</a></div>' +
-					'<div class="rightPart">' + 
+					'<span class = "template-label">'+
+                                        '<div class="rightPart">' + 
 					addButton + addDefaultValueButton+
                                         '<a href="javascript:void(0)" class="icon16 delete noPrompt">&nbsp;</a>' + 
-					'<span class= "nowrap">' + label + '</span><span class = "template-label">' + defaultValues + '</span></div>' +
+					'<span class= "nowrap">' + label + '</span><span class = "default-value-template">' + defaultValues + '</span></span></div>' +
 				'</div>' +
 			'</li>'
 		);

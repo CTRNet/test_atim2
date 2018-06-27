@@ -2906,3 +2906,29 @@ div#default_popup{
     border: none!important;
     text-align: left;
 }
+
+div.plugin_StorageLayout.controller_StorageMasters.action_storageLayout .trash_n_unclass li{
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.display-none{
+    display: none;
+}
+
+span.template-label{
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    /*max-width: 20rem;*/
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+span.template-label>div{
+    margin-left: 0px!important;
+}

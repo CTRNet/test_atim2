@@ -152,12 +152,12 @@ class BrowserController extends DatamartAppController
                 $this->atimFlashError(__("You are not authorized to access that location."), $url);
             }
         }
-        if ($controlId!=0 && isset($_SESSION['postData'])){
+        if ($controlId!=0 && isset($_SESSION['post_data'])){
             $plugin=$this->request->params['plugin'];
             $controller=$this->request->params['controller'];
             $action=$this->request->params['action'];
-            if (isset($_SESSION['postData'][$plugin][$controller][$action])){
-                convertArrayToJavaScript($_SESSION['postData'][$plugin][$controller][$action], 'jsPostData');
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action])){
+                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action], 'jsPostData');
             }
         }
         $this->BrowsingResult->checkWritableFields = false;

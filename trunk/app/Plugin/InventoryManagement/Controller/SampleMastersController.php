@@ -57,6 +57,11 @@ class SampleMastersController extends InventoryManagementAppController
         $this->SampleControl;
         $this->AliquotControl;
         
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->ViewSample, 'view_sample_joined_to_collection', '/InventoryManagement/SampleMasters/search');
         
         $helpUrl = $this->ExternalLink->find('first', array(
@@ -699,7 +704,7 @@ class SampleMastersController extends InventoryManagementAppController
                 $templateNodeDefaultValues = array();
                 foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
                     foreach ($fieldsValues as $field => $Value) {
-                        $templateNodeDefaultValues["$model.$field"] = $Value;
+                        $templateNodeDefaultValues["$model.$field"] = is_array($Value)? $this->getFormatedDatetimeSQL($Value) : $Value;
                     }
                 }
                 $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);

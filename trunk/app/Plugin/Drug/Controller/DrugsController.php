@@ -21,6 +21,11 @@ class DrugsController extends DrugAppController
      */
     public function search($searchId = 0)
     {
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->Drug, 'drugs', '/Drug/Drugs/search');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA

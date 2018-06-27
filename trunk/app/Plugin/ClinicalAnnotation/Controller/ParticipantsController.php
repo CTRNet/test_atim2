@@ -38,8 +38,17 @@ class ParticipantsController extends ClinicalAnnotationAppController
      */
     public function search($searchId = '')
     {
+        // CUSTOM CODE: Hook for search_handler
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
+        
         // CUSTOM CODE: FORMAT DISPLAY DATA
+        
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);

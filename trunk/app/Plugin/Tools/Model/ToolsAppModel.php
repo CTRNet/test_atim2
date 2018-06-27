@@ -324,10 +324,6 @@ class ToolsAppModel extends AppModel
         }
         // Generate string
         $formattedDefaultValues = implode(' + ', $formattedDefaultValues);
-        $maxLgt = 250;
-        if (strlen($formattedDefaultValues) > ($maxLgt + 4)) {
-            $formattedDefaultValues = substr($formattedDefaultValues, 0, $maxLgt) . ' ...';
-        }
         return $formattedDefaultValues;
     }
 }
