@@ -44,6 +44,9 @@ class CodingIcdo3sController extends CodingIcdAppController
      */
     public function autocomplete($useIcdType = "topo")
     {
+        if ($useIcdType != "topo") {
+            $_GET['term'] = preg_replace('/([0-9]{4})\/([0-9]){0,1}/', '$1$2', $_GET['term']);
+        }
         parent::globalAutocomplete($this->getIcdo3Type($useIcdType));
     }
 
