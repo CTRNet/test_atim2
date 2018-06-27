@@ -29,6 +29,11 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/ClinicalAnnotation/MiscIdentifiers/search');
         
         $hookLink = $this->hook('format');

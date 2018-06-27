@@ -292,10 +292,10 @@ class ReportsController extends DatamartAppController
         $controller="Reports";
         $action="manageReport";
         if (!empty($this->request->data)){
-            $_SESSION['postData'][$plugin][$controller][$action][$reportId]=$this->request->data;
+            $_SESSION['post_data'][$plugin][$controller][$action][$reportId]=$this->request->data;
         }else{
-            if (isset($_SESSION['postData'][$plugin][$controller][$action][$reportId])){
-                convertArrayToJavaScript($_SESSION['postData'][$plugin][$controller][$action][$reportId], 'jsPostData');
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$reportId])){
+                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action][$reportId], 'jsPostData');
             }
         }
         

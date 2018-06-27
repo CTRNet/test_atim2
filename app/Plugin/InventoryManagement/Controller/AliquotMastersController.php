@@ -62,6 +62,11 @@ class AliquotMastersController extends InventoryManagementAppController
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/search'));
+            
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
         
         $this->searchHandler($searchId, $this->ViewAliquot, 'view_aliquot_joined_to_sample_and_collection', '/InventoryManagement/AliquotMasters/search');
         
@@ -215,7 +220,7 @@ class AliquotMastersController extends InventoryManagementAppController
             $templateNodeDefaultValues = array();
             foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
                 foreach ($fieldsValues as $field => $Value) {
-                    $templateNodeDefaultValues["$model.$field"] = $Value;
+                    $templateNodeDefaultValues["$model.$field"] = is_array($Value)? $this->getFormatedDatetimeSQL($Value) : $Value;
                 }
             }
             $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);

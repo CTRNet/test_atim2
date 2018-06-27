@@ -36,6 +36,11 @@ class OrdersController extends OrderAppController
             // index
             unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
         }
+
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
         
         $this->searchHandler($searchId, $this->Order, 'orders', '/Order/Orders/search');
         

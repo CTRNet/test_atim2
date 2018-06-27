@@ -1182,16 +1182,27 @@ class AliquotMaster extends InventoryManagementAppModel
                 $y = $c;
             }
         }
-        if ($x==-1){
-            $response["message"] =  __("should have X column");
-            $response["valid"] = 0;
-            return $response;
-        }
         
-        if ($barcode==-1){
-            $response["message"] = __("should have barcode column");
-            $response["valid"] = 0;
-            return $response;
+        if (!isset($data[0]) || !isset($data[1])){
+            if ($x==-1){
+                $response["message"] =  __("should have X column");
+                $response["valid"] = 0;
+                return $response;
+            }
+
+            if ($barcode==-1){
+                $response["message"] = __("should have barcode column");
+                $response["valid"] = 0;
+                return $response;
+            }
+        }elseif ($x==-1 && $barcode==-1){
+            $barcode = 0;
+            $x=1;
+            if (isset($data[2])){
+                $y=2;
+            }
+            rewind($handle);
+            $row = 0;
         }
 
         $storageMasterModel = AppModel::getInstance('StorageLayout', 'StorageMaster');
@@ -1277,7 +1288,7 @@ class AliquotMaster extends InventoryManagementAppModel
                 
                 if (!empty($xCheck) || !empty($yCheck) || !empty($storageLabelCheck)){
                     $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
-                    $dataArray["class"]='duplicated-aliquot';
+                    $dataArray["class"]='duplicated-aliquot warning-aliquot';
                 }
                 if ($aliquotTypeCheck !='core' && $isTma){
                     $dataArray["message"]['error'][] = __('only sample core can be stored into tma block');
@@ -1347,6 +1358,12 @@ class AliquotMaster extends InventoryManagementAppModel
                         $dataArray["message"]["warning"][] = __("error in y dimension: %s", $yy); 
                     }
                 }elseif ($coordYType == 'integer'){
+                    if (!is_numeric($data[$y]) && strlen($data[$y])==1){
+                        $data[$y] = strtoupper($data[$y]);
+                        if ('A'<=$data[$y] && $data[$y]<='Z'){
+                            $data[$y] = chr(ord($data[$y])-16);
+                        }
+                    }
                     $dataArray["y"] = $data[$y];
                     if ($data[$y]>$coordYSize && !$error){
                         $dataArray["message"]["warning"][] = __("the y dimension out of range <= %s", $coordYSize); 

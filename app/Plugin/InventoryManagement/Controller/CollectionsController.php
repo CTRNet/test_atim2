@@ -75,6 +75,11 @@ class CollectionsController extends InventoryManagementAppController
             $this->Structures->set('view_collection');
             $this->request->data = $this->paginate($this->ViewCollection, $conditions);
         } else {
+            $hookLink = $this->hook('pre_search_handler');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+        
             $this->searchHandler($searchId, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
         }
         
@@ -378,7 +383,7 @@ class CollectionsController extends InventoryManagementAppController
                             $newCollectionToCreate['Collection']['collection_protocol_id'] = $newVisitData['CollectionProtocolVisit']['collection_protocol_id'];
                             $newCollectionToCreate['Collection']['template_id'] = $newVisitData['CollectionProtocolVisit']['template_id'];
                             $newCollectionToCreate['Collection']['collection_property'] = 'participant collection';
-                            if ($firstCollectionDateTime && $newVisitData['CollectionProtocolVisit']['time_from_first_visit'] && $newVisitData['CollectionProtocolVisit']['time_from_first_visit_unit']) {
+                            if ($firstCollectionDateTime && strlen($newVisitData['CollectionProtocolVisit']['time_from_first_visit']) && $newVisitData['CollectionProtocolVisit']['time_from_first_visit_unit']) {
                                 $newCollectionToCreate['Collection']['collection_datetime'] = date("Y-m-d", strtotime($firstCollectionDateTime . " +" . $newVisitData['CollectionProtocolVisit']['time_from_first_visit'] . " " . $newVisitData['CollectionProtocolVisit']['time_from_first_visit_unit']));
                                 $newCollectionToCreate['Collection']['collection_datetime'] = array_combine(array(
                                     'year',
@@ -598,6 +603,8 @@ class CollectionsController extends InventoryManagementAppController
         ));
         $this->Structures->set('template');
         $this->request->data = empty($template) ? null : $template;
+        
+        $this->set('showDefaultIcon', false);
         $this->render('/../../Tools/View/Template/tree');
     }
 

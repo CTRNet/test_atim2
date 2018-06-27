@@ -32,6 +32,11 @@ class MaterialsController extends MaterialAppController
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
+            
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
         
         $this->searchHandler($searchId, $this->Material, 'materials', '/Material/Materials/search');
         

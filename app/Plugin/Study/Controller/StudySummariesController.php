@@ -50,7 +50,7 @@ class StudySummariesController extends StudyAppController
     public function search($searchId = '')
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hookLink = $this->hook('format');
+        $hookLink = $this->hook('pre_search_handler');
         if ($hookLink) {
             require ($hookLink);
         }

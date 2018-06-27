@@ -30,7 +30,7 @@ class CollectionProtocol extends ToolsAppModel
         if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
-                'msg' => 'collection protocol is linked to a collection'
+                'msg' => 'collection protocol is linked to a collection - data can not be deleted'
             );
         }
         

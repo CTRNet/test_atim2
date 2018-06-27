@@ -7,6 +7,11 @@ function initCcl(){
 		//postData = participant collection + serialized form
 		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection";
 		$.post(root_url + "InventoryManagement/collections/search/-1/true", postData, function(data){
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
 			var json = $("#collection_new").data("json");
 			$("#collection_frame").html(data);
 			if(json.id){
@@ -30,6 +35,11 @@ function initCcl(){
 			$("#popup").popup();
 		}else{
 			$.get(root_url + "InventoryManagement/collections/search/0/true?t=" + new Date().getTime(), null, function(data){
+                            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                                saveSqlLogAjax(ajaxSqlLog);
+                            }
 				$("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 				initDatepicker("#popup");
 				initAdvancedControls("#popup");

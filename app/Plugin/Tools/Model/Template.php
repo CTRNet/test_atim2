@@ -116,7 +116,7 @@ class Template extends ToolsAppModel
         if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
-                'msg' => 'template is linked to a collection'
+                'msg' => 'template is linked to a collection - data can not be deleted'
             );
         }
         
@@ -130,7 +130,7 @@ class Template extends ToolsAppModel
         if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
-                'msg' => 'template is part of a collection protocol visit'
+                'msg' => 'template is part of a collection protocol visit - data can not be deleted'
             );
         }
         

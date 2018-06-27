@@ -74,6 +74,7 @@ jQuery.fn.popup = function(options){
 		$(this).show();
 		var container = $(fmPopup.popupOuter).find(".popup_container");
 		$(fmPopup.popupOuter).show();
+                $(fmPopup.popupOuter).find("input[type!='hidden'], select").eq(0).focus();
 		container.css({
 			left : $(window).width() / 2 - container.width() / 2 + "px",
 			top : $(window).height() / 2 - container.height() / 2 + "px"

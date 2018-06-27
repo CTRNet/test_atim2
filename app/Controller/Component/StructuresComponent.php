@@ -377,7 +377,8 @@ class StructuresComponent extends Component
                     'float',
                     'float_positive'
                 ));
-                if (in_array($valueType, self::$rangeTypes) || (strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
+
+                if ((in_array($valueType, self::$rangeTypes) || strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
                     $keyStart = $formFieldsKey . '_start';
                     $formFields[$keyStart]['plugin'] = $value['plugin'];
                     $formFields[$keyStart]['model'] = $value['model'];
@@ -400,7 +401,14 @@ class StructuresComponent extends Component
                         $formFields[$keyStart . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                         $formFields[$keyEnd . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                     }
-                } else {
+                }elseif(in_array($valueType, self::$rangeTypes)){
+                    $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
+                    $formFields[$formFieldsKey]['model'] = $value['model'];
+                    $formFields[$formFieldsKey]['field'] = $value['field'];
+                    $formFields[$formFieldsKey]['key'] = $formFieldsKey . ' =';
+                    $formFields[$formFieldsKey]['is_float'] = $isFloat;
+                    $formFields[$formFieldsKey]['tablename'] = $value['tablename'];
+                }else {
                     $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
                     $formFields[$formFieldsKey]['model'] = $value['model'];
                     $formFields[$formFieldsKey]['field'] = $value['field'];
@@ -453,7 +461,7 @@ class StructuresComponent extends Component
         $plugin=$this->controller->request->params['plugin'];
         $controller=$this->controller->request->params['controller'];
         $action=$this->controller->request->params['action'];
-        $_SESSION['postData'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
+        $_SESSION['post_data'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
 
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {

@@ -160,6 +160,15 @@ class CollectionProtocolController extends ToolsAppController
                         $newCollectionProtocolVisistToSave['CollectionProtocolVisit']['time_from_first_visit'] = '0';
                         $newCollectionProtocolVisistToSave['CollectionProtocolVisit']['time_from_first_visit_unit'] = 'day';
                     }
+                    foreach($newCollectionProtocolVisistToSave['Collection'] as &$newCollectionField) {
+                        if(is_array($newCollectionField)) {
+                            $tmpNewCollectionField = $newCollectionField;
+                            $tmpNewCollectionField = array_filter($tmpNewCollectionField, function ($var) {
+                                return (! ($var == '' || is_null($var)));
+                            });
+                            $newCollectionField = empty($tmpNewCollectionField)? '' : $newCollectionField;
+                        }
+                    }
                     $collectionData = array_filter($newCollectionProtocolVisistToSave['Collection'], function ($var) {
                         return (! ($var == '' || is_null($var)));
                     });
@@ -265,7 +274,7 @@ class CollectionProtocolController extends ToolsAppController
             if (strlen($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'])) {
                 $tmpProtocolVisitData = array_merge(json_decode($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'], true), $tmpProtocolVisitData);
             }
-            if (! in_array($tmpProtocolVisitData['CollectionProtocolVisit']['template_id'], $activeTemplateIds)) {
+            if ($tmpProtocolVisitData['CollectionProtocolVisit']['template_id'] && ! in_array($tmpProtocolVisitData['CollectionProtocolVisit']['template_id'], $activeTemplateIds)) {
                 $displayTemplateWarning = true;
                 $tmpProtocolVisitData['CollectionProtocolVisit']['template_id'] = __('unusable template') . ' : ' . $activeTemplateAll[$tmpProtocolVisitData['CollectionProtocolVisit']['template_id']];
             }
@@ -408,6 +417,15 @@ class CollectionProtocolController extends ToolsAppController
                         $submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['time_from_first_visit'] = '0';
                         $submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['time_from_first_visit_unit'] = 'day';
                     }
+                    foreach($submittedCollectionProtocolVisistToUpdate['Collection'] as &$newCollectionField) {
+                        if(is_array($newCollectionField)) {
+                            $tmpNewCollectionField = $newCollectionField;
+                            $tmpNewCollectionField = array_filter($tmpNewCollectionField, function ($var) {
+                                return (! ($var == '' || is_null($var)));
+                            });
+                            $newCollectionField = empty($tmpNewCollectionField)? '' : $newCollectionField;
+                        }
+                    }
                     $collectionData = array_filter($submittedCollectionProtocolVisistToUpdate['Collection'], function ($var) {
                         return (! ($var == '' || is_null($var)));
                     });
@@ -438,7 +456,6 @@ class CollectionProtocolController extends ToolsAppController
                         // ---------------------------------------------------------------------------
                         // 2- New visit to create
                         // ---------------------------------------------------------------------------
-                        
                         $this->CollectionProtocolVisit->data = array();
                         $this->CollectionProtocolVisit->id = null;
                         unset($submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['id']);
