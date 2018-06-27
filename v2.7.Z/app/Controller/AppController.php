@@ -1179,8 +1179,8 @@ class AppController extends Controller
             $plugin=$this->request->params['plugin'];
             $controller=$this->request->params['controller'];
             $action=$this->request->params['action'];
-            if (isset($_SESSION['postData'][$plugin][$controller][$action])){
-                convertArrayToJavaScript($_SESSION['postData'][$plugin][$controller][$action], 'jsPostData');
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action])){
+                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action], 'jsPostData');
             }
 
             $this->Structures->set('empty', 'emptyStructure');
