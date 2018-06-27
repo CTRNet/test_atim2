@@ -26,6 +26,9 @@ if ($csvArrayData["valid"]) {
             $dataAliquot["x"] = ($aliquot["x"]) ? $aliquot["x"] : "";
             $dataAliquot["y"] = ($aliquot["y"]) ? $aliquot["y"] : "1";
             $dataAliquot["message"] = (!empty($warningMessagePrint)) ? $warningMessagePrint : "";
+            
+            $aliquot["x"] = (is_numeric($aliquot["x"]))?abs($aliquot["x"]):$aliquot["x"];
+            $aliquot["y"] = (is_numeric($aliquot["y"]))?abs($aliquot["y"]):$aliquot["y"];
 
             if (empty($message["error"]) && empty($message["warning"])) {
                 ?>
