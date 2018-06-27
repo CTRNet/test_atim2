@@ -266,6 +266,7 @@ function csvToLayout(){
 
     for (var i = 0; i < warnings.length; i++) {
         var aliquotData = $.parseJSON($(warnings[i]).attr("data-aliquot"));
+        aliquotClass = "warning-aliquot";
         if (aliquotData["x"]<0 || aliquotData["y"]<0){
             continue;
         }
@@ -433,7 +434,7 @@ function searchBack(){
  * @return
  */
 function moveItem(draggable, droparea){
-        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0)){
+        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0) || $(droparea).closest("#secondStorageRow").length!=0){
 		$(draggable).draggable({ revert : true });
         }   
 	else if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
@@ -676,9 +677,11 @@ function checkDuplicatedBarcode(li){
     searchDifferentBarcodeText.forEach(function(item){
         $liParent = $("#firstStorageRow").find("li:not(.error-aliquot) span.handle[data-barcode='"+item+"']").closest("li");
         $liParent.each(function(){
-            $(this).removeClass("warning-aliquot");
-            if ($(this).hasClass("just-added")){
-                $(this).addClass("new-aliquot");
+            if (!$(this).hasClass("duplicated-aliquot")){
+                $(this).removeClass("warning-aliquot");
+                if ($(this).hasClass("just-added")){
+                    $(this).addClass("new-aliquot");
+                }
             }
         });
         
