@@ -39,6 +39,7 @@ class CodingIcd10sController extends CodingIcdAppController
      */
     public function autocomplete($useIcdType = "who")
     {
+        $_GET['term'] = preg_replace('/([cC][0-9]{2})\.([0-9]){0,1}/', '$1$2', $_GET['term']);
         parent::globalAutocomplete($this->getIcd10Type($useIcdType));
     }
 

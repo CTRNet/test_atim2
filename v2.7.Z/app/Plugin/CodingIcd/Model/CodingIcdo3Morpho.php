@@ -60,4 +60,19 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
     {
         return self::$singleton;
     }
+    
+    /**
+     * @param array $terms
+     * @param $exactSearch
+     * @param $searchOnId
+     * @param $limit
+     * @return array|bool|null|The
+     */
+    public function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
+    {
+        if (isset($terms[0])) {
+            $terms[0] = preg_replace('/([0-9]{4})\/([0-9]){0,1}/', '$1$2', $terms[0]);
+        }
+        return parent::globalSearch($terms, $exactSearch, $searchOnId, $limit);
+    }
 }
