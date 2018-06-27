@@ -94,7 +94,7 @@ class BrowsingStepsController extends DatamartAppController
                         ), false);
                     }
                 }
-                $result .= $stepTitle . "\n" . (empty($stepSearchDetails) ? __('no search criteria') . "\n" : $stepSearchDetails) . "\n";
+                $result .= $stepTitle . "&#013;\n" . (empty($stepSearchDetails) ? __('no search criteria') . "&#013;\n" : $stepSearchDetails) . "&#013;\n";
             }
             $data['Generated']['description'] = "$result";
         }
