@@ -461,7 +461,7 @@ class StructuresComponent extends Component
         $plugin=$this->controller->request->params['plugin'];
         $controller=$this->controller->request->params['controller'];
         $action=$this->controller->request->params['action'];
-        $_SESSION['postData'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
+        $_SESSION['post_data'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
 
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {
