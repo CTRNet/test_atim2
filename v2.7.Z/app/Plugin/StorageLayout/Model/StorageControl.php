@@ -21,7 +21,7 @@ class StorageControl extends StorageLayoutAppModel
         $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
             'storage types'
         ));
-        $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);
+        $translatedStorageTypes = $translatedStorageTypes['defined'] + $translatedStorageTypes['previously_defined'];
         
         // Build tmp array to sort according to translated value
         $result = array();

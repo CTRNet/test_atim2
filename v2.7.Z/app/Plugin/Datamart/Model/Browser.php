@@ -864,7 +864,17 @@ class Browser extends DatamartAppModel
     {
         $searchConditions = $params['search']['search_conditions'];
         
-        // preprocess to clean datetime accuracy
+        // Preprocess to clean datetime accuracy.
+        // System added additionnal search criteria on date field when user searched on one specific date
+        // to consider approcimatice dates too. See example below with initial date criteria >= 1980-01-23 11h :
+        // [OR] => Array(
+        // [0] => Array([Model.field >=] => 1980-01-23 11:0:0, [Model.field_accuracy] => Array([0] => c, [1] => ))
+        // [1] => Array([Model.field >=] => 1980-01-23 11:00:00, [Model.field_accuracy] => i)
+        // [2] => Array([Model.field >=] => 1980-01-23 00:00:00, [Model.field_accuracy] => h)
+        // [3] => Array([Model.field >=] => 1980-01-01 00:00:00, [Model.field_accuracy] => d)
+        // [4] => Array([Model.field >=] => 1980-01-01 00:00:00, Model.field_accuracy] => Array([0] => m, [1] => y))
+        // )
+        // System will keep only the first one for display
         foreach ($searchConditions as $key => $value) {
             if (is_array($value) && isset($value['OR'][0])) {
                 $tmp = current($value['OR'][0]);
@@ -873,38 +883,20 @@ class Browser extends DatamartAppModel
             }
         }
         
-        $keys = array_keys($searchConditions);
-        App::Uses('StructureFormat', 'Model');
-        $structureFormat = new StructureFormat();
-        $conditions = array();
-        $conditions[] = "false";
-        foreach ($keys as $key) {
-            if (is_numeric($key)) {
-                // it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...) or an "OR"
-                list ($modelField) = explode(" ", $searchConditions[$key]);
-                $modelField = substr($modelField, 1);
-                list ($model, $field) = explode(".", $modelField);
-            } else {
-                // it's a range or a dropdown
-                // key = field[ >=]
-                $parts = explode(" ", $key);
-                list ($model, $field) = explode(".", $parts[0]);
-            }
-            $conditions[] = "StructureField.model='" . $model . "' AND StructureField.field='" . $field . "'";
-        }
+        // Manage the display
         $htmlResult = "<table align='center' width='100%' class='browserBubble'>";
         $txtResult = '';
         // value_element can be a string or an array
         foreach ($searchConditions as $key => $valueElement) {
             $values = array();
-            $name = "";
-            $nameSuffix = "";
+            $fieldLabelToDisplay = "";
+            $fieldLabelToDisplaySuffix = "";
             if (is_numeric($key)) {
-                // it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...)
+                // it's a textual field ([0] => model.field LIKE %foo1% OR model.field LIKE %foo2%)
                 $values = array();
                 $parts = explode(" OR ", substr($valueElement, 1, - 1)); // strip first and last parenthesis
                 foreach ($parts as $part) {
-                    list ($modelField, $value) = explode(" ", $part);
+                    list ($modelField, $operator, $value) = explode(" ", $part);
                     list ($model, $field) = explode(".", $modelField);
                     $values[] = substr($value, 2, - 2);
                 }
@@ -916,14 +908,20 @@ class Browser extends DatamartAppModel
                 // it's a range
                 // key = field with possibly a comparison (field >=, field <=), if no comparison, it's =
                 // value = value_str
-                if (strpos($valueElement, "-")) {
-                    list ($year, $month, $day) = explode("-", $valueElement);
-                    $values[] = AppController::getFormatedDateString($year, $month, $day);
+                if (preg_match('/^([0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2})(\ ([0-9:]+)){0,1}$/', $valueElement, $matches)) {
+                    list ($year, $month, $day) = explode("-", $matches[1]);
+                    $formattedDate = AppController::getFormatedDateString($year, $month, $day);
+                    $formattedTime = '';
+                    if (isset($matches[3])) {
+                        $formattedTime = explode(':', $matches[3]);
+                        $formattedTime = ' ' . AppController::getFormatedTimeString($formattedTime['0'], $formattedTime['1'], false);
+                    }
+                    $values[] = $formattedDate . $formattedTime;
                 } else {
                     $values[] = $valueElement;
                 }
                 if (strpos($key, " ") !== false) {
-                    list ($key, $nameSuffix) = explode(" ", $key);
+                    list ($key, $fieldLabelToDisplaySuffix) = explode(" ", $key);
                 }
                 list ($model, $field) = explode(".", $key);
             }
@@ -934,11 +932,16 @@ class Browser extends DatamartAppModel
                     $lastLabel = $sfUnit['language_label'];
                 }
                 if ($sfUnit['model'] == $model && $sfUnit['field'] == $field) {
-                    $name = __($sfUnit['language_label']) ?: __($lastLabel) . ' ' . __($sfUnit['language_tag']);
+                    // Form field used as a search criteria
+                    $fieldLabelToDisplay = __($sfUnit['language_label']) ?  : __($lastLabel) . ' ' . __($sfUnit['language_tag']);
                     if (! empty($sfUnit['StructureValueDomain'])) {
                         if (! isset($sfUnit['StructureValueDomain']['StructurePermissibleValue'])) {
+                            // Field is a drop down list : Build list of values
                             if (isset($sfUnit['StructureValueDomain']['source']) && strlen($sfUnit['StructureValueDomain']['source']) > 0) {
                                 $sfUnit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sfUnit['StructureValueDomain']['source']);
+                                if (array_key_exists('defined', $sfUnit['StructureValueDomain']['StructurePermissibleValue']) && array_key_exists('previously_defined', $sfUnit['StructureValueDomain']['StructurePermissibleValue'])) {
+                                    $sfUnit['StructureValueDomain']['StructurePermissibleValue'] = $sfUnit['StructureValueDomain']['StructurePermissibleValue']['defined'] + $sfUnit['StructureValueDomain']['StructurePermissibleValue']['previously_defined'];
+                                }
                             } else {
                                 if ($structureValueDomainModel == null) {
                                     App::uses("StructureValueDomain", 'Model');
@@ -952,47 +955,47 @@ class Browser extends DatamartAppModel
                                 ));
                                 $dropdownValues = array();
                                 foreach ($tmpDropdownResult['StructurePermissibleValue'] as $valueArray) {
-                                    $dropdownValues[$valueArray['value']] = $valueArray['language_alias'];
+                                    $dropdownValues[$valueArray['value']] = __($valueArray['language_alias']);
                                 }
                                 $sfUnit['StructureValueDomain']['StructurePermissibleValue'] = $dropdownValues;
                             }
                         }
+                    } elseif ($sfUnit['type'] == 'yes_no') {
+                        $sfUnit['StructureValueDomain']['StructurePermissibleValue']['y'] = __('yes');
+                        $sfUnit['StructureValueDomain']['StructurePermissibleValue']['n'] = __('no');
+                    } elseif ($sfUnit['type'] == 'checkbox') {
+                        $sfUnit['StructureValueDomain']['StructurePermissibleValue']['1'] = __('yes');
+                        $sfUnit['StructureValueDomain']['StructurePermissibleValue']['0'] = __('no');
+                    }
+                    if (isset($sfUnit['StructureValueDomain']['StructurePermissibleValue'])) {
                         foreach ($values as &$value) { // foreach values
-                            foreach ($sfUnit['StructureValueDomain']['StructurePermissibleValue'] as $pKey => $pValue) { // find the match
-                                if ($pKey == $value) { // match found
-                                    if (strlen($sfUnit['StructureValueDomain']['source']) > 0) {
-                                        // value comes from a source, it's already translated
-                                        $value = $pValue;
-                                    } else {
-                                        $value = __($pValue);
-                                    }
-                                    break;
-                                }
+                            if (array_key_exists($value, $sfUnit['StructureValueDomain']['StructurePermissibleValue'])) {
+                                $value = $sfUnit['StructureValueDomain']['StructurePermissibleValue'][$value];
                             }
                         }
                         break;
                     }
                 }
             }
-            $htmlResult .= "<tr><th>" . $name . " " . $nameSuffix . "</th><td>";
-            $txtResult .= $name . " " . (empty($nameSuffix) ? ': ' : "$nameSuffix ");
+            $htmlResult .= "<tr><th>" . $fieldLabelToDisplay . " " . $fieldLabelToDisplaySuffix . "</th><td>";
+            $txtResult .= $fieldLabelToDisplay . " " . (empty($fieldLabelToDisplaySuffix) ? ': ' : "$fieldLabelToDisplaySuffix ");
             if (count($values) > 6 && $htmlFormat) {
                 $htmlResult .= '<span class="databrowserShort">' . stripslashes(implode(", ", array_slice($values, 0, 6))) . '</span>' . '<span class="databrowserAll hidden">, ' . stripslashes(implode(", ", array_slice($values, 6))) . '</span>' . '<br/><a href="#" class="databrowserMore">' . __('and %d more', count($values) - 6) . '</a>';
             } else {
-                $htmlResult .= stripslashes(implode(", ", $values));
-                $txtResult .= implode(", ", $values);
+                $htmlResult .= stripslashes(implode(' ' . __('or') . ' ', $values));
+                $txtResult .= implode(' ' . __('or') . ' ', $values);
             }
-            $htmlResult .= "</td>\n";
-            $txtResult .= "\n";
+            $htmlResult .= "</td>&#013;\n";
+            $txtResult .= "&#013;\n";
         }
         
         foreach ($params['addon_params'] as $addonParam) {
-            $htmlResult .= "<tr><th>" . $addonParam['field'] . "</th><td>" . $addonParam['condition'] . "</td>\n";
-            $txtResult .= $addonParam['field'] . " " . $addonParam['condition'] . "\n";
+            $htmlResult .= "<tr><th>" . $addonParam['field'] . "</th><td>" . $addonParam['condition'] . "</td>&#013;\n";
+            $txtResult .= $addonParam['field'] . " " . $addonParam['condition'] . "&#013;\n";
         }
         
-        $htmlResult .= "<tr><th>" . __("exact search") . "</th><td>" . ($params['search']['exact_search'] ? __("yes") : __('no')) . "</td>\n";
-        $txtResult .= __("exact search") . " : " . ($params['search']['exact_search'] ? __("yes") : __('no')) . "\n";
+        $htmlResult .= "<tr><th>" . __("exact search") . "</th><td>" . ($params['search']['exact_search'] ? __("yes") : __('no')) . "</td>&#013;\n";
+        $txtResult .= __("exact search") . " : " . ($params['search']['exact_search'] ? __("yes") : __('no')) . "&#013;\n";
         
         // advanced search fields
         $sfsModel = AppModel::getInstance('', 'Sfs', true);
@@ -1017,8 +1020,8 @@ class Browser extends DatamartAppModel
                         ),
                         'recursive' => - 1
                     ));
-                    $htmlResult .= sprintf("<tr><th>%s %s</th><td>%s %s</td>\n", __($sfs['language_label']), $option['relation'], __($dmStructure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
-                    $txtResult .= sprintf("%s %s %s %s\n", __($sfs['language_label']), $option['relation'], __($dmStructure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
+                    $htmlResult .= sprintf("<tr><th>%s %s</th><td>%s %s</td>&#013;\n", __($sfs['language_label']), $option['relation'], __($dmStructure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
+                    $txtResult .= sprintf("%s %s %s %s&#013;\n", __($sfs['language_label']), $option['relation'], __($dmStructure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
                 }
             }
         }
@@ -1026,11 +1029,12 @@ class Browser extends DatamartAppModel
         // filter
         if (isset($params['adv_search']['browsing_filter'])) {
             $filter = $params['model']->getBrowsingAdvSearchArray('browsing_filter');
-            $htmlResult .= "<tr><th>" . __("filter") . "</th><td>" . __($filter[$params['adv_search']['browsing_filter']]['lang']) . "</td>\n";
-            $txtResult .= __("filter") . " : " . __($filter[$params['adv_search']['browsing_filter']]['lang']) . "\n";
+            $htmlResult .= "<tr><th>" . __("filter") . "</th><td>" . __($filter[$params['adv_search']['browsing_filter']]['lang']) . "</td>&#013;\n";
+            $txtResult .= __("filter") . " : " . __($filter[$params['adv_search']['browsing_filter']]['lang']) . "&#013;\n";
         }
         
         $htmlResult .= "</table>";
+        
         return $htmlFormat ? $htmlResult : str_replace('&nbsp;', ' ', $txtResult);
     }
 

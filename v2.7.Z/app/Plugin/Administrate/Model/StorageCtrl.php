@@ -118,7 +118,7 @@ class StorageCtrl extends AdministrateAppModel
         $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
             'storage types'
         ));
-        $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);
+        $translatedStorageTypes = $translatedStorageTypes['defined'] + $translatedStorageTypes['previously_defined'];
         $query = "SELECT storage_type
 			FROM storage_controls
 			WHERE coord_x_type IS NULL
