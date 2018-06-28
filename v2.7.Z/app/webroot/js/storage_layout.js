@@ -31,7 +31,7 @@ function initStorageLayout(mode){
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
-                            $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
+                            $("form #firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
                                     $(".clear-loaded-barcodes").remove();
                                     $(".LoadCSV").remove();
