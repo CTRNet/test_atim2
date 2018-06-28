@@ -2153,9 +2153,10 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 function showHint(event) {
     if (event.type === "mouseenter") {
         if (countLines(this) >= 3) {
-            this.title = $(this).text();
+            this.title = $(this).text().replace(/\s&\s/g, "\n");
+        } else if ($(this).text().indexOf(" + ")>-1){
+            this.title = $(this).text().replace(/\s&\s/g, "\n");
         } else {
-            this.title = $(this).text();
             this.title = "";
         }
     } else if (event.type === "mouseleave") {
@@ -2165,7 +2166,7 @@ function showHint(event) {
 
 function showDefaultValues(event) {
     if (event.type === "mouseenter") {
-        this.title = $(this).text();
+        this.title = $(this).text().replace(/\s&\s/g, "\n");
     } else if (event.type === "mouseleave") {
         this.title = "";
     }
