@@ -1628,6 +1628,12 @@ class AppController extends Controller
                     $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_aliquot_label_index` (`aliquot_label`)');
                     $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_acquisition_label_index` (`acquisition_label`)');
                 }
+                if($viewModel->table=='view_samples'){
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_samples_sample_code_index` (`sample_code`)');
+                }
+                if($viewModel->table=='view_collections'){
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_collections_acquisition_label_index` (`acquisition_label`)');
+                }
             }
             $desc = $this->Version->query('DESC ' . $viewModel->table);
             $fields = array();
