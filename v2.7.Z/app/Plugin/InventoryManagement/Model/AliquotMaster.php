@@ -1070,7 +1070,7 @@ class AliquotMaster extends InventoryManagementAppModel
     public function getAliquotByBarcode($storageId, $barcode){
         $aliquots = $this->find('all', array(
             'conditions' => array(
-                'AliquotMaster.barcode' => $barcode
+                'BINARY(AliquotMaster.barcode)' => $barcode
             ),
             'fields' => array(
                 'AliquotMaster.id',
@@ -1254,7 +1254,7 @@ class AliquotMaster extends InventoryManagementAppModel
             
             $aliquotsCheck = $this->find('all', array(
                 'conditions' => array(
-                    'AliquotMaster.barcode' => $data[$barcode]
+                    'BINARY(AliquotMaster.barcode)' => $data[$barcode]
                 ),
                 'fields' => array(
                     'AliquotMaster.id',
