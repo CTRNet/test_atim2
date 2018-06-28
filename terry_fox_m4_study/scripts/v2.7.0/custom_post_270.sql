@@ -692,4 +692,4 @@ VALUES
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(23, 136);
 
-UPDATE versions SET branch_build_number = '7103' WHERE version_number = '2.7.0';
+UPDATE versions SET branch_build_number = '7201' WHERE version_number = '2.7.0';
