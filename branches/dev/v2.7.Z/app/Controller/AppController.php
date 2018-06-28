@@ -1625,6 +1625,8 @@ class AppController extends Controller
                 $this->Version->query('CREATE TABLE ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $viewModel::$tableQuery) . ')');
                 if($viewModel->table=='view_aliquots'){
                     $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_barcode_index` (`barcode`)');
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_aliquot_label_index` (`aliquot_label`)');
+                    $this->Version->query('ALTER TABLE `'.$viewModel->table.'` ADD INDEX `view_aliquot_acquisition_label_index` (`acquisition_label`)');
                 }
             }
             $desc = $this->Version->query('DESC ' . $viewModel->table);
