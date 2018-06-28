@@ -3342,8 +3342,6 @@ $confirmationMsg); // confirmation message
      */
     private function getRadiolist(array $rawRadiolist, array $data)
     {
-        // debug(AppController::getStackTrace());
-        // die('test');
         $result = '';
         $defaultSettingsWoClass = self::$defaultSettingsArr;
         unset($defaultSettingsWoClass['class']);

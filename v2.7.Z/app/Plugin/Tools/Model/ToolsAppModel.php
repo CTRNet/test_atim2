@@ -286,7 +286,7 @@ class ToolsAppModel extends AppModel
             }
         }
         // Generate string
-        $formattedDefaultValues = implode(' + ', $formattedDefaultValues);
+        $formattedDefaultValues = implode(' & ', $formattedDefaultValues);
         return $formattedDefaultValues;
     }
 }
