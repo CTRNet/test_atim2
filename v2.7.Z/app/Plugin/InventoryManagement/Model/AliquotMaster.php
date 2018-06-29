@@ -1338,6 +1338,12 @@ class AliquotMaster extends InventoryManagementAppModel
                     $dataArray["message"]["warning"][] = __("error in x dimension: %s", $xx); 
                 }
             }elseif($coordXType == 'integer'){
+                if (!is_numeric($data[$x]) && strlen($data[$x])==1){
+                    $data[$x] = strtoupper($data[$x]);
+                    if ('A'<=$data[$x] && $data[$x]<='Z'){
+                        $data[$x] = chr(ord($data[$x])-16);
+                    }
+                }
                 $dataArray["x"] = $data[$x];
                 if ($data[$x]>$coordXSize && !$error){
                     $dataArray["message"]["warning"][] = __("the x dimension out of range <= %s", $coordXSize); 

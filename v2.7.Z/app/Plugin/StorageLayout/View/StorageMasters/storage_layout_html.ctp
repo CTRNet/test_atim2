@@ -109,6 +109,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     }
     $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
     $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+    $reverseXY = (isset($data['parent']['StorageControl']['reverse_x_y']) && $data['parent']['StorageControl']['reverse_x_y']==1)?true:false;
     $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
     // table display loop and inner loop
     $j = null;
@@ -133,10 +134,12 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 if ($useHeight == 1) {
                     $displayValue = $xVal;
                 } elseif ($useWidth == 1) {
-                        $displayValue = $yVal;
-                    } else {
-                        $displayValue = $xVal . "-" . $yVal;
-                    }
+                    $displayValue = $yVal;
+                } elseif (!$reverseXY){
+                    $displayValue = $xVal . "-" . $yVal;
+                }else{
+                    $displayValue = $yVal . "-" . $xVal;
+                }
             }
             echo ("<td class='droppable'>" . '<b>' . $displayValue . "</b><ul id='s_" . $atimMenuVariables['StorageMaster.id'] . "_c_" . $useValue . "' /></td>");
         }

@@ -33,19 +33,19 @@ if ($csvArrayData["valid"]) {
             if (empty($message["error"]) && empty($message["warning"])) {
                 ?>
                 <ul class="confirm">
-                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' title ="<?= __("line %s", $i + 2) ?>" data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y']; ?></li>        
+                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' title ="<?= __("line %s", $i + 1) ?>" data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y']; ?></li>        
                 </ul>
                 <?php
             } elseif (!empty($message["error"])) {
                 ?>
                 <ul class="error">
-                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 2), ': ', $errorMessagePrint; ?></li>        
+                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 1), ': ', $errorMessagePrint; ?></li>        
                 </ul>
                 <?php
             } elseif (!empty($message["warning"])) {
                 ?>
                 <ul class="warning">
-                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 2), ': ', $warningMessagePrint; ?></li>        
+                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' data-class-name="<?=$class?>" class = "no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 1), ': ', $warningMessagePrint; ?></li>        
                 </ul>
                 <?php
             }

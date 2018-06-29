@@ -108,6 +108,7 @@ if ((strlen($xSize) == 0 || strlen($ySize) == 0) && ($storageControlData['Storag
 }
 $xAlpha = $storageControlData['StorageCtrl']['coord_x_type'] == "alphabetical";
 $yAlpha = $storageControlData['StorageCtrl']['coord_y_type'] == "alphabetical";
+$reverseXY = (isset($storageControlData['StorageCtrl']['reverse_x_y']) && $storageControlData['StorageCtrl']['reverse_x_y']==1)?true:false;
 $horizontalIncrement = $storageControlData['StorageCtrl']['horizontal_increment'];
 // table display loop and inner loop
 $j = null;
@@ -133,8 +134,10 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
                 $displayValue = $xVal;
             } elseif ($useWidth == 1) {
                     $displayValue = $yVal;
-            } else {
+            } elseif (!$reverseXY){
                 $displayValue = $xVal . "-" . $yVal;
+            }else{
+                $displayValue = $yVal . "-" . $xVal;
             }
         }
         echo ("<td style='display: table-cell;'><b>" . $displayValue . "</b></td>");
