@@ -6,7 +6,8 @@ $structureLinks = array(
         'change active status' => array(
             'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
             'icon' => 'confirm'
-        )
+        ),
+        'delete' => '/Administrate/StorageControls/delete/' . $atimMenuVariables['StorageCtrl.id'] . '/'
     )
 );
 
@@ -74,7 +75,7 @@ ob_start();
 			<span class='help storage'>
 				<div><?php echo __('help_storage_layout_storage') ?></div>
 			</span> <span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __('storage layout'). ' : '. $storageControlData['StorageCtrl']['translated_storage_type']?>
+			<?php echo __('storage layout'). ' : '. $translatedStorageType ?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 		
@@ -108,7 +109,7 @@ if ((strlen($xSize) == 0 || strlen($ySize) == 0) && ($storageControlData['Storag
 }
 $xAlpha = $storageControlData['StorageCtrl']['coord_x_type'] == "alphabetical";
 $yAlpha = $storageControlData['StorageCtrl']['coord_y_type'] == "alphabetical";
-$reverseXY = (isset($storageControlData['StorageCtrl']['reverse_x_y']) && $storageControlData['StorageCtrl']['reverse_x_y']==1)?true:false;
+$permuteXY = (isset($storageControlData['StorageCtrl']['permute_x_y']) && $storageControlData['StorageCtrl']['permute_x_y']==1)?true:false;
 $horizontalIncrement = $storageControlData['StorageCtrl']['horizontal_increment'];
 // table display loop and inner loop
 $j = null;
@@ -134,7 +135,7 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
                 $displayValue = $xVal;
             } elseif ($useWidth == 1) {
                     $displayValue = $yVal;
-            } elseif (!$reverseXY){
+            } elseif (!$permuteXY){
                 $displayValue = $xVal . "-" . $yVal;
             }else{
                 $displayValue = $yVal . "-" . $xVal;
@@ -154,17 +155,6 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
 <?php
 
 $content = ob_get_clean();
-
-$structureLinks = array(
-    'bottom' => array(
-        'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'copy' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'change active status' => array(
-            'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
-            'icon' => 'confirm'
-        )
-    )
-);
 
 $settings = array(
     'header' => __('storage layout', null),

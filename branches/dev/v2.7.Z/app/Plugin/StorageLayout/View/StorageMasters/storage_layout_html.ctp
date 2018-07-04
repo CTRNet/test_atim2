@@ -109,7 +109,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     }
     $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
     $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
-    $reverseXY = (isset($data['parent']['StorageControl']['reverse_x_y']) && $data['parent']['StorageControl']['reverse_x_y']==1)?true:false;
+    $permuteXY = (isset($data['parent']['StorageControl']['permute_x_y']) && $data['parent']['StorageControl']['permute_x_y']==1)?true:false;
     $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
     // table display loop and inner loop
     $j = null;
@@ -135,7 +135,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                     $displayValue = $xVal;
                 } elseif ($useWidth == 1) {
                     $displayValue = $yVal;
-                } elseif (!$reverseXY){
+                } elseif (!$permuteXY){
                     $displayValue = $xVal . "-" . $yVal;
                 }else{
                     $displayValue = $yVal . "-" . $xVal;

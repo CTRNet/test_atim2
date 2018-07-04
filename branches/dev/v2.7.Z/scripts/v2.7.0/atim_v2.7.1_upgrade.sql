@@ -433,42 +433,267 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 UPDATE structure_formats SET `language_heading`='collection', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
 
-
-
-
+-- -------------------------------------------------------------------------------------
+-- Issue #3511: class AnnouncementsController conflict
+-- -------------------------------------------------------------------------------------
 
 UPDATE menus SET use_link = REPLACE(use_link, '/Customize/Announcements/', '/Customize/UserAnnouncements/');
 
-
-
-
-
-
-
-
-
-
--- /Customize/Announcements/
-
 -- -------------------------------------------------------------------------------------
+-- Issue #3592: Upgrade the Manage storage types tool
+-- -------------------------------------------------------------------------------------
+
+ALTER TABLE storage_controls 
+  MODIFY `display_x_size` tinyint(3) unsigned DEFAULT null AFTER coord_x_size,
+  MODIFY `reverse_x_numbering` char(1) DEFAULT null AFTER display_x_size,
+  MODIFY `horizontal_increment` char(1) DEFAULT null AFTER storage_type,
+  MODIFY `display_y_size` tinyint(3) unsigned DEFAULT null AFTER coord_y_size,
+  MODIFY `reverse_y_numbering` char(1) DEFAULT null AFTER display_y_size,
+  ADD COLUMN number_of_positions int(6) DEFAULT NULL AFTER storage_type,
+  MODIFY check_conflicts tinyint(3) unsigned DEFAULT null;
+  
+ALTER TABLE storage_controls 
+  MODIFY `display_x_size` tinyint(3) unsigned DEFAULT null AFTER coord_x_size,
+  MODIFY `reverse_x_numbering` char(1) DEFAULT null AFTER display_x_size,
+  MODIFY `horizontal_increment` char(1) DEFAULT null AFTER storage_type,
+  MODIFY `display_y_size` tinyint(3) unsigned DEFAULT null AFTER coord_y_size,
+  MODIFY `reverse_y_numbering` char(1) DEFAULT null AFTER display_y_size,
+  MODIFY check_conflicts tinyint(3) unsigned DEFAULT null;
+ 
+-- Update storage_controls values
+-- -------------------------------------------------------------------------------------
+
+-- no dimention
+UPDATE storage_controls 
+SET horizontal_increment = null,
+coord_x_title = null, 
+coord_x_type = null, 
+coord_x_size = null, 
+display_x_size = null,
+reverse_x_numbering = null, 
+coord_y_title = null, 
+coord_y_type = null, 
+coord_y_size = null,  
+display_y_size = null,  
+reverse_y_numbering = null,
+is_tma_block = 0,
+check_conflicts = null
+WHERE coord_x_title IS NULL;
+
+-- 1 dimension - list
+UPDATE storage_controls 
+SET coord_x_size = null, 
+display_x_size = null,
+reverse_x_numbering = null, 
+horizontal_increment = null,
+coord_y_title = null, 
+coord_y_type = null, 
+coord_y_size = null,  
+display_y_size = null,  
+reverse_y_numbering = null,
+is_tma_block = 0
+WHERE coord_x_type = 'list';
+
+-- 1 dimension - not a list
+UPDATE storage_controls 
+SET coord_x_size = display_x_size*display_y_size, 
+number_of_positions = display_x_size*display_y_size,
+coord_y_title = null, 
+coord_y_type = null, 
+coord_y_size = null,
+is_tma_block = 0
+WHERE coord_x_title IS NOT NULL AND coord_y_title IS NULL AND coord_x_type != 'list';
+
+-- 2 dimensions or tma
+UPDATE storage_controls 
+SET display_x_size = coord_x_size,  
+display_y_size = coord_y_size, 
+number_of_positions = coord_x_size * coord_y_size,
+horizontal_increment = null
+WHERE is_tma_block = 1 
+OR coord_y_title IS NOT NULL;
+
+-- Fields Management
+-- -------------------------------------------------------------------------------------
+
+-- delete coord_x_size & coord_y_size
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'storage_control%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_x_size' AND `language_label`='coord_x_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'storage_control%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_y_size' AND `language_label`='coord_y_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_x_size' AND `language_label`='coord_x_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_y_size' AND `language_label`='coord_x_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_x_size' AND `language_label`='coord_x_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1';
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_y_size' AND `language_label`='coord_x_size' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1';
+  
+-- Add number of positions
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'StorageCtrl', 'storage_controls', 'number_of_positions', 'integer',  NULL , '0', 'size=3', '', '', 'number_of_positions', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_controls'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='number_of_positions' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number_of_positions' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ 
+-- Change reverse numbering from check box to directions options 
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES ("reverse_x_numbering", "", "", NULL), ("reverse_y_numbering", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0", "left to right"),
+("1", "right to left"),
+("0", "top to bottom"),
+("1", "bottom to top");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="reverse_x_numbering"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="left to right"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="reverse_x_numbering"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="right to left"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="reverse_y_numbering"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="top to bottom"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="reverse_y_numbering"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="bottom to top"), "2", "1");
+UPDATE structure_fields SET type = 'select', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='reverse_x_numbering') WHERE field = 'reverse_x_numbering' AND model = 'StorageCtrl';
+UPDATE structure_fields SET type = 'select', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='reverse_y_numbering') WHERE field = 'reverse_y_numbering' AND model = 'StorageCtrl';
+
+-- 1d structure - Change header and more
+UPDATE structure_formats SET `language_heading`='storage_coord_y' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_1d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_y_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='coordinate' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_1d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_x_title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_coordinate_title') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='storage_coord_x' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_1d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_x_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- 2d structure and tma - Add ddisplay_%_size
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_control_tma'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_x_size'), '0', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='storage_control_tma'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_y_size'), '0', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='storage_control_2d'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_x_size'), '0', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='storage_control_2d'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='display_y_size'), '0', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+-- Field display_%_size
+UPDATE structure_fields SET `type`='integer_positive' WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field` LIKE 'display_%_size';
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) 
+(SELECT id,'custom,/^[^0]/', '', 'value can not be equal to zero' FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field` LIKE 'display_%_size');
+
+-- Field horizontal_increment
+UPDATE structure_formats SET `display_order`='12' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='horizontal_increment');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='horizontal_increment');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='horizontal_increment');
+UPDATE structure_formats SET `flag_add`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_1d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='horizontal_increment');
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES ("horizontal_increment", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0", "vertically"),
+("1", "horizontally");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="horizontal_increment"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="vertically"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="horizontal_increment"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="horizontally"), "2", "1");
+UPDATE structure_fields SET type = 'select', language_label = 'incrementation (general)', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='horizontal_increment') WHERE field = 'horizontal_increment' AND model = 'StorageCtrl';
+
+-- i18n
+-- -------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('a value has to be set for the display size', "Values have to be set for the 'Number of columns and/or lines'", "Des valeurs doivent être saisies pour 'Nombre de colonnes et/ou lignes'"),
+('a value has to be set for the reverse numbering', "Values have to be set for the 'Incrementation' fields", "Des valeurs doivent être saisies pour les champs 'Incrémentation'"),
+('no abscissa and ordinate data has to be set for a list', 'No abscissa and ordinate data has to be set for a list managed by user', "Aucune donnée d'abscisse et d'ordonnée ne doit être définie pour une liste gérée par les utilisateurs"),
+('value can not be equal to zero', 'The value can not be equal to zero', "La valeur ne peut pas être égale à zéro"),
+('storage_coord_x', "Abscissa/Column (X-axis)", "Abscisse/Colonne (axe des X)"),
+('storage_coord_y', "Ordinate/Line (Y-axis)", "Ordonnée/Ligne (axe des Y)"),
+('display_x_size', "Number of 'columns'", "Nombre de 'colonnes'"),
+('display_y_size', "Number of 'lines'", " Nombre de 'lignes'"),
+('incrementation (general)', "Incrementation (General)", "Incrémentation (génerale)"),
+('reverse_x_numbering', "Incrementation", "Incrémentation"),
+('reverse_y_numbering', "Incrementation", "Incrémentation");
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("vertically", "Vertically", "Verticalement"),
+("horizontally", "Horizontally", "Horizontalement"),
+('coordinate', 'Coordinate', 'Coordonnée'),
+("number_of_positions", "Number of positions", "Nombre de positions"),
+("top to bottom", "Top to Bottom", "Haut en bas"),
+("bottom to top", "Bottom to Top", "Bas en haut"),
+("left to right", "Left to Right", 'De gauche à droite'),
+("right to left", "Right to Left", 'De droite à gauche');
+
+-- Change list coordinate type to "storage coordinates managed by users" 
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("list", "storage coordinates managed by users");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="storage_coord_types"), (SELECT id FROM structure_permissible_values WHERE value="list" AND language_alias="storage coordinates managed by users"), "3", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="storage_coord_types" AND spv.value="list" AND spv.language_alias="list";
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("storage coordinates managed by users", "Coordinates managed by users", "Coordonnées géreés par utilisteurs");
+
+-- Allow storage control deletion
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES  
+('this storage type has already been used to build a storage','This storage type has already been used to build storages.','Ce type d\'entreposage a déjà été utilisé pour construire un entreposage');
+ALTER TABLE storage_controls ADD COLUMN `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0';
+  
+-- Move storage type translations
+-- from structure_permissible_values_customs to storage_controls
+-- -------------------------------------------------------------------------------------
+  
+ALTER TABLE storage_controls
+  ADD COLUMN `storage_type_en` varchar(255) DEFAULT NULL,
+  ADD COLUMN `storage_type_fr` varchar(255) DEFAULT NULL;
+UPDATE storage_controls Sc, structure_permissible_values_custom_controls Spc, structure_permissible_values_customs Spv  
+SET storage_type_en = spv.en,
+storage_type_fr = spv.fr
+WHERE Spc.name = 'storage types'
+AND Spc.id = Spv.control_id AND Spv.deleted <> 1
+AND Spv.value = Sc.storage_type;
+UPDATE structure_permissible_values_customs 
+SET deleted = 1
+WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'storage types');
+UPDATE structure_permissible_values_custom_controls 
+SET flag_active = 0
+WHERE name = 'storage types';
+INSERT INTO structures(`alias`) VALUES ('storage_control_translations');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'StorageCtrl', 'storage_controls', 'storage_type_en', 'input',  NULL , '1', 'size=10', '', '', 'English', ''), 
+('StorageLayout', 'StorageCtrl', 'storage_controls', 'storage_type_fr', 'input',  NULL , '1', 'size=10', '', '', 'French', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_control_translations'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='storage_type_en' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`=''), '3', '101', 'translation', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='storage_control_translations'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='storage_type_fr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`=''), '3', '102', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES  ('translation', 'Translation', 'Traduction');
+SET @old_id = (SELECT id FROM structure_fields WHERE field = 'storage_type' AND type = 'select');
+SET @new_id = (SELECT id FROM structure_fields WHERE field = 'storage_type' AND type = 'input');
+UPDATE structure_formats 
+SET structure_field_id = @new_id 
+WHERE structure_field_id = @old_id AND structure_id = (SELECT id FROM structures WHERE alias = 'storage_controls');
+UPDATE structure_formats 
+SET structure_field_id = @new_id 
+WHERE structure_field_id = @old_id AND structure_id IN (SELECT id FROM structures WHERE alias IN ('storage_control_no_d', 'storage_control_1d', 'storage_control_2d', 'storage_control_tma'));
+UPDATE structure_formats 
+SET `flag_edit`='1', `flag_edit_readonly`='1' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('storage_control_no_d', 'storage_control_1d', 'storage_control_2d', 'storage_control_tma'))
+AND structure_field_id=@new_id;
+DELETE FROM structure_formats
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('storage_control_no_d', 'storage_control_1d', 'storage_control_2d', 'storage_control_tma'))
+AND structure_field_id=@old_id;
+DELETE FROM structure_fields WHERE id = @old_id;
+DELETE FROM structure_value_domains WHERE source = "Administrate.StorageCtrl::getAllTranslatedStorageTypes" ;
+DELETE FROM structure_formats
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='storage_type')
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('storage_control_no_d', 'storage_control_1d', 'storage_control_2d', 'storage_control_tma'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_control_translations'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='storage_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structures SET alias = 'storage_control_type_and_translations' WHERE alias = 'storage_control_translations';
+
 --	Issue #3370 (Storage Layout: Set X-axis in second position field and Y-axis in first position field)
 -- -------------------------------------------------------------------------------------
-ALTER TABLE `storage_controls` ADD `reverse_x_y` INT(1) NULL DEFAULT NULL COMMENT '1: In view change x and y (ex: 4-1 means 4th row, first column)' AFTER `reverse_y_numbering`;
 
+ALTER TABLE `storage_controls` ADD `permute_x_y` tinyint(1) DEFAULT '0' COMMENT '1: In view change x and y (ex: 4-1 means 4th row, first column)' AFTER `horizontal_increment`;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('StorageLayout', 'StorageCtrl', 'storage_controls', 'reverse_x_y', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'reverse_x_y', '');
+('StorageLayout', 'StorageCtrl', 'storage_controls', 'permute_x_y', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'permute_x_y', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='storage_controls'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='reverse_x_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reverse_x_y' AND `language_tag`=''), '0', '49', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-
-
+((SELECT id FROM structures WHERE alias='storage_controls'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='permute_x_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='permute_x_y' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='storage_control_2d'), (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='reverse_x_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reverse_x_y' AND `language_tag`=''), '0', '49', 'other', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-
-UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_2d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='set_temperature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
-
-
-INSERT IGNORE INTO 	i18n (id,en,fr) VALUES 	('reverse_x_y', 'Reverse X and Y', 'Inverser X et Y');
-
+((SELECT id FROM structures WHERE alias='storage_control_2d'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='permute_x_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='permute_x_y' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT IGNORE INTO 	i18n (id,en,fr) VALUES 	('permute_x_y', 'Permute X and Y', 'Permuter X et Y');
+UPDATE storage_controls SET permute_x_y = '0' WHERE coord_y_type IN ('alphabetical', 'integer');
 
 -- -------------------------------------------------------------------------------------
 --	missing i18n translations
