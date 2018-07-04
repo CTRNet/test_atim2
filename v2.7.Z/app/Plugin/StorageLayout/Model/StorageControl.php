@@ -17,23 +17,21 @@ class StorageControl extends StorageLayoutAppModel
      */
     public function getStorageTypePermissibleValues()
     {
-        $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-        $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
-            'storage types'
-        ));
-        $translatedStorageTypes = $translatedStorageTypes['defined'] + $translatedStorageTypes['previously_defined'];
-        
         // Build tmp array to sort according to translated value
+        $lang = ($_SESSION['Config']['language'] == 'eng') ? 'en' : 'fr';
         $result = array();
         foreach ($this->find('all', array(
             'conditions' => array(
                 'flag_active = 1'
             )
         )) as $storageControl) {
-            $result[$storageControl['StorageControl']['id']] = isset($translatedStorageTypes[$storageControl['StorageControl']['storage_type']]) ? $translatedStorageTypes[$storageControl['StorageControl']['storage_type']] : $storageControl['StorageControl']['storage_type'];
+            $translatedStorageType = $storageControl['StorageControl']['storage_type'];
+            if (isset($storageControl['StorageControl']['storage_type_' . $lang]) && strlen($storageControl['StorageControl']['storage_type_' . $lang])) {
+                $translatedStorageType = $storageControl['StorageControl']['storage_type_' . $lang];
+            }
+            $result[$storageControl['StorageControl']['id']] = $translatedStorageType;
         }
         natcasesort($result);
-        
         return $result;
     }
 
