@@ -317,6 +317,13 @@ class StorageMaster extends StorageLayoutAppModel
      */
     public function validatePositionValue($storageData, $position, $coord)
     {
+        if (! in_array($coord, array('x','y'))) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        if ($storageData['StorageControl']['permute_x_y']) {
+            $coord = ($coord == 'x') ? 'y' : 'x';
+        }
+        
         $validationResults = array(
             'validated' => true,
             'change_position_to_uppercase' => false

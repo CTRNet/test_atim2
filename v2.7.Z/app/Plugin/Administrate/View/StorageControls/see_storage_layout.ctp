@@ -127,15 +127,9 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
                 $displayValue = ($i - 1) * $xSize + $j;
             }
             $displayValue = $xAlpha ? chr($displayValue + 64) : $displayValue;
-            $useValue = $displayValue . "_1"; // static y = 1
         } else {
             $xVal = $xAlpha ? chr($i + 64) : $i;
-            $useValue = $xVal . "_" . $yVal;
-            if ($useHeight == 1) {
-                $displayValue = $xVal;
-            } elseif ($useWidth == 1) {
-                    $displayValue = $yVal;
-            } elseif (!$permuteXY){
+            if (!$permuteXY){
                 $displayValue = $xVal . "-" . $yVal;
             }else{
                 $displayValue = $yVal . "-" . $xVal;
