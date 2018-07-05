@@ -75,6 +75,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     if (! $errors) {
         $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
         $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+        $permuteXY = (isset($data['parent']['StorageControl']['permute_x_y']) && $data['parent']['StorageControl']['permute_x_y']==1)?true:false;
         $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
         // table display loop and inner loop
         $j = null;
@@ -85,6 +86,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
             }
             $i = null;
             while (axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $useWidth)) {
+                $useValue = null;
                 $displayValue = null;
                 $displayValueX = null;
                 $displayValueY = null;
@@ -98,16 +100,18 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                     $useValue = $displayValue . "_1"; // static y = 1
                 } else {
                     $xVal = $xAlpha ? chr($i + 64) : $i;
-                    $useValue = $xVal . "_" . $yVal;
-                    if ($useHeight == 1) {
-                        $displayValue = $xVal;
-                    } elseif ($useWidth == 1) {
-                            $displayValue = $yVal;
-                        } else {
-                            $displayValue = $xVal . "-" . $yVal;
-                            $displayValueX = $xVal;
-                            $displayValueY = $yVal;
-                        }
+                    if (!$permuteXY) {
+                        $useValue = $xVal . "_" . $yVal;
+                        $displayValue = $xVal . "-" . $yVal;
+                        $displayValueX = $xVal;
+                        $displayValueY = $yVal;
+                    } else {
+                        $useValue = $yVal . "_" . $xVal;
+                        $displayValue = $yVal . "-" . $xVal;
+                        $displayValue = $yVal . "-" . $xVal;
+                        $displayValueX = $xVal;
+                        $displayValueY = $yVal;
+                    }
                 }
                 $csvLayoutLineData[] = array(
                     'x_y' => $useValue,

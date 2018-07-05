@@ -28,7 +28,7 @@ function axisLoopCondition(&$var, $reverseOrder, $limit)
 ob_start();
 ?>
 <div style="display: table-cell; vertical-align: top;">
-    <ul style='margin-right: 10px'>
+	<ul style='margin-right: 10px'>
         <li>
             <span class="button RecycleStorage" style='width: 80%;'>
                 <span class="ui-icon ui-icon-refresh"></span>
@@ -55,7 +55,7 @@ ob_start();
             </span>
         </li>
 
-    </ul>
+	</ul>
 </div>
 <div
 	style="display: table-cell; padding-top: -10px; vertical-align: top;">
@@ -120,6 +120,8 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
         }
         $i = null;
         while (axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $useWidth)) {
+            $displayValue = '';
+            $useValue = '';
             if ($oneCoordToDisplayAsTwoAxis) {
                 if ($horizontalIncrement) {
                     $displayValue = ($j - 1) * $ySize + $i;
@@ -130,15 +132,12 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 $useValue = $displayValue . "_1"; // static y = 1
             } else {
                 $xVal = $xAlpha ? chr($i + 64) : $i;
-                $useValue = $xVal . "_" . $yVal;
-                if ($useHeight == 1) {
-                    $displayValue = $xVal;
-                } elseif ($useWidth == 1) {
-                    $displayValue = $yVal;
-                } elseif (!$permuteXY){
+                if (!$permuteXY) {
                     $displayValue = $xVal . "-" . $yVal;
-                }else{
+                    $useValue = $xVal . "_" . $yVal;
+                } else {
                     $displayValue = $yVal . "-" . $xVal;
+                    $useValue = $yVal . "_" . $xVal;
                 }
             }
             echo ("<td class='droppable'>" . '<b>' . $displayValue . "</b><ul id='s_" . $atimMenuVariables['StorageMaster.id'] . "_c_" . $useValue . "' /></td>");
