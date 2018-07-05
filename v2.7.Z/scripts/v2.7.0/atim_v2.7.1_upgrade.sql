@@ -696,6 +696,84 @@ INSERT IGNORE INTO 	i18n (id,en,fr) VALUES 	('permute_x_y', 'Permute X and Y', '
 UPDATE storage_controls SET permute_x_y = '0' WHERE coord_y_type IN ('alphabetical', 'integer');
 
 -- -------------------------------------------------------------------------------------
+-- Issue #3523: Create new sample controls
+-- -------------------------------------------------------------------------------------
+
+-- Stool to protein relationship
+
+INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) 
+VALUES 
+(NULL, (SELECT id FROM sample_controls WHERE sample_type = 'stool'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), '0');
+
+-- CD138
+
+INSERT INTO sample_controls(sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('cd138 cells', 'derivative', 'sd_undetailed_derivatives,derivatives', 'sd_der_cd138s', 'cd138 cells');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'bone marrow'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'),0);
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label, volume_unit)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'cd138 cells'), 'tube', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', '0', 'cd138 cells|tube', 'ml');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'cd138 cells|tube'), '0');
+CREATE TABLE `sd_der_cd138s` (
+  `sample_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `sd_der_cd138s_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `sd_der_cd138s`
+  ADD KEY `FK_sd_der_cd138s_sample_masters` (`sample_master_id`);
+ALTER TABLE `sd_der_cd138s_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `sd_der_cd138s_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `sd_der_cd138s`
+  ADD CONSTRAINT `FK_sd_der_cd138s_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES  
+('CD138', 'CD138', 'CD138');
+
+-- Xeno buffy coat
+
+INSERT INTO sample_controls(sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('xeno-buffy coat', 'derivative', 'sd_undetailed_derivatives,derivatives', 'sd_der_xeno_buffy_coats', 'xeno-buffy coat');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,derivative_sample_control_id , flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'xeno-blood'), (SELECT id FROM sample_controls WHERE sample_type LIKE 'xeno-buffy coat'),0);
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, detail_form_alias, detail_tablename, flag_active, databrowser_label, volume_unit)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type LIKE 'xeno-buffy coat'), 'tube', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', '0', 'xeno-buffy coat|tube', 'ml');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active)
+VALUES
+((SELECT id FROM aliquot_controls WHERE databrowser_label = 'xeno-buffy coat|tube'), (SELECT id FROM aliquot_controls WHERE databrowser_label = 'xeno-buffy coat|tube'), '0');
+CREATE TABLE `sd_der_xeno_buffy_coats` (
+  `sample_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `sd_der_xeno_buffy_coats_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `sd_der_xeno_buffy_coats`
+  ADD KEY `FK_sd_der_xeno_buffy_coats_sample_masters` (`sample_master_id`);
+ALTER TABLE `sd_der_xeno_buffy_coats_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `sd_der_xeno_buffy_coats_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `sd_der_xeno_buffy_coats`
+  ADD CONSTRAINT `FK_sd_der_xeno_buffy_coats_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES  
+('xeno-buffy coat', 'Xeno-Buffy Coat', 'Xeno-Puffy Coat');
+
+-- -------------------------------------------------------------------------------------
 --	missing i18n translations
 -- -------------------------------------------------------------------------------------
 
