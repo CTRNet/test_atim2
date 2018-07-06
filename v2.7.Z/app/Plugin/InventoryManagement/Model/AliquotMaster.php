@@ -1067,7 +1067,8 @@ class AliquotMaster extends InventoryManagementAppModel
      * @param type $barcode
      * @return array The list of aliquot
      */
-    public function getAliquotByBarcode($storageId, $barcode){
+    public function getAliquotByBarcode($storageId, $barcode)
+    {
         $aliquots = $this->find('all', array(
             'conditions' => array(
                 'BINARY(AliquotMaster.barcode)' => $barcode
@@ -1110,7 +1111,8 @@ class AliquotMaster extends InventoryManagementAppModel
     * @param type $storageId Storage ID
     * @return array The message, validation and Array of data
     */
-    public function readCsvAndConvertToArray($dataFile, $storageId) {
+    public function readCsvAndConvertToArray($dataFile, $storageId)
+    {
         $response = array(
             "valid" => 1,
             "message" => "",
@@ -1157,8 +1159,7 @@ class AliquotMaster extends InventoryManagementAppModel
         }
 
         $row = 1;
-        $separator = ";";
-        $header = fgetcsv($handle, 1000, $separator);
+        $header = fgetcsv($handle, 1000, CSV_SEPARATOR);
         if ($header==false){
             $response["message"] = __("error in csv header file");
             $response["valid"] = 0;
@@ -1166,11 +1167,6 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         $barcode = $x = $y = -1;
-        $numColumn = count($header);
-        if ($numColumn ==1 ){
-            $separator = ",";
-        }
-        $header = explode($separator, $header[0]);
         $numColumn = count($header);
         for ($c = 0; $c < $numColumn; $c++) {
             $data[$c] = Inflector::singularize(strtolower(trim($header[$c])));
@@ -1213,8 +1209,13 @@ class AliquotMaster extends InventoryManagementAppModel
         ));
         $coordXSize = $storage['StorageControl']['coord_x_size'];
         $coordYSize = $storage['StorageControl']['coord_y_size'];
-        $coordXType = $storage["StorageControl"]["coord_x_type"];
-        $coordYType = $storage["StorageControl"]["coord_y_type"];
+        $coordXType = $storage['StorageControl']['coord_x_type'];
+        $coordYType = $storage['StorageControl']['coord_y_type'];
+        $permut = $storage['StorageControl']['permute_x_y'];
+        if ($permut){
+            list($coordXSize,$coordYSize) = array($coordYSize,$coordXSize);
+            list($coordXType,$coordYType) = array($coordYType,$coordXType);
+        }
         if ($coordXType=='list'){
             $y=-1;
             $storageCoordinateModel = AppModel::getInstance('StorageLayout', 'StorageCoordinate');
@@ -1242,7 +1243,7 @@ class AliquotMaster extends InventoryManagementAppModel
         
         $barcodesList= array();
         $dataArray= array();
-        while (($data = fgetcsv($handle, 50, $separator)) !== FALSE) {
+        while (($data = fgetcsv($handle, 1000, CSV_SEPARATOR)) !== FALSE) {
             $row++;
             if (empty($data[$barcode])){
                 continue;
@@ -1325,27 +1326,24 @@ class AliquotMaster extends InventoryManagementAppModel
                 $dataArray["message"]['error'][] = __('aliquot does not exist');
                 $error = true;
             }
-
+            $dataArray["OK"] = 1;
             if ($coordXType == 'alphabetical'){
                 $xx = strtoupper($data[$x]);
-                if (is_numeric($xx) && 1<=$xx && $xx<=26){
-                    $dataArray["x"] = chr(64+$xx);
-                }elseif (is_numeric($xx) && !(1<=$xx && $xx<=26)){
-                    $dataArray["message"]["warning"][] = __("the x dimension should be a-z or 1-26"); 
-                }elseif(is_string($xx) && 'A'<= $xx && $xx<='Z' && strlen($xx)==1){
-                    $dataArray["x"] = $xx;
-                }else{
+                $dataArray["x"] = $xx;
+                if (is_numeric($xx)){
+                    $dataArray["message"]["warning"][] = __("the x dimension should be alphabetical"); 
+                    $dataArray["OK"] = 0;
+                }elseif(!(is_string($xx) && 'A'<= $xx && $xx<=chr(64+$coordXSize) && strlen($xx)==1)){
                     $dataArray["message"]["warning"][] = __("error in x dimension: %s", $xx); 
+                    $dataArray["OK"] = 0;
                 }
             }elseif($coordXType == 'integer'){
-                if (!is_numeric($data[$x]) && strlen($data[$x])==1){
-                    $data[$x] = strtoupper($data[$x]);
-                    if ('A'<=$data[$x] && $data[$x]<='Z'){
-                        $data[$x] = chr(ord($data[$x])-16);
-                    }
-                }
                 $dataArray["x"] = $data[$x];
-                if ($data[$x]>$coordXSize && !$error){
+                if (!is_numeric($data[$x])){
+                    $dataArray["message"]["warning"][] = __("the x dimension should be numeric"); 
+                    $dataArray["OK"] = 0;
+                }elseif (!(0<=$data[$x] && $data[$x]<=$coordXSize) && !$error){
+                    $dataArray["OK"] = 0;
                     $dataArray["message"]["warning"][] = __("the x dimension out of range <= %s", $coordXSize); 
                     $dataArray["x"] = -$data[$x];
                 }
@@ -1354,24 +1352,21 @@ class AliquotMaster extends InventoryManagementAppModel
             if ($y!=-1){
                 if ($coordYType == 'alphabetical'){
                     $yy = strtoupper($data[$y]);
-                    if (is_numeric($yy) && 1<=$yy && $yy<=26){
-                        $dataArray["y"] = chr(64+$yy);
-                    }elseif (is_numeric($yy) && !(1<=$yy && $yy<=26)){
-                        $dataArray["message"]["warning"][] = __("the y dimension should be A-Z or 1-26"); 
-                    }elseif(is_string($yy) && 'A'<= $yy && $yy<='Z' && strlen($yy)==1){
-                        $dataArray["y"] = $yy;
-                    }else{
+                    $dataArray["y"] = $yy;
+                    if (is_numeric($yy)){
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("the y dimension should be alphabetical");
+                    }elseif(!(is_string($yy) && 'A'<= $yy && $yy<=chr(64+$coordYSize) && strlen($yy)==1)){
+                        $dataArray["OK"] = 0;
                         $dataArray["message"]["warning"][] = __("error in y dimension: %s", $yy); 
                     }
                 }elseif ($coordYType == 'integer'){
-                    if (!is_numeric($data[$y]) && strlen($data[$y])==1){
-                        $data[$y] = strtoupper($data[$y]);
-                        if ('A'<=$data[$y] && $data[$y]<='Z'){
-                            $data[$y] = chr(ord($data[$y])-16);
-                        }
-                    }
                     $dataArray["y"] = $data[$y];
-                    if ($data[$y]>$coordYSize && !$error){
+                    if (!is_numeric($data[$y])){
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("the y dimension should be numeric"); 
+                    }elseif (!(1<=$data[$y] && $data[$y]<=$coordYSize) && !$error){
+                        $dataArray["OK"] = 0;
                         $dataArray["message"]["warning"][] = __("the y dimension out of range <= %s", $coordYSize); 
                         $dataArray["y"] = -$data[$y];
                     }

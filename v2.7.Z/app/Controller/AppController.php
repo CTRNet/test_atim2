@@ -120,6 +120,19 @@ class AppController extends Controller
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
 
+    private function checkUrl()
+    {
+        if (empty($_SESSION['url'])){
+            $_SESSION['url'] = array('nonAjax' => array(), 'ajax' => array(), 'all' => array());
+        }
+        if (!$this->request->is('ajax')){
+            $_SESSION['url']['nonAjax'][] = "/".Router::getPaths($this->here)->url;
+        }else{
+            $_SESSION['url']['ajax'][] = "/".Router::getPaths($this->here)->url;
+        }
+        $_SESSION['url']['all'][] = "/".Router::getPaths($this->here)->url;
+    }
+    
     /**
      * This function is executed before every action in the controller.
      * It’s a
@@ -127,11 +140,7 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
-        if (empty($_SESSION['url'])){
-            $_SESSION['url'] = array();
-        }
-        $_SESSION['url'][] = "/".Router::getPaths($this->here)->url;
-
+        $this->checkUrl();
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -454,6 +463,9 @@ class AppController extends Controller
     {
         if (empty($url)){
             $url = "/Menus";
+        }
+        if (strpos(strtolower($url), 'javascript')!==false){
+            $url = $_SERVER["HTTP_REFERER"];
         }
         if (strpos(strtolower($url), 'javascript')===false){
             if ($type == self::CONFIRM) {

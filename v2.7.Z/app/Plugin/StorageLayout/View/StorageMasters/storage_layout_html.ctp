@@ -27,6 +27,17 @@ function axisLoopCondition(&$var, $reverseOrder, $limit)
 }
 ob_start();
 ?>
+<?php
+$isTma = (isset($data['parent']['StorageControl']['is_tma_block']) && $data['parent']['StorageControl']['is_tma_block']);
+if($isTma){
+    $titleCsv = __("load the cores positions and barcodes by csv file");
+    $textCsv = __("load cores by csv");
+}else{
+    $titleCsv = __("load the aliquots positions and barcodes by csv file");
+    $textCsv = __("load aliquots by csv");
+}
+$deteteText = __("delete");
+?>
 <div style="display: table-cell; vertical-align: top;">
 	<ul style='margin-right: 10px'>
         <li>
@@ -43,15 +54,15 @@ ob_start();
         </li>
         <li>
             <input type="file" style="display:none;" id="LoadCSVFile" name="CSVFile" accept=".xlsx, .xls, .csv">
-            <span class="button LoadCSV" style='width: 80%;' onclick="document.getElementById('LoadCSVFile').click();">
+            <span class="button LoadCSV" style='width: 80%;' title ="<?=$titleCsv?>" onclick="document.getElementById('LoadCSVFile').click();">
                 <span class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
-                <?php echo(__("load csv")); ?>
+                <?=$textCsv?>
             </span>
         </li>
         <li>
             <span class="button clear-loaded-barcodes" style='width: 80%;' title ="<?php echo(__("clear the loaded and scanned barcode")); ?>">
                 <span class="ui-icon ui-icon-arrowrefresh-1-e"></span>
-                <?php echo(__("delete")); ?>
+                <?=$deteteText?>
             </span>
         </li>
 

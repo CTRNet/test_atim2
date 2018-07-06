@@ -170,14 +170,14 @@ class StorageControlsController extends AdministrateAppController
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         
-        $nextUrl = $_SESSION['url'][count($_SESSION['url']) - 2];
-        if ($redirectTo == 'listAll') {
-            if (! strpos($nextUrl, 'StorageControls/listAll')) {
-                $nextUrl = '/Administrate/StorageControls/listAll/';
-            }
-        } else {
-            $nextUrl = '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId;
-        }
+        $nextUrl = 'javascript:history.go(-1)';
+//        if ($redirectTo == 'listAll') {
+//            if (! strpos($nextUrl, 'StorageControls/listAll')) {
+//                $nextUrl = '/Administrate/StorageControls/listAll/';
+//            }
+//        } else {
+//            $nextUrl = '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId;
+//        }
         
         $newData = array();
         if ($storageControlData['StorageCtrl']['flag_active']) {
@@ -267,10 +267,10 @@ class StorageControlsController extends AdministrateAppController
             require ($hookLink);
         }
         
-        $nextUrl = $_SESSION['url'][count($_SESSION['url']) - 2];
-        if (! strpos($nextUrl, 'StorageControls/listAll')) {
-            $nextUrl = '/Administrate/StorageControls/listAll/';
-        }
+        $nextUrl = 'javascript:history.go(-1)';
+//        if (! strpos($nextUrl, 'StorageControls/listAll')) {
+//            $nextUrl = '/Administrate/StorageControls/listAll/';
+//        }
         
         if ($arrAllowDeletion['allow_deletion']) {
             $this->StorageCtrl->data = null;
