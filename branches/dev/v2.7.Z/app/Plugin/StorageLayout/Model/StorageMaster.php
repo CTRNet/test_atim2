@@ -626,7 +626,7 @@ class StorageMaster extends StorageLayoutAppModel
      */
     public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
-        return $childrenArray[$typeKey][$labelKey];
+        return isset($childrenArray[$typeKey][$labelKey])?$childrenArray[$typeKey][$labelKey]:null;
     }
 
     /**

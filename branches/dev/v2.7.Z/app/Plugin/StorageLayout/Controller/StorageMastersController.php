@@ -829,6 +829,10 @@ class StorageMastersController extends StorageLayoutAppController
      */
     public function storageLayout($storageMasterId, $isAjax = false, $csvCreation = false)
     {
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
+        
         // MANAGE STORAGE DATA
         
         // Get the storage data
@@ -1290,6 +1294,9 @@ class StorageMastersController extends StorageLayoutAppController
      * @param string $barcode
      */
     public function getAliquotDetail($storageId, $barcode){
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/add') || ! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/edit') ) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
         $result = $this->AliquotMaster->getAliquotByBarcode($storageId, $barcode);
         $this->set('result', $result['aliquots']);
         $this->set('isTma', $result['isTma']);
@@ -1301,7 +1308,12 @@ class StorageMastersController extends StorageLayoutAppController
      * 
      * @param int $storageId
      */
-    public function getCsvFile ($storageId){
+    public function getCsvFile ($storageId)
+    {
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/add') || ! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/edit') ) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
+
         $dataFile = $_FILES['media'];
         $response = $this->AliquotMaster->readCsvAndConvertToArray($dataFile, $storageId);
         $this->set("csvArrayData", $response);

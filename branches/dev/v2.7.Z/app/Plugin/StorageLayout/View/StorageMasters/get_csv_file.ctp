@@ -25,6 +25,7 @@ if ($csvArrayData["valid"]) {
             $dataAliquot["barcode"] = ($aliquot["barcode"]) ? $aliquot["barcode"] : "";
             $dataAliquot["x"] = ($aliquot["x"]) ? $aliquot["x"] : "";
             $dataAliquot["y"] = ($aliquot["y"]) ? $aliquot["y"] : "1";
+            $dataAliquot["OK"] = $aliquot["OK"];
             $dataAliquot["message"] = (!empty($warningMessagePrint)) ? $warningMessagePrint : "";
             
             $aliquot["x"] = (is_numeric($aliquot["x"]))?abs($aliquot["x"]):$aliquot["x"];
