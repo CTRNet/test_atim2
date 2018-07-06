@@ -103,9 +103,18 @@ VALUES
 	('error in opening %s', 'Error in opening %s', 'Erreur d\'ouverture %s'),
 	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur en dimension X: %s'),
 	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur en dimension Y: %s'),
-	('the x dimension should be a-z or 1-26', 'The X dimension should be A-Z or 1-26', 'La dimension X doit être A-Z ou 1-26'),
-	('the y dimension should be a-z or 1-26', 'The Y dimension should be A-Z or 1-26', 'La dimension Y doit être A-Z ou 1-26'),
-	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV');
+	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV'),
+	('load the cores positions and barcodes by csv file', 'Load the cores positions and barcodes by csv file', 'Charger les positions des cores et les codes à barres par fichier csv'),
+	('load aliquots by csv', 'Load aliquots by csv', 'Charger des aliquotes par csv'),
+	('load the aliquots positions and barcodes by csv file', 'Load the aliquots positions and barcodes by csv file', 'Charger les positions aliquotes et les codes à barres par fichier csv'),
+	('load the cores positions and block barcodes by csv file', 'Load the cores positions and block barcodes by csv file', 'Charger les positions des cores et bloquer les codes à barres par fichier csv'),
+	('load blocks by csv', 'Load blocks by csv', 'Charger les blocs par csv'),
+	('the x dimension should be alphabetical', 'The X dimension should be alphabetical', 'La dimension X doit être alphabétique'),
+	('the x dimension should be numeric', 'The X dimension should be numeric', 'La dimension X doit être numérique'),
+	('the y dimension should be alphabetical', 'The Y dimension should be alphabetical', 'La dimension Y devrait être alphabétique'),
+	('the y dimension should be numeric', 'The Y dimension should be numeric', 'La dimension Y devrait être numérique'),
+	('load cores by csv', 'Load cores by csv', 'Charger les cores par csv');
+
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
 -- -------------------------------------------------------------------------------------
