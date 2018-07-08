@@ -7,7 +7,7 @@ $structureLinks = array(
         'order items' => array(),
         'shipments' => array(
             'add' => array(
-                'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/',
+                'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['OrderLine.id'],
                 'icon' => 'create_shipment'
             )
         )

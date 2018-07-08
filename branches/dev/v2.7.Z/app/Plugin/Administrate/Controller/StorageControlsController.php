@@ -89,7 +89,7 @@ class StorageControlsController extends AdministrateAppController
                         require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved') . '<br>' . __('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
+                    $this->atimFlash(__('your data has been saved'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
                 }
             }
         }

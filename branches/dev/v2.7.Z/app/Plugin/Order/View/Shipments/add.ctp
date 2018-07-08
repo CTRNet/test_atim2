@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/',
+    'top' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/0/' . $orderLineId. '/',
     'bottom' => array(
         'cancel' => '/Order/Orders/detail/' . $atimMenuVariables['Order.id'] . '/',
         'manage recipients' => array(

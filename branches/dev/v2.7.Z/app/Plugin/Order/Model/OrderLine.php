@@ -60,8 +60,13 @@ class OrderLine extends OrderAppModel
                     'OrderLine.order_id' => $variables['Order.id']
                 )
             ));
-            
-            $lineTitle = __($result['SampleControl']['sample_type']) . (empty($result['AliquotControl']['aliquot_type']) ? '' : ' ' . __($result['AliquotControl']['aliquot_type']));
+            $lineTitle = '';
+            if ($result['OrderLine']['is_tma_slide']) {
+                $lineTitle = __('tma slide');
+            } else {
+                $lineTitle = __($result['SampleControl']['sample_type']) . (empty($result['AliquotControl']['aliquot_type']) ? '' : ' ' . __($result['AliquotControl']['aliquot_type']));
+            }
+            $lineTitle .= strlen($result['OrderLine']['product_type_precision'])? ' : ' . $result['OrderLine']['product_type_precision'] : '';
             $return = array(
                 'menu' => array(
                     null,

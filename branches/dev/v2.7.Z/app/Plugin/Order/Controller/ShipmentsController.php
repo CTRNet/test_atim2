@@ -84,9 +84,9 @@ class ShipmentsController extends OrderAppController
 
     /**
      * @param $orderId
-     * @param null $copiedShipmentId
+     * @param null $copiedShipmentId            
      */
-    public function add($orderId, $copiedShipmentId = null)
+    public function add($orderId, $copiedShipmentId = null, $orderLineId = null)
     {
         
         // MANAGE DATA
@@ -101,6 +101,8 @@ class ShipmentsController extends OrderAppController
             'Order.id' => $orderId
         ));
         
+        $this->set('orderLineId', $orderLineId);
+        
         // SAVE PROCESS
         
         $hookLink = $this->hook('format');
@@ -114,7 +116,7 @@ class ShipmentsController extends OrderAppController
                     'conditions' => array(
                         'Shipment.id' => $copiedShipmentId
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
             }
             
@@ -140,7 +142,7 @@ class ShipmentsController extends OrderAppController
                 if ($hookLink) {
                     require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been saved'), '/Order/Shipments/addToShipment/' . $orderId . '/' . $this->Shipment->getLastInsertId());
+                $this->atimFlash(__('your data has been saved'), '/Order/Shipments/addToShipment/' . $orderId . '/' . $this->Shipment->getLastInsertId() . '/' . $orderLineId);
             }
         }
     }
@@ -290,23 +292,23 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    /* ----------------------------- SHIPPED ITEMS ---------------------------- */
+        /* ----------------------------- SHIPPED ITEMS ---------------------------- */
     /**
      * @param $orderId
      * @param $shipmentId
-     * @param null $orderLineId
-     * @param null $offset
-     * @param null $limit
+     * @param null $orderLineId            
+     * @param null $offset            
+     * @param null $limit            
      */
-    public function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
+    public function addToShipment($orderId, $shipmentId, $orderLineId = null)
     {
-        //Server-side verification (If by JS user send larg amount of batch data)
+        // Server-side verification (If by JS user send larg amount of batch data)
         $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
-        $data=array();
-        if (!empty($this->request->data) && isset($this->request->data['OrderItem']['id'])){
-            $data= array_filter($this->request->data['OrderItem']['id']);
+        $data = array();
+        if (! empty($this->request->data) && isset($this->request->data['OrderItem']['id'])) {
+            $data = array_filter($this->request->data['OrderItem']['id']);
         }
-        if(!empty($this->request->data) && count($data)>$orderItemsLimit){
+        if (! empty($this->request->data) && count($data) > $orderItemsLimit) {
             $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
             return;
         }
@@ -321,33 +323,37 @@ class ShipmentsController extends OrderAppController
             'OrderItem.order_id' => $orderId,
             'OrderItem.shipment_id IS NULL'
         );
-        if ($orderLineId){
+        if ($orderLineId) {
             $conditions['OrderItem.order_line_id'] = $orderLineId;
         }
-        $availableOrderItems = $this->OrderItem->find('all', array(
-            'conditions' => $conditions,
-            'order' => 'OrderLine.id, OrderItem.date_added DESC',
-            'offset' => $offset,
-            'limit' => $limit
-        ));
-        
-        $conditions = array(
-            'OrderItem.order_id' => $orderId,
-            'OrderItem.shipment_id IS NULL'
-        );
         $availableOrderItems = $this->paginate($this->OrderItem, $conditions);
-
+        
         if (empty($availableOrderItems)) {
             $this->atimFlashWarning(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
         }
+        
+        if ($orderLineId) {
+            $sampleControlModel = AppModel::getInstance('InventoryManagement', 'SampleControl');
+            $aliquotControlModel = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+            $languageHeading = '';
+            if ($availableOrderItems[0]['OrderLine']['sample_control_id']) {
+                $sampleCtrl = $sampleControlModel->findById($availableOrderItems[0]['OrderLine']['sample_control_id']);
+                $languageHeading = __($sampleCtrl['SampleControl']['sample_type']);
+                if ($availableOrderItems[0]['OrderLine']['aliquot_control_id']) {
+                    $aliquotCtrl = $aliquotControlModel->findById($availableOrderItems[0]['OrderLine']['aliquot_control_id']);
+                    $languageHeading .= ' - ' . $aliquotCtrl['AliquotControl']['aliquot_type'];
+                }
+            } elseif ($availableOrderItems[0]['OrderLine']['is_tma_slide']) {
+                $languageHeading = __('tma slide');
+            }
+            if ($availableOrderItems[0]['OrderLine']['product_type_precision']) {
+                $languageHeading .= ' - ' . $availableOrderItems[0]['OrderLine']['product_type_precision'];
+            }
+            $this->set('languageHeading', __('order line') . ' : ' . $languageHeading);
+        }
+        
         $this->set("dataLimit", $orderItemsLimit);
-//        if (sizeof($availableOrderItems) > $orderItemsLimit) {
-//            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
-//            return;
-//        }
         $this->set('orderLineId', $orderLineId);
-        $this->set('offset', $offset);
-        $this->set('limit', $limit);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
@@ -356,15 +362,14 @@ class ShipmentsController extends OrderAppController
             'Shipment.id' => $shipmentId
         ));
         
-        $this->Structures->set('shippeditems');
-        $this->Structures->set('shippeditems,orderitems_and_lines', 'atim_structure_with_order_lines');
+        $this->Structures->set('shippeditems' . ($orderLineId ? '' : ',orderitems_and_lines'));
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
         }
         if (empty($this->request->data)) {
-            $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
+            $this->request->data = $availableOrderItems;
             
             $hookLink = $this->hook('initial_display');
             if ($hookLink) {
@@ -379,8 +384,8 @@ class ShipmentsController extends OrderAppController
             if (empty($dataToSave)) {
                 $this->OrderItem->validationErrors[] = 'no item has been defined as shipped';
                 $submittedDataValidates = false;
-                $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
             }
+            
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
                 require ($hookLink);
@@ -393,8 +398,12 @@ class ShipmentsController extends OrderAppController
                 // Launch Save Process
                 $orderLineToUpdate = array();
                 
+                // Take all available items instead to just work on the items returned by the paginate function
+                $availableOrderItems = $this->OrderItem->find('all', array(
+                    'conditions' => $conditions,
+                ));
                 $availableOrderItems = AppController::defineArrayKey($availableOrderItems, 'OrderItem', 'id', true);
-                
+
                 $this->AliquotMaster->addWritableField(array(
                     'in_stock',
                     'in_stock_detail',
@@ -505,6 +514,8 @@ class ShipmentsController extends OrderAppController
                 AppModel::releaseBatchViewsUpdateLock();
                 
                 $this->atimFlash(__('your data has been saved') . '<br>' . __('item storage data were deleted (if required)'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId . '/');
+            } else {
+                $this->request->data = $availableOrderItems;
             }
         }
     }
