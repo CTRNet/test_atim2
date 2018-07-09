@@ -2,11 +2,12 @@
 
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
+ * 
  * @param unknown_type $var The variable to loop on, must be null on the first iteration
  * @param unknown_type $reverseOrder True to reverse the order
  * @param unknown_type $limit The limit of the axis
  * @return true if you must continue to loop, false otherwise
- * @alter Increments/decrements the value of var
+ *         @alter Increments/decrements the value of var
  */
 function axisLoopCondition(&$var, $reverseOrder, $limit)
 {
@@ -75,7 +76,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     if (! $errors) {
         $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
         $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
-        $permuteXY = (isset($data['parent']['StorageControl']['permute_x_y']) && $data['parent']['StorageControl']['permute_x_y']==1)?true:false;
+        $permuteXY = (isset($data['parent']['StorageControl']['permute_x_y']) && $data['parent']['StorageControl']['permute_x_y'] == 1) ? true : false;
         $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
         // table display loop and inner loop
         $j = null;
@@ -100,7 +101,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                     $useValue = $displayValue . "_1"; // static y = 1
                 } else {
                     $xVal = $xAlpha ? chr($i + 64) : $i;
-                    if (!$permuteXY) {
+                    if (! $permuteXY) {
                         $useValue = $xVal . "_" . $yVal;
                         $displayValue = $xVal . "-" . $yVal;
                         $displayValueX = $xVal;
@@ -168,29 +169,29 @@ if (! $errors) {
                 unset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]);
             }
         } elseif (sizeof($csvLayoutData[0]) == 1) {
-                // One dimension layout display as a column with only x coordinates tracked
-                foreach ($csvLayoutData as $csvLayoutLineData) {
-                    $csvLayoutCellData = $csvLayoutLineData[0];
-                    $csvData[] = array(
-                        $csvLayoutCellData['display_value'],
-                        (isset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) ? implode(' / ', $xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) : '')
-                    );
+            // One dimension layout display as a column with only x coordinates tracked
+            foreach ($csvLayoutData as $csvLayoutLineData) {
+                $csvLayoutCellData = $csvLayoutLineData[0];
+                $csvData[] = array(
+                    $csvLayoutCellData['display_value'],
+                    (isset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) ? implode(' / ', $xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) : '')
+                );
+                unset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]);
+            }
+        } else {
+            // Two dimensions layout with only x coordinates tracked
+            foreach ($csvLayoutData as $csvLayoutLineData) {
+                $csvPostionsData = array();
+                $csvLineContentData = array();
+                foreach ($csvLayoutLineData as $csvLayoutCellData) {
+                    $csvPostionsData[] = $csvLayoutCellData['display_value'];
+                    $csvLineContentData[] = isset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) ? implode(' / ', $xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) : '';
                     unset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]);
                 }
-            } else {
-                // Two dimensions layout with only x coordinates tracked
-                foreach ($csvLayoutData as $csvLayoutLineData) {
-                    $csvPostionsData = array();
-                    $csvLineContentData = array();
-                    foreach ($csvLayoutLineData as $csvLayoutCellData) {
-                        $csvPostionsData[] = $csvLayoutCellData['display_value'];
-                        $csvLineContentData[] = isset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) ? implode(' / ', $xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) : '';
-                        unset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]);
-                    }
-                    $csvData[] = $csvPostionsData;
-                    $csvData[] = $csvLineContentData;
-                }
+                $csvData[] = $csvPostionsData;
+                $csvData[] = $csvLineContentData;
             }
+        }
     }
     
     // Add unpositionned content to csv data

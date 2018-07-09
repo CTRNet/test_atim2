@@ -13,7 +13,6 @@ class PermissionManagerComponent extends Component
     /*
      * Specify the default permissions here
      * If there are no permissions in the DB these will be inserted.
-     *
      * NOTE: Don't allow the acos tables to be emptied or this will fail.
      */
     public $defaults = array(
@@ -35,6 +34,7 @@ class PermissionManagerComponent extends Component
     );
 
     /**
+     *
      * @param Controller $controller
      */
     public function initialize(Controller $controller)
@@ -105,6 +105,7 @@ class PermissionManagerComponent extends Component
     }
 
     /**
+     *
      * @param $plugin
      * @param $ctrlName
      * @return array|bool|mixed
@@ -281,6 +282,7 @@ class PermissionManagerComponent extends Component
     }
 
     /**
+     *
      * @param $path
      * @param array $knownIds
      * @return bool
@@ -315,6 +317,9 @@ class PermissionManagerComponent extends Component
 
     /**
      * Get the names of the plugin controllers .
+     *
+     *
+     *
      *
      *
      *

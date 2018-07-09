@@ -5,7 +5,7 @@
  */
 class CodingIcd10Who extends CodingIcdAppModel
 {
-
+    
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-10 (International)
     // From: Stats Canada (WHO_ICD10_Ever_Created_Codes_2009WC)
@@ -39,6 +39,7 @@ class CodingIcd10Who extends CodingIcdAppModel
     }
 
     /**
+     *
      * @param $id
      * @return bool
      */
@@ -48,6 +49,7 @@ class CodingIcd10Who extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return CodingIcd10Who|null
      */
     public static function getSingleton()
@@ -56,6 +58,7 @@ class CodingIcd10Who extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return array
      */
     public static function getSecondaryDiagnosisList()
@@ -73,8 +76,9 @@ class CodingIcd10Who extends CodingIcdAppModel
         }
         return $data;
     }
-    
+
     /**
+     *
      * @param array $terms
      * @param $exactSearch
      * @param $searchOnId

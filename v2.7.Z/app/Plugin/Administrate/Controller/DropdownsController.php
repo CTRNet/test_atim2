@@ -29,6 +29,7 @@ class DropdownsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param string $filter
      */
     public function subIndex($filter = 'all')
@@ -82,6 +83,7 @@ class DropdownsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $controlId
      */
     public function view($controlId)
@@ -102,6 +104,7 @@ class DropdownsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $controlId
      */
     public function add($controlId)
@@ -243,6 +246,7 @@ class DropdownsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $controlId
      * @param $valueId
      */
@@ -324,6 +328,7 @@ class DropdownsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $controlId
      */
     public function configure($controlId)

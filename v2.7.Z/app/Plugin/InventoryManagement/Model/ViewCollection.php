@@ -56,7 +56,8 @@ class ViewCollection extends InventoryManagementAppModel
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
     /**
-     * @param array $variables            
+     *
+     * @param array $variables
      * @return array|bool
      */
     public function summary($variables = array())
@@ -107,9 +108,8 @@ class ViewCollection extends InventoryManagementAppModel
 
     /**
      *
-     * @param array $collection
-     *            with either a key 'id' referring to an array
-     *            of ids, or a key 'data' referring to ViewCollections.
+     * @param array $collection with either a key 'id' referring to an array
+     *        of ids, or a key 'data' referring to ViewCollections.
      * @return array The ids of participants collections with a consent status
      *         other than 'obtained' as key. Their value will null if there is no linked
      *         consent or the consent status otherwise.

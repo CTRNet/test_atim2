@@ -59,9 +59,8 @@ class User extends AppModel
     /**
      * Summary
      *
-     * @param array $variables
-     *            Variables
-     *            
+     * @param array $variables Variables
+     *       
      * @return array|bool
      */
     public function summary(array $variables)
@@ -103,7 +102,7 @@ class User extends AppModel
     public function getUsersList()
     {
         $allUsersData = $this->find('all', array(
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $result = array();
         foreach ($allUsersData as $data) {
@@ -115,9 +114,8 @@ class User extends AppModel
     /**
      * Save Password
      *
-     * @param array $data
-     *            Form Data
-     * @param bool $modifiedByUser            
+     * @param array $data Form Data
+     * @param bool $modifiedByUser
      *
      * @return True|False if save failed
      */
@@ -134,14 +132,14 @@ class User extends AppModel
                 )
             );
             $isLdap = Configure::read("if_use_ldap_authentication");
-            $isLdap = !empty($isLdap);
-            if ($isLdap){
+            $isLdap = ! empty($isLdap);
+            if ($isLdap) {
                 unset($dataToSave['User']['password']);
             }
-            if (array_key_exists('force_password_reset', $data['User'])){
+            if (array_key_exists('force_password_reset', $data['User'])) {
                 $dataToSave['User']['force_password_reset'] = $data['User']['force_password_reset'];
             }
-            if ($modifiedByUser){
+            if ($modifiedByUser) {
                 $dataToSave['User']['force_password_reset'] = '0';
             }
             
@@ -157,17 +155,15 @@ class User extends AppModel
     /**
      * Will throw a flash message if the password is not valid
      *
-     * @param array $data
-     *            Form data
-     * @param string|null $createdUserName
-     *            user_name of a created user
-     *            
+     * @param array $data Form data
+     * @param string|null $createdUserName user_name of a created user
+     *       
      * @return bool true if validation passes
      */
     public function validatePassword(array $data, $createdUserName = null)
     {
         $isLdap = Configure::read("if_use_ldap_authentication");
-        $isLdap = !empty($isLdap);
+        $isLdap = ! empty($isLdap);
         $validationErrors = array();
         
         if (! isset($data['User']['new_password'], $data['User']['confirm_password']) || (! $this->id && ! $createdUserName)) {
@@ -186,28 +182,27 @@ class User extends AppModel
         if ($isLdap && empty($createdUserName)) {
             $adServer = Configure::read('ldap_server');
             $ldaprdn = Configure::read('ldap_domain');
-
+            
             $username = ($_SESSION['Auth']['User']['username']) ? $_SESSION['Auth']['User']['username'] : null;
             $password = $data['User']['new_password'];
-
+            
             $ldaprdn = sprintf($ldaprdn, $username);
-
+            
             $ldap = ldap_connect($adServer);
             ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-
+            
             try {
                 $bind = @ldap_bind($ldap, $ldaprdn, $password);
             } catch (Exception $ex) {
                 $bind = null;
             }
-
+            
             if (empty($bind)) {
                 $validationErrors['password'][] = 'Error: invalid username or password or disabled user or LDAP server connection error.';
                 $validationErrors['password'][] = 'As new password, should enter your password for loging into your computer.';
             }
-        }
-        elseif (!$isLdap){
+        } elseif (! $isLdap) {
             if ($createdUserName && $createdUserName === $data['User']['new_password']) {
                 $validationErrors['password'][] = 'password should be different than username';
             }
@@ -218,7 +213,7 @@ class User extends AppModel
                 if ($dbUserData['User']['password'] === Security::hash($data['User']['new_password'], null, true)) {
                     $validationErrors['password'][] = 'password should be different than the previous one';
                 } else {
-
+                    
                     $differentPasswordsNumber = (int) Configure::read('different_passwords_number_before_re_use');
                     if (! preg_match('/^[0-5]$/', $differentPasswordsNumber)) {
                         $differentPasswordsNumber = 5;
@@ -233,7 +228,7 @@ class User extends AppModel
                     }
                 }
             }
-        
+            
             $passwordSecurityLevel = (int) Configure::read('password_security_level');
             if (! preg_match('/^[0-4]$/', $passwordSecurityLevel)) {
                 $passwordSecurityLevel = 4;
@@ -241,28 +236,28 @@ class User extends AppModel
             $passwordFormatError = false;
             switch ($passwordSecurityLevel) {
                 case 4:
-                    if (! preg_match('/\W+/', $data['User']['new_password'])){
+                    if (! preg_match('/\W+/', $data['User']['new_password'])) {
                         $passwordFormatError = true;
                     }
                 case 3:
-                    if (! preg_match('/[A-Z]+/', $data['User']['new_password'])){
+                    if (! preg_match('/[A-Z]+/', $data['User']['new_password'])) {
                         $passwordFormatError = true;
                     }
                 case 2:
-                    if (! preg_match('/[0-9]+/', $data['User']['new_password'])){
+                    if (! preg_match('/[0-9]+/', $data['User']['new_password'])) {
                         $passwordFormatError = true;
                     }
                 case 1:
-                    if (strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
+                    if (strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH) {
                         $passwordFormatError = true;
                     }
-                    if (! preg_match('/[a-z]+/', $data['User']['new_password'])){
+                    if (! preg_match('/[a-z]+/', $data['User']['new_password'])) {
                         $passwordFormatError = true;
                     }
                 case 0:
                 default:
             }
-            if ($passwordFormatError){
+            if ($passwordFormatError) {
                 $validationErrors['password'][] = 'password_format_error_msg_' . $passwordSecurityLevel;
             }
         }
@@ -281,7 +276,7 @@ class User extends AppModel
     {
         // Test last login results from IP address
         $maxLoginAttemptsFromIP = Configure::read('max_login_attempts_from_IP');
-        if (! $maxLoginAttemptsFromIP){
+        if (! $maxLoginAttemptsFromIP) {
             return false;
         }
         $timeInMinutesBeforeIpIsReactivated = Configure::read('time_mn_IP_disabled');
@@ -332,9 +327,8 @@ class User extends AppModel
      * Check if a user failed at login too often with the same user account and disable user account
      * if check succeed.
      *
-     * @param string $userName
-     *            User account used by the user to login.
-     *            
+     * @param string $userName User account used by the user to login.
+     *       
      * @return bool True if function disabled user|False if not.
      * @throws CakeException when you try to construct an interface or abstract class.
      */
@@ -350,7 +344,7 @@ class User extends AppModel
                 'User.username' => $userName,
                 'User.flag_active' => '1'
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (! $userData)
             return false;
@@ -391,9 +385,8 @@ class User extends AppModel
     /**
      * Disable a User
      *
-     * @param int $id
-     *            UserId
-     *            
+     * @param int $id UserId
+     *       
      * @return void
      */
     public function disableUser($id)
@@ -411,9 +404,8 @@ class User extends AppModel
     /**
      * Error if IE below a version passed in args
      *
-     * @param integer $version
-     *            Version of internet explorer
-     *            
+     * @param integer $version Version of internet explorer
+     *       
      * @return void
      */
     public function showErrorIfInternetExplorerIsBelowVersion($version)

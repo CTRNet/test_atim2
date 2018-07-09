@@ -11,9 +11,8 @@ class CollectionProtocol extends ToolsAppModel
     /**
      * Check if protocol can be deleted.
      *
-     * @param integer $collectionProtocolId
-     *            Id of the protocol
-     *            
+     * @param integer $collectionProtocolId Id of the protocol
+     *       
      * @return array Results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false

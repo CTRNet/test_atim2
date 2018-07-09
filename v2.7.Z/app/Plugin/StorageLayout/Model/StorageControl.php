@@ -36,6 +36,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getNonTmaBlockStorageTypePermissibleValues()
@@ -57,6 +58,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getTmaBlockStorageTypePermissibleValues()
@@ -81,6 +83,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param null $storageMasterId
      * @return array|string
      */
@@ -118,11 +121,9 @@ class StorageControl extends StorageLayoutAppModel
      * Note: Only storage having storage type including one dimension and a coordinate type 'x'
      * equals to 'list' can support custom coordinate 'x' list.
      *
-     * @param $storageControlId Storage
-     *            Control ID of the studied storage.
-     * @param $storageControlData Storage
-     *            Control Data of the studied storage (not required).
-     *            
+     * @param $storageControlId Storage Control ID of the studied storage.
+     * @param $storageControlData Storage Control Data of the studied storage (not required).
+     *       
      * @return true when the coordinate 'x' list of a storage can be set by the user.
      *        
      * @author N. Luc
@@ -149,6 +150,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $storageControlData
      * @return string
      */
@@ -193,6 +195,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

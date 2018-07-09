@@ -2,11 +2,9 @@
 
 /*
  * This model has been created to resolve issue#...
- *
  * If StorageLayout.StorageControl model is used, the MasterDetailBehavior.afterSave() function
  * is called by any StorageControl->save() function of this controller generating an error.
  * (The following test "if($isControlModel)" return true launching code execution to save detail data).
- *
  * To be sure MasterDetailBehavior Model is not called, created following model changing Control suffix to Ctrl.
  */
 
@@ -21,6 +19,7 @@ class StorageCtrl extends AdministrateAppModel
     public $useTable = 'storage_controls';
 
     /**
+     *
      * @param $data
      * @return string
      */
@@ -38,6 +37,7 @@ class StorageCtrl extends AdministrateAppModel
     }
 
     /**
+     *
      * @param $storageCategory
      * @return null|string
      */
@@ -65,7 +65,7 @@ class StorageCtrl extends AdministrateAppModel
 
     /**
      *
-     * @param array $options            
+     * @param array $options
      * @return bool
      */
     public function validates($options = array())
@@ -338,18 +338,16 @@ class StorageCtrl extends AdministrateAppModel
             AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storageType));
         }
     }
-    
 
     /**
      * Check if a record can be deleted.
      *
-     * @param $storageControlId Id
-     *            of the studied record.
-     *
+     * @param $storageControlId Id of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
-     *
+     *        
      * @author N. Luc
      * @since 2018-07-04
      */
@@ -368,7 +366,7 @@ class StorageCtrl extends AdministrateAppModel
                 'msg' => 'this storage type has already been used to build a storage'
             );
         }
-    
+        
         return array(
             'allow_deletion' => true,
             'msg' => ''

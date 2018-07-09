@@ -84,8 +84,8 @@ if ($hookLink) {
 // BUILD FORM
 if ($displayNextSubForm)
     $this->Structures->build($finalAtimStructure, $finalOptions);
-
-// tx----------------
+    
+    // tx----------------
 $structureLinks['radiolist'] = array(
     'Collection.treatment_master_id' => '%%TreatmentMaster.id%%'
 );
@@ -122,8 +122,8 @@ if ($hookLink) {
 // BUILD FORM
 if ($displayNextSubForm)
     $this->Structures->build($finalAtimStructure, $finalOptions);
-
-// event----------------
+    
+    // event----------------
 $structureLinks['radiolist'] = array(
     'Collection.event_master_id' => '%%EventMaster.id%%'
 );

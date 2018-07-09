@@ -20,6 +20,7 @@ class CodingIcdo3sController extends CodingIcdAppController
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
     /**
+     *
      * @param $useIcdType
      */
     public function tool($useIcdType)
@@ -29,6 +30,7 @@ class CodingIcdo3sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      * @param bool $isTool
      */
@@ -40,6 +42,7 @@ class CodingIcdo3sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      */
     public function autocomplete($useIcdType = "topo")
@@ -51,6 +54,7 @@ class CodingIcdo3sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param $icdTypeName
      * @return mixed|null
      */

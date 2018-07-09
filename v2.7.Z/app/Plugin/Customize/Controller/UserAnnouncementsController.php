@@ -4,6 +4,7 @@
  * Class UserAnnouncementsController
  */
 App::uses('CustomizeAppController', 'Customize.Controller');
+
 class UserAnnouncementsController extends CustomizeAppController
 {
 
@@ -18,6 +19,7 @@ class UserAnnouncementsController extends CustomizeAppController
     );
 
     /**
+     *
      * @param string $listType
      */
     public function index($listType = '')
@@ -43,7 +45,7 @@ class UserAnnouncementsController extends CustomizeAppController
             $conditions = array(
                 'OR' => array(
                     array(
-                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id']? $_SESSION['Auth']['User']['Group']['bank_id'] : '-1'
+                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id'] ? $_SESSION['Auth']['User']['Group']['bank_id'] : '-1'
                     ),
                     array(
                         'Announcement.user_id' => $_SESSION['Auth']['User']['id']
@@ -85,11 +87,11 @@ class UserAnnouncementsController extends CustomizeAppController
     }
 
     /**
+     *
      * @param null $announcementId
      */
     public function detail($announcementId = null)
     {
-        
         $this->Structures->set('announcements');
         
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);

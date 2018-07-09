@@ -18,12 +18,13 @@ class ProtocolMastersController extends ProtocolAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
-    
+        
         $hookLink = $this->hook('pre_search_handler');
         if ($hookLink) {
             require ($hookLink);
@@ -48,6 +49,7 @@ class ProtocolMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolControlId
      */
     public function add($protocolControlId)
@@ -100,6 +102,7 @@ class ProtocolMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      */
     public function detail($protocolMasterId)
@@ -126,6 +129,7 @@ class ProtocolMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      */
     public function edit($protocolMasterId)
@@ -169,6 +173,7 @@ class ProtocolMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      */
     public function delete($protocolMasterId)

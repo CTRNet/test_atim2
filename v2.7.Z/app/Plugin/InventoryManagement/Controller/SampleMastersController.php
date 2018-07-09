@@ -47,6 +47,7 @@ class SampleMastersController extends InventoryManagementAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -83,6 +84,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param int $sampleMasterId
      * @param bool $isAjax
@@ -91,8 +93,8 @@ class SampleMastersController extends InventoryManagementAppController
     {
         $this->Collection->getOrRedirect($collectionId);
         
-        // To sort data based on date        
-        $tmpArray = array();        
+        // To sort data based on date
+        $tmpArray = array();
         $aS = array(
             '±' => 0,
             'y' => 1,
@@ -102,8 +104,8 @@ class SampleMastersController extends InventoryManagementAppController
             'i' => 5,
             'c' => 6,
             '' => 7
-        );        
-        $addToTmpArray = function (array $in, $model, $dateField, $accuracyField) use ($aS, &$tmpArray) {
+        );
+        $addToTmpArray = function (array $in, $model, $dateField, $accuracyField) use($aS, &$tmpArray) {
             if ($in[$model][$dateField]) {
                 $tmpArray[$in[$model][$dateField] . $aS[$in[$model][$accuracyField]]][] = $in;
             } else {
@@ -111,7 +113,7 @@ class SampleMastersController extends InventoryManagementAppController
             }
         };
         
-        // Main Code        
+        // Main Code
         if ($isAjax) {
             $this->layout = 'ajax';
             Configure::write('debug', 0);
@@ -123,7 +125,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
         $atimStructure['SampleMaster'] = $this->Structures->get('form', 'sample_masters_for_collection_tree_view');
         $atimStructure['AliquotMaster'] = $this->Structures->get('form', 'aliquot_masters_for_collection_tree_view');
-        $atimStructure['SampleUseForCollectionTreeView'] = $this->Structures->get('form', 'sample_uses_for_collection_tree_view');      
+        $atimStructure['SampleUseForCollectionTreeView'] = $this->Structures->get('form', 'sample_uses_for_collection_tree_view');
         
         $this->set('atimStructure', $atimStructure);
         $this->set("collectionId", $collectionId);
@@ -159,7 +161,15 @@ class SampleMastersController extends InventoryManagementAppController
                 'recursive' => 0
             ));
             foreach ($this->request->data as &$newSample)
-                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h', 'h', 'h'), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
+                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array(
+                    '',
+                    'c',
+                    'i'
+                ), array(
+                    'h',
+                    'h',
+                    'h'
+                ), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
         }
         
         $ids = array();
@@ -239,13 +249,19 @@ class SampleMastersController extends InventoryManagementAppController
                 }
             }
             $this->request->data = $aliquots;
-                
+            
             // Add sample Specimen Review that is not linked to an aliquot
-            foreach ($this->SpecimenReviewMaster->find('all', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sampleMasterId))) as $newSpecimenReview) {
+            foreach ($this->SpecimenReviewMaster->find('all', array(
+                'conditions' => array(
+                    'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
+                )
+            )) as $newSpecimenReview) {
                 $aliquotReviewMasterConditions = array(
                     'AliquotReviewMaster.specimen_review_master_id' => $newSpecimenReview['SpecimenReviewMaster']['id']
                 );
-                if (! $this->AliquotReviewMaster->find('count', array('conditions' => $aliquotReviewMasterConditions))) {
+                if (! $this->AliquotReviewMaster->find('count', array(
+                    'conditions' => $aliquotReviewMasterConditions
+                ))) {
                     $formatedSpecimenReviewData = array_merge($newSpecimenReview, array(
                         'Generated' => array(
                             'sample_use_definition' => __('specimen review'),
@@ -259,7 +275,12 @@ class SampleMastersController extends InventoryManagementAppController
             }
             
             // Add sample Specimen Review that is not linked to an aliquot
-            foreach ($this->QualityCtrl->find('all', array('conditions' => array('QualityCtrl.sample_master_id' => $sampleMasterId, 'QualityCtrl.aliquot_master_id IS NULL'))) as $newQualityCtrl) {
+            foreach ($this->QualityCtrl->find('all', array(
+                'conditions' => array(
+                    'QualityCtrl.sample_master_id' => $sampleMasterId,
+                    'QualityCtrl.aliquot_master_id IS NULL'
+                )
+            )) as $newQualityCtrl) {
                 $formatedQualityCtrlData = array_merge($newQualityCtrl, array(
                     'Generated' => array(
                         'sample_use_definition' => __('quality control'),
@@ -316,10 +337,9 @@ class SampleMastersController extends InventoryManagementAppController
     /**
      * List all derivatives samples of a specimen.
      *
-     * @param $collectionId ID
-     *            of the collection
+     * @param $collectionId ID of the collection
      * @param $specimenSampleMasterId
-     * @internal param sample_master_id $specimenSampleId of the specimen*            of the specimen
+     * @internal param sample_master_id $specimenSampleId of the specimen* of the specimen
      */
     public function listAllDerivatives($collectionId, $specimenSampleMasterId)
     {
@@ -381,6 +401,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param int $isFromTreeView
@@ -548,6 +569,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleControlId
      * @param int $parentSampleMasterId
@@ -692,7 +714,7 @@ class SampleMastersController extends InventoryManagementAppController
                     $this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $defaultReceptionDatetimeAccuracy;
                 }
             }
-                
+            
             // Set default field values defined into the collection template
             if (isset(AppController::getInstance()->passedArgs['nodeIdWithDefaultValues'])) {
                 $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
@@ -704,7 +726,7 @@ class SampleMastersController extends InventoryManagementAppController
                 $templateNodeDefaultValues = array();
                 foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
                     foreach ($fieldsValues as $field => $Value) {
-                        $templateNodeDefaultValues["$model.$field"] = is_array($Value)? $this->getFormatedDatetimeSQL($Value) : $Value;
+                        $templateNodeDefaultValues["$model.$field"] = is_array($Value) ? $this->getFormatedDatetimeSQL($Value) : $Value;
                     }
                 }
                 $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);
@@ -850,6 +872,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -929,7 +952,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'conditions' => array(
                         'id' => $sampleData['DerivativeDetail']['lab_book_master_id']
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
                 if (empty($previousLabook)) {
                     $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1055,6 +1078,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -1114,6 +1138,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivativeInit($aliquotMasterId = null)
@@ -1142,7 +1167,7 @@ class SampleMastersController extends InventoryManagementAppController
             $model = 'SampleMaster';
             $key = 'id';
             $aliquotMaster = $this->AliquotMaster->findById($aliquotMasterId);
-            if (empty($aliquotMaster)){
+            if (empty($aliquotMaster)) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
@@ -1251,6 +1276,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivativeInit2($aliquotMasterId = null)
@@ -1310,6 +1336,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivative($aliquotMasterId = null)

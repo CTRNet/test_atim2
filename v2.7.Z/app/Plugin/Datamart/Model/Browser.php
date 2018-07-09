@@ -23,7 +23,7 @@ class Browser extends DatamartAppModel
     public $mergedIds = null;
 
     public $validPermission = null;
-
+    
     // set when initDataLoad is called.
     private static $browsingControlModel = null;
 
@@ -84,19 +84,14 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param int $startingCtrlId
-     *            The control id to base the dropdown on. If zero, all will be displayed without export options
-     * @param int $nodeId
-     *            The current node id.
-     * @param string $pluginName
-     *            The name of the plugin to use in export to csv link
-     * @param string $modelName
-     *            The name of the model to use in export to csv link
-     * @param string $dataModel            
-     * @param string $modelPkey            
-     * @param string $dataPkey            
-     * @param array $subModelsIdFilter
-     *            An array with ControlModel => array(ids) to filter the sub models id
+     * @param int $startingCtrlId The control id to base the dropdown on. If zero, all will be displayed without export options
+     * @param int $nodeId The current node id.
+     * @param string $pluginName The name of the plugin to use in export to csv link
+     * @param string $modelName The name of the model to use in export to csv link
+     * @param string $dataModel
+     * @param string $modelPkey
+     * @param string $dataPkey
+     * @param array $subModelsIdFilter An array with ControlModel => array(ids) to filter the sub models id
      * @return Returns an array representing the options to display in the action drop down
      */
     public function getBrowserDropdownOptions($startingCtrlId, $nodeId, $pluginName, $modelName, $dataModel, $modelPkey, $dataPkey, array $subModelsIdFilter = null)
@@ -240,6 +235,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param array $fromTo
      * @param $currentId
      * @param array $browsingStructures
@@ -278,14 +274,10 @@ class Browser extends DatamartAppModel
     /**
      * Builds the browsable part of the array for action menu
      *
-     * @param array $fromTo
-     *            An array containing the possible destinations for each keys
-     * @param Int $currentId
-     *            The current not control id
-     * @param array $browsingStructures
-     *            An array containing data about all available browsing structures. Used to get the displayed value
-     * @param array $subModelsIdFilter
-     *            An array with ControlModel => array(ids) to filter the sub models id
+     * @param array $fromTo An array containing the possible destinations for each keys
+     * @param Int $currentId The current not control id
+     * @param array $browsingStructures An array containing data about all available browsing structures. Used to get the displayed value
+     * @param array $subModelsIdFilter An array with ControlModel => array(ids) to filter the sub models id
      * @return An array representing the browsable portion of the action menu
      */
     public function buildBrowsableOptions(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null)
@@ -331,7 +323,7 @@ class Browser extends DatamartAppModel
                         continue;
                     } elseif ($studySatamartStructureId && $studySatamartStructureId != $browsingStructures[$toVal]['id'] && in_array($studySatamartStructureId, $toPath)) {
                         // study can not be a 'bridge' between two datamart structures (see issue #3374: Databrowser: From misc identifiers to orders, the system go through Study)
-						continue;
+                        continue;
                     }
                     $stack[$toVal] = null;
                     $tmpResult = array(
@@ -371,6 +363,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param array $result
      * @param array $browsingStructures
      * @param $currentId
@@ -401,13 +394,11 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param array $mainModelInfo
-     *            A DatamartStructure model data array of the node to fetch the submodels of
-     * @param string $prependValue
-     *            A string to prepend to the value
+     * @param array $mainModelInfo A DatamartStructure model data array of the node to fetch the submodels of
+     * @param string $prependValue A string to prepend to the value
      * @param array|null $idsFilter
      * @return array The data about the submodels of the given model
-     * @internal param $ array ids_filter An array to filter the controls ids of the current sub model*            array ids_filter An array to filter the controls ids of the current sub model
+     * @internal param $ array ids_filter An array to filter the controls ids of the current sub model* array ids_filter An array to filter the controls ids of the current sub model
      */
     public static function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
     {
@@ -458,16 +449,11 @@ class Browser extends DatamartAppModel
     /**
      * Recursively builds a tree node by node.
      *
-     * @param Int $nodeId
-     *            The node id to fetch
-     * @param Int $activeNode
-     *            The node to hihglight in the graph
-     * @param Array $mergedIds
-     *            The merged nodes ids
-     * @param Array $linkedTypesDown
-     *            Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
-     * @param Array $linkedTypesUp
-     *            Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
+     * @param Int $nodeId The node id to fetch
+     * @param Int $activeNode The node to hihglight in the graph
+     * @param Array $mergedIds The merged nodes ids
+     * @param Array $linkedTypesDown Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
+     * @param Array $linkedTypesUp Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
      * @return An array representing the search tree
      */
     public static function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
@@ -546,14 +532,11 @@ class Browser extends DatamartAppModel
     /**
      * Builds a representation of the tree within an array
      *
-     * @param array $treeNode
-     *            A node and its informations
+     * @param array $treeNode A node and its informations
      * @param array $tree
-     * @param Int $x
-     *            The current x location
-     * @param Int $y
-     *            The current y location
-     * @internal param $ array &$tree An array with the current tree representation*            array &$tree An array with the current tree representation
+     * @param Int $x The current x location
+     * @param Int $y The current y location
+     * @internal param $ array &$tree An array with the current tree representation* array &$tree An array with the current tree representation
      */
     public static function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
     {
@@ -636,11 +619,9 @@ class Browser extends DatamartAppModel
     /**
      * Update the line to print it in blue between the given position and the parent node
      *
-     * @param array $tree            
-     * @param int $activeX
-     *            The current active node x position
-     * @param int $activeY
-     *            The current active node y position
+     * @param array $tree
+     * @param int $activeX The current active node x position
+     * @param int $activeY The current active node y position
      */
     private static function drawActiveLine(array &$tree, $activeX, $activeY)
     {
@@ -685,6 +666,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param $cell
      * @return mixed|string
      */
@@ -705,12 +687,9 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param Int $currentNode
-     *            The id of the current node. Its path will be highlighted
-     * @param array $mergedIds
-     *            The id of the merged node
-     * @param String $webrootUrl
-     *            The webroot of ATiM
+     * @param Int $currentNode The id of the current node. Its path will be highlighted
+     * @param array $mergedIds The id of the merged node
+     * @param String $webrootUrl The webroot of ATiM
      * @return the html of the table search tree
      */
     public static function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
@@ -854,10 +833,8 @@ class Browser extends DatamartAppModel
     /**
      * Formats the search params array and returns it into a table
      *
-     * @param array $params
-     *            Both search parameters with both structures
-     * @param boolean $htmlFormat
-     *            Expect result returned in html format else txt
+     * @param array $params Both search parameters with both structures
+     * @param boolean $htmlFormat Expect result returned in html format else txt
      * @return An html string of a table containing the search formated params
      */
     public static function formatSearchToPrint(array $params, $htmlFormat = true)
@@ -1040,12 +1017,9 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param string $plugin
-     *            The name of the plugin to search on
-     * @param string $controlModel
-     *            The name of the control model to search on
-     * @param int $id
-     *            The id of the alternate structure to retrieve
+     * @param string $plugin The name of the plugin to search on
+     * @param string $controlModel The name of the control model to search on
+     * @param int $id The id of the alternate structure to retrieve
      * @return string The info of the alternate structure
      */
     public static function getAlternateStructureInfo($plugin, $controlModel, $id)
@@ -1079,8 +1053,7 @@ class Browser extends DatamartAppModel
      * NOTE: This
      * function is hardcoded for Storage and Aliquots using some specific db id.</p>
      *
-     * @param array $browsing
-     *            The DatamartStructure and BrowsingResult data to base the filtering on.
+     * @param array $browsing The DatamartStructure and BrowsingResult data to base the filtering on.
      * @return An array with the ControlModel => array(ids to filter with)
      */
     public static function getDropdownSubFiltering(array $browsing)
@@ -1185,8 +1158,7 @@ class Browser extends DatamartAppModel
      * Databrowser lables are string that can be separated by |.
      * Translation will occur on each subsection and replace the pipes by " - "
      *
-     * @param string $label
-     *            The label to translate
+     * @param string $label The label to translate
      * @return string The translated label
      */
     public static function getTranslatedDatabrowserLabel($label)
@@ -1207,6 +1179,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @return array
      */
     private function getActiveStructuresIds()
@@ -1228,10 +1201,8 @@ class Browser extends DatamartAppModel
     /**
      * Builds an ordered array of the nodes to merge
      *
-     * @param array $browsing
-     *            The browsing data of the first node
-     * @param int $mergeTo
-     *            The id of the final node
+     * @param array $browsing The browsing data of the first node
+     * @param int $mergeTo The id of the final node
      * @return An array of the nodes to merge
      */
     private function getNodesToMerge($browsing, $mergeTo)
@@ -1293,6 +1264,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param $node
      * @return string
      */
@@ -1304,6 +1276,7 @@ class Browser extends DatamartAppModel
     /**
      * Builds the search parameters array
      * @note: Hardcoded for collections
+     * 
      * @param $primaryNodeIds
      * @param $order
      */
@@ -1357,12 +1330,9 @@ class Browser extends DatamartAppModel
     /**
      * Init the browser model on the current required data display
      *
-     * @param array $browsing
-     *            Browsing data of the first node
-     * @param int $mergeTo
-     *            Node id of the target node to merge with
-     * @param array $primaryNodeIds
-     *            The ids of the primary node to use
+     * @param array $browsing Browsing data of the first node
+     * @param int $mergeTo Node id of the target node to merge with
+     * @param array $primaryNodeIds The ids of the primary node to use
      * @param null $order
      */
     public function initDataLoad(array $browsing, $mergeTo, array $primaryNodeIds, $order = null)
@@ -1512,6 +1482,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param $chunkSize
      */
     private function fillBuffer($chunkSize)
@@ -1538,7 +1509,7 @@ class Browser extends DatamartAppModel
 
     /**
      *
-     * @param unknown_type $chunkSize            
+     * @param unknown_type $chunkSize
      * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
      */
     public function getDataChunk($chunkSize)
@@ -1593,7 +1564,7 @@ class Browser extends DatamartAppModel
      * When defining advanced search parameters (parameters based on previous nodes),
      * updates the joins and conditions arrays.
      *
-     * @param array $params            
+     * @param array $params
      * @return null on success, a model display_name string if a parent node has not a 1:1 relation with it's descendant
      */
     public function buildAdvancedSearchParameters(array &$params)
@@ -1623,7 +1594,7 @@ class Browser extends DatamartAppModel
                                     'BrowsingControl.id2' => $parentBrowsing['DatamartStructure']['id']
                                 )
                             ));
-                            $parentBrowsingModel = AppModel::getInstance($parentBrowsing['DatamartStructure']['plugin'], $parentBrowsing['DatamartStructure']['control_master_model'] ?: $parentBrowsing['DatamartStructure']['model'], true);
+                            $parentBrowsingModel = AppModel::getInstance($parentBrowsing['DatamartStructure']['plugin'], $parentBrowsing['DatamartStructure']['control_master_model'] ?  : $parentBrowsing['DatamartStructure']['model'], true);
                             
                             if ($parentBrowsingModel->name == $advField['model'] && ! $parentBrowsingModel->schema($advField['field'])) {
                                 // error, the field doesn't exist
@@ -1693,6 +1664,7 @@ class Browser extends DatamartAppModel
     }
 
     /**
+     *
      * @param $params
      * @return array
      */
@@ -1712,8 +1684,8 @@ class Browser extends DatamartAppModel
         $save = array();
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
             echo $browsing['DatamartStructure']['index_link'];
-            $controller->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
-//            $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $controller->atimFlashError(__("You are not authorized to access that location."), Router::url($this->here, true));
+            // $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return false;
         }
         $modelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -1800,7 +1772,7 @@ class Browser extends DatamartAppModel
                     'BrowsingControl.id2' => $browsing['DatamartStructure']['id']
                 )
             ));
-            $parentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?: $parent['DatamartStructure']['model'], true);
+            $parentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?  : $parent['DatamartStructure']['model'], true);
             if (! empty($controlData)) {
                 $toJoin = array(
                     'table' => $parentModel->table,
@@ -1849,8 +1821,8 @@ class Browser extends DatamartAppModel
             if ($errorModelDisplayName != null) {
                 // example: If 3 tx are owned by the same participant, this error will be displayed.
                 // we do it to make sure the result set is made with 1:1 relationship, thus clear.
-                $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), Router::url( $this->here, true));
-//                $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
+                $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), Router::url($this->here, true));
+                // $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
                 return false;
             }
             $orgSearchConditions['adv_search_conditions'] = $advParams['conditions_adv'];
@@ -2033,8 +2005,8 @@ $browsingFilter['attribute']);
             // we have an empty set, bail out! (don't save empty result)
             if ($params['last']) {
                 // go back 1 page
-                $controller->atimFlashError(__("no data matches your search parameters"), Router::url( $this->here, true));
-                //$controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
+                $controller->atimFlashError(__("no data matches your search parameters"), Router::url($this->here, true));
+                // $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
             } else {
                 // go to the last node
                 $controller->atimFlashWarning(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/");
@@ -2104,6 +2076,7 @@ $browsingFilter['attribute']);
     }
 
     /**
+     *
      * @param $data
      * @param $nodeId
      */

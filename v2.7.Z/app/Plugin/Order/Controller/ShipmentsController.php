@@ -25,12 +25,13 @@ class ShipmentsController extends OrderAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
-    
+        
         $hookLink = $this->hook('pre_search_handler');
         if ($hookLink) {
             require ($hookLink);
@@ -50,6 +51,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param null $orderId
      */
     public function listall($orderId = null)
@@ -83,8 +85,9 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
-     * @param null $copiedShipmentId            
+     * @param null $copiedShipmentId
      */
     public function add($orderId, $copiedShipmentId = null, $orderLineId = null)
     {
@@ -148,6 +151,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param null $orderId
      * @param null $shipmentId
      */
@@ -204,6 +208,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param null $orderId
      * @param null $shipmentId
      * @param bool $isFromTreeView
@@ -255,6 +260,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param null $orderId
      * @param null $shipmentId
      */
@@ -292,13 +298,14 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-        /* ----------------------------- SHIPPED ITEMS ---------------------------- */
+    /* ----------------------------- SHIPPED ITEMS ---------------------------- */
     /**
+     *
      * @param $orderId
      * @param $shipmentId
-     * @param null $orderLineId            
-     * @param null $offset            
-     * @param null $limit            
+     * @param null $orderLineId
+     * @param null $offset
+     * @param null $limit
      */
     public function addToShipment($orderId, $shipmentId, $orderLineId = null)
     {
@@ -400,10 +407,10 @@ class ShipmentsController extends OrderAppController
                 
                 // Take all available items instead to just work on the items returned by the paginate function
                 $availableOrderItems = $this->OrderItem->find('all', array(
-                    'conditions' => $conditions,
+                    'conditions' => $conditions
                 ));
                 $availableOrderItems = AppController::defineArrayKey($availableOrderItems, 'OrderItem', 'id', true);
-
+                
                 $this->AliquotMaster->addWritableField(array(
                     'in_stock',
                     'in_stock_detail',
@@ -521,6 +528,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderItems
      * @return array
      */
@@ -568,6 +576,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param $shipmentId
@@ -583,7 +592,7 @@ class ShipmentsController extends OrderAppController
                 'OrderItem.id' => $orderItemId,
                 'OrderItem.shipment_id' => $shipmentId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($orderItemData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -759,11 +768,12 @@ class ShipmentsController extends OrderAppController
             
             echo __('your data has been saved');
             $this->render(false);
-//            exit();
+            // exit();
         }
     }
 
     /**
+     *
      * @param $contactId
      */
     public function deleteContact($contactId)
@@ -771,6 +781,6 @@ class ShipmentsController extends OrderAppController
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
         $contactsModel->atimDelete($contactId);
         $this->render(false);
-//        exit();
+        // exit();
     }
 }

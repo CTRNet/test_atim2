@@ -48,6 +48,7 @@ class BrowserController extends DatamartAppController
     }
 
     /**
+     *
      * @param $indexId
      */
     public function edit($indexId)
@@ -77,6 +78,7 @@ class BrowserController extends DatamartAppController
     }
 
     /**
+     *
      * @param $indexId
      */
     public function delete($indexId)
@@ -98,6 +100,7 @@ class BrowserController extends DatamartAppController
     }
 
     /**
+     *
      * @param $controlId
      * @return array
      */
@@ -126,37 +129,34 @@ class BrowserController extends DatamartAppController
      * Core of the databrowser, handles all browsing requests.
      * Searches, normal display, merged display and overflow display.
      *
-     * @param int $nodeId
-     *            0 if it's a new browsing, the node id to display or the parent node id when in a search form
-     * @param int|string $controlId
-     *            The datamart structure control id. If there is a substructure,
-     *            the string will separate the structure id from the substructure id with an underscore. It will be of the form id_sub-id
-     * @param int $mergeTo
-     *            If a merged display is required, the node id to merge to. The merge direction is always from node_id to merge_to
+     * @param int $nodeId 0 if it's a new browsing, the node id to display or the parent node id when in a search form
+     * @param int|string $controlId The datamart structure control id. If there is a substructure,
+     *        the string will separate the structure id from the substructure id with an underscore. It will be of the form id_sub-id
+     * @param int $mergeTo If a merged display is required, the node id to merge to. The merge direction is always from node_id to merge_to
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
         $totalMemory = getTotalMemoryCapacity();
-        ini_set("memory_limit", $totalMemory/4 . "M");
-
-        if ($controlId!=0){
-            $browsing=$this->DatamartStructure->findById($controlId);
-            if (isset($browsing['DatamartStructure']['index_link']) && !AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
-                $url= Router::url(null, true);
+        ini_set("memory_limit", $totalMemory / 4 . "M");
+        
+        if ($controlId != 0) {
+            $browsing = $this->DatamartStructure->findById($controlId);
+            if (isset($browsing['DatamartStructure']['index_link']) && ! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
+                $url = Router::url(null, true);
                 $plugin = $this->request->params['plugin'];
                 $controller = $this->request->params['controller'];
                 $action = $this->request->params['action'];
-                $pca = '/'.$plugin.'/'.$controller.'/'.$action.'/';
+                $pca = '/' . $plugin . '/' . $controller . '/' . $action . '/';
                 $index = strpos($url, $pca);
                 $url = substr($url, 0, $index + strlen($pca));
                 $this->atimFlashError(__("You are not authorized to access that location."), $url);
             }
         }
-        if ($controlId!=0 && isset($_SESSION['post_data'])){
-            $plugin=$this->request->params['plugin'];
-            $controller=$this->request->params['controller'];
-            $action=$this->request->params['action'];
-            if (isset($_SESSION['post_data'][$plugin][$controller][$action])){
+        if ($controlId != 0 && isset($_SESSION['post_data'])) {
+            $plugin = $this->request->params['plugin'];
+            $controller = $this->request->params['controller'];
+            $action = $this->request->params['action'];
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action])) {
                 convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action], 'jsPostData');
             }
         }
@@ -176,7 +176,7 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-
+        
         // data handling will redirect to a straight page
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
@@ -210,7 +210,7 @@ class BrowserController extends DatamartAppController
             // save nodes (direct and indirect)
             foreach ($directIdArr as $controlId) {
                 $subStructCtrlId = null;
-                if (isset($subStructureId) /* there is a sub id */ && $directIdArr[count($directIdArr) - 1] == $controlId /* this is the last element */ &&  $checkList)/* this is a checklist */{ 
+                if (isset($subStructureId) /* there is a sub id */ && $directIdArr[count($directIdArr) - 1] == $controlId /* this is the last element */ &&  $checkList)/* this is a checklist */{
                     $subStructCtrlId = $subStructureId;
                 }
                 
@@ -286,7 +286,7 @@ class BrowserController extends DatamartAppController
             $this->Browser->initDataLoad($browsing, $mergeTo, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
             
             if (! $this->Browser->validPermission) {
-//                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+                // $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
                 $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 return;
             }
@@ -338,7 +338,7 @@ class BrowserController extends DatamartAppController
             $this->set('csvMergeData', $csvMergeData);
         } elseif ($browsing) {
             if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-//                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+                // $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
                 $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 return;
             }
@@ -441,9 +441,9 @@ class BrowserController extends DatamartAppController
     public function csv($allFields, $nodeId, $mergeTo)
     {
         $totalMemory = getTotalMemoryCapacity();
-        ini_set("memory_limit", $totalMemory/4 . "M");
-        ini_set("max_execution_time", -1);
-
+        ini_set("memory_limit", $totalMemory / 4 . "M");
+        ini_set("max_execution_time", - 1);
+        
         $config = array_merge($this->request->data['Config'], $this->request->data[0]);
         
         unset($this->request->data[0]);
@@ -453,7 +453,7 @@ class BrowserController extends DatamartAppController
         $browsing = $this->BrowsingResult->findById($nodeId);
         
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-//            $this->atimFlashError(__("You are not authorized to access that location."), Router::url(null, true));
+            // $this->atimFlashError(__("You are not authorized to access that location."), Router::url(null, true));
             $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return;
         }
@@ -511,7 +511,7 @@ class BrowserController extends DatamartAppController
             foreach ($browsingResults as $browsingResult) {
                 // permissions
                 if (! AppController::checkLinkPermission($browsingResult['DatamartStructure']['index_link'])) {
-//                    $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+                    // $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
                     $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                     return;
                 }
@@ -569,7 +569,7 @@ class BrowserController extends DatamartAppController
             $this->Browser->InitDataLoad($browsing, $config['redundancy'] == 'same' ? 0 : $mergeTo, $ids);
             
             if (! $this->Browser->validPermission) {
-//                $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
+                // $this->atimFlashError(__("You are not authorized to access that location."), Router::url( $this->here, true));
                 $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 return;
             }
@@ -662,6 +662,7 @@ class BrowserController extends DatamartAppController
     }
 
     /**
+     *
      * @param $indexId
      */
     public function save($indexId)
@@ -689,7 +690,7 @@ class BrowserController extends DatamartAppController
      * row of the current set.
      * Echoes the new node id, if any.
      *
-     * @param int $nodeId            
+     * @param int $nodeId
      */
     public function unusedParent($nodeId)
     {
@@ -806,6 +807,7 @@ class BrowserController extends DatamartAppController
     }
 
     /**
+     *
      * @param $startingNodeId
      * @param $browsingStepIndexId
      */
