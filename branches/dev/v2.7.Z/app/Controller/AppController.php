@@ -193,7 +193,7 @@ class AppController extends Controller
         if (Configure::read('atim_user_log_output_path')) {
             $userLogFileHandle = fopen(Configure::read('atim_user_log_output_path') . '/user_logs.txt', "a");
             if ($userLogFileHandle) {
-                $userLogStrg = '[' . $logActivityData['UserLog']['visited'] . '] ' . '{user_id:' . (strlen($logActivityData['UserLog']['user_id']) ? $logActivityData['UserLog']['user_id'] : 'NULL') . '] ' . $logActivityData['UserLog']['url'] . ' (allowed:' . $logActivityData['UserLog']['allowed'] . ')';
+                $userLogStrg = '[' . $logActivityData['UserLog']['visited'] . '] ' . '{IP: ' . AppModel::getRemoteIPAddress() . ' || user_id: ' . (strlen($logActivityData['UserLog']['user_id']) ? $logActivityData['UserLog']['user_id'] : 'NULL') . '} ' . $logActivityData['UserLog']['url'] . ' (allowed:' . $logActivityData['UserLog']['allowed'] . ')';
                 fwrite($userLogFileHandle, "$userLogStrg\n");
                 fclose($userLogFileHandle);
             } else {
