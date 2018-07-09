@@ -79,6 +79,7 @@ class SampleMaster extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -139,6 +140,7 @@ class SampleMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -181,6 +183,7 @@ class SampleMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getParentSampleDropdown()
@@ -189,6 +192,7 @@ class SampleMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getDerivativesDropdown()
@@ -198,8 +202,7 @@ class SampleMaster extends InventoryManagementAppModel
 
     /**
      *
-     * @param array $sampleMasterIds
-     *            The sample master ids whom child existence will be verified
+     * @param array $sampleMasterIds The sample master ids whom child existence will be verified
      * @return array The sample master ids having a child
      */
     public function hasChild(array $sampleMasterIds)
@@ -255,14 +258,10 @@ class SampleMaster extends InventoryManagementAppModel
      * Validates a lab book.
      * Update the lab_book_master_id if it's ok.
      *
-     * @param array $data
-     *            The data to work with
-     * @param LabBookMaster $labBook
-     *            Any LabBookMaster object (it's assumed the caller is already using one)
-     * @param int $labBookCtrlId
-     *            The lab_book_ctrl_id that is allowed
-     * @param boolean $sync
-     *            If true, will synch with the lab book when it's valid
+     * @param array $data The data to work with
+     * @param LabBookMaster $labBook Any LabBookMaster object (it's assumed the caller is already using one)
+     * @param int $labBookCtrlId The lab_book_ctrl_id that is allowed
+     * @param boolean $sync If true, will synch with the lab book when it's valid
      * @return An empty string on success, an error string on failure.
      */
     public function validateLabBook(array &$data, $labBook, $labBookCtrlId, $sync)
@@ -293,13 +292,10 @@ class SampleMaster extends InventoryManagementAppModel
      * Create Sample code of a created sample.
      *
      *
-     * @param $sampleMasterId Id
-     *            of the created sample.
-     * @param $sampleMasterData Array
-     *            that contains sample master data of the created sample.
-     * @param $sampleControlData Array
-     *            that contains sample control data of the created sample.
-     *            
+     * @param $sampleMasterId Id of the created sample.
+     * @param $sampleMasterData Array that contains sample master data of the created sample.
+     * @param $sampleControlData Array that contains sample control data of the created sample.
+     *       
      * @return The sample code of the created sample.
      *        
      * @author N. Luc
@@ -317,9 +313,8 @@ class SampleMaster extends InventoryManagementAppModel
     /**
      * Check if a sample can be deleted.
      *
-     * @param $sampleMasterId Id
-     *            of the studied sample.
-     *            
+     * @param $sampleMasterId Id of the studied sample.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -334,7 +329,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SampleMaster.parent_id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -349,7 +344,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -377,7 +372,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'QualityCtrl.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -392,7 +387,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -410,9 +405,8 @@ class SampleMaster extends InventoryManagementAppModel
     /**
      * Format parent sample data array for display.
      *
-     * @param $parentSampleData Parent
-     *            sample data
-     *            
+     * @param $parentSampleData Parent sample data
+     *       
      * @return Parent sample list into array having following structure:
      *         array($parentSampleMasterId => $sampleTitleBuiltByFunction)
      *        
@@ -435,6 +429,7 @@ class SampleMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $modelId
      * @param bool $cascade
      * @return bool
@@ -467,6 +462,7 @@ class SampleMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $onField
      * @return array
      */

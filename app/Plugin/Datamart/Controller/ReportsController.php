@@ -19,11 +19,12 @@ class ReportsController extends DatamartAppController
             'order' => 'Report.name ASC'
         )
     );
-
+    
     // -------------------------------------------------------------------------------------------------------------------
     // SELECT APP . 'View' . DS . 'Elements' . DS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
     // -------------------------------------------------------------------------------------------------------------------
     /**
+     *
      * @param $typeOfObjectToCompare
      * @param $batchSetOrNodeIdToCompare
      * @param bool $csvCreation
@@ -68,7 +69,7 @@ class ReportsController extends DatamartAppController
             // User just launched process to compare 2 nodes
             if (! empty($this->request->data))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            // Launched process from databrowser node on selected elements
+                // Launched process from databrowser node on selected elements
             $tmpNodeOfSelectedElements = $this->BrowsingResult->findById($previousCurrentNodeId);
             $selectedElementsDatamartStructureData = array(
                 'DatamartStructure' => $tmpNodeOfSelectedElements['DatamartStructure']
@@ -206,7 +207,7 @@ class ReportsController extends DatamartAppController
                 'conditions' => array(
                     'Structure.id' => $datamartStructure['structure_id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             $structureAlias = $atimStructureData['structure']['Structure']['alias'];
         }
@@ -222,7 +223,6 @@ class ReportsController extends DatamartAppController
             // CSV cretion
             Configure::write('debug', 0);
             $this->layout = false;
-            
         } else {
             // Results display
             // - Manage drop down action
@@ -253,11 +253,11 @@ class ReportsController extends DatamartAppController
                 'selected_elements_ids' => implode(",", $selectedElementsIds)
             );
         }
-        if ($this->layout == false){
+        if ($this->layout == false) {
             $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         }
     }
-
+    
     // -------------------------------------------------------------------------------------------------------------------
     // CUSTOM REPORTS DISPLAY AND MANAGEMENT
     // -------------------------------------------------------------------------------------------------------------------
@@ -280,21 +280,22 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $reportId
      * @param bool $csvCreation
      */
     public function manageReport($reportId, $csvCreation = false)
     {
         $totalMemory = getTotalMemoryCapacity();
-        ini_set("memory_limit", $totalMemory/4 . "M");
-        $reportId = !empty($reportId)?$reportId:"-1";
-        $plugin="Datamart";
-        $controller="Reports";
-        $action="manageReport";
-        if (!empty($this->request->data)){
-            $_SESSION['post_data'][$plugin][$controller][$action][$reportId]=$this->request->data;
-        }else{
-            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$reportId])){
+        ini_set("memory_limit", $totalMemory / 4 . "M");
+        $reportId = ! empty($reportId) ? $reportId : "-1";
+        $plugin = "Datamart";
+        $controller = "Reports";
+        $action = "manageReport";
+        if (! empty($this->request->data)) {
+            $_SESSION['post_data'][$plugin][$controller][$action][$reportId] = $this->request->data;
+        } else {
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$reportId])) {
                 convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action][$reportId], 'jsPostData');
             }
         }
@@ -470,7 +471,7 @@ class ReportsController extends DatamartAppController
                 // Set data for display/csv
                 $this->request->data = AppModel::sortWithUrl($dataReturnedByFct['data'], $criteriaToSortReport);
                 $this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
-                $this->set('resultFormStructureAccuracy', array_key_exists('structure_accuracy', $dataReturnedByFct)? $dataReturnedByFct['structure_accuracy'] : array());
+                $this->set('resultFormStructureAccuracy', array_key_exists('structure_accuracy', $dataReturnedByFct) ? $dataReturnedByFct['structure_accuracy'] : array());
                 $this->set('resultFormType', $report['Report']['form_type_for_results']);
                 $this->set('resultHeader', $dataReturnedByFct['header']);
                 $this->set('resultColumnsNames', $dataReturnedByFct['columns_names']);
@@ -486,7 +487,7 @@ class ReportsController extends DatamartAppController
                     // Code to be able to launch actions from report linked to structure and model
                     $this->set('linkedDatamartStructureModelName', $linkedDatamartStructure['DatamartStructure']['model']);
                     $this->set('linkedDatamartStructureKeyName', $linkedModel->primaryKey);
-                    if ($linkedDatamartStructure['DatamartStructure']['index_link']){
+                    if ($linkedDatamartStructure['DatamartStructure']['index_link']) {
                         $this->set('linkedDatamartStructureLinks', $linkedDatamartStructure['DatamartStructure']['index_link']);
                     }
                     $linkedDatamartStructureActions = $this->DatamartStructure->getDropdownOptions($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], $linkedModel->primaryKey, null, null, null, null, false);
@@ -502,28 +503,28 @@ class ReportsController extends DatamartAppController
                     );
                     $this->set('linkedDatamartStructureActions', $linkedDatamartStructureActions);
                 }
-                if ($this->layout == false){
+                if ($this->layout == false) {
                     $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 }
-
             }
         }
     }
-
+    
     // -------------------------------------------------------------------------------------------------------------------
     // FUNCTIONS ADDED TO THE CONTROLLER AS CUSTOM REPORT EXAMPLES
     // -------------------------------------------------------------------------------------------------------------------
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function bankActiviySummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         // 1- Build Header
@@ -541,8 +542,8 @@ class ReportsController extends DatamartAppController
         $searchOnDateRange = true;
         if ((strpos($startDateForSql, '-9999') === 0) && (strpos($endDateForSql, '9999') === 0))
             $searchOnDateRange = false;
-        
-        // Get new participant
+            
+            // Get new participant
         if (! isset($this->Participant)) {
             $this->Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
         }
@@ -596,13 +597,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function sampleAndDerivativeCreationSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         // 1- Build Header
@@ -751,16 +753,17 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function bankActiviySummaryPerPeriod($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         if (empty($parameters[0]['report_date_range_period'])) {
@@ -886,7 +889,7 @@ class ReportsController extends DatamartAppController
             'columns_names' => array_values($dateKeyList),
             'error_msg' => $errorMsg
         );
-            
+        
         // Build Graphics
         
         $pieCharts = array(
@@ -1022,13 +1025,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function ctrnetCatalogueSubmissionFile($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         // 1- Build Header
@@ -1406,16 +1410,17 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function participantIdentifiersSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -1497,13 +1502,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function getAllDerivatives($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -1591,6 +1597,7 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $viewSampleModel
      * @param array $parentSampleIds
      * @return array
@@ -1598,7 +1605,7 @@ class ReportsController extends DatamartAppController
     public function getChildrenSamples($viewSampleModel, $parentSampleIds = array())
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         if (! empty($parentSampleIds)) {
@@ -1625,13 +1632,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function getAllSpecimens($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -1729,13 +1737,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function getAllChildrenStorage($parameters)
     {
         if (! AppController::checkLinkPermission('/StorageLayout/StorageMasters/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -1771,7 +1780,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'StorageMaster.selection_label ASC'
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
         if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
@@ -1792,7 +1801,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'StorageMaster.selection_label ASC'
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $res = array();
         foreach ($studiedStorages as $newStudiedStorage) {
@@ -1821,13 +1830,14 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
     public function getAllRelatedDiagnosis($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null , true));
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -1921,6 +1931,7 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
@@ -2128,10 +2139,11 @@ class ReportsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $parameters
      * @return array
      */
-    function atimDemoReportParticipantClinicalData($parameters)
+    public function atimDemoReportParticipantClinicalData($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
             $this->atimFlashError(__('you need privileges to access this page') . 'xxx', 'javascript:history.back()');
@@ -2150,13 +2162,13 @@ class ReportsController extends DatamartAppController
             if ($participantIdentifierStart) {
                 $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
             } elseif ($participantIdentifierEnd) {
-                    $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
-                }
+                $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
+            }
         } elseif (isset($parameters['Participant']['participant_identifier'])) {
             $displayExactSearchWarning = true;
-            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-            if ($participant_identifiers)
-                $conditions[] = "Participant.participant_identifier IN ('" . implode("','", $participant_identifiers) . "')";
+            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participantIdentifiers)
+                $conditions[] = "Participant.participant_identifier IN ('" . implode("','", $participantIdentifiers) . "')";
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
@@ -2204,8 +2216,8 @@ class ReportsController extends DatamartAppController
             );
         }
         $participantidToData = array();
-        foreach ($participantsData as $new_participant) {
-            $participantidToData[$new_participant['Participant']['id']] = array_merge($new_participant, array(
+        foreach ($participantsData as $newParticipant) {
+            $participantidToData[$newParticipant['Participant']['id']] = array_merge($newParticipant, array(
                 'DiagnosisControl' => array(
                     'controls_type' => null,
                     'category' => null
@@ -2356,5 +2368,4 @@ class ReportsController extends DatamartAppController
             )
         );
     }
-    
 }

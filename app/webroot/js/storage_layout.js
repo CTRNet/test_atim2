@@ -31,7 +31,7 @@ function initStorageLayout(mode){
                     data = $.parseJSON(data);
                     if(data.valid){
                             initRow($("#firstStorageRow"), data, ctrls);
-                            $("#firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
+                            $("form #firstStorageRow").find("td.droppable").off('click').on('click', addAliquotByClick);
                             if(!ctrls){
                                     $(".clear-loaded-barcodes").remove();
                                     $(".LoadCSV").remove();
@@ -44,7 +44,6 @@ function initStorageLayout(mode){
                     $("#firstStorageRow").find(".dragme").data("top", true);
                     $("#firstStorageRow").find(".droppable").data("top", true);
                     $("#firstStorageRow").data('checkConflicts', data.check_conflicts);
-                    $("body").append("<div id='csvDialogPopup'>");
                     $('#LoadCSVFile').on('change', csvOpen);
                     $('.clear-loaded-barcodes').on('click', clearLoadedBarcodes);
                     flyOverComponents();
@@ -267,7 +266,7 @@ function csvToLayout(){
     for (var i = 0; i < warnings.length; i++) {
         var aliquotData = $.parseJSON($(warnings[i]).attr("data-aliquot"));
         aliquotClass = "warning-aliquot";
-        if (aliquotData["x"]<0 || aliquotData["y"]<0){
+        if (aliquotData["OK"]==0){
             continue;
         }
         var li = $('<div />', {html: $html});
@@ -434,7 +433,7 @@ function searchBack(){
  * @return
  */
 function moveItem(draggable, droparea){
-        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0) || $(droparea).closest("#secondStorageRow").length!=0){
+        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0 || $(droparea).closest("#secondStorageRow").length!=0)){
 		$(draggable).draggable({ revert : true });
         }   
 	else if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){

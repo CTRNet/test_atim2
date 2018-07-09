@@ -17,6 +17,7 @@ class DrugsController extends DrugAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -119,6 +120,7 @@ class DrugsController extends DrugAppController
     }
 
     /**
+     *
      * @param $drugId
      */
     public function edit($drugId)
@@ -158,6 +160,7 @@ class DrugsController extends DrugAppController
     }
 
     /**
+     *
      * @param $drugId
      */
     public function detail($drugId)
@@ -175,6 +178,7 @@ class DrugsController extends DrugAppController
     }
 
     /**
+     *
      * @param $drugId
      */
     public function delete($drugId)
@@ -225,10 +229,20 @@ class DrugsController extends DrugAppController
         Configure::write('debug', 0);
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']);
         $terms = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = array("Drug.generic_name LIKE" => '%'.$keyWord.'%');
+            $terms[] = array(
+                "Drug.generic_name LIKE" => '%' . $keyWord . '%'
+            );
         }
         
         $conditions = array(
@@ -254,7 +268,13 @@ class DrugsController extends DrugAppController
         // build javascript textual array
         $result = "";
         foreach ($data as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $this->Drug->getDrugDataAndCodeForDisplay($dataUnit)) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $this->Drug->getDrugDataAndCodeForDisplay($dataUnit)) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

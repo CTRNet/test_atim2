@@ -44,9 +44,8 @@ class Template extends ToolsAppModel
     /**
      * Get code for 'Add From Template' button to build collection content from template.
      *
-     * @param
-     *            $collectionId
-     *            
+     * @param $collectionId
+     *       
      * @return array Template name and url
      */
     public function getAddFromTemplateMenu($collectionId, $collectionTempalteId = null)
@@ -97,9 +96,8 @@ class Template extends ToolsAppModel
     /**
      * Check if template can be deleted.
      *
-     * @param integer $templateId
-     *            Id of the template
-     *            
+     * @param integer $templateId Id of the template
+     *       
      * @return array Results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false

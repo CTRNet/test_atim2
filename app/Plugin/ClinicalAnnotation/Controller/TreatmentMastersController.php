@@ -23,6 +23,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      * @param null $treatmentControlId
      */
@@ -113,6 +114,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */
@@ -166,6 +168,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */
@@ -255,6 +258,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txControlId
      * @param null $diagnosisMasterId
@@ -455,6 +459,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */

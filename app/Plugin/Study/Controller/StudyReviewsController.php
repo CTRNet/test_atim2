@@ -18,13 +18,14 @@ class StudyReviewsController extends StudyAppController
     );
 
     /**
+     *
      * @param $studySummaryId
      */
     public function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        //exit();
+        // exit();
         if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
@@ -34,7 +35,7 @@ class StudyReviewsController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($studyReviewsData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -57,6 +58,7 @@ class StudyReviewsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyReviewsId
      */
@@ -98,6 +100,7 @@ class StudyReviewsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function add($studySummaryId)
@@ -114,7 +117,7 @@ class StudyReviewsController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($studyReviewsData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -168,6 +171,7 @@ class StudyReviewsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyReviewsId
      */
@@ -242,6 +246,7 @@ class StudyReviewsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyReviewsId
      */

@@ -32,8 +32,9 @@ class CollectionsController extends InventoryManagementAppController
     );
 
     /**
-     * @param int $searchId            
-     * @param bool $isCclAjax            
+     *
+     * @param int $searchId
+     * @param bool $isCclAjax
      */
     public function search($searchId = 0, $isCclAjax = false)
     {
@@ -79,7 +80,7 @@ class CollectionsController extends InventoryManagementAppController
             if ($hookLink) {
                 require ($hookLink);
             }
-        
+            
             $this->searchHandler($searchId, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
         }
         
@@ -117,8 +118,9 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
-     * @param bool $hideHeader            
+     * @param bool $hideHeader
      */
     public function detail($collectionId, $hideHeader = false)
     {
@@ -185,8 +187,9 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
-     * @param int $collectionId            
-     * @param int $copySource            
+     *
+     * @param int $collectionId
+     * @param int $copySource
      */
     public function add($collectionId = 0, $copySource = 0)
     {
@@ -443,6 +446,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      */
     public function edit($collectionId)
@@ -501,6 +505,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      */
     public function delete($collectionId)
@@ -535,6 +540,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $templateId
      */
@@ -589,7 +595,7 @@ class CollectionsController extends InventoryManagementAppController
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, 'AliquotControl', 'id', true),
             'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
             'fomated_nodes_default_values' => $templateNodeModel->formatTemplateNodeDefaultValuesForDisplay($templateId),
-            'default_values_json' => $templateNodeModel->getDefaultValues($templateId),
+            'default_values_json' => $templateNodeModel->getDefaultValues($templateId)
         );
         
         $this->set('jsData', $jsData);
@@ -609,6 +615,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $templateId
      */

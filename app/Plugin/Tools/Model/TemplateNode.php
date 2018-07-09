@@ -14,11 +14,9 @@ class TemplateNode extends ToolsAppModel
      * Manage the structures that will be used to create the inventory data (collection, sample, aliquot) defined by the node
      * to limit list of fields to the fields that could be used to set the default values for the futur inventory data creation.
      *
-     * @param integer $nodeDatamartStructureId
-     *            Datamart structure id recorded for the template node.
-     * @param integer $nodeControlId
-     *            Control ID of the inventory data (collection, sample, aliquot) that will be created from node.
-     *            
+     * @param integer $nodeDatamartStructureId Datamart structure id recorded for the template node.
+     * @param integer $nodeControlId Control ID of the inventory data (collection, sample, aliquot) that will be created from node.
+     *       
      * @return array Formatted structures (including fields)
      */
     public function getStructuresForNodeDefaultValuesEntry($nodeDatamartStructureId, $nodeControlId)
@@ -40,12 +38,12 @@ class TemplateNode extends ToolsAppModel
 
     /**
      * Generate a string gathering all default values defined for the nodes of a template in a user readable format.
-     * 
-     * 
+     *
+     *
      * @param type $nodeDatamartStructureId
-     * @param String $nodeControlId 
-     * 
-     * 
+     * @param String $nodeControlId
+     *
+     *
      * @return String Data gathering formated default values for each node of the template with default values
      */
     public function formatTemplateNodeDefaultValuesForDisplayByControlAndDatamartStructureIdId($nodeDatamartStructureId, $nodeControlId, $defaultValue)
@@ -54,19 +52,23 @@ class TemplateNode extends ToolsAppModel
         $temp = $this->formatDefaultValuesForDisplay($nodeLinkedStructures, $defaultValue);
         return $temp;
     }
-    
-/**
- * Generate an array gathering all default values defined for the nodes of a template in JSON format.
- *  
- * @param integer $nodeId The node id of the root
- * 
- * @return array default values in JSON format related to nodeId as the parent node
- */
-    public function getDefaultValues($nodeId){
+
+    /**
+     * Generate an array gathering all default values defined for the nodes of a template in JSON format.
+     *
+     * @param integer $nodeId The node id of the root
+     *       
+     * @return array default values in JSON format related to nodeId as the parent node
+     */
+    public function getDefaultValues($nodeId)
+    {
         $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
         $defaultValuesJSON = array();
         $templateNodes = $templateNodeModel->find('all', array(
-            'fields' => array('TemplateNode.id', 'TemplateNode.default_values'),
+            'fields' => array(
+                'TemplateNode.id',
+                'TemplateNode.default_values'
+            ),
             'conditions' => array(
                 'TemplateNode.Template_id' => $nodeId,
                 'TemplateNode.default_values IS NOT NULL',
@@ -79,13 +81,12 @@ class TemplateNode extends ToolsAppModel
         
         return $defaultValuesJSON;
     }
-    
+
     /**
      * Generate an array gathering all default values defined for the nodes of a template in a user readable format.
      *
-     * @param integer $templateId
-     *            Id of the collection template
-     *            
+     * @param integer $templateId Id of the collection template
+     *       
      * @return array Data gathering formated default values for each node of the template with default values [array('node_id' => string)]
      */
     public function formatTemplateNodeDefaultValuesForDisplay($templateId)
@@ -118,14 +119,12 @@ class TemplateNode extends ToolsAppModel
     /**
      * Get structures and fields that will be used to create the futur inventory data (collection, sample, aliquot) defined by the node
      *
-     * @param integer $nodeDatamartStructureId
-     *            Datamart structure id recorded for the template node.
-     * @param integer $nodeControlId
-     *            Control ID of the inventory data (collection, sample, aliquot) that will be created from node.
-     *            
+     * @param integer $nodeDatamartStructureId Datamart structure id recorded for the template node.
+     * @param integer $nodeControlId Control ID of the inventory data (collection, sample, aliquot) that will be created from node.
+     *       
      * @return array Structures (including fields) that will be used to create the futur inventory data
      */
-    function getNodeStructrues($nodeDatamartStructureId, $nodeControlId)
+    public function getNodeStructrues($nodeDatamartStructureId, $nodeControlId)
     {
         $key = $nodeDatamartStructureId . '/' . $nodeControlId;
         if (! isset($this->nodesStructures[$key])) {
@@ -144,12 +143,11 @@ class TemplateNode extends ToolsAppModel
     /**
      * Format the default values enterred for a created/modified template node.
      *
-     * @param string $nodeDefaultValues
-     *            Node default values in JSON format.
-     *            
+     * @param string $nodeDefaultValues Node default values in JSON format.
+     *       
      * @return string Formatted default values in JSON format
      */
-    function fromateNodeDefaultValuesToSave($nodeDefaultValues)
+    public function fromateNodeDefaultValuesToSave($nodeDefaultValues)
     {
         $nodeDefaultValues = json_decode($nodeDefaultValues, true);
         $dateFields = array();

@@ -9,11 +9,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.View.Layouts
- * @since         CakePHP(tm) v 0.10.0.1076
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.View.Layouts
+ * @since CakePHP(tm) v 0.10.0.1076
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 $useBuffer = false;
 if (! headers_sent()) {
@@ -28,22 +28,21 @@ if (! headers_sent()) {
 <!DOCTYPE html>
 <html>
 <head>
- <noscript>
- <style>
-     body *{
-         display: none;
-     }
-     .noJavaScript{
-         color: red;
-         font-weight: bold;
-         text-align: center;
-         display: block;
-     }
- </style>
-<p class="noJavaScript">
-    This page needs Javascript activated to work.
-</p>
- </noscript>	
+<noscript>
+	<style>
+body * {
+	display: none;
+}
+
+.noJavaScript {
+	color: red;
+	font-weight: bold;
+	text-align: center;
+	display: block;
+}
+</style>
+	<p class="noJavaScript">This page needs Javascript activated to work.</p>
+</noscript>	
 	<?php
 $header = $this->Shell->header(array(
     'atim_menu_for_header' => $atimMenuForHeader,
@@ -62,8 +61,8 @@ $title = $this->Shell->pageTitle;
 <meta http-equiv="Expires" content="0" />-->
 <?php
 // Add this if because the Print and echo functions cause warning in mode debug.
-//https://stackoverflow.com/questions/8028957#answer-8028987
-if(Configure::read('debug')===0){
+// https://stackoverflow.com/questions/8028957#answer-8028987
+if (Configure::read('debug') === 0) {
     header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
     header("Pragma: no-cache"); // HTTP 1.0.
     header("Expires: 0"); // Proxies.
@@ -73,7 +72,7 @@ if(Configure::read('debug')===0){
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 
 	<?php
-echo $this->Html->css('d3/nv.d3.css') . "\n"; //Chart
+echo $this->Html->css('d3/nv.d3.css') . "\n"; // Chart
 echo $this->Html->css('style') . "\n";
 echo $this->Html->css('jQuery/themes/custom-theme/jquery-ui-1.8.20.custom') . "\n";
 echo $this->Html->css('jQuery/popup/popup.css');
@@ -130,7 +129,7 @@ echo $header;
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
-//echo $content_for_layout;
+// echo $content_for_layout;
 
 echo $this->fetch('content');
 
@@ -155,10 +154,10 @@ echo $this->Html->script('ccl') . "\n";
 echo $this->Html->script('dropdownConfig') . "\n";
 echo $this->Html->script('jquery.fm-menu') . "\n";
 echo $this->Html->script('form/jquery.form.js') . "\n";
-echo $this->Html->script('d3/d3.js') . "\n";    //Chart
-echo $this->Html->script('saveSvgAsPng.js') . "\n"; //Chart
-if ($this->params['plugin'] == 'Datamart' && $this->params['controller'] == 'Reports' && $this->params['action'] == 'manageReport' ){
-    echo $this->Html->script('d3/nv.d3.js') . "\n"; //Chart
+echo $this->Html->script('d3/d3.js') . "\n"; // Chart
+echo $this->Html->script('saveSvgAsPng.js') . "\n"; // Chart
+if ($this->params['plugin'] == 'Datamart' && $this->params['controller'] == 'Reports' && $this->params['action'] == 'manageReport') {
+    echo $this->Html->script('d3/nv.d3.js') . "\n"; // Chart
 }
 ?>
 

@@ -20,6 +20,7 @@ class SopExtendsController extends SopAppController
     );
 
     /**
+     *
      * @param $sopMasterId
      */
     public function listall($sopMasterId)
@@ -58,6 +59,7 @@ class SopExtendsController extends SopAppController
     }
 
     /**
+     *
      * @param null $sopMasterId
      * @param null $sopExtendId
      */
@@ -102,6 +104,7 @@ class SopExtendsController extends SopAppController
     }
 
     /**
+     *
      * @param null $sopMasterId
      */
     public function add($sopMasterId = null)
@@ -145,6 +148,7 @@ class SopExtendsController extends SopAppController
     }
 
     /**
+     *
      * @param null $sopMasterId
      * @param null $sopExtendId
      */
@@ -204,6 +208,7 @@ class SopExtendsController extends SopAppController
     }
 
     /**
+     *
      * @param null $sopMasterId
      * @param null $sopExtendId
      */

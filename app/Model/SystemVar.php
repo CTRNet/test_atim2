@@ -11,6 +11,7 @@ class SystemVar extends Model
     private static $cache = array();
 
     /**
+     *
      * @param $key
      * @return array|mixed|null
      */
@@ -33,6 +34,7 @@ class SystemVar extends Model
     }
 
     /**
+     *
      * @param $key
      * @param $val
      */

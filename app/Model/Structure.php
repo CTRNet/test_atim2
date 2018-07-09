@@ -65,6 +65,7 @@ class Structure extends AppModel
     }
 
     /**
+     *
      * @param null $conditions
      * @param array $fields
      * @param null $order
@@ -149,10 +150,10 @@ class Structure extends AppModel
                             $rule[0] = $validation['rule'];
                         } elseif (strlen($validation['rule']) > 0) {
                             $rule = explode(',', $validation['rule']);
-                            if ($rule[0]=='custom'){
+                            if ($rule[0] == 'custom') {
                                 $rule = array(
                                     'custom',
-                                    substr($validation['rule'], strpos($validation['rule'], ',')+1)
+                                    substr($validation['rule'], strpos($validation['rule'], ',') + 1)
                                 );
                             }
                         }

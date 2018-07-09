@@ -9,6 +9,7 @@ class TemplateInit extends InventoryManagementAppModel
     public $useTable = false;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
