@@ -13,6 +13,7 @@ $structureLinks = array(
         )
     )
 );
+
 // Add item links management
 switch (Configure::read('order_item_type_config')) {
     case '1':
@@ -42,6 +43,23 @@ $structureLinks['bottom']['order items']['define order items returned'] = array(
     'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/',
     'icon' => 'order items returned'
 );
+$structureLinks['bottom']['order items']['edit all items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/0/0/',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit pending items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/0/0/pending',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit shipped items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/0/0/shipped/',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit returned items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/0/0/shipped & returned/',
+    'icon' => 'edit'
+);
+
 // Add to shipment links management
 $addToShipmentLinks = array();
 foreach ($shipmentsList as $shipment) {

@@ -5,14 +5,14 @@ $structureLinks['index'] = array(
     'items details' => array(
         'link' => '%%Generated.item_detail_link%%/',
         'icon' => 'detail'
+    ),
+    'edit' => array(
+        'link' => "/Order/OrderItems/editInBatch/%%OrderItem.order_id%%/$orderLineId/$shipmentId/%%OrderItem.id%%/",
+        'icon' => 'edit'
     )
 );
 switch ($status) {
     case 'pending':
-        $structureLinks['index']['edit addition to order data'] = array(
-            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
-            'icon' => 'edit'
-        );
         $structureLinks['index']['remove from order'] = array(
             'link' => '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
             'icon' => 'remove_from_order'
@@ -33,10 +33,6 @@ switch ($status) {
         );
         break;
     case 'shipped & returned':
-        $structureLinks['index']['edit return data'] = array(
-            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
-            'icon' => 'edit'
-        );
         $structureLinks['index']['shipment details'] = array(
             'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
             'icon' => 'shipments'

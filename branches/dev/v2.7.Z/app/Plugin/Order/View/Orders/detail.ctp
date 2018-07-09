@@ -22,6 +22,9 @@ $structureLinks = array(
         )
     )
 );
+if (Configure::read('order_item_to_order_objetcs_link_setting') == 3)
+    unset($structureLinks['bottom']['order lines']);
+    
 // Add item links management
 switch (Configure::read('order_item_type_config')) {
     case '1':
@@ -51,6 +54,27 @@ $structureLinks['bottom']['order items']['define order items returned'] = array(
     'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/',
     'icon' => 'order items returned'
 );
+if (Configure::read('order_item_to_order_objetcs_link_setting') == 2)
+    unset($structureLinks['bottom']['order items']);
+
+// Edit item links management
+$structureLinks['bottom']['order items']['edit all items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/0/0/',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit pending items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/0/0/pending',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit shipped items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/0/0/shipped/',
+    'icon' => 'edit'
+);
+$structureLinks['bottom']['order items']['edit returned items'] = array(
+    'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/0/0/shipped & returned/',
+    'icon' => 'edit'
+);
+
 // Add to shipment links management
 $addToShipmentLinks = array();
 foreach ($shipmentsList as $shipment) {
@@ -62,11 +86,6 @@ foreach ($shipmentsList as $shipment) {
 ksort($addToShipmentLinks);
 foreach ($addToShipmentLinks as $shipmentKey => $shipmentLink)
     $structureLinks['bottom']['shipments'][__('add items to shipment') . ' # ' . $shipmentKey] = $shipmentLink;
-
-if (Configure::read('order_item_to_order_objetcs_link_setting') == 3)
-    unset($structureLinks['bottom']['order lines']);
-if (Configure::read('order_item_to_order_objetcs_link_setting') == 2)
-    unset($structureLinks['bottom']['order items']);
 
 $structureOverride = array();
 
