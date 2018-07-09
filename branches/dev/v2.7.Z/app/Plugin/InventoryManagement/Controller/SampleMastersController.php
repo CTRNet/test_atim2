@@ -184,8 +184,8 @@ class SampleMastersController extends InventoryManagementAppController
         if ($sampleMasterId != 0) {
             
             // Display aliquots first then all other linked records (sample, quality controls , etc) ordered on dates
-            foreach ($this->request->data as $unit_2) {
-                $addToTmpArray($unit_2, 'DerivativeDetail', 'creation_datetime', 'creation_datetime_accuracy');
+            foreach ($this->request->data as $unit2) {
+                $addToTmpArray($unit2, 'DerivativeDetail', 'creation_datetime', 'creation_datetime_accuracy');
             }
             $this->request->data = array();
             

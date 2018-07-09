@@ -2166,9 +2166,9 @@ class ReportsController extends DatamartAppController
             }
         } elseif (isset($parameters['Participant']['participant_identifier'])) {
             $displayExactSearchWarning = true;
-            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-            if ($participant_identifiers)
-                $conditions[] = "Participant.participant_identifier IN ('" . implode("','", $participant_identifiers) . "')";
+            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participantIdentifiers)
+                $conditions[] = "Participant.participant_identifier IN ('" . implode("','", $participantIdentifiers) . "')";
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
@@ -2216,8 +2216,8 @@ class ReportsController extends DatamartAppController
             );
         }
         $participantidToData = array();
-        foreach ($participantsData as $new_participant) {
-            $participantidToData[$new_participant['Participant']['id']] = array_merge($new_participant, array(
+        foreach ($participantsData as $newParticipant) {
+            $participantidToData[$newParticipant['Participant']['id']] = array_merge($newParticipant, array(
                 'DiagnosisControl' => array(
                     'controls_type' => null,
                     'category' => null
