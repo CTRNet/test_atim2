@@ -2017,21 +2017,7 @@ foreach($columns as $column){
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='1' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -2040,7 +2026,7 @@ foreach($columns as $column){
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='1'
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -2093,21 +2079,7 @@ foreach($columns as $column){
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='0' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -2116,7 +2088,7 @@ foreach($columns as $column){
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='1'
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -2163,18 +2135,7 @@ foreach($columns as $column){
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters');",
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='0' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -2183,7 +2144,7 @@ foreach($columns as $column){
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='0' 
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -2204,7 +2165,7 @@ foreach($columns as $column){
         foreach ($structureFormatsQueries as $tmpSql){
             $aliquotMasterModel->query($tmpSql);
         }
-        AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
+        AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
         

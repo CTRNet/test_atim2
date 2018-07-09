@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => "/Order/OrderItems/editInBatch/",
+    'top' => "/Order/OrderItems/editInBatch/$orderId/$orderLineId/$shipmentId/",
     'bottom' => array(
         'cancel' => $urlToCancel
     )

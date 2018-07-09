@@ -775,16 +775,14 @@ class OrderItemsController extends OrderAppController
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
+     * 
+     * @deprecated Replaced by editInBatch function on 2018-07-09
      */
     public function edit($orderId, $orderItemId, $mainFormModel = null)
     {
         if ((! $orderId) || (! $orderItemId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        
-        $this->setUrlToCancel();
-        $urlToCancel = $this->request->data['url_to_cancel'];
-        unset($this->request->data['url_to_cancel']);
         
         // MANAGE DATA
         
@@ -797,63 +795,19 @@ class OrderItemsController extends OrderAppController
         if (empty($orderItemData))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         
-        if ($orderItemData['OrderItem']['status'] == 'shipped')
-            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
+        $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/0/0/' . $orderItemId;
         switch ($mainFormModel) {
-            case 'Order':
-                $urlToCancel = '/Order/Orders/detail/' . $orderItemData['OrderItem']['order_id'] . '/';
-                break;
             case 'OrderLine':
-                $urlToCancel = '/Order/OrderLines/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['order_line_id'] . '/';
+                $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['order_line_id'] . '/0/' . $orderItemId;
                 break;
             case 'Shipment':
-                $urlToCancel = '/Order/Shipments/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['shipment_id'] . '/';
+                $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/0/' . $orderItemData['OrderItem']['shipment_id'] . '/' . $orderItemId;
                 break;
         }
-        $this->set('urlToCancel', $urlToCancel);
-        
-        // MANAGE FORM, MENU AND ACTION BUTTONS
-        
-        $this->set('atimMenu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
-        $this->set('atimMenuVariables', array(
-            'Order.id' => $orderId,
-            'OrderItem.id' => $orderItemId
-        ));
-        
-        $this->Structures->set(($orderItemData['OrderItem']['status'] == 'pending' ? 'orderitems' : 'orderitems_returned'));
-        
-        // SAVE PROCESS
-        
-        $hookLink = $this->hook('format');
-        if ($hookLink) {
-            require ($hookLink);
-        }
-        
-        if (empty($this->request->data)) {
-            $this->request->data = $orderItemData;
-        } else {
-            $submittedDataValidates = true;
-            
-            $hookLink = $this->hook('presave_process');
-            if ($hookLink) {
-                require ($hookLink);
-            }
-            
-            if ($submittedDataValidates) {
-                $this->OrderItem->id = $orderItemId;
-                if ($this->OrderItem->save($this->request->data)) {
-                    $hookLink = $this->hook('postsave_process');
-                    if ($hookLink) {
-                        require ($hookLink);
-                    }
-                    $this->atimFlash(__('your data has been updated'), $urlToCancel);
-                }
-            }
-        }
+        $this->redirect($urlToRedirect, null, true);
     }
 
-    public function editInBatch()
+    public function editInBatch($orderId = 0, $orderLineId = 0, $shipmentId = 0, $orderItemId = 0, $orderItemStatus = '')
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -889,6 +843,31 @@ class OrderItemsController extends OrderAppController
             $criteria = array(
                 'OrderItem.id' => $orderItemIds
             );
+        } elseif ($orderId) {
+            // User is working on an order
+            $this->Order->getOrRedirect($orderId);
+            $criteria = array(
+                'OrderItem.order_id' => $orderId
+            );
+            if ($orderItemStatus) {
+                $criteria[] = array(
+                    'OrderItem.status' => $orderItemStatus
+                );
+            }
+            $urlToCancel = '/Order/Orders/detail/' . $orderId;
+            if ($orderLineId) {
+                $criteria['OrderItem.order_line_id'] = $orderLineId;
+                $urlToCancel = '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId;
+            }
+            if ($shipmentId) {
+                $criteria['OrderItem.shipment_id'] = $shipmentId;
+                $urlToCancel = '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId;
+            }
+            if ($orderItemId) {
+                $criteria['OrderItem.id'] = $orderItemId;
+            }
+            if (empty($this->request->data))
+                $initialDisplay = true; 
         } else {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;
@@ -913,36 +892,45 @@ class OrderItemsController extends OrderAppController
             }
         }
         
-        $statuses = $this->OrderItem->find('all', array(
-            'conditions' => $criteria,
-            'fields' => array(
-                'DISTINCT OrderItem.status'
-            ),
-            'recursive' => -1
-        ));
-        if (empty($statuses)) {
-            // All order items have probably been deleted by another user before we submitted updated data
-            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } elseif (sizeof($statuses) != 1) {
-            $this->atimFlashWarning(__('items should have the same status to be updated in batch'), $urlToCancel);
-            return;
-        } elseif ($statuses[0]['OrderItem']['status'] == 'shipped') {
-            $this->atimFlashWarning(__('items should have a status different than shipped to be updated in batch'), $urlToCancel);
-            return;
-        }
-        $status = $statuses[0]['OrderItem']['status'];
-        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         $this->set('urlToCancel', $urlToCancel);
+        $this->set('orderId', $orderId);
+        $this->set('orderLineId', $orderLineId);
+        $this->set('shipmentId', $shipmentId);
         $this->set('orderItemIds', implode(',', $orderItemIds));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->Structures->set(($status != 'pending') ? 'orderitems_returned' : 'orderitems');
+        $this->Structures->set('orderitems');
         
-        $this->set('atimMenu', $this->Menus->get('/Order/Orders/search/'));
-        $this->set('atimMenuVariables', array());
+        if ($shipmentId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/Shipments/detail/%%Shipment.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId,
+                'Shipment.id' => $shipmentId
+            ));
+        } elseif ($orderLineId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/OrderLines/detail/%%OrderLine.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId,
+                'OrderLine.id' => $orderLineId
+            ));
+        } elseif ($orderId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId
+            ));
+        } else {
+            $this->set('atimMenu', $this->Menus->get('/Order/Orders/search/'));
+            $this->set('atimMenuVariables', array());
+        }
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -962,6 +950,12 @@ class OrderItemsController extends OrderAppController
             
             // Launch validation
             $submittedDataValidates = true;
+            
+            $fieldsReservedForReturnedItems = array(
+                'OrderItem.date_returned',
+                'OrderItem.reason_returned',
+                'OrderItem.reception_by'
+            );
             
             $errors = array();
             $recordCounter = 0;
@@ -985,6 +979,18 @@ class OrderItemsController extends OrderAppController
                 }
                 // Reset data
                 $newStudiedItem = $this->OrderItem->data;
+                // Check returned fields
+                if (! $newStudiedItem['OrderItem']['status']) {
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+                if ($newStudiedItem['OrderItem']['status'] != 'shipped & returned') {
+                    foreach ($fieldsReservedForReturnedItems as $returnedItemModelField) {
+                        list ($returnedItemModel, $returnedItemField) = explode('.', $returnedItemModelField);
+                        if (isset($newStudiedItem[$returnedItemModel][$returnedItemField]) && strlen($newStudiedItem[$returnedItemModel][$returnedItemField])) {
+                            $errors['OrderItem'][$returnedItemField]['fields defined for returned items can not be completed for items with status different than shipped & returned'][] = $recordCounter;
+                        }
+                    }
+                }
             }
             
             if ($this->OrderItem->find('count', array(
@@ -1025,20 +1031,29 @@ class OrderItemsController extends OrderAppController
                 
                 AppModel::releaseBatchViewsUpdateLock();
                 
-                // Creat Batchset then redirect
+                // Redirect
                 
-                $batchIds = $orderItemIds;
-                $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-                $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
-                $batchSetData = array(
-                    'BatchSet' => array(
-                        'datamart_structure_id' => $datamartStructure->getIdByModelName('OrderItem'),
-                        'flag_tmp' => true
-                    )
-                );
-                $batchSetModel->checkWritableFields = false;
-                $batchSetModel->saveWithIds($batchSetData, $batchIds);
-                $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
+                if ($shipmentId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
+                } elseif ($orderLineId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId);
+                } elseif ($orderId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/' . $orderId);
+                } else {
+                    // Creat Batchset then redirect
+                    $batchIds = $orderItemIds;
+                    $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+                    $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
+                    $batchSetData = array(
+                        'BatchSet' => array(
+                            'datamart_structure_id' => $datamartStructure->getIdByModelName('OrderItem'),
+                            'flag_tmp' => true
+                        )
+                    );
+                    $batchSetModel->checkWritableFields = false;
+                    $batchSetModel->saveWithIds($batchSetData, $batchIds);
+                    $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
+                }
             } else {
                 // Set error message
                 foreach ($errors as $model => $fieldMessages) {
