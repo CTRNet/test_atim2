@@ -19,8 +19,8 @@ class ToolsAppModel extends AppModel
      * When $toolId is set, system defined if tool properties can be edited or not by the user.
      * (Only user who created the template/collection protocol or administrators can change template properties or delete the tool)
      *
-     * @param string $useDefintion            
-     * @param null $toolId            
+     * @param string $useDefintion
+     * @param null $toolId
      *
      * @return array|null
      */
@@ -110,11 +110,9 @@ class ToolsAppModel extends AppModel
     /**
      * Complete the fields 'owning_entity_id' and 'visible_entity_id' of the recorded tool.
      *
-     * @param array $toolData
-     *            Data of the recorded template or collection protocol
-     * @param integer $createdBy
-     *            Id of the user who is creating the record
-     *            
+     * @param array $toolData Data of the recorded template or collection protocol
+     * @param integer $createdBy Id of the user who is creating the record
+     *       
      * @return null
      */
     public function setOwnerAndVisibility(&$toolData, $createdBy = null)
@@ -194,11 +192,9 @@ class ToolsAppModel extends AppModel
      * String combines translated labels of the fields of the structures that will be used to create the inventory data (collection, sample, aliquot)
      * into the Inventory Management module and the default values.
      *
-     * @param string $linkedStructures
-     *            Alias of the structures that will be used to create the inventory data (collection, sample, aliquot)
-     * @param array $defaultValues
-     *            Default values that will be initially displayed
-     *            
+     * @param string $linkedStructures Alias of the structures that will be used to create the inventory data (collection, sample, aliquot)
+     * @param array $defaultValues Default values that will be initially displayed
+     *       
      * @return string Formated string with the default values
      */
     public function formatDefaultValuesForDisplay($linkedStructures, $defaultValues)
@@ -225,7 +221,7 @@ class ToolsAppModel extends AppModel
                     if (strlen($newLinkedStructuresField['StructureValueDomain']['source'])) {
                         $structureValueDomainValues = $structuresComponent::getPulldownFromSource($newLinkedStructuresField['StructureValueDomain']['source']);
                         if (array_key_exists('defined', $structureValueDomainValues) && array_key_exists('previously_defined', $structureValueDomainValues)) {
-                            $structureValueDomainValues = array_merge($structureValueDomainValues['defined'], $structureValueDomainValues['previously_defined']);
+                            $structureValueDomainValues = $structureValueDomainValues['defined'] + $structureValueDomainValues['previously_defined'];
                         }
                     } else {
                         $queryCriteria = array(
@@ -244,6 +240,9 @@ class ToolsAppModel extends AppModel
                 } elseif ($newLinkedStructuresField['type'] == 'yes_no') {
                     $structureValueDomainValues['y'] = __('yes');
                     $structureValueDomainValues['n'] = __('no');
+                } elseif ($newLinkedStructuresField['type'] == 'checkbox') {
+                    $structureValueDomainValues['1'] = __('yes');
+                    $structureValueDomainValues['0'] = __('no');
                 }
                 $this->collectionToolsStructuresFields[$mainFieldKey] = array(
                     'model' => $newLinkedStructuresField['model'],
@@ -269,49 +268,9 @@ class ToolsAppModel extends AppModel
                         'date',
                         'datetime'
                     ))) {
-                        if (is_array($value)) {
-                            $formatedValue = '';
-                            if (! empty($value['year'])) {
-                                $formatedValue .= $value['year'];
-                                if (! empty($value['month'])) {
-                                    $formatedValue .= '-' . $value['month'];
-                                    if (! empty($value['day'])) {
-                                        $formatedValue .= '-' . $value['day'];
-                                        if (! empty($value['hour'])) {
-                                            $formatedValue .= ' ' . $value['hour'];
-                                            if (! empty($value['min'])) {
-                                                $formatedValue .= ':' . $value['min'];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            $value = $formatedValue;
-                        } else {
-                            $dateAccuracy = 'c';
-                            if (isset($fields[$field . '_accuracy'])) {
-                                $dateAccuracy = $defaultValues[$model][$field . '_accuracy'];
-                            }
-                            switch ($dateAccuracy) {
-                                case 'i':
-                                    $value = substr($value, 0, 13);
-                                    break;
-                                case 'h':
-                                    $value = substr($value, 0, 10);
-                                    break;
-                                case 'd':
-                                    $value = substr($value, 0, 7);
-                                    break;
-                                case 'm':
-                                    $value = substr($value, 0, 4);
-                                    break;
-                                case 'y':
-                                    $value = '±' . substr($value, 0, 4);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        $formattedDate = AppController::getFormatedDateString($value['year'], $value['month'], $value['day'], false);
+                        $formattedTime = AppController::getFormatedTimeString($value['hour'], $value['min'], false);
+                        $value = $formattedDate . ' ' . $formattedTime;
                     }
                     $formattedDefaultValues[] = $tmpCollectionTemplateNodesStructuresField['language_label'] . " = [$value]";
                 } else {
@@ -323,7 +282,7 @@ class ToolsAppModel extends AppModel
             }
         }
         // Generate string
-        $formattedDefaultValues = implode(' + ', $formattedDefaultValues);
+        $formattedDefaultValues = implode(' & ', $formattedDefaultValues);
         return $formattedDefaultValues;
     }
 }

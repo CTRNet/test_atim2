@@ -4,14 +4,14 @@
  * This behavior is used to define a minimum on certain view fields when a max is defined.
  * It's useful for spent time calculation because spentTime >= 0 means the value is
  * valid, but spentTime < 0 is an error code. When searching with only a max criterion
- * <= x, results < 0 (errors) must not be returned. This behavior is here to add the 
+ * <= x, results < 0 (errors) must not be returned. This behavior is here to add the
  * minimum >= 0 clause if the minimum is not specified.
- *
  */
 class MinMaxBehavior extends ModelBehavior
 {
 
     /**
+     *
      * @param Model $model
      * @param array $query
      * @return array

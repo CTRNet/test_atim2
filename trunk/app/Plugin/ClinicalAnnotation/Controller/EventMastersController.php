@@ -26,6 +26,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $eventGroup
      * @param $participantId
      * @param null $eventControlId
@@ -122,6 +123,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      * @param int $isAjax
@@ -171,6 +173,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventControlId
      * @param null $diagnosisMasterId
@@ -341,6 +344,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      */
@@ -420,6 +424,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      */

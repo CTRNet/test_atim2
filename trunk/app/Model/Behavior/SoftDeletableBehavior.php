@@ -41,8 +41,8 @@ class SoftDeletableBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param array $config
-     * @internal param object $Model Model using the behaviour*            Model using the behaviour
-     * @internal param array $settings Settings to override for model.*            Settings to override for model.
+     * @internal param object $Model Model using the behaviour* Model using the behaviour
+     * @internal param array $settings Settings to override for model.* Settings to override for model.
      * @access public
      */
     public function setup(Model $model, $config = array())
@@ -64,10 +64,9 @@ class SoftDeletableBehavior extends ModelBehavior
      *
      *
      * @param Model $model
-     * @param boolean $cascade
-     *            If true records that depend on this record will also be deleted
+     * @param boolean $cascade If true records that depend on this record will also be deleted
      * @return bool Set to true to continue with delete, false otherwise
-     * @internal param object $Model Model about to be deleted*            Model about to be deleted
+     * @internal param object $Model Model about to be deleted* Model about to be deleted
      * @access public
      */
     public function beforeDelete(Model $model, $cascade = true)
@@ -118,10 +117,8 @@ class SoftDeletableBehavior extends ModelBehavior
      * Altered model._atimDeleteDependent to ignore tables withoud the "delete" field.
      *
      * @param Model $model
-     * @param string $id
-     *            ID of record that was deleted
-     * @param boolean $cascade
-     *            Set to true to delete records that depend on this record
+     * @param string $id ID of record that was deleted
+     * @param boolean $cascade Set to true to delete records that depend on this record
      * @return void
      */
     private function _atimDeleteDependent(Model $model, $id, $cascade)
@@ -180,12 +177,9 @@ class SoftDeletableBehavior extends ModelBehavior
      * Permanently deletes a record.
      *
      *
-     * @param object $model
-     *            Model from where the method is being executed.
-     * @param mixed $id
-     *            ID of the soft-deleted record.
-     * @param boolean $cascade
-     *            Also delete dependent records
+     * @param object $model Model from where the method is being executed.
+     * @param mixed $id ID of the soft-deleted record.
+     * @param boolean $cascade Also delete dependent records
      * @return boolean Result of the operation.
      * @access public
      */
@@ -207,10 +201,8 @@ class SoftDeletableBehavior extends ModelBehavior
      * Permanently deletes all records that were soft deleted.
      *
      *
-     * @param object $model
-     *            Model from where the method is being executed.
-     * @param boolean $cascade
-     *            Also delete dependent records
+     * @param object $model Model from where the method is being executed.
+     * @param boolean $cascade Also delete dependent records
      * @return boolean Result of the operation.
      * @access public
      */
@@ -238,12 +230,10 @@ class SoftDeletableBehavior extends ModelBehavior
      * Restores a soft deleted record, and optionally change other fields.
      *
      *
-     * @param object $Model
-     *            Model from where the method is being executed.
-     * @param mixed $id
-     *            ID of the soft-deleted record.
+     * @param object $Model Model from where the method is being executed.
+     * @param mixed $id ID of the soft-deleted record.
      * @param array|Other $attributes Other
-     *            fields to change (in the form of field => value)
+     *        fields to change (in the form of field => value)
      * @return bool Result of the operation.
      * @access public
      */
@@ -289,12 +279,9 @@ class SoftDeletableBehavior extends ModelBehavior
      * Set if the beforeFind() or beforeDelete() should be overriden for specific model.
      *
      *
-     * @param object $Model
-     *            Model about to be deleted.
-     * @param mixed $methods
-     *            If string, method (find / delete) to enable on, if array array of method names, if boolean, enable it for find method
-     * @param boolean $enable
-     *            If specified method should be overriden.
+     * @param object $Model Model about to be deleted.
+     * @param mixed $methods If string, method (find / delete) to enable on, if array array of method names, if boolean, enable it for find method
+     * @param boolean $enable If specified method should be overriden.
      * @access public
      */
     public function enableSoftDeletable(&$Model, $methods, $enable = true)
@@ -325,8 +312,8 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param Model $model
      * @param array $query
      * @return mixed Set to false to abort find operation, or return an array with data used to execute query
-     * @internal param object $Model Model about to be deleted.*            Model about to be deleted.
-     * @internal param array $queryData Data used to execute this query, i.e. conditions, order, etc.*            Data used to execute this query, i.e. conditions, order, etc.
+     * @internal param object $Model Model about to be deleted.* Model about to be deleted.
+     * @internal param array $queryData Data used to execute this query, i.e. conditions, order, etc.* Data used to execute this query, i.e. conditions, order, etc.
      * @access public
      */
     public function beforeFind(Model $model, $query)
@@ -389,7 +376,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param Model $model
      * @param array $options
      * @return bool True if the operation should continue, false if it should abort
-     * @internal param object $Model Model about to be saved.*            Model about to be saved.
+     * @internal param object $Model Model about to be saved.* Model about to be saved.
      * @access public
      */
     public function beforeSave(Model $model, $options = array())
@@ -416,11 +403,10 @@ class SoftDeletableBehavior extends ModelBehavior
      *
      *
      * @param Model $model
-     * @param boolean $created
-     *            True if this save created a new record
+     * @param boolean $created True if this save created a new record
      * @param array $options
      * @return bool|void
-     * @internal param object $Model Model just saved.*            Model just saved.
+     * @internal param object $Model Model just saved.* Model just saved.
      * @access public
      */
     public function afterSave(Model $model, $created, $options = array())

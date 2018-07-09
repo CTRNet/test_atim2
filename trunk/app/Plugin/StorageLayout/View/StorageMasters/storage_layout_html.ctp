@@ -2,11 +2,12 @@
 
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
+ * 
  * @param unknown_type $var The variable to loop on, must be null on the first iteration
  * @param unknown_type $reverseOrder True to reverse the order
  * @param unknown_type $limit The limit of the axis
  * @return true if you must continue to loop, false otherwise
- * @alter Increments/decrements the value of var
+ *         @alter Increments/decrements the value of var
  */
 function axisLoopCondition(&$var, $reverseOrder, $limit)
 {
@@ -27,35 +28,42 @@ function axisLoopCondition(&$var, $reverseOrder, $limit)
 }
 ob_start();
 ?>
-<div style="display: table-cell; vertical-align: top;">
-    <ul style='margin-right: 10px'>
-        <li>
-            <span class="button RecycleStorage" style='width: 80%;'>
-                <span class="ui-icon ui-icon-refresh"></span>
-                <?php echo(__("unclassify all storage's items")); ?>
-            </span>
-        </li>
-        <li>
-            <span class="button TrashStorage" style='width: 80%;'>
-                <span class="ui-icon ui-icon-close"></span>
-                <?php echo(__("remove all storage's items")); ?>
-            </span>
-        </li>
-        <li>
-            <input type="file" style="display:none;" id="LoadCSVFile" name="CSVFile" accept=".xlsx, .xls, .csv">
-            <span class="button LoadCSV" style='width: 80%;' onclick="document.getElementById('LoadCSVFile').click();">
-                <span class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
-                <?php echo(__("load csv")); ?>
-            </span>
-        </li>
-        <li>
-            <span class="button clear-loaded-barcodes" style='width: 80%;' title ="<?php echo(__("clear the loaded and scanned barcode")); ?>">
-                <span class="ui-icon ui-icon-arrowrefresh-1-e"></span>
-                <?php echo(__("delete")); ?>
-            </span>
-        </li>
+<?php
 
-    </ul>
+$isTma = (isset($data['parent']['StorageControl']['is_tma_block']) && $data['parent']['StorageControl']['is_tma_block']);
+if ($isTma) {
+    $titleCsv = __("load the cores positions and barcodes by csv file");
+    $textCsv = __("load cores by csv");
+} else {
+    $titleCsv = __("load the aliquots positions and barcodes by csv file");
+    $textCsv = __("load aliquots by csv");
+}
+$deteteText = __("delete");
+?>
+<div style="display: table-cell; vertical-align: top;">
+	<ul style='margin-right: 10px'>
+		<li><span class="button RecycleStorage" style='width: 80%;'> <span
+				class="ui-icon ui-icon-refresh"></span>
+                <?php echo(__("unclassify all storage's items")); ?>
+            </span></li>
+		<li><span class="button TrashStorage" style='width: 80%;'> <span
+				class="ui-icon ui-icon-close"></span>
+                <?php echo(__("remove all storage's items")); ?>
+            </span></li>
+		<li><input type="file" style="display: none;" id="LoadCSVFile"
+			name="CSVFile" accept=".xlsx, .xls, .csv"> <span
+			class="button LoadCSV" style='width: 80%;' title="<?=$titleCsv?>"
+			onclick="document.getElementById('LoadCSVFile').click();"> <span
+				class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
+                <?=$textCsv?>
+            </span></li>
+		<li><span class="button clear-loaded-barcodes" style='width: 80%;'
+			title="<?php echo(__("clear the loaded and scanned barcode")); ?>"> <span
+				class="ui-icon ui-icon-arrowrefresh-1-e"></span>
+                <?=$deteteText?>
+            </span></li>
+
+	</ul>
 </div>
 <div
 	style="display: table-cell; padding-top: -10px; vertical-align: top;">
@@ -109,6 +117,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     }
     $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
     $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+    $permuteXY = (isset($data['parent']['StorageControl']['permute_x_y']) && $data['parent']['StorageControl']['permute_x_y'] == 1) ? true : false;
     $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
     // table display loop and inner loop
     $j = null;
@@ -119,6 +128,8 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
         }
         $i = null;
         while (axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $useWidth)) {
+            $displayValue = '';
+            $useValue = '';
             if ($oneCoordToDisplayAsTwoAxis) {
                 if ($horizontalIncrement) {
                     $displayValue = ($j - 1) * $ySize + $i;
@@ -129,14 +140,13 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 $useValue = $displayValue . "_1"; // static y = 1
             } else {
                 $xVal = $xAlpha ? chr($i + 64) : $i;
-                $useValue = $xVal . "_" . $yVal;
-                if ($useHeight == 1) {
-                    $displayValue = $xVal;
-                } elseif ($useWidth == 1) {
-                        $displayValue = $yVal;
-                    } else {
-                        $displayValue = $xVal . "-" . $yVal;
-                    }
+                if (! $permuteXY) {
+                    $displayValue = $xVal . "-" . $yVal;
+                    $useValue = $xVal . "_" . $yVal;
+                } else {
+                    $displayValue = $yVal . "-" . $xVal;
+                    $useValue = $yVal . "_" . $xVal;
+                }
             }
             echo ("<td class='droppable'>" . '<b>' . $displayValue . "</b><ul id='s_" . $atimMenuVariables['StorageMaster.id'] . "_c_" . $useValue . "' /></td>");
         }

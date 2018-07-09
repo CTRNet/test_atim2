@@ -36,12 +36,12 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
      * | err_..._record_err | data creation - update error | an error occured during the creation or the update of the data |
      * | err_..._system_error | system error | a system error has been detetced |
      * |-----------------------------|------------------------------|----------------------------------------------------------------|
-     *
      * All errors that could occured should be managed by the code and generated an error page if required!
      */
     
     /* ==> Note: Reuse flash() messages as they are into this controller! */
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -73,6 +73,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $familyHistoryId
      */
@@ -109,6 +110,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param null $participantId
      */
     public function add($participantId)
@@ -201,6 +203,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $familyHistoryId
      */
@@ -272,6 +275,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $familyHistoryId
      */

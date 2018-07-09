@@ -99,8 +99,7 @@ class TemplateController extends ToolsAppController
     /**
      * Modify a Collection Template
      *
-     * @param integer $templateId
-     *            Id of the template
+     * @param integer $templateId Id of the template
      */
     public function edit($templateId)
     {
@@ -282,8 +281,7 @@ class TemplateController extends ToolsAppController
     /**
      * Modify properties of a Collection Template
      *
-     * @param integer $templateId
-     *            Id of the template
+     * @param integer $templateId Id of the template
      */
     public function editProperties($templateId)
     {
@@ -341,8 +339,7 @@ class TemplateController extends ToolsAppController
     /**
      * Delete a Collection Template
      *
-     * @param integer $templateId
-     *            Id of the template
+     * @param integer $templateId Id of the template
      */
     public function delete($templateId)
     {
@@ -393,12 +390,9 @@ class TemplateController extends ToolsAppController
     /**
      * Form to record template node default values.
      *
-     * @param integer $nodeId
-     *            Id of the template node
-     * @param integer $datamartStructureId
-     *            Datamart structure id recorded for the template node.
-     * @param integer $controlId
-     *            Control ID of the inventory data (collection, sample, aliquot) that will be created from the node.
+     * @param integer $nodeId Id of the template node
+     * @param integer $datamartStructureId Datamart structure id recorded for the template node.
+     * @param integer $controlId Control ID of the inventory data (collection, sample, aliquot) that will be created from the node.
      */
     public function defaultValue($nodeId, $datamartStructureId, $controlId)
     {
@@ -406,6 +400,7 @@ class TemplateController extends ToolsAppController
         $this->set("structure", $structure);
         $this->set("nodeId", $nodeId);
     }
+
     public function formatedDefaultValue($nodeDatamartStructureId, $nodeControlId)
     {
         $defaultValue = $this->request->data;

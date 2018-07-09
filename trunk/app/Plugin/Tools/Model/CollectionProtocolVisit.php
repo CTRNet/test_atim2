@@ -12,7 +12,7 @@ class CollectionProtocolVisit extends ToolsAppModel
      * Additional validation rule to validate time from first visit
      *
      * @see Model::validates()
-     * @param array $options            
+     * @param array $options
      * @return bool
      */
     public function validates($options = array())

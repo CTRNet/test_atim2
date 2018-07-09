@@ -18,6 +18,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -42,6 +43,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -53,7 +55,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMesssageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -74,6 +76,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param null $participantId
      */
     public function add($participantId = null)
@@ -222,6 +225,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -237,7 +241,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -281,6 +285,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -292,7 +297,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -317,6 +322,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)

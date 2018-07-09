@@ -50,7 +50,7 @@ class AliquotMaster extends InventoryManagementAppModel
     );
 
     private static $warningField = "barcode";
-
+    
     // can be overriden into a custom model
     public static $aliquotTypeDropdown = array();
 
@@ -59,7 +59,7 @@ class AliquotMaster extends InventoryManagementAppModel
     public static $studyModel = null;
 
     private $barcodes = array();
-
+    
     // barcode validation, key = barcode, value = id
     public static $volumeCondition = array(
         'OR' => array(
@@ -92,6 +92,7 @@ class AliquotMaster extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -129,6 +130,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $aliquotMasterId
      * @return array
      */
@@ -146,7 +148,7 @@ class AliquotMaster extends InventoryManagementAppModel
 					(sm.version_created > am.version_created AND (sm.version_created <= amn.version_created OR amn.version_created IS NULL)) 
 					OR am.storage_master_id IS NULL) ORDER BY am.version_id";
         $storageDataTmp = $this->tryCatchQuery($qry);
-
+        
         $previous = array_shift($storageDataTmp);
         while ($current = array_shift($storageDataTmp)) {
             if ($previous['sm']['id'] != $current['sm']['id']) {
@@ -188,6 +190,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * **
      *
      * @deprecated
+     *
      * @param $aliquotMasterId
      * @param bool $updateCurrentVolume
      * @param bool $updateUsesCounter
@@ -206,15 +209,14 @@ class AliquotMaster extends InventoryManagementAppModel
      * - When the intial volume is null, the current volume will be set to null.
      * - Status and status reason won't be updated.
      *
-     * @param $aliquotMasterId Master
-     *            Id of the aliquot.
+     * @param $aliquotMasterId Master Id of the aliquot.
      * @param bool $removeFromStockIfEmptyVolume
      * @return FALSE when error has been detected
-     *
-     * @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
-     *
+     *        
+     *         @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
+     *        
      * @author N. Luc
-     * @date 2007-08-15
+     *         @date 2007-08-15
      */
     public function updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume = false)
     {
@@ -306,6 +308,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getRealiquotDropdown()
@@ -453,8 +456,8 @@ class AliquotMaster extends InventoryManagementAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot study definition
+                    
+                    // Check the aliquot study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($aliquotData['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
                 
                 // Set study summary id
@@ -480,16 +483,16 @@ class AliquotMaster extends InventoryManagementAppModel
      * @param $aliquotData
      * @return Following results array:
      *         array(
-     * 'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
-     * 'messages' => array($message1, $message2, ...)
-     * )
-     * @internal param Aliquots $aliquotsData data stored into an array having structure like either:*            data stored into an array having structure like either:
-     *            - $aliquotsData = array('AliquotMaster' => array(...))
-     *            or
-     *            - $aliquotsData = array(array('AliquotMaster' => array(...)))
-     *
+     *         'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+     *         'messages' => array($message1, $message2, ...)
+     *         )
+     * @internal param Aliquots $aliquotsData data stored into an array having structure like either:* data stored into an array having structure like either:
+     *           - $aliquotsData = array('AliquotMaster' => array(...))
+     *           or
+     *           - $aliquotsData = array(array('AliquotMaster' => array(...)))
+     *          
      * @author N. Luc
-     * @date 2007-08-15
+     *         @date 2007-08-15
      */
     public function checkDuplicatedAliquotBarcode($aliquotData)
     {
@@ -532,6 +535,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param array $aliquotMasterIds
      * @return array
      */
@@ -551,9 +555,8 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Get default storage date for a new created aliquot.
      *
-     * @param $sampleMasterData Master
-     *            data of the studied sample.
-     *            
+     * @param $sampleMasterData Master data of the studied sample.
+     *       
      * @return Default storage date.
      *        
      * @author N. Luc
@@ -571,9 +574,8 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Get default storage date and accuracy for a new created aliquot.
      *
-     * @param $sampleMasterData Master
-     *            data of the studied sample.
-     *            
+     * @param $sampleMasterData Master data of the studied sample.
+     *       
      * @return array(default storage date, accuracy).
      *        
      * @author N. Luc
@@ -599,7 +601,7 @@ class AliquotMaster extends InventoryManagementAppModel
                     'conditions' => array(
                         'DerivativeDetail.sample_master_id' => $sampleMasterData['SampleMaster']['id']
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
                 if (empty($derivativeDetailData)) {
                     $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -623,9 +625,8 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Check if an aliquot can be deleted.
      *
-     * @param $aliquotMasterId Id
-     *            of the studied sample.
-     *            
+     * @param $aliquotMasterId Id of the studied sample.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -641,7 +642,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotInternalUse.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -656,7 +657,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'Realiquoting.parent_aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -671,7 +672,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotReviewMaster.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -686,7 +687,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'OrderItem.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -701,7 +702,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'QualityCtrl.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -716,7 +717,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SourceAliquot.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -734,9 +735,8 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Get the default realiquoting date.
      *
-     * @param $aliquotDataForSelection Sample
-     *            Aliquots that could be defined as child.
-     *            
+     * @param $aliquotDataForSelection Sample Aliquots that could be defined as child.
+     *       
      * @return Default realiquoting date.
      *        
      * @author N. Luc
@@ -756,15 +756,14 @@ class AliquotMaster extends InventoryManagementAppModel
 
     /**
      *
-     * @param array $aliquot
-     *            with either a key 'id' referring to an array
-     *            of ids, or a key 'data' referring to AliquotMaster.
+     * @param array $aliquot with either a key 'id' referring to an array
+     *        of ids, or a key 'data' referring to AliquotMaster.
      * @param If|string $modelName If
-     *            the aliquot array contains data, the model name
-     *            to use.
+     *        the aliquot array contains data, the model name
+     *        to use.
      * @return an array having unconsented aliquot as key and their consent
      *         status as value. This function refers to
-     * ViewCollection->getUnconsentedCollections.
+     *         ViewCollection->getUnconsentedCollections.
      */
     public function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
     {
@@ -817,6 +816,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param array $queryData
      * @return array
      */
@@ -848,6 +848,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $modelId
      * @param bool $cascade
      * @return bool
@@ -877,6 +878,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $onField
      * @return array
      */
@@ -893,6 +895,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $functionManagementData
      * @param $submittedAliquotMasterData
      * @param $aliquotIds
@@ -955,7 +958,7 @@ class AliquotMaster extends InventoryManagementAppModel
                     );
                     $aliquotNotInStock = $this->find('count', array(
                         'conditions' => $condtions,
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if ($aliquotNotInStock) {
                         $validates = false;
@@ -1022,6 +1025,7 @@ class AliquotMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $data
      * @return array
      */
@@ -1060,17 +1064,19 @@ class AliquotMaster extends InventoryManagementAppModel
             $errors
         );
     }
-    
+
     /**
      * Find the list of aliquot related to the barcode and check if the storage type is TMA
+     * 
      * @param type $storageId
      * @param type $barcode
      * @return array The list of aliquot
      */
-    public function getAliquotByBarcode($storageId, $barcode){
+    public function getAliquotByBarcode($storageId, $barcode)
+    {
         $aliquots = $this->find('all', array(
             'conditions' => array(
-                'AliquotMaster.barcode' => $barcode
+                'BINARY(AliquotMaster.barcode)' => $barcode
             ),
             'fields' => array(
                 'AliquotMaster.id',
@@ -1091,32 +1097,34 @@ class AliquotMaster extends InventoryManagementAppModel
             )
         ));
         $storageMasterModel = AppModel::getInstance('StorageLayout', 'StorageMaster');
-
+        
         $storage = $storageMasterModel->find('first', array(
-            'conditions'=> array(
+            'conditions' => array(
                 'StorageMaster.id' => $storageId
             )
         ));
         $isTma = $storage['StorageControl']['is_tma_block'];
         return array(
-            'aliquots'=>$aliquots,
-            'isTma'=>$isTma
-            );
-   }
-   
-   /**
-    * readCsvAndConvertToArray Read the CSV file and put the information in to the arrays with  
-    * @param type $dataFile The file information come from front-end
-    * @param type $storageId Storage ID
-    * @return array The message, validation and Array of data
-    */
-    public function readCsvAndConvertToArray($dataFile, $storageId) {
+            'aliquots' => $aliquots,
+            'isTma' => $isTma
+        );
+    }
+
+    /**
+     * readCsvAndConvertToArray Read the CSV file and put the information in to the arrays with
+     * 
+     * @param type $dataFile The file information come from front-end
+     * @param type $storageId Storage ID
+     * @return array The message, validation and Array of data
+     */
+    public function readCsvAndConvertToArray($dataFile, $storageId)
+    {
         $response = array(
             "valid" => 1,
             "message" => "",
             "data" => array()
         );
-        if (empty($dataFile)){
+        if (empty($dataFile)) {
             $response["message"] = __('error in opening csv file');
             $response["valid"] = 0;
             return $response;
@@ -1127,134 +1135,141 @@ class AliquotMaster extends InventoryManagementAppModel
         $name = $dataFile["name"];
         $error = $dataFile["error"];
         
-        $debug = (Configure::read("debug")>0)?true:false;
-
+        $debug = (Configure::read("debug") > 0) ? true : false;
+        
         $maxUploadFileSize = Configure::read("maxUploadFileSize");
         if ($size > $maxUploadFileSize) {
             $response["message"] = __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize'));
             $response["valid"] = 0;
             return $response;
         }
-
+        
         try {
             $handle = fopen($fileName, "r");
         } catch (Exception $ex) {
-            $response["message"] = ($debug)?__('error in opening %s', $name):$ex.getMessage();
+            $response["message"] = ($debug) ? __('error in opening %s', $name) : $ex . getMessage();
             $response["valid"] = 0;
             return $response;
         }
-
+        
         if ($handle == false) {
             $response["message"] = __('error in opening %s', $name);
             $response["valid"] = 0;
             return $response;
         }
-
-        if (!empty($error)) {
-            $response["message"] = ($debug)?__('error in opening %s', $name):$error;
+        
+        if (! empty($error)) {
+            $response["message"] = ($debug) ? __('error in opening %s', $name) : $error;
             $response["valid"] = 0;
             return $response;
         }
-
+        
         $row = 1;
-        $separator = ";";
-        $header = fgetcsv($handle, 1000, $separator);
-        if ($header==false){
+        $header = fgetcsv($handle, 1000, CSV_SEPARATOR);
+        if ($header == false) {
             $response["message"] = __("error in csv header file");
             $response["valid"] = 0;
             return $response;
         }
         
-        $barcode = $x = $y = -1;
+        $barcode = $x = $y = - 1;
         $numColumn = count($header);
-        if ($numColumn ==1 ){
-            $separator = ",";
-        }
-        $header = explode($separator, $header[0]);
-        $numColumn = count($header);
-        for ($c = 0; $c < $numColumn; $c++) {
+        for ($c = 0; $c < $numColumn; $c ++) {
             $data[$c] = Inflector::singularize(strtolower(trim($header[$c])));
-            if ($data[$c]=='barcode'){
+            if ($data[$c] == 'barcode') {
                 $barcode = $c;
-            }elseif ($data[$c]=='x'){
+            } elseif ($data[$c] == 'x') {
                 $x = $c;
-            }elseif ($data[$c]=='y'){
+            } elseif ($data[$c] == 'y') {
                 $y = $c;
             }
         }
         
-        if (!isset($data[0]) || !isset($data[1])){
-            if ($x==-1){
-                $response["message"] =  __("should have X column");
+        if (! isset($data[0]) || ! isset($data[1])) {
+            if ($x == - 1) {
+                $response["message"] = __("should have X column");
                 $response["valid"] = 0;
                 return $response;
             }
-
-            if ($barcode==-1){
+            
+            if ($barcode == - 1) {
                 $response["message"] = __("should have barcode column");
                 $response["valid"] = 0;
                 return $response;
             }
-        }elseif ($x==-1 && $barcode==-1){
+        } elseif ($x == - 1 && $barcode == - 1) {
             $barcode = 0;
-            $x=1;
-            if (isset($data[2])){
-                $y=2;
+            $x = 1;
+            if (isset($data[2])) {
+                $y = 2;
             }
             rewind($handle);
             $row = 0;
         }
-
+        
         $storageMasterModel = AppModel::getInstance('StorageLayout', 'StorageMaster');
         $storage = $storageMasterModel->find('first', array(
-            'conditions'=> array(
+            'conditions' => array(
                 'StorageMaster.id' => $storageId
             )
         ));
         $coordXSize = $storage['StorageControl']['coord_x_size'];
         $coordYSize = $storage['StorageControl']['coord_y_size'];
-        $coordXType = $storage["StorageControl"]["coord_x_type"];
-        $coordYType = $storage["StorageControl"]["coord_y_type"];
-        if ($coordXType=='list'){
-            $y=-1;
+        $coordXType = $storage['StorageControl']['coord_x_type'];
+        $coordYType = $storage['StorageControl']['coord_y_type'];
+        $permut = $storage['StorageControl']['permute_x_y'];
+        if ($permut) {
+            list ($coordXSize, $coordYSize) = array(
+                $coordYSize,
+                $coordXSize
+            );
+            list ($coordXType, $coordYType) = array(
+                $coordYType,
+                $coordXType
+            );
+        }
+        if ($coordXType == 'list') {
+            $y = - 1;
             $storageCoordinateModel = AppModel::getInstance('StorageLayout', 'StorageCoordinate');
             $storage = $storageCoordinateModel->find('all', array(
-                'conditions'=> array(
+                'conditions' => array(
                     'StorageCoordinate.storage_master_id' => $storageId
-                    )
                 )
-            );
+            ));
             $response["message"] = __('for now listed storage is not supported');
             $response["valid"] = 0;
             return $response;
         }
-
+        
         $isTma = $storage['StorageControl']['is_tma_block'];
-
-        if (!empty($coordYSize) && $coordYSize>0 && $y==-1){
+        
+        if (! empty($coordYSize) && $coordYSize > 0 && $y == - 1) {
             $response["message"] = __("should have Y column");
             $response["valid"] = 0;
             return $response;
         }
-        if (empty($coordYSize) && $y!=-1){
-            $y=-1;
+        if (empty($coordYSize) && $y != - 1) {
+            $y = - 1;
         }
         
-        $barcodesList= array();
-        $dataArray= array();
-        while (($data = fgetcsv($handle, 50, $separator)) !== FALSE) {
-            $row++;
-            if (empty($data[$barcode])){
+        $barcodesList = array();
+        $dataArray = array();
+        while (($data = fgetcsv($handle, 1000, CSV_SEPARATOR)) !== FALSE) {
+            $row ++;
+            if (empty($data[$barcode])) {
                 continue;
             }
-            $error = false; 
-            $dataArray["message"] = array("warning" => array(), "error" => array());
-            $dataArray["class"] ="";
+            $error = false;
+            $dataArray["message"] = array(
+                "warning" => array(),
+                "error" => array()
+            );
+            $dataArray["class"] = "";
             $dataArray["barcode"] = $data[$barcode];
             
             $aliquotsCheck = $this->find('all', array(
                 'conditions' => array(
-                    'AliquotMaster.barcode' => $data[$barcode]
+                    'BINARY(AliquotMaster.barcode)' => $data[$barcode]
                 ),
                 'fields' => array(
                     'AliquotMaster.id',
@@ -1274,36 +1289,36 @@ class AliquotMaster extends InventoryManagementAppModel
                     'AliquotMaster.id'
                 )
             ));
-            if (count($aliquotsCheck) == 1){
+            if (count($aliquotsCheck) == 1) {
                 $resultCheck = $aliquotsCheck[0];
-                $dataArray["id"] = $resultCheck['AliquotMaster']['id']; 
-                $dataArray["collectionId"] = $resultCheck['AliquotMaster']['collection_id']; 
+                $dataArray["id"] = $resultCheck['AliquotMaster']['id'];
+                $dataArray["collectionId"] = $resultCheck['AliquotMaster']['collection_id'];
                 $dataArray["sampleMasterId"] = $resultCheck['AliquotMaster']['sample_master_id'];
-                $xCheck = $resultCheck['AliquotMaster']['storage_coord_x']; 
-                $yCheck = $resultCheck['AliquotMaster']['storage_coord_y']; 
+                $xCheck = $resultCheck['AliquotMaster']['storage_coord_x'];
+                $yCheck = $resultCheck['AliquotMaster']['storage_coord_y'];
                 $storageLabelCheck = $resultCheck['StorageMaster']['short_label'];
                 $aliquotTypeCheck = $resultCheck['AliquotControl']['aliquot_type'];
                 $availableCheck = $resultCheck['AliquotMaster']['in_stock'];
                 $labelCheck = $resultCheck['AliquotMaster']['aliquot_label'];
                 
-                if (!empty($xCheck) || !empty($yCheck) || !empty($storageLabelCheck)){
+                if (! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) {
                     $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
-                    $dataArray["class"]='duplicated-aliquot warning-aliquot';
+                    $dataArray["class"] = 'duplicated-aliquot warning-aliquot';
                 }
-                if ($aliquotTypeCheck !='core' && $isTma){
+                if ($aliquotTypeCheck != 'core' && $isTma) {
                     $dataArray["message"]['error'][] = __('only sample core can be stored into tma block');
                     $error = true;
                 }
-                if ($availableCheck == 'no' && !$error){
+                if ($availableCheck == 'no' && ! $error) {
                     $dataArray["message"]['error'][] = __('aliquot is not in stock');
                     $error = true;
-                }    
-                if (!$error){
-                    if (in_array($data[$barcode], $barcodesList)!==false) {
+                }
+                if (! $error) {
+                    if (in_array($data[$barcode], $barcodesList) !== false) {
                         $dataArray["message"]['warning'][] = __("duplicate barcode in csv file");
                         foreach ($response['data'] as &$aliquotValue) {
-                            if ($aliquotValue['barcode'] == $data[$barcode]){
-                                if (empty($aliquotValue["message"]['error'])){
+                            if ($aliquotValue['barcode'] == $data[$barcode]) {
+                                if (empty($aliquotValue["message"]['error'])) {
                                     $existe = false;
                                     foreach ($aliquotValue["message"]['warning'] as $message) {
                                         if ($message == __("duplicate barcode in csv file")) {
@@ -1311,74 +1326,72 @@ class AliquotMaster extends InventoryManagementAppModel
                                             break;
                                         }
                                     }
-                                    if (!$existe) {
+                                    if (! $existe) {
                                         $aliquotValue["message"]['warning'][] = __("duplicate barcode in csv file");
                                     }
                                 }
                             }
                         }
                     }
-                    $barcodesList [] = $data[$barcode];
+                    $barcodesList[] = $data[$barcode];
                 }
-                
-            }elseif(count($aliquotsCheck) == 0){
+            } elseif (count($aliquotsCheck) == 0) {
                 $dataArray["message"]['error'][] = __('aliquot does not exist');
                 $error = true;
             }
-
-            if ($coordXType == 'alphabetical'){
+            $dataArray["OK"] = 1;
+            if ($coordXType == 'alphabetical') {
                 $xx = strtoupper($data[$x]);
-                if (is_numeric($xx) && 1<=$xx && $xx<=26){
-                    $dataArray["x"] = chr(64+$xx);
-                }elseif (is_numeric($xx) && !(1<=$xx && $xx<=26)){
-                    $dataArray["message"]["warning"][] = __("the x dimension should be a-z or 1-26"); 
-                }elseif(is_string($xx) && 'A'<= $xx && $xx<='Z' && strlen($xx)==1){
-                    $dataArray["x"] = $xx;
-                }else{
-                    $dataArray["message"]["warning"][] = __("error in x dimension: %s", $xx); 
+                $dataArray["x"] = $xx;
+                if (is_numeric($xx)) {
+                    $dataArray["message"]["warning"][] = __("the x dimension should be alphabetical");
+                    $dataArray["OK"] = 0;
+                } elseif (! (is_string($xx) && 'A' <= $xx && $xx <= chr(64 + $coordXSize) && strlen($xx) == 1)) {
+                    $dataArray["message"]["warning"][] = __("error in x dimension: %s", $xx);
+                    $dataArray["OK"] = 0;
                 }
-            }elseif($coordXType == 'integer'){
+            } elseif ($coordXType == 'integer') {
                 $dataArray["x"] = $data[$x];
-                if ($data[$x]>$coordXSize && !$error){
-                    $dataArray["message"]["warning"][] = __("the x dimension out of range <= %s", $coordXSize); 
-                    $dataArray["x"] = -$data[$x];
+                if (! is_numeric($data[$x])) {
+                    $dataArray["message"]["warning"][] = __("the x dimension should be numeric");
+                    $dataArray["OK"] = 0;
+                } elseif (! (0 <= $data[$x] && $data[$x] <= $coordXSize) && ! $error) {
+                    $dataArray["OK"] = 0;
+                    $dataArray["message"]["warning"][] = __("the x dimension out of range <= %s", $coordXSize);
+                    $dataArray["x"] = - $data[$x];
                 }
             }
-
-            if ($y!=-1){
-                if ($coordYType == 'alphabetical'){
+            
+            if ($y != - 1) {
+                if ($coordYType == 'alphabetical') {
                     $yy = strtoupper($data[$y]);
-                    if (is_numeric($yy) && 1<=$yy && $yy<=26){
-                        $dataArray["y"] = chr(64+$yy);
-                    }elseif (is_numeric($yy) && !(1<=$yy && $yy<=26)){
-                        $dataArray["message"]["warning"][] = __("the y dimension should be A-Z or 1-26"); 
-                    }elseif(is_string($yy) && 'A'<= $yy && $yy<='Z' && strlen($yy)==1){
-                        $dataArray["y"] = $yy;
-                    }else{
-                        $dataArray["message"]["warning"][] = __("error in y dimension: %s", $yy); 
+                    $dataArray["y"] = $yy;
+                    if (is_numeric($yy)) {
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("the y dimension should be alphabetical");
+                    } elseif (! (is_string($yy) && 'A' <= $yy && $yy <= chr(64 + $coordYSize) && strlen($yy) == 1)) {
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("error in y dimension: %s", $yy);
                     }
-                }elseif ($coordYType == 'integer'){
-                    if (!is_numeric($data[$y]) && strlen($data[$y])==1){
-                        $data[$y] = strtoupper($data[$y]);
-                        if ('A'<=$data[$y] && $data[$y]<='Z'){
-                            $data[$y] = chr(ord($data[$y])-16);
-                        }
-                    }
+                } elseif ($coordYType == 'integer') {
                     $dataArray["y"] = $data[$y];
-                    if ($data[$y]>$coordYSize && !$error){
-                        $dataArray["message"]["warning"][] = __("the y dimension out of range <= %s", $coordYSize); 
-                        $dataArray["y"] = -$data[$y];
+                    if (! is_numeric($data[$y])) {
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("the y dimension should be numeric");
+                    } elseif (! (1 <= $data[$y] && $data[$y] <= $coordYSize) && ! $error) {
+                        $dataArray["OK"] = 0;
+                        $dataArray["message"]["warning"][] = __("the y dimension out of range <= %s", $coordYSize);
+                        $dataArray["y"] = - $data[$y];
                     }
                 }
             }
-            if (!empty($labelCheck)){
+            if (! empty($labelCheck)) {
                 $dataArray["label"] = $labelCheck;
             }
-            $response['data'][]=$dataArray;
+            $response['data'][] = $dataArray;
         }
         fclose($handle);
         
         return $response;
     }
-
 }

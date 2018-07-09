@@ -29,8 +29,9 @@ class StorageMastersController extends StorageLayoutAppController
             'order' => 'ViewStorageMaster.selection_label ASC'
         )
     );
-    
+
     /**
+     *
      * @param int $searchId
      * @param bool $fromLayoutPage
      */
@@ -42,12 +43,12 @@ class StorageMastersController extends StorageLayoutAppController
         if ($fromLayoutPage) {
             $topRowStorageId = $this->request->data['current_storage_id'];
             unset($this->request->data['current_storage_id']);
-        
+            
             $hookLink = $this->hook('pre_search_handler');
             if ($hookLink) {
                 require ($hookLink);
             }
-        
+            
             $this->searchHandler($searchId, $modelToUse, $structureAlias, $structureIndex, false, 21);
             if (count($this->request->data) > 20) {
                 $this->request->data = array();
@@ -63,7 +64,7 @@ class StorageMastersController extends StorageLayoutAppController
                         'conditions' => array(
                             'StorageCoordinate.storage_master_id' => $data['StorageMaster']['id']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ))) {
                         unset($this->request->data[$key]);
                         $warn = true;
@@ -77,7 +78,7 @@ class StorageMastersController extends StorageLayoutAppController
                 }
             }
         } else {
-
+            
             $hookLink = $this->hook('pre_search_handler_2');
             if ($hookLink) {
                 require ($hookLink);
@@ -107,6 +108,7 @@ class StorageMastersController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      * @param int $isFromTreeViewOrLayout
      * @param null $storageCategory
@@ -158,7 +160,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'StorageCoordinate.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ))) {
                 if (! $isFromTreeViewOrLayout)
                     AppController::addWarningMsg(__('no layout exists - add coordinates first'));
@@ -265,6 +267,7 @@ class StorageMastersController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageControlId
      * @param null $predefinedParentStorageId
      */
@@ -391,6 +394,7 @@ class StorageMastersController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      */
     public function edit($storageMasterId)
@@ -519,6 +523,7 @@ class StorageMastersController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      */
     public function delete($storageMasterId)
@@ -597,12 +602,12 @@ class StorageMastersController extends StorageLayoutAppController
      * plus both aliquots and TMA slides stored into those storages starting from a specific parent storage.
      *
      * @param int|Storage $storageMasterId Storage
-     *            master id of the studied storage that will be used as tree root.
+     *        master id of the studied storage that will be used as tree root.
      * @param bool|int $isAjax
      *
      * @author N. Luc
      * @since 2007-05-22
-     * @updated A. Suggitt
+     *        @updated A. Suggitt
      */
     public function contentTreeView($storageMasterId = 0, $isAjax = false)
     {
@@ -662,7 +667,7 @@ class StorageMastersController extends StorageLayoutAppController
                         )
                     )
                 );
-            // Aliquot
+                // Aliquot
             $aliquots = $this->AliquotMaster->find('all', array(
                 'conditions' => array(
                     'AliquotMaster.storage_master_id' => $storageMasterId
@@ -816,19 +821,22 @@ class StorageMastersController extends StorageLayoutAppController
     /**
      * Display the content of a storage into a layout.
      *
-     * @param $storageMasterId Id
-     *            of the studied storage.
+     * @param $storageMasterId Id of the studied storage.
      * @param bool $isAjax : Tells
-     *            wheter the request has to be treated as ajax
-     *            query (required to counter issues in Chrome 15 back/forward button on the
-     *            page and Opera 11.51 first ajax query that is not recognized as such)
-     *
+     *        wheter the request has to be treated as ajax
+     *        query (required to counter issues in Chrome 15 back/forward button on the
+     *        page and Opera 11.51 first ajax query that is not recognized as such)
+     *       
      * @param bool $csvCreation
      * @author N. Luc
      * @since 2007-05-22
      */
     public function storageLayout($storageMasterId, $isAjax = false, $csvCreation = false)
     {
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
+        
         // MANAGE STORAGE DATA
         
         // Get the storage data
@@ -840,7 +848,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'StorageCoordinate.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => -1,
+                'recursive' => - 1,
                 'order' => 'StorageCoordinate.order ASC'
             ));
             foreach ($coordinateTmp as $key => $value) {
@@ -908,7 +916,7 @@ class StorageMastersController extends StorageLayoutAppController
                         'conditions' => array(
                             'StorageCoordinate.storage_master_id' => $secondStorageId
                         ),
-                        'recursive' => -1,
+                        'recursive' => - 1,
                         'order' => 'StorageCoordinate.order ASC'
                     ));
                     foreach ($coordinateTmp as $key => $value) {
@@ -1018,14 +1026,14 @@ class StorageMastersController extends StorageLayoutAppController
             'conditions' => array(
                 'AliquotMaster.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $aliquotMasterC = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['AliquotMaster'], $aliquotMasterC, true);
         $tmaSlideC = $this->TmaSlide->find('all', array(
             'conditions' => array(
                 'TmaSlide.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $tmaSlideC = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['TmaSlide'], $tmaSlideC, true);
         
@@ -1127,7 +1135,15 @@ class StorageMastersController extends StorageLayoutAppController
         // debug = 0 to avoid printing debug queries that would break the javascript array
         Configure::write('debug', 0);
         // query the database
-        $term = trim(str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']));
+        $term = trim(str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']));
         $conditions = array(
             'StorageMaster.Selection_label LIKE' => '%' . $term . '%'
         );
@@ -1146,7 +1162,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'StorageMaster.code LIKE' => $term2b . '%'
             );
         }
-
+        
         $storageMasters = $this->StorageMaster->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
@@ -1161,7 +1177,7 @@ class StorageMastersController extends StorageLayoutAppController
             'recursive' => 0,
             'limit' => 10
         ));
-
+        
         $storageTypesFromId = $this->StorageControl->getStorageTypePermissibleValues();
         
         // build javascript textual array
@@ -1169,7 +1185,13 @@ class StorageMastersController extends StorageLayoutAppController
         $count = 0;
         foreach ($storageMasters as $storageMaster) {
             $storageControlId = $storageMaster['StorageControl']['id'];
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $storageMaster['StorageMaster']['selection_label'] . ' [' . $storageMaster['StorageMaster']['code'] . '] / ' . (isset($storageTypesFromId[$storageControlId]) ? $storageTypesFromId[$storageControlId] : $storageMaster['StorageControl']['storage_type'])) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $storageMaster['StorageMaster']['selection_label'] . ' [' . $storageMaster['StorageMaster']['code'] . '] / ' . (isset($storageTypesFromId[$storageControlId]) ? $storageTypesFromId[$storageControlId] : $storageMaster['StorageControl']['storage_type'])) . '", ';
             ++ $count;
             if ($count > 9) {
                 break;
@@ -1182,6 +1204,7 @@ class StorageMastersController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      * @param null $model
      */
@@ -1282,26 +1305,35 @@ class StorageMastersController extends StorageLayoutAppController
             require ($hookLink);
         }
     }
-    
+
     /**
      * Get the aliquot detail and send it to view.
-     * 
+     *
      * @param int $storageId
      * @param string $barcode
      */
-    public function getAliquotDetail($storageId, $barcode){
+    public function getAliquotDetail($storageId, $barcode)
+    {
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/add') || ! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/edit')) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
         $result = $this->AliquotMaster->getAliquotByBarcode($storageId, $barcode);
         $this->set('result', $result['aliquots']);
         $this->set('isTma', $result['isTma']);
         $this->set('barcodeSearch', $barcode);
     }
-    
+
     /**
      * Load a CSV file and add the barcodes into the form.
-     * 
+     *
      * @param int $storageId
      */
-    public function getCsvFile ($storageId){
+    public function getCsvFile($storageId)
+    {
+        if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/add') || ! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/edit')) {
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
+        }
+        
         $dataFile = $_FILES['media'];
         $response = $this->AliquotMaster->readCsvAndConvertToArray($dataFile, $storageId);
         $this->set("csvArrayData", $response);

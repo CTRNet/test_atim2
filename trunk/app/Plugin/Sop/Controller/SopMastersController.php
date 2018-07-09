@@ -35,6 +35,7 @@ class SopMastersController extends SopAppController
     }
 
     /**
+     *
      * @param $sopControlId
      */
     public function add($sopControlId)
@@ -91,6 +92,7 @@ class SopMastersController extends SopAppController
     }
 
     /**
+     *
      * @param $sopMasterId
      */
     public function detail($sopMasterId)
@@ -115,6 +117,7 @@ class SopMastersController extends SopAppController
     }
 
     /**
+     *
      * @param $sopMasterId
      */
     public function edit($sopMasterId)
@@ -163,6 +166,7 @@ class SopMastersController extends SopAppController
     }
 
     /**
+     *
      * @param $sopMasterId
      */
     public function delete($sopMasterId)

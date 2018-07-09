@@ -19,10 +19,10 @@ if (isset($search)) {
         'add' => $addLinks
     );
 } elseif (! $isAjax && isset($addLinks)) {
-        $bottom = array(
-            'add to storage' => $addLinks
-        );
-    }
+    $bottom = array(
+        'add to storage' => $addLinks
+    );
+}
 
 $structureLinks = array(
     'tree' => array(

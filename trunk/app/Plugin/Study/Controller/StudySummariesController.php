@@ -45,6 +45,7 @@ class StudySummariesController extends StudyAppController
     );
 
     /**
+     *
      * @param string $searchId
      */
     public function search($searchId = '')
@@ -70,6 +71,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function detail($studySummaryId)
@@ -126,6 +128,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function edit($studySummaryId)
@@ -170,6 +173,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function delete($studySummaryId)
@@ -202,6 +206,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param null $specificListHeader
      */
@@ -328,12 +333,22 @@ class StudySummariesController extends StudyAppController
         Configure::write('debug', 0);
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']);
         $terms = array();
         foreach (explode(' ', $term) as $keyWord) {
-        	$terms[] = array("StudySummary.title LIKE" => '%'.$keyWord.'%');
+            $terms[] = array(
+                "StudySummary.title LIKE" => '%' . $keyWord . '%'
+            );
         }
-		
+        
         $conditions = array(
             'AND' => $terms
         );
@@ -357,7 +372,13 @@ class StudySummariesController extends StudyAppController
         // build javascript textual array
         $result = "";
         foreach ($data as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit)) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit)) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

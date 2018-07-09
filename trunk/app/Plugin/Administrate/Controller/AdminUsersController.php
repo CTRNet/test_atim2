@@ -24,6 +24,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function listall($groupId)
@@ -41,6 +42,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -58,12 +60,13 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function add($groupId)
     {
         $isLdap = Configure::read("if_use_ldap_authentication");
-        $isLdap = !empty($isLdap);
+        $isLdap = ! empty($isLdap);
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
         ));
@@ -93,7 +96,7 @@ class AdminUsersController extends AdministrateAppController
                     )
                 );
                 $submittedDataValidates = $this->User->validatePassword($passwordData, $this->request->data['User']['username']);
-
+                
                 $this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
                 $this->request->data['User']['password_modified'] = date("Y-m-d H:i:s");
                 $this->request->data['User']['group_id'] = $groupId;
@@ -110,12 +113,12 @@ class AdminUsersController extends AdministrateAppController
                 if ($hookLink) {
                     require ($hookLink);
                 }
-
+                
                 if ($submittedDataValidates) {
-                    if (!empty($isLdap)){
-                        $this->request->data['force_password_reset']=1;
+                    if (! empty($isLdap)) {
+                        $this->request->data['force_password_reset'] = 1;
                     }
-
+                    
                     if ($this->User->save($this->request->data)) {
                         $hookLink = $this->hook('postsave_process');
                         if ($hookLink) {
@@ -134,6 +137,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -195,6 +199,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -215,7 +220,9 @@ class AdminUsersController extends AdministrateAppController
             $announcementConditions = array(
                 'Announcement.user_id' => $userId
             );
-            $announcements = $announcementM->find('first', array('conditions' => $announcementConditions ));
+            $announcements = $announcementM->find('first', array(
+                'conditions' => $announcementConditions
+            ));
             if ($announcements) {
                 $arrAllowDeletion = array(
                     'allow_deletion' => false,
@@ -243,6 +250,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -266,6 +274,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */

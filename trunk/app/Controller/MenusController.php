@@ -30,6 +30,7 @@ class MenusController extends AppController
     }
 
     /**
+     *
      * @param null $setOfMenus
      */
     public function index($setOfMenus = null)

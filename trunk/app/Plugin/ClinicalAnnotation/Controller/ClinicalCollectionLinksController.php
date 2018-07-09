@@ -51,8 +51,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     
     /**
      *
-     * @param
-     *            $participantId
+     * @param $participantId
      */
     public function listall($participantId)
     {
@@ -199,10 +198,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 
     /**
      *
-     * @param
-     *            $participantId
-     * @param
-     *            $collectionId
+     * @param $participantId
+     * @param $collectionId
      */
     public function detail($participantId, $collectionId)
     {
@@ -252,8 +249,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 
     /**
      *
-     * @param
-     *            $participantId
+     * @param $participantId
      */
     public function add($participantId, $collectionProtocolId = null)
     {
@@ -415,10 +411,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 
     /**
      *
-     * @param
-     *            $participantId
-     * @param
-     *            $collectionId
+     * @param $participantId
+     * @param $collectionId
      */
     public function edit($participantId, $collectionId)
     {
@@ -550,10 +544,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 
     /**
      *
-     * @param
-     *            $participantId
-     * @param
-     *            $collectionId
+     * @param $participantId
+     * @param $collectionId
      */
     public function delete($participantId, $collectionId)
     {

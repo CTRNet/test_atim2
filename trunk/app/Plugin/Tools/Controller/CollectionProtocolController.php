@@ -160,13 +160,13 @@ class CollectionProtocolController extends ToolsAppController
                         $newCollectionProtocolVisistToSave['CollectionProtocolVisit']['time_from_first_visit'] = '0';
                         $newCollectionProtocolVisistToSave['CollectionProtocolVisit']['time_from_first_visit_unit'] = 'day';
                     }
-                    foreach($newCollectionProtocolVisistToSave['Collection'] as &$newCollectionField) {
-                        if(is_array($newCollectionField)) {
+                    foreach ($newCollectionProtocolVisistToSave['Collection'] as &$newCollectionField) {
+                        if (is_array($newCollectionField)) {
                             $tmpNewCollectionField = $newCollectionField;
                             $tmpNewCollectionField = array_filter($tmpNewCollectionField, function ($var) {
                                 return (! ($var == '' || is_null($var)));
                             });
-                            $newCollectionField = empty($tmpNewCollectionField)? '' : $newCollectionField;
+                            $newCollectionField = empty($tmpNewCollectionField) ? '' : $newCollectionField;
                         }
                     }
                     $collectionData = array_filter($newCollectionProtocolVisistToSave['Collection'], function ($var) {
@@ -202,8 +202,7 @@ class CollectionProtocolController extends ToolsAppController
     /**
      * Display a Collection Protocol
      *
-     * @param $collectionProtocolId Id
-     *            of the collection protocol
+     * @param $collectionProtocolId Id of the collection protocol
      */
     public function detail($collectionProtocolId)
     {
@@ -247,8 +246,7 @@ class CollectionProtocolController extends ToolsAppController
     /**
      * Modify a Collection Protocol
      *
-     * @param $collectionProtocolId Id
-     *            of the collection protocol
+     * @param $collectionProtocolId Id of the collection protocol
      */
     public function edit($collectionProtocolId)
     {
@@ -417,13 +415,13 @@ class CollectionProtocolController extends ToolsAppController
                         $submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['time_from_first_visit'] = '0';
                         $submittedCollectionProtocolVisistToUpdate['CollectionProtocolVisit']['time_from_first_visit_unit'] = 'day';
                     }
-                    foreach($submittedCollectionProtocolVisistToUpdate['Collection'] as &$newCollectionField) {
-                        if(is_array($newCollectionField)) {
+                    foreach ($submittedCollectionProtocolVisistToUpdate['Collection'] as &$newCollectionField) {
+                        if (is_array($newCollectionField)) {
                             $tmpNewCollectionField = $newCollectionField;
                             $tmpNewCollectionField = array_filter($tmpNewCollectionField, function ($var) {
                                 return (! ($var == '' || is_null($var)));
                             });
-                            $newCollectionField = empty($tmpNewCollectionField)? '' : $newCollectionField;
+                            $newCollectionField = empty($tmpNewCollectionField) ? '' : $newCollectionField;
                         }
                     }
                     $collectionData = array_filter($submittedCollectionProtocolVisistToUpdate['Collection'], function ($var) {
@@ -490,8 +488,7 @@ class CollectionProtocolController extends ToolsAppController
     /**
      * Delete a Collection Protocol
      *
-     * @param $collectionProtocolId Id
-     *            of the collection protocol
+     * @param $collectionProtocolId Id of the collection protocol
      */
     public function delete($collectionProtocolId)
     {

@@ -33,6 +33,7 @@ class EventControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getEventGroupPermissibleValues()
@@ -77,6 +78,7 @@ class EventControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $eventCtrlData
      * @param $participantId
      * @param $eventGroup
@@ -97,6 +99,7 @@ class EventControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

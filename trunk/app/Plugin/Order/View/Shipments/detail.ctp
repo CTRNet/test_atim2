@@ -26,6 +26,18 @@ $structureLinks = array(
             'define order items returned' => array(
                 'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'],
                 'icon' => 'order items returned'
+            ),
+            'edit all items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/',
+                'icon' => 'edit'
+            ),
+            'edit shipped items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped/',
+                'icon' => 'edit'
+            ),
+            'edit returned items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped & returned/',
+                'icon' => 'edit'
             )
         ),
         'shipments' => array(

@@ -29,6 +29,7 @@ class LabBookMastersController extends LabBookAppController
      * --------------------------------------------------------------------------
      */
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -56,6 +57,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @param bool $fullDetailScreen
      */
@@ -102,6 +104,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $controlId
      * @param bool $isAjax
      */
@@ -187,6 +190,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function edit($labBookMasterId)
@@ -246,6 +250,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function editSynchOptions($labBookMasterId)
@@ -349,6 +354,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function delete($labBookMasterId)
