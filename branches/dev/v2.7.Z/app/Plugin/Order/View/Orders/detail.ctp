@@ -25,7 +25,7 @@ $structureLinks = array(
 if (Configure::read('order_item_to_order_objetcs_link_setting') == 3)
     unset($structureLinks['bottom']['order lines']);
     
-// Add item links management
+    // Add item links management
 switch (Configure::read('order_item_type_config')) {
     case '1':
         $structureLinks['bottom']['order items'][__('add items to order') . ' : ' . __('tma slide')] = array(
@@ -56,8 +56,8 @@ $structureLinks['bottom']['order items']['define order items returned'] = array(
 );
 if (Configure::read('order_item_to_order_objetcs_link_setting') == 2)
     unset($structureLinks['bottom']['order items']);
-
-// Edit item links management
+    
+    // Edit item links management
 $structureLinks['bottom']['order items']['edit all items'] = array(
     'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/0/0/',
     'icon' => 'edit'

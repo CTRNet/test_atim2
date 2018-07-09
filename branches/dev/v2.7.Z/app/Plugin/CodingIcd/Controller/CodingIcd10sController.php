@@ -16,6 +16,7 @@ class CodingIcd10sController extends CodingIcdAppController
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
     /**
+     *
      * @param $useIcdType
      */
     public function tool($useIcdType)
@@ -25,6 +26,7 @@ class CodingIcd10sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      * @param bool $isTool
      */
@@ -35,6 +37,7 @@ class CodingIcd10sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      */
     public function autocomplete($useIcdType = "who")
@@ -44,6 +47,7 @@ class CodingIcd10sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param $icdTypeName
      * @return mixed|null
      */

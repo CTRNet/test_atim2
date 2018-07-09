@@ -36,12 +36,9 @@ $this->Structures->build($finalAtimStructure, $finalOptions);
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
  *
- * @param unknown_type $var
- *            The variable to loop on, must be null on the first iteration
- * @param unknown_type $reverseOrder
- *            True to reverse the order
- * @param unknown_type $limit
- *            The limit of the axis
+ * @param unknown_type $var The variable to loop on, must be null on the first iteration
+ * @param unknown_type $reverseOrder True to reverse the order
+ * @param unknown_type $limit The limit of the axis
  * @return true if you must continue to loop, false otherwise
  *         @alter Increments/decrements the value of var
  */
@@ -75,7 +72,7 @@ ob_start();
 			<span class='help storage'>
 				<div><?php echo __('help_storage_layout_storage') ?></div>
 			</span> <span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __('storage layout'). ' : '. $translatedStorageType ?>
+			<?php echo __('storage layout'). ' : '. $translatedStorageType?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 		
@@ -109,7 +106,7 @@ if ((strlen($xSize) == 0 || strlen($ySize) == 0) && ($storageControlData['Storag
 }
 $xAlpha = $storageControlData['StorageCtrl']['coord_x_type'] == "alphabetical";
 $yAlpha = $storageControlData['StorageCtrl']['coord_y_type'] == "alphabetical";
-$permuteXY = (isset($storageControlData['StorageCtrl']['permute_x_y']) && $storageControlData['StorageCtrl']['permute_x_y']==1)?true:false;
+$permuteXY = (isset($storageControlData['StorageCtrl']['permute_x_y']) && $storageControlData['StorageCtrl']['permute_x_y'] == 1) ? true : false;
 $horizontalIncrement = $storageControlData['StorageCtrl']['horizontal_increment'];
 // table display loop and inner loop
 $j = null;
@@ -129,9 +126,9 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
             $displayValue = $xAlpha ? chr($displayValue + 64) : $displayValue;
         } else {
             $xVal = $xAlpha ? chr($i + 64) : $i;
-            if (!$permuteXY){
+            if (! $permuteXY) {
                 $displayValue = $xVal . "-" . $yVal;
-            }else{
+            } else {
                 $displayValue = $yVal . "-" . $xVal;
             }
         }

@@ -37,6 +37,7 @@ class OrderItemsController extends OrderAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -62,6 +63,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param string $status
      * @param null $orderLineId
@@ -81,7 +83,7 @@ class OrderItemsController extends OrderAppController
                     'OrderLine.id' => $orderLineId,
                     'OrderLine.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($orderLineData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -93,7 +95,7 @@ class OrderItemsController extends OrderAppController
                     'Shipment.id' => $shipmentId,
                     'Shipment.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($shipmentData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -104,7 +106,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'Order.id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($orderData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -124,7 +126,7 @@ class OrderItemsController extends OrderAppController
             'pending',
             'shipped',
             'shipped & returned'
-        ))){
+        ))) {
             $conditions['OrderItem.status'] = $status;
         }
         $this->request->data = $this->paginate($this->OrderItem, $conditions);
@@ -161,10 +163,8 @@ class OrderItemsController extends OrderAppController
     /**
      * Liste all order items linked to the same object (AliquotMaster or TmaSlide)
      *
-     * @param unknown $objectModelName
-     *            Name of the model of the studied object (AliquotMaster, TmaSlide)
-     * @param unknown $objectId
-     *            Id of the boject
+     * @param unknown $objectModelName Name of the model of the studied object (AliquotMaster, TmaSlide)
+     * @param unknown $objectId Id of the boject
      */
     public function listAllOrderItemsLinkedToOneObject($objectModelName, $objectId)
     {
@@ -212,6 +212,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param int $orderLineId
      * @param string $objectModelName
@@ -309,7 +310,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'AliquotMaster.barcode' => $dataUnit['AliquotMaster']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if (! $aliquotData) {
                         $errorsTracking['barcode']['barcode is required and should exist'][] = $rowCounter;
@@ -330,7 +331,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'TmaSlide.barcode' => $dataUnit['TmaSlide']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if (! $slideData) {
                         $errorsTracking['barcode']['a tma slide barcode is required and should exist'][] = $rowCounter;
@@ -385,7 +386,7 @@ class OrderItemsController extends OrderAppController
                     $newDataToSave['OrderItem']['order_id'] = $orderId;
                     if ($orderLineId)
                         $newDataToSave['OrderItem']['order_line_id'] = $orderLineId;
-                    // Save new recrod
+                        // Save new recrod
                     $this->OrderItem->id = null;
                     $this->OrderItem->data = array();
                     if (! $this->OrderItem->save($newDataToSave, false))
@@ -451,6 +452,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $objectModelName
      * @param null $objectId
      */
@@ -665,7 +667,7 @@ class OrderItemsController extends OrderAppController
                             'OrderLine.order_id' => $orderId,
                             'OrderLine.id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -675,7 +677,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'Order.id' => $orderId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -772,10 +774,11 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
-     * 
+     *
      * @deprecated Replaced by editInBatch function on 2018-07-09
      */
     public function edit($orderId, $orderItemId, $mainFormModel = null)
@@ -867,7 +870,7 @@ class OrderItemsController extends OrderAppController
                 $criteria['OrderItem.id'] = $orderItemId;
             }
             if (empty($this->request->data))
-                $initialDisplay = true; 
+                $initialDisplay = true;
         } else {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;
@@ -997,7 +1000,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'OrderItem.id' => $updatedItemIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($updatedItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1074,6 +1077,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
@@ -1163,7 +1167,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'OrderItem.order_line_id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if ($orderItemCount != 0) {
                         $orderItemNotShippedCount = $this->OrderItem->find('count', array(
@@ -1172,7 +1176,7 @@ class OrderItemsController extends OrderAppController
                                 'OrderItem.order_line_id' => $orderLineId,
                                 'OrderItem.deleted != 1'
                             ),
-                            'recursive' => -1
+                            'recursive' => - 1
                         ));
                         if ($orderItemNotShippedCount == 0) {
                             $newStatus = 'shipped';
@@ -1205,6 +1209,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param int $orderId
      * @param int $orderLineId
      * @param int $shipmentId
@@ -1404,7 +1409,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'OrderItem.id' => $orderItemIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($orderItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1523,6 +1528,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel

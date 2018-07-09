@@ -19,8 +19,8 @@ class ToolsAppModel extends AppModel
      * When $toolId is set, system defined if tool properties can be edited or not by the user.
      * (Only user who created the template/collection protocol or administrators can change template properties or delete the tool)
      *
-     * @param string $useDefintion            
-     * @param null $toolId            
+     * @param string $useDefintion
+     * @param null $toolId
      *
      * @return array|null
      */
@@ -110,11 +110,9 @@ class ToolsAppModel extends AppModel
     /**
      * Complete the fields 'owning_entity_id' and 'visible_entity_id' of the recorded tool.
      *
-     * @param array $toolData
-     *            Data of the recorded template or collection protocol
-     * @param integer $createdBy
-     *            Id of the user who is creating the record
-     *            
+     * @param array $toolData Data of the recorded template or collection protocol
+     * @param integer $createdBy Id of the user who is creating the record
+     *       
      * @return null
      */
     public function setOwnerAndVisibility(&$toolData, $createdBy = null)
@@ -194,11 +192,9 @@ class ToolsAppModel extends AppModel
      * String combines translated labels of the fields of the structures that will be used to create the inventory data (collection, sample, aliquot)
      * into the Inventory Management module and the default values.
      *
-     * @param string $linkedStructures
-     *            Alias of the structures that will be used to create the inventory data (collection, sample, aliquot)
-     * @param array $defaultValues
-     *            Default values that will be initially displayed
-     *            
+     * @param string $linkedStructures Alias of the structures that will be used to create the inventory data (collection, sample, aliquot)
+     * @param array $defaultValues Default values that will be initially displayed
+     *       
      * @return string Formated string with the default values
      */
     public function formatDefaultValuesForDisplay($linkedStructures, $defaultValues)

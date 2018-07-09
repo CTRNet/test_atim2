@@ -31,6 +31,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -66,11 +67,9 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $txMasterId Id
-     *            of the studied record.
-     * @param
-     *            $txExtendTablename
-     *            
+     * @param $txMasterId Id of the studied record.
+     * @param $txExtendTablename
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -94,7 +93,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
                     'TreatmentExtendMaster.treatment_master_id' => $txMasterId,
                     'TreatmentExtendMaster.treatment_extend_control_id' => $data['TreatmentControl']['treatment_extend_control_id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if ($nbrExtends > 0) {
                 return array(

@@ -9,11 +9,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.View.Layouts
- * @since         CakePHP(tm) v 0.10.0.1076
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.View.Layouts
+ * @since CakePHP(tm) v 0.10.0.1076
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 $useBuffer = false;
 if (! headers_sent()) {
@@ -30,10 +30,10 @@ if (! headers_sent()) {
 <head>
 	<?php
 $header = $this->Shell->header(array(
-    'atim_menu_for_header' => isset($atimMenuForHeader)?$atimMenuForHeader:null,
-    'atim_sub_menu_for_header' => isset($atimSubMenuForHeader)?$atimSubMenuForHeader:null,
-    'atim_menu' => isset($atimMenu)?$atimMenu:null,
-    'atim_menu_variables' => isset($atimMenuVariables)?$atimMenuVariables:null
+    'atim_menu_for_header' => isset($atimMenuForHeader) ? $atimMenuForHeader : null,
+    'atim_sub_menu_for_header' => isset($atimSubMenuForHeader) ? $atimSubMenuForHeader : null,
+    'atim_menu' => isset($atimMenu) ? $atimMenu : null,
+    'atim_menu_variables' => isset($atimMenuVariables) ? $atimMenuVariables : null
 ));
 // var_dump(array($this->params['plugin'],$this->params['action'],$this->params['controller']));
 
@@ -48,8 +48,8 @@ $title = $this->Shell->pageTitle;
 <meta http-equiv="Expires" content="0" />-->
 <?php
 // Add this if because the Print and echo functions cause warning in mode debug.
-//https://stackoverflow.com/questions/8028957#answer-8028987
-if(Configure::read('debug')===0){
+// https://stackoverflow.com/questions/8028957#answer-8028987
+if (Configure::read('debug') === 0) {
     header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
     header("Pragma: no-cache"); // HTTP 1.0.
     header("Expires: 0"); // Proxies.
@@ -70,7 +70,6 @@ if (__('clin_english') == "Anglais") {
     $locale = "";
 }
 
-   
 echo $this->Html->css('iehacks');
 ?>
 	<![endif]-->
@@ -83,7 +82,7 @@ echo $header;
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
-//echo $content_for_layout;
+// echo $content_for_layout;
 echo $this->fetch('content');
 
 echo $this->Shell->footer();

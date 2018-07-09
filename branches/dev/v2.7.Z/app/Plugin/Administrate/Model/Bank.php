@@ -19,6 +19,7 @@ class Bank extends AdministrateAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -67,6 +68,7 @@ class Bank extends AdministrateAppModel
     }
 
     /**
+     *
      * @param int $bankId
      * @return array
      */

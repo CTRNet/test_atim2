@@ -4,6 +4,7 @@
  * Class PreferencesController
  */
 App::uses('CustomizeAppController', 'Customize.Controller');
+
 class PreferencesController extends CustomizeAppController
 {
 

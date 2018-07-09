@@ -22,6 +22,7 @@ class ProtocolMaster extends ProtocolAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -59,7 +60,7 @@ class ProtocolMaster extends ProtocolAppModel
      *
      * @author N. Luc
      * @since 2010-05-26
-     * @updated N. Luc
+     *        @updated N. Luc
      * @param null $protocolControlId
      * @return array
      */
@@ -86,9 +87,8 @@ class ProtocolMaster extends ProtocolAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $protocolMasterId Id
-     *            of the studied record.
-     *            
+     * @param $protocolMasterId Id of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -104,7 +104,7 @@ class ProtocolMaster extends ProtocolAppModel
             'conditions' => array(
                 'TreatmentMaster.protocol_master_id' => $protocolMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrTrtMasters > 0) {
             return array(
@@ -120,6 +120,7 @@ class ProtocolMaster extends ProtocolAppModel
     }
 
     /**
+     *
      * @param int $protocolMasterId
      * @return array
      */
@@ -147,7 +148,7 @@ class ProtocolMaster extends ProtocolAppModel
                     'ProtocolExtendMaster.protocol_master_id' => $protocolMasterId,
                     'ProtocolExtendMaster.protocol_extend_control_id' => $data['ProtocolControl']['protocol_extend_control_id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if ($nbrExtends > 0) {
                 return array(

@@ -26,13 +26,14 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param $searchId
      */
     public function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
-            
+        
         $hookLink = $this->hook('pre_search_handler');
         if ($hookLink) {
             require ($hookLink);
@@ -76,6 +77,7 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function edit($materialId = null)
@@ -116,6 +118,7 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function detail($materialId = null)
@@ -142,6 +145,7 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function delete($materialId = null)

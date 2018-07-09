@@ -121,7 +121,7 @@ fieldset.mainFieldset {
 }
 
 #header h1 {
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 #header h2 {
@@ -130,11 +130,12 @@ fieldset.mainFieldset {
 	margin-top: 10px;
 }
 
-div.wrapper div:not(.browsable.info){
-margin:0;
-padding:0;
-border:0;
+div.wrapper div:not (.browsable.info ){
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
+
 p {
 	margin: 1em 0;
 }
@@ -296,7 +297,8 @@ p.bottom_button_load a:focus {
 	text-decoration: underline;
 }
 
-p.bottom_button_load:not (.not_allowed ):hover, div.bottom_button_load:not (.not_allowed
+p.bottom_button_load:not (.not_allowed ):hover, div.bottom_button_load:not 
+	(.not_allowed
  ):focus {
 	border-color: #000;
 	background-image: url("../img/btnBackSel.png");
@@ -552,22 +554,20 @@ ul.root_menu_for_header li a, ul.main_menu_for_header li a {
 	background: -webkit-gradient(linear, left top, left bottom, from(#628cae),
 		color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
 	background: -moz-linear-gradient(top, #628cae, #7aaed8, #628cae);
-        
-    display: block;
-    visibility: hidden;
-    opacity: 0;
-    -webkit-transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
-    transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
-    
+	display: block;
+	visibility: hidden;
+	opacity: 0;
+	-webkit-transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
+	transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
 }
 
 ul.main_menu_for_header>li:hover .sub_menu_for_header {
-    z-index: 2;
-    visibility: visible;
-    opacity: 1;
-    -webkit-transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
-    transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
-    display: block;
+	z-index: 2;
+	visibility: visible;
+	opacity: 1;
+	-webkit-transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
+	transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
+	display: block;
 }
 
 .root_menu_for_header li:hover {
@@ -745,11 +745,11 @@ div.menu.level_1 li:hover {
 	color: #fff;
 }
 
-div.menu.level_1 li:hover a:not(.not_allowed)
-{
-    text-decoration:underline;
-    color:#fff;
+div.menu.level_1 li:hover a:not (.not_allowed ) {
+	text-decoration: underline;
+	color: #fff;
 }
+
 div.menu.level_1 li.not_allowed:hover {
 	background-color: #41515f;
 	border-top: 1px solid #ccc;
@@ -1144,8 +1144,8 @@ ul.big_menu li:hover, ul.big_announcements li:hover {
 		color-stop(50%, #ffc), to(#ffe)); /* for webkit browsers */
 	background: -moz-linear-gradient(left, #ffe, #ffc, #ffe);
 	background: #ffe;
-        -webkit-transition: background 0.2s linear;
-        transition: background 0.2s linear;
+	-webkit-transition: background 0.2s linear;
+	transition: background 0.2s linear;
 }
 
 ul.big_menu li a {
@@ -1358,8 +1358,8 @@ a.form {
 
 .icon16.csv_upload {
 	background-position: -80px -64px;
-        display: inline-block;
-        margin-right: 10px;
+	display: inline-block;
+	margin-right: 10px;
 }
 
 .icon16.create_shipment {
@@ -1642,7 +1642,6 @@ a.icon16.search {
 .icon16.reset-search {
 	background-position: -48px -160px;
 }
-
 
 /* -=toolbox*/
 .icon32.login {
@@ -2366,14 +2365,14 @@ ul.actionDropdown li a {
 	display: none;
 }
 
-table:not(.index) table.columns.index tbody tr td{
+table:not (.index ) table.columns.index tbody tr td {
 	white-space: nowrap;
-        /*word-wrap: break-word!important;*/
+	/*word-wrap: break-word!important;*/
 }
 
 table.index table.columns.index tbody tr td:first-child {
 	white-space: nowrap;
-        /*word-wrap: break-word!important;*/
+	/*word-wrap: break-word!important;*/
 }
 
 table.index tr td:first-child {
@@ -2564,28 +2563,28 @@ li.sub_menu {
 	background: -moz-linear-gradient(top, #ddd, #eee, #bbb);
 }
 
-.warning-aliquot{
+.warning-aliquot {
 	background: -webkit-gradient(linear, left top, left bottom, from(#fd0),
 		color-stop(50%, #fe0), to(#fb0)); /* for webkit browsers */
 	background: -moz-linear-gradient(top, #fd0, #fe0, #fb0);
 }
 
-.error-aliquot{
+.error-aliquot {
 	background: -webkit-gradient(linear, left top, left bottom, from(#d00),
 		color-stop(50%, #e00), to(#b00)); /* for webkit browsers */
 	background: -moz-linear-gradient(top, #d00, #e00, #b00);
 }
 
-.new-aliquot{
+.new-aliquot {
 	background: -webkit-gradient(linear, left top, left bottom, from(#0d0),
 		color-stop(50%, #0e0), to(#0b0)); /* for webkit browsers */
 	background: -moz-linear-gradient(top, #0d0, #0e0, #0b0);
 }
 
-.just-added{
-    border-style: dashed;
-    border-color: white;
-    border-width: thin;
+.just-added {
+	border-style: dashed;
+	border-color: white;
+	border-width: thin;
 }
 
 ul.trash_n_unclass {
@@ -2625,14 +2624,14 @@ table.columns.index tbody tr:nth-child(even), div.indexLangHeader {
 }
 
 table.structure.lineHighlight table.columns.index tbody tr:hover, table.structure.lineHighlight table.columns.index tbody tr:hover div.floatingCell
-{
+	{
 	background-color: #ffc;
 }
 
 table.structure.lineHighlight table.columns.index tbody tr, table.structure.lineHighlight table.columns.index tbody tr
-{
-    -webkit-transition: background 0.3s linear;    
-    transition: background 0.3s linear;    
+	{
+	-webkit-transition: background 0.3s linear;
+	transition: background 0.3s linear;
 }
 
 .row {
@@ -2761,12 +2760,13 @@ div.floatingCell {
 }
 
 select {
-    max-width: 250px;
+	max-width: 250px;
 }
 
-div.descriptive_heading:not(:first-child){
-    margin-top:20px;
+div.descriptive_heading:not (:first-child ){
+	margin-top: 20px;
 }
+
 .testScroll, .floatingCells {
 	z-index: 1;
 	position: relative;
@@ -2803,132 +2803,133 @@ input[type=number].month, input[type=number].day {
 	text-align: center !important;
 }
 
-p.wraped-text{
-    margin: 0px;
-    padding: 0px;
-    overflow: hidden;
-    word-wrap: break-word;
-    text-overflow: ellipsis;
-    max-width: 20rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+p.wraped-text {
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+	word-wrap: break-word;
+	text-overflow: ellipsis;
+	max-width: 20rem;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
 }
 
-div#default_popup{
-    margin: auto;
-    position: relative;
+div#default_popup {
+	margin: auto;
+	position: relative;
 }
 
 .debug-button {
-  background: #7d8c96;
-  background-image: -webkit-linear-gradient(top, #7d8c96, #c6cdd1);
-  background-image: -moz-linear-gradient(top, #7d8c96, #c6cdd1);
-  background-image: -ms-linear-gradient(top, #7d8c96, #c6cdd1);
-  background-image: -o-linear-gradient(top, #7d8c96, #c6cdd1);
-  background-image: linear-gradient(to bottom, #7d8c96, #c6cdd1);
-  -webkit-border-radius: 6;
-  -moz-border-radius: 6;
-  border-radius: 6px;
-  font-family: Arial;
-  color: #ffffff;
-  font-size: 14px;
-  padding-right: 6px;
-  padding-left: 6px;
-  text-decoration: none;
+	background: #7d8c96;
+	background-image: -webkit-linear-gradient(top, #7d8c96, #c6cdd1);
+	background-image: -moz-linear-gradient(top, #7d8c96, #c6cdd1);
+	background-image: -ms-linear-gradient(top, #7d8c96, #c6cdd1);
+	background-image: -o-linear-gradient(top, #7d8c96, #c6cdd1);
+	background-image: linear-gradient(to bottom, #7d8c96, #c6cdd1);
+	-webkit-border-radius: 6;
+	-moz-border-radius: 6;
+	border-radius: 6px;
+	font-family: Arial;
+	color: #ffffff;
+	font-size: 14px;
+	padding-right: 6px;
+	padding-left: 6px;
+	text-decoration: none;
 }
 
 .debug-button:hover {
-  background: #ababab;
-  background-image: -webkit-linear-gradient(top, #ababab, #474747);
-  background-image: -moz-linear-gradient(top, #ababab, #474747);
-  background-image: -ms-linear-gradient(top, #ababab, #474747);
-  background-image: -o-linear-gradient(top, #ababab, #474747);
-  background-image: linear-gradient(to bottom, #ababab, #474747);
-  text-decoration: none;
+	background: #ababab;
+	background-image: -webkit-linear-gradient(top, #ababab, #474747);
+	background-image: -moz-linear-gradient(top, #ababab, #474747);
+	background-image: -ms-linear-gradient(top, #ababab, #474747);
+	background-image: -o-linear-gradient(top, #ababab, #474747);
+	background-image: linear-gradient(to bottom, #ababab, #474747);
+	text-decoration: none;
 }
 
-.cake-debug{
-    border-style: none;
+.cake-debug {
+	border-style: none;
 }
 
-.cake-debug-output{
-    border: 1px solid #474747;
-    background-color: #fff;
-    padding: 0.37em;
-    margin: 0.37em;
-    font-size: 1.1em;
-    color: #333;
+.cake-debug-output {
+	border: 1px solid #474747;
+	background-color: #fff;
+	padding: 0.37em;
+	margin: 0.37em;
+	font-size: 1.1em;
+	color: #333;
 }
 
-.specific_btn{
-    margin-right: 10px;
-    margin-left: 10px;
+.specific_btn {
+	margin-right: 10px;
+	margin-left: 10px;
 }
 
-.highLightDuplicatedItem{
-    background-color:rgb(147, 242, 159)!important; 
-    -webkit-transition: background-color 1s ease-out;
-    transition: background-color 1s ease-out;
+.highLightDuplicatedItem {
+	background-color: rgb(147, 242, 159) !important;
+	-webkit-transition: background-color 1s ease-out;
+	transition: background-color 1s ease-out;
 }
 
-.notHighLightDuplicatedItem{
-    -webkit-transition: background-color 3s linear 0s!important;
-    transition: background-color 3s linear 0s!important;
+.notHighLightDuplicatedItem {
+	-webkit-transition: background-color 3s linear 0s !important;
+	transition: background-color 3s linear 0s !important;
 }
 
-.debug-kit-log-file-span{
-    display: block;
-    font-size: 10px;
+.debug-kit-log-file-span {
+	display: block;
+	font-size: 10px;
 }
 
-.chart1{
-    width: 1000px;
-    height: auto;
-    background-color: white;
+.chart1 {
+	width: 1000px;
+	height: auto;
+	background-color: white;
 }
 
-.chart1 svg{
-    width: 100%;
-    height: 100%;
+.chart1 svg {
+	width: 100%;
+	height: 100%;
 }
 
-.pop-up-csv-barcode{
-    background-color: white;
-    /*padding: 10px;*/
+.pop-up-csv-barcode {
+	background-color: white;
+	/*padding: 10px;*/
 }
 
-.pop-up-csv-barcode h2{
-    text-align: left;
+.pop-up-csv-barcode h2 {
+	text-align: left;
 }
 
-.no-border{
-    border: none!important;
-    text-align: left;
+.no-border {
+	border: none !important;
+	text-align: left;
 }
 
-div.plugin_StorageLayout.controller_StorageMasters.action_storageLayout .trash_n_unclass li{
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: hidden;
+div.plugin_StorageLayout.controller_StorageMasters.action_storageLayout .trash_n_unclass li
+	{
+	max-height: 400px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
-.display-none{
-    display: none;
+.display-none {
+	display: none;
 }
 
-span.template-label{
-    margin: 0px;
-    padding: 0px;
-    overflow: hidden;
-    word-wrap: break-word;
-    text-overflow: ellipsis;
-    /*max-width: 20rem;*/
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+span.template-label {
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+	word-wrap: break-word;
+	text-overflow: ellipsis;
+	/*max-width: 20rem;*/
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
 }
 
-span.template-label>div{
-    margin-left: 0px!important;
+span.template-label>div {
+	margin-left: 0px !important;
 }

@@ -17,6 +17,7 @@ class StructuresComponent extends Component
         "datetime",
         "time"
     );
+
     public static $rangeTypes = array(
         "date",
         "datetime",
@@ -35,6 +36,7 @@ class StructuresComponent extends Component
     );
 
     /**
+     *
      * @param Controller $controller
      */
     public function initialize(Controller $controller)
@@ -46,12 +48,12 @@ class StructuresComponent extends Component
     /*
      * Combined function to simplify plugin usage,
      * sets validation for models AND sets atim_structure for view
-     *
      * @param $alias Form alias of the new structure
      * @param $structureName Structure name (by default name will be 'atim_structure')
      * @param array $parameters
      */
     /**
+     *
      * @param null $alias
      * @param string $structureName
      * @param array $parameters
@@ -69,7 +71,7 @@ class StructuresComponent extends Component
             'set_validation' => true, // wheter to set model validations or not
             'model_table_assoc' => array()
         ), // bind a tablename to a model for writable fields
-        $parameters);
+$parameters);
         
         $structure = array(
             'Structure' => array(),
@@ -136,7 +138,7 @@ class StructuresComponent extends Component
             $structure['Structure'] = $structure['Structure'][0];
         }
         $structureName = Inflector::variable($structureName);
-//        $structureName = AppController::snakeToCamel($structureName);
+        // $structureName = AppController::snakeToCamel($structureName);
         $this->controller->set($structureName, $structure);
     }
 
@@ -144,7 +146,7 @@ class StructuresComponent extends Component
      * Stores data into model accuracy_config.
      * Will be used for validation. Stores the same data into the structure.
      *
-     * @param array $structure            
+     * @param array $structure
      */
     private function updateAccuracyChecks(&$structure)
     {
@@ -186,8 +188,9 @@ class StructuresComponent extends Component
     }
 
     /**
-     * @param null $mode            
-     * @param null $alias            
+     *
+     * @param null $mode
+     * @param null $alias
      * @return array|mixed
      */
     public function get($mode = null, $alias = null)
@@ -248,6 +251,7 @@ class StructuresComponent extends Component
     }
 
     /**
+     *
      * @param null $alias
      * @return array|bool|mixed
      */
@@ -322,7 +326,7 @@ class StructuresComponent extends Component
     /**
      * Sorts a structure based on display_column and display_order.
      *
-     * @param array $atimStructure            
+     * @param array $atimStructure
      */
     public static function sortStructure(&$atimStructure)
     {
@@ -341,6 +345,7 @@ class StructuresComponent extends Component
     }
 
     /**
+     *
      * @param null $atimStructure
      * @param bool $autoAccuracy
      * @return array
@@ -377,7 +382,7 @@ class StructuresComponent extends Component
                     'float',
                     'float_positive'
                 ));
-
+                
                 if ((in_array($valueType, self::$rangeTypes) || strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
                     $keyStart = $formFieldsKey . '_start';
                     $formFields[$keyStart]['plugin'] = $value['plugin'];
@@ -401,14 +406,14 @@ class StructuresComponent extends Component
                         $formFields[$keyStart . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                         $formFields[$keyEnd . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                     }
-                }elseif(in_array($valueType, self::$rangeTypes)){
+                } elseif (in_array($valueType, self::$rangeTypes)) {
                     $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
                     $formFields[$formFieldsKey]['model'] = $value['model'];
                     $formFields[$formFieldsKey]['field'] = $value['field'];
                     $formFields[$formFieldsKey]['key'] = $formFieldsKey . ' =';
                     $formFields[$formFieldsKey]['is_float'] = $isFloat;
                     $formFields[$formFieldsKey]['tablename'] = $value['tablename'];
-                }else {
+                } else {
                     $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
                     $formFields[$formFieldsKey]['model'] = $value['model'];
                     $formFields[$formFieldsKey]['field'] = $value['field'];
@@ -458,11 +463,11 @@ class StructuresComponent extends Component
         
         // parse DATA to generate SQL conditions
         // use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
-        $plugin=$this->controller->request->params['plugin'];
-        $controller=$this->controller->request->params['controller'];
-        $action=$this->controller->request->params['action'];
-        $_SESSION['post_data'][$plugin][$controller][$action]=removeEmptySubArray($this->controller->data);
-
+        $plugin = $this->controller->request->params['plugin'];
+        $controller = $this->controller->request->params['controller'];
+        $action = $this->controller->request->params['action'];
+        $_SESSION['post_data'][$plugin][$controller][$action] = removeEmptySubArray($this->controller->data);
+        
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {
                 foreach ($fields as $key => $data) {
@@ -604,6 +609,7 @@ class StructuresComponent extends Component
     }
 
     /**
+     *
      * @param $val
      * @return bool
      */
@@ -613,6 +619,7 @@ class StructuresComponent extends Component
     }
 
     /**
+     *
      * @param null $sql
      * @param null $conditions
      * @return array
@@ -757,6 +764,7 @@ class StructuresComponent extends Component
     }
 
     /**
+     *
      * @param $id
      * @return mixed
      */

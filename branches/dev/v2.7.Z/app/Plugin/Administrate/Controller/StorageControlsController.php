@@ -33,6 +33,7 @@ class StorageControlsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $storageCategory
      * @param null $duplicatedParentStorageControlId
      */
@@ -96,6 +97,7 @@ class StorageControlsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $storageControlId
      */
     public function edit($storageControlId)
@@ -106,7 +108,15 @@ class StorageControlsController extends AdministrateAppController
         if ($storageControlData['StorageCtrl']['flag_active']) {
             $addWarningMsg = __('you are not allowed to work on active storage type');
             $dataCanBeModified = false;
-        } elseif ($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storageControlId, 'StorageMaster.deleted' => array('0','1'))))) {
+        } elseif ($this->StorageMaster->find('count', array(
+            'conditions' => array(
+                'StorageMaster.storage_control_id' => $storageControlId,
+                'StorageMaster.deleted' => array(
+                    '0',
+                    '1'
+                )
+            )
+        ))) {
             $addWarningMsg = __('this storage type has already been used to build a storage in the past - properties can not be changed anymore');
             $dataCanBeModified = false;
         }
@@ -118,7 +128,7 @@ class StorageControlsController extends AdministrateAppController
         $this->set('atimMenuVariables', array(
             'StorageCtrl.id' => $storageControlId
         ));
-
+        
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
         $hookLink = $this->hook('format');
@@ -137,8 +147,8 @@ class StorageControlsController extends AdministrateAppController
             
             if ($this->request->data['StorageCtrl']['storage_type'] != $storageControlData['StorageCtrl']['storage_type'])
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            
-            // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+                
+                // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
@@ -163,6 +173,7 @@ class StorageControlsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $storageControlId
      * @param string $redirectTo
      */
@@ -171,13 +182,13 @@ class StorageControlsController extends AdministrateAppController
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         
         $nextUrl = 'javascript:history.go(-1)';
-//        if ($redirectTo == 'listAll') {
-//            if (! strpos($nextUrl, 'StorageControls/listAll')) {
-//                $nextUrl = '/Administrate/StorageControls/listAll/';
-//            }
-//        } else {
-//            $nextUrl = '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId;
-//        }
+        // if ($redirectTo == 'listAll') {
+        // if (! strpos($nextUrl, 'StorageControls/listAll')) {
+        // $nextUrl = '/Administrate/StorageControls/listAll/';
+        // }
+        // } else {
+        // $nextUrl = '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId;
+        // }
         
         $newData = array();
         if ($storageControlData['StorageCtrl']['flag_active']) {
@@ -210,12 +221,12 @@ class StorageControlsController extends AdministrateAppController
      * Display the content of a storage into a layout.
      *
      * @param $storageControlId
-     * @internal param Id $storageMasterId of the studied storage.*            of the studied storage.
+     * @internal param Id $storageMasterId of the studied storage.* of the studied storage.
      * @internal param $isAjax : Tells
-     *            wheter the request has to be treated as ajax
-     *            query (required to counter issues in Chrome 15 back/forward button on the
-     *            page and Opera 11.51 first ajax query that is not recognized as such)
-     *
+     *           wheter the request has to be treated as ajax
+     *           query (required to counter issues in Chrome 15 back/forward button on the
+     *           page and Opera 11.51 first ajax query that is not recognized as such)
+     *          
      * @author N. Luc
      * @since 2007-05-22
      */
@@ -252,8 +263,7 @@ class StorageControlsController extends AdministrateAppController
 
     /**
      *
-     * @param
-     *            $storageControlId
+     * @param $storageControlId
      */
     public function delete($storageControlId)
     {
@@ -268,9 +278,9 @@ class StorageControlsController extends AdministrateAppController
         }
         
         $nextUrl = 'javascript:history.go(-1)';
-//        if (! strpos($nextUrl, 'StorageControls/listAll')) {
-//            $nextUrl = '/Administrate/StorageControls/listAll/';
-//        }
+        // if (! strpos($nextUrl, 'StorageControls/listAll')) {
+        // $nextUrl = '/Administrate/StorageControls/listAll/';
+        // }
         
         if ($arrAllowDeletion['allow_deletion']) {
             $this->StorageCtrl->data = null;

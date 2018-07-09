@@ -5,7 +5,7 @@
  */
 class CodingIcdo3Morpho extends CodingIcdAppModel
 {
-
+    
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-O-3 (Morphology)
     // From: CIHI publications department (ICD10CA_Code_Eng_Desc2010_V2_0 & ICD10CA_Code_Fra_Desc2010_V2_0)
@@ -37,6 +37,7 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
     }
 
     /**
+     *
      * @param $id
      * @return bool
      */
@@ -54,14 +55,16 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return CodingIcdo3Morpho|null
      */
     public static function getSingleton()
     {
         return self::$singleton;
     }
-    
+
     /**
+     *
      * @param array $terms
      * @param $exactSearch
      * @param $searchOnId

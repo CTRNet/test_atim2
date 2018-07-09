@@ -1,8 +1,8 @@
 <?php
-if (!isset($showDefaultIcon)){
+if (! isset($showDefaultIcon)) {
     $showDefaultIcon = true;
 }
-$defaultValueClass = ($showDefaultIcon)?"default-value":"display-none";
+$defaultValueClass = ($showDefaultIcon) ? "default-value" : "display-none";
 $treeHtml = '<table class="structure">
 	<tbody>
 		<tr>

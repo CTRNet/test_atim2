@@ -102,6 +102,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $nodeId
      */
     public function save($nodeId)
@@ -155,6 +156,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $id
      */
     public function edit($id)
@@ -184,6 +186,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $id
      */
     public function delete($id)

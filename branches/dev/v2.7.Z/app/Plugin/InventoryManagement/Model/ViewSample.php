@@ -105,12 +105,13 @@ class ViewSample extends InventoryManagementAppModel
 
     /**
      * ViewSample constructor.
-     * @param bool $id            
-     * @param null $table            
-     * @param null $ds            
-     * @param null $baseModelName            
-     * @param null $detailTable            
-     * @param null $previousModel            
+     * 
+     * @param bool $id
+     * @param null $table
+     * @param null $ds
+     * @param null $baseModelName
+     * @param null $detailTable
+     * @param null $previousModel
      */
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {

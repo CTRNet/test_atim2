@@ -10,10 +10,10 @@
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @since         DebugKit 0.1
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @since DebugKit 0.1
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
 $headers = array(
     'Query',
@@ -30,17 +30,17 @@ if (isset($debugKitInHistoryMode)) {
 <h2><?php echo __d('debug_kit', 'Sql Logs')?></h2>
 
 <?php
-if (isset ($_SESSION['query']['previous']) && is_array($_SESSION['query']['previous']) && count($_SESSION['query']['previous'])!=0){
-    foreach ($_SESSION['query']['previous'] as $query){
-        echo($query);
-        echo"<hr>";
+if (isset($_SESSION['query']['previous']) && is_array($_SESSION['query']['previous']) && count($_SESSION['query']['previous']) != 0) {
+    foreach ($_SESSION['query']['previous'] as $query) {
+        echo ($query);
+        echo "<hr>";
     }
-    $_SESSION['query']['previous']=array();
+    $_SESSION['query']['previous'] = array();
 }
 ?>
 <?php if (!empty($content)) : ?>
 	<?php foreach ($content['connections'] as $dbName => $explain): ?>
-        <h4><?php echo $dbName ?></h4>
+<h4><?php echo $dbName ?></h4>
 <div class="sql-log-panel-query-log">
 		<?php
         if (! isset($debugKitInHistoryMode)) :
@@ -94,8 +94,8 @@ if (isset ($_SESSION['query']['previous']) && is_array($_SESSION['query']['previ
  
  
  
- <?php
- else :
+ 
+ <?phpelse :
     
     echo $this->Toolbar->message('Warning', __d('debug_kit', 'No active database connections'));
 

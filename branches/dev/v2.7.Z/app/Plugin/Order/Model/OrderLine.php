@@ -33,6 +33,7 @@ class OrderLine extends OrderAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -66,7 +67,7 @@ class OrderLine extends OrderAppModel
             } else {
                 $lineTitle = __($result['SampleControl']['sample_type']) . (empty($result['AliquotControl']['aliquot_type']) ? '' : ' ' . __($result['AliquotControl']['aliquot_type']));
             }
-            $lineTitle .= strlen($result['OrderLine']['product_type_precision'])? ' : ' . $result['OrderLine']['product_type_precision'] : '';
+            $lineTitle .= strlen($result['OrderLine']['product_type_precision']) ? ' : ' . $result['OrderLine']['product_type_precision'] : '';
             $return = array(
                 'menu' => array(
                     null,
@@ -85,6 +86,7 @@ class OrderLine extends OrderAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -125,8 +127,8 @@ class OrderLine extends OrderAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($orderLineData['FunctionManagement']['autocomplete_order_line_study_summary_id']);
                 
                 // Set study summary id
@@ -143,6 +145,7 @@ class OrderLine extends OrderAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -169,6 +172,7 @@ class OrderLine extends OrderAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
@@ -200,7 +204,7 @@ class OrderLine extends OrderAppModel
                         'conditions' => array(
                             'OrderItem.order_line_id' => $newOrderLine['OrderLine']['id']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if ($itemsCounter)
                         $shippedCounter = $orderItem->find('count', array(
@@ -211,7 +215,7 @@ class OrderLine extends OrderAppModel
                                     'shipped & returned'
                                 )
                             ),
-                            'recursive' => -1
+                            'recursive' => - 1
                         ));
                 }
                 $newOrderLine['Generated']['order_line_completion'] = empty($itemsCounter) ? 'n/a' : $shippedCounter . '/' . $itemsCounter;
@@ -227,9 +231,8 @@ class OrderLine extends OrderAppModel
     /**
      * Check if an order line can be deleted.
      *
-     * @param $orderLineId Id
-     *            of the studied order line.
-     *            
+     * @param $orderLineId Id of the studied order line.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -245,7 +248,7 @@ class OrderLine extends OrderAppModel
             'conditions' => array(
                 'OrderItem.order_line_id' => $orderLineId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -261,6 +264,7 @@ class OrderLine extends OrderAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getProductTypes()

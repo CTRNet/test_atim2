@@ -11,7 +11,7 @@ $structureLinks = array(
             'link' => '/Administrate/StorageControls/seeStorageLayout/%%StorageCtrl.id%%/',
             'icon' => 'grid'
         ),
-        'delete' => '/Administrate/StorageControls/delete/%%StorageCtrl.id%%/',
+        'delete' => '/Administrate/StorageControls/delete/%%StorageCtrl.id%%/'
     ),
     'bottom' => array(
         'add' => array(
