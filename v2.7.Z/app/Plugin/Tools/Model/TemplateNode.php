@@ -124,7 +124,7 @@ class TemplateNode extends ToolsAppModel
      *       
      * @return array Structures (including fields) that will be used to create the futur inventory data
      */
-    function getNodeStructrues($nodeDatamartStructureId, $nodeControlId)
+    public function getNodeStructrues($nodeDatamartStructureId, $nodeControlId)
     {
         $key = $nodeDatamartStructureId . '/' . $nodeControlId;
         if (! isset($this->nodesStructures[$key])) {
@@ -147,7 +147,7 @@ class TemplateNode extends ToolsAppModel
      *       
      * @return string Formatted default values in JSON format
      */
-    function fromateNodeDefaultValuesToSave($nodeDefaultValues)
+    public function fromateNodeDefaultValuesToSave($nodeDefaultValues)
     {
         $nodeDefaultValues = json_decode($nodeDefaultValues, true);
         $dateFields = array();

@@ -2143,7 +2143,7 @@ class ReportsController extends DatamartAppController
      * @param $parameters
      * @return array
      */
-    function atimDemoReportParticipantClinicalData($parameters)
+    public function atimDemoReportParticipantClinicalData($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
             $this->atimFlashError(__('you need privileges to access this page') . 'xxx', 'javascript:history.back()');
