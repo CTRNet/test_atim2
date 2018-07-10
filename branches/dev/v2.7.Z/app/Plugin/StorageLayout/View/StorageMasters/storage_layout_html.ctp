@@ -40,6 +40,9 @@ if ($isTma) {
 }
 $deteteText = __("delete");
 ?>
+<script>
+    CSV_SEPARATOR = '<?=CSV_SEPARATOR?>';
+</script>
 <div style="display: table-cell; vertical-align: top;">
 	<ul style='margin-right: 10px'>
 		<li><span class="button RecycleStorage" style='width: 80%;'> <span
@@ -53,7 +56,7 @@ $deteteText = __("delete");
 		<li><input type="file" style="display: none;" id="LoadCSVFile"
 			name="CSVFile" accept=".xlsx, .xls, .csv"> <span
 			class="button LoadCSV" style='width: 80%;' title="<?=$titleCsv?>"
-			onclick="document.getElementById('LoadCSVFile').click();"> <span
+			onclick="csvConfig()"> <span
 				class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
                 <?=$textCsv?>
             </span></li>

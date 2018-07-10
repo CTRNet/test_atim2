@@ -137,6 +137,32 @@ function initStorageLayout(mode){
         
 }
 
+function csvConfig(){
+    $('#csvPopupConfiguration').popup('close');
+    $('#csvPopupConfiguration').closest('.popup_outer').remove();
+
+    var form = '<div id="csvPopupConfiguration" class="std_popup question" style="margin: auto; position: relative; display: block;"><div class="wrapper"><h4>CSV</h4><div style="padding: 10px; background-color: #fff;"><div><table class="structure" cellspacing="0"><tbody><tr><td class="this_column_1 total_columns_1"><table class="columns detail" cellspacing="0"><tbody><tr><td class="label">Separator</td><td class="content"><span><span class="nowrap"><input name="data[Config][define_csv_separator]" class=" required" value="'+CSV_SEPARATOR+'" tabindex="2" size="3" maxlength="1" required="required" type="text"> </span></span></td><td class="help"><span class="icon16 help">&nbsp;&nbsp;&nbsp;&nbsp;<div>When exporting data to file from the Query Tool this value is used as a separator between fields.</div></span></td></tr></tbody></table></td></tr></tbody></table><div class="submitBar"><div class="flyOverSubmit"><div class="bottom_button"><input class="submit" type="submit" value="Submit" style="display: none;"><a href="javascript:setSeparator()" tabindex="6" class="submit"><span class="icon16 submit"></span>Submit</a></div></div></div></div></div></div></div>';
+    $(form).popup();
+    $("#csvPopupConfiguration").siblings(".popup_close").off("click").on("click", function(){
+        $('#csvPopupConfiguration').popup('close');
+    });
+    $('#csvPopupConfiguration input').keypress(function (e) {
+     var key = e.which;
+     if(key == 13)  // the enter key code
+      {
+        $('#csvPopupConfiguration').popup('close');
+        setSeparator();
+        return false;  
+      }
+    }); 
+}
+csvSeparator = CSV_SEPARATOR;
+function setSeparator(){
+    csvSeparator = $("input[name='data[Config][define_csv_separator]'").val();
+    $('#csvPopupConfiguration').popup('close');
+    document.getElementById('LoadCSVFile').click();
+}
+
 function csvOpen(e) {
     if (this.files.length !== 0) {
         var file = this.files[0];
@@ -146,6 +172,7 @@ function csvOpen(e) {
         }
         var data = new FormData();
         data.append('media', file);
+        data.append('csvSeparator', csvSeparator);
         var storageId = $("#LoadCSVFile").closest("form").attr("action").split("/").pop();
         var url = root_url + "StorageLayout/StorageMasters/getCsvFile/" + storageId;
         $("#csvDialogPopup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
