@@ -113,6 +113,7 @@ VALUES
 	('the x dimension should be numeric', 'The X dimension should be numeric', 'La dimension X doit être numérique'),
 	('the y dimension should be alphabetical', 'The Y dimension should be alphabetical', 'La dimension Y devrait être alphabétique'),
 	('the y dimension should be numeric', 'The Y dimension should be numeric', 'La dimension Y devrait être numérique'),
+	('should not have y dimension', 'Should not have the Y dimension.', 'Ne devrait pas avoir la dimension Y.'),
 	('load cores by csv', 'Load cores by csv', 'Charger les cores par csv');
 
 -- -------------------------------------------------------------------------------------
