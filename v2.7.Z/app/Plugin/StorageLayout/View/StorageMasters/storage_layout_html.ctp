@@ -38,7 +38,7 @@ if ($isTma) {
     $titleCsv = __("load the aliquots positions and barcodes by csv file");
     $textCsv = __("load aliquots by csv");
 }
-$deteteText = __("delete");
+$deteteText = __("undo positions load and barcodes scanned");
 ?>
 <script>
     CSV_SEPARATOR = '<?=CSV_SEPARATOR?>';
