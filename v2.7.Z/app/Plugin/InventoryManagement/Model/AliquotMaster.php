@@ -1117,7 +1117,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @param type $storageId Storage ID
      * @return array The message, validation and Array of data
      */
-    public function readCsvAndConvertToArray($dataFile, $storageId)
+    public function readCsvAndConvertToArray($dataFile, $storageId, $csvSeparator = CSV_SEPARATOR)
     {
         $response = array(
             "valid" => 1,
@@ -1165,7 +1165,7 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         $row = 1;
-        $header = fgetcsv($handle, 1000, CSV_SEPARATOR);
+        $header = fgetcsv($handle, 1000, $csvSeparator);
         if ($header == false) {
             $response["message"] = __("error in csv header file");
             $response["valid"] = 0;
@@ -1254,8 +1254,11 @@ class AliquotMaster extends InventoryManagementAppModel
         
         $barcodesList = array();
         $dataArray = array();
-        while (($data = fgetcsv($handle, 1000, CSV_SEPARATOR)) !== FALSE) 
+        while (($data = fgetcsv($handle, 1000, $csvSeparator)) !== FALSE) 
         {
+            foreach($data as &$d){
+                $d=trim($d);
+            }
             $row ++;
             if (empty($data[$barcode])) {
                 continue;
