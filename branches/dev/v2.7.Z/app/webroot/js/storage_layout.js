@@ -665,7 +665,9 @@ function checkDuplicatedBarcode(li){
 //    searchByBarcode = $("#firstStorageRow").find("li:not(.error-aliquot):not(.duplicated-aliquot) span.handle");
     searchByBarcodeText = [];
     searchByBarcode.each(function(){
-        searchByBarcodeText.push($(this).attr("data-barcode"));
+        if ($(this).attr("data-barcode")!=""){
+            searchByBarcodeText.push($(this).attr("data-barcode"));
+        }
     });
 
     var sorted_arr = searchByBarcodeText.sort();
