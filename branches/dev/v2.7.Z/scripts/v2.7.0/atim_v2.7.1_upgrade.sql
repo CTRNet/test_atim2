@@ -36,7 +36,7 @@ INSERT IGNORE INTO
 VALUES 	
 	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
 	("download %s", "Download %s", "Télécharger %s"),
-	("default_values", "Default values", "Des valeurs par defaux"),
+	("default_values", "Default values", "Valeurs par defaux"),
 	("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
 	
 -- -------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ INSERT IGNORE INTO
 VALUES(
 	"the file size should be less than %d bytes", 
 	"The file size should be less than %d bytes", 
-	"La taille de fichier dois être moins que %d octets");
+	"La taille de fichier dois être inférieure à %d octets");
 
 -- -------------------------------------------------------------------------------------
 --	upload directory permission incorrect
@@ -75,46 +75,57 @@ INSERT IGNORE INTO
 	i18n (id,en,fr)
 VALUES(
 	'the permission of "upload" directory is not correct.', 
-	'The permission of "upload" directory is not correct.', 
-	'L\'autorisation du répertoire "upload" n\'est pas correcte.');
+	'The permissions on "upload" directory are not correct.', 
+	"Les autorisations sur le répertoire de téléchargement ne sont pas correctes.");
 
 -- -------------------------------------------------------------------------------------
 --	Storage layout
 -- -------------------------------------------------------------------------------------
+
 INSERT IGNORE INTO 
 	i18n (id,en,fr)
 VALUES
-	('aliquot does not exist', 'Aliquot does not exist', 'Aliquote n\'existe pas'),
-	('aliquot is not in stock', 'Aliquot is not in stock', 'Aliquote n\'est pas en stock'),
-	('this aliquot is registered in another place. label: %s, x: %s, y: %s', 'This aliquot is registered in another place. label: %s, x: %s, y: %s', 'Cette aliquote est enregistrée dans un autre endroit. étiquette: %s, x: %s, y: %s'),
-	('more than one aliquot have the same barcode', 'More than one aliquot have the same barcode', 'Plus d\'une aliquote a le même code à barres'),
-	('the aliquots list', 'The list of aliquots', 'La liste des aliquotes'),
+	('for now listed storage is not supported', 
+	"The 'Load aliquots from CSV' is not supported for storage with 'Coordinates managed by users' in the current release of ATiM.",
+	"Le 'chargement des aliquots à partir d'un CSV' n'est pas supporté pour les entreposages dont les 'coordonnées sont géreés par les utilisteurs' dans la version actuelle d'ATiM."),
+	('aliquot does not exist', 'Aliquot does not exist', 'L''aliquot n\'existe pas'),
+	('aliquot is not in stock', 'Aliquot is not in stock', 'L''aliquot n\'est pas en stock'),
+	('this aliquot is registered in another place. label: %s, x: %s, y: %s', 
+	'The current position of the aliquot is different than the defined position in the file: Storage [%s] & position %s - %s.', 
+	"La position actuelle de l'aliquot est différente de la position définie dans le fichier: Entreposage [%s] & position %s - %s."),
+	('more than one aliquot have the same barcode', 'More than one aliquot have the same barcode', 'Plus d''un aliquot a le même code à barres'),
+	('the aliquots list', 'The list of aliquots', 'La liste des aliquots'),
 	('line %s', 'Line %s', 'Ligne %s'),
 	('load csv', 'Load CSV', 'Charger CSV'),
-	('clear the loaded and scanned barcode', 'Clear the loaded and scanned barcode', 'Effacez le code à barres chargé et numérisé'),
-	('this aliquot is registered in another place', 'This aliquot is registered in another place', 'Cette aliquote est enregistrée dans un autre endroit'),
-	('the y dimension out of range <= %s', 'The Y dimension out of range <= %s', 'La dimension Y hors de portée <=%s'),
-	('the x dimension out of range <= %s', 'The X dimension out of range <= %s', 'La dimension X hors de portée <=%s'),
-	('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Dupliquer le code à barres dans le fichier CSV'),
-	('should have Y column', 'Should have Y column', 'Devrait avoir une colonne Y'),
-	('should have barcode column', 'Should have barcode column', 'Devrait avoir une colonne de code à barres'),
-	('should have X column', 'Should have X column', 'Devrait avoir une colonne X'),
-	('error in csv header file', 'Error in CSV header file', 'Erreur dans le fichier d\'en-tête CSV'),
-	('error in opening %s', 'Error in opening %s', 'Erreur d\'ouverture %s'),
-	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur en dimension X: %s'),
-	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur en dimension Y: %s'),
-	('error in opening csv file', 'Error in opening CSV file', 'Erreur lors de l\'ouverture du fichier CSV'),
-	('load the cores positions and barcodes by csv file', 'Load the cores positions and barcodes by csv file', 'Charger les positions des cores et les codes à barres par fichier csv'),
-	('load aliquots by csv', 'Load aliquots by csv', 'Charger des aliquotes par csv'),
-	('load the aliquots positions and barcodes by csv file', 'Load the aliquots positions and barcodes by csv file', 'Charger les positions aliquotes et les codes à barres par fichier csv'),
-	('load the cores positions and block barcodes by csv file', 'Load the cores positions and block barcodes by csv file', 'Charger les positions des cores et bloquer les codes à barres par fichier csv'),
-	('load blocks by csv', 'Load blocks by csv', 'Charger les blocs par csv'),
+	('clear the loaded and scanned barcode', 'Clear the loaded or scanned aliquots', 'Effacer les aliquots téléchargés ou scannés'),
+	('this aliquot is registered in another place', 'This aliquot is registered in another storage/position', 'Cet aliquot est enregistré dans un autre entreposage/position'),
+	('the y dimension out of range <= %s', 'The Y dimension is out of range <= %s', "La dimension Y est hors de l'intervalle <=%s"),
+	('the x dimension out of range <= %s', 'The X dimension is out of range <= %s', "La dimension X est hors de l'intervalle <=%s"),
+	('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Codes à barres dupliqués dans le fichier CSV'),
+	('should have Y column', 'Column Y missing', 'Colonne Y manquante'),
+	('should have barcode column', 'Barcodes column missing', 'Colonne des codes à barres manquante'),
+	('should have X column',  'Column X missing', 'Colonne X manquante'),
+	('error in csv header file', 'Error in CSV header file', 'Erreur dans les en-têtes du fichier CSV'),
+	('error in opening %s', 'Error in opening file %s', "Erreur d'ouverture du fichier%s"),
+	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur de dimension X: %s'),
+	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur de dimension Y: %s'),
+	('error in opening csv file', 'Error in opening CSV file', "Erreur lors de l'ouverture du fichier CSV"),
+	('load the cores positions and barcodes by csv file', 
+	'Load the blocks barcodes and cores positions from CSV file', 
+	'Charger codes à barres des blocs et positions des cores à partir du CSV'),
+	('load aliquots by csv', 'Load aliquot postions from CSV', 'Charger les positions d''aliquots du CSV'),
+	('load the aliquots positions and barcodes by csv file', 'Load the aliquots positions from CSV file', 'Charger les positions des aliquots et les codes à barres par fichier CSV'),
+	('load the cores positions and block barcodes by csv file', 
+	'Load the blocks barcodes then create cores and set cores positions from CSV file', 
+	'Charger les codes à barres des blocs, créeation des cores et définition de la position des cores à paritr d''un fichier CSV'),
+	('load blocks by csv', 'Load blocks from CSV', 'Charger les blocs du CSV'),
 	('the x dimension should be alphabetical', 'The X dimension should be alphabetical', 'La dimension X doit être alphabétique'),
 	('the x dimension should be numeric', 'The X dimension should be numeric', 'La dimension X doit être numérique'),
 	('the y dimension should be alphabetical', 'The Y dimension should be alphabetical', 'La dimension Y devrait être alphabétique'),
 	('the y dimension should be numeric', 'The Y dimension should be numeric', 'La dimension Y devrait être numérique'),
-	('should not have y dimension', 'Should not have the Y dimension.', 'Ne devrait pas avoir la dimension Y.'),
-	('load cores by csv', 'Load cores by csv', 'Charger les cores par csv');
+	('should not have y dimension', 'Should not have the Y dimension.', 'Ne devrait pas avoir de dimension Y.'),
+	('load cores by csv', 'Load cores from CSV', 'Charger les cores du CSV'),
+	('undo positions load and barcodes scanned', "Undo positions load and barcodes scanned", "Annuler chargement des positions et codes à barres scannés");
 
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
@@ -748,7 +759,8 @@ ALTER TABLE `sd_der_cd138s`
   ADD CONSTRAINT `FK_sd_der_cd138s_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES  
-('CD138', 'CD138', 'CD138');
+('CD138', 'CD138', 'CD138'),
+('cd138 cells', 'CD138 Cells', 'Cellules CD138');
 
 -- Xeno buffy coat
 
