@@ -102,9 +102,9 @@ VALUES
 	('the y dimension out of range <= %s', 'The Y dimension is out of range <= %s', "La dimension Y est hors de l'intervalle <=%s"),
 	('the x dimension out of range <= %s', 'The X dimension is out of range <= %s', "La dimension X est hors de l'intervalle <=%s"),
 	('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Codes à barres dupliqués dans le fichier CSV'),
-	('should have Y column', 'Column Y missing', 'Colonne Y manquante'),
+	('should have Y column', 'Column Y missing. Please check your CSV separator.', 'Colonne Y manquante. Veuillez vérifier votre séparateur CSV.'),
 	('should have barcode column', 'Barcodes column missing', 'Colonne des codes à barres manquante'),
-	('should have X column',  'Column X missing', 'Colonne X manquante'),
+	('should have X column',  'Column X missing. Please check your CSV separator.', 'Colonne X manquante. Veuillez vérifier votre séparateur CSV.'),
 	('error in csv header file', 'Error in CSV header file', 'Erreur dans les en-têtes du fichier CSV'),
 	('error in opening %s', 'Error in opening file %s', "Erreur d'ouverture du fichier%s"),
 	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur de dimension X: %s'),
@@ -865,6 +865,17 @@ VALUES
 	('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
 	('open file', 'Open File', 'Ouvrir fichier');
 
+-- -------------------------------------------------------------------------------------
+--	Issue #3607: No data to select returned items
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+	i18n (id,en,fr)
+VALUES
+	('order items data update will be limited to the item defined as returned',
+	'The update of the order items data will be limited to the items selected to be defined as returned',
+	"La mise à jour des données des articles de commande sera limitée aux articles sélectionnés pour être définis comme retournés");
+	
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
