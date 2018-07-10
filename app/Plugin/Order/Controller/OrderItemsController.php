@@ -990,7 +990,8 @@ class OrderItemsController extends OrderAppController
                     foreach ($fieldsReservedForReturnedItems as $returnedItemModelField) {
                         list ($returnedItemModel, $returnedItemField) = explode('.', $returnedItemModelField);
                         if (isset($newStudiedItem[$returnedItemModel][$returnedItemField]) && strlen($newStudiedItem[$returnedItemModel][$returnedItemField])) {
-                            $errors['OrderItem'][$returnedItemField]['fields defined for returned items can not be completed for items with status different than shipped & returned'][] = $recordCounter;
+                            $errors['OrderItem'][$returnedItemField][__('fields defined for returned items can not be completed for items with status different than shipped & returned')][] = $recordCounter;
+                            $submittedDataValidates = false;
                         }
                     }
                 }
@@ -1349,7 +1350,7 @@ class OrderItemsController extends OrderAppController
         }
         
         // Set structure
-        $this->Structures->set('orderitems_returned,orderitems_returned_flag');
+        $this->Structures->set('orderitems,orderitems_returned_flag');
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -1359,6 +1360,8 @@ class OrderItemsController extends OrderAppController
         // SAVE DATA
         
         if ($initialDisplay) {
+            
+            AppController::addWarningMsg(__('order items data update will be limited to the item defined as returned'));
             
             $this->request->data = $initialOrderItemsData;
             
@@ -1509,6 +1512,9 @@ class OrderItemsController extends OrderAppController
                     $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
                 }
             } else {
+            
+                AppController::addWarningMsg(__('order items data update will be limited to the item defined as returned'));
+                
                 // Set error message
                 foreach ($errors as $model => $fieldMessages) {
                     $this->{$model}->validationErrors = array();

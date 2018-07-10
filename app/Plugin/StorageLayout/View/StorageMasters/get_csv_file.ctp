@@ -33,7 +33,7 @@ if ($csvArrayData["valid"]) {
         
         if (empty($message["error"]) && empty($message["warning"])) {
             ?>
-                <ul class="confirm">
+                <ul class="confirm" style = "display:none">
 		<li data-aliquot='<?= json_encode($dataAliquot) ?>'
 			title="<?= __("line %s", $i + 1) ?>" data-class-name="<?=$class?>"
 			class="no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y']; ?></li>
