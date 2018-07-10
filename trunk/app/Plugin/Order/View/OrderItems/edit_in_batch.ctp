@@ -12,7 +12,10 @@ $finalOptions = array(
     'links' => $structureLinks,
     'settings' => array(
         'pagination' => false,
-        'header' => __('order items')
+        'header' => __('order items'),
+        'paste_disabled_fields' => array(
+            'OrderItem.order_item_shipping_label'
+        )
     ),
     'extras' => '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/><input type="hidden" name="data[order_item_ids]" value="' . $orderItemIds . '"/>'
 );

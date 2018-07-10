@@ -1945,7 +1945,7 @@ class AppController extends Controller
         $storageCtrlModel = AppModel::getInstance('Administrate', 'StorageCtrl', true);
         $storageCtrlModel->validatesAllStorageControls();
         
-        // *** 13 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
+        // *** 13 *** Update structure_formats of 'shippeditems', 'orderitems' and 'orderlines' forms based on core variable 'order_item_type_config'
         
         $tmpSql = "SELECT DISTINCT `flag_detail`
 			FROM structure_formats
