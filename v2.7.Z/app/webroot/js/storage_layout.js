@@ -156,7 +156,7 @@ function csvConfig(){
       }
     }); 
 }
-csvSeparator = CSV_SEPARATOR;
+csvSeparator = null;
 function setSeparator(){
     csvSeparator = $("input[name='data[Config][define_csv_separator]'").val();
     $('#csvPopupConfiguration').popup('close');
