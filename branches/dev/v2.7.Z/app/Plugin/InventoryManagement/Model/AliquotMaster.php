@@ -1249,7 +1249,7 @@ class AliquotMaster extends InventoryManagementAppModel
             return $response;
         }
         if (empty($coordYSize) && $y != - 1) {
-            $y = - 1;
+            //$y = - 1;
         }
         
         $barcodesList = array();
@@ -1364,7 +1364,10 @@ class AliquotMaster extends InventoryManagementAppModel
             }
             
             if ($y != - 1) {
-                if ($coordYType == 'alphabetical') {
+                if (empty($coordYSize) && !empty($data[$y])){
+                    $dataArray["OK"] = 0;
+                    $dataArray["message"]["error"][] = __("should not have y dimension");
+                }elseif ($coordYType == 'alphabetical') {
                     $yy = strtoupper($data[$y]);
                     $dataArray["y"] = $yy;
                     if (is_numeric($yy)) {
