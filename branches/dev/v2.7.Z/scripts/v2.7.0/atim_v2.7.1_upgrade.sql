@@ -607,7 +607,8 @@ VALUES
 ('display_y_size', "Number of 'lines'", " Nombre de 'lignes'"),
 ('incrementation (general)', "Incrementation (General)", "Incrémentation (génerale)"),
 ('reverse_x_numbering', "Incrementation", "Incrémentation"),
-('reverse_y_numbering', "Incrementation", "Incrémentation");
+('reverse_y_numbering', "Incrementation", "Incrémentation"),
+("no type list can be set for x or y fields in 2 dimensions storage type", "No type 'Coordinates managed by users' can be set for both coordinates of a 2 dimensions storages", "Aucun type 'Coordonnées géreés par utilisteurs' ne peut être choisi pour une coordonné d'un entreposage à deux dimensions");
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
