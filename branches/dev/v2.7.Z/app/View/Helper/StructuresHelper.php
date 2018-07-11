@@ -1207,7 +1207,7 @@ class StructuresHelper extends AppHelper
             
             if (($options['type'] == "addgrid" || $options['type'] == "editgrid") && strpos($tableRowPart['settings']['class'], "pasteDisabled") !== false && $tableRowPart['type'] != "hidden") {
                 // displays the "no copy" icon on the left of the fields with disabled copy option
-                $display = '<div class="pasteDisabled"></div>' . $display;
+                $display .='<div class="pasteDisabled"></div>';
             }
         } elseif (strlen($currentValue) > 0) {
             $elligibleAsDate = strlen($currentValue) > 1;

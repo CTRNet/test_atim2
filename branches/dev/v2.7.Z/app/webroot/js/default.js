@@ -15,6 +15,15 @@ columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 //}
 
 $(document).ready(function () {
+    var $tds = $("div.pasteDisabled").closest("td");
+    $tds.each(function () {
+        var $td = $(this);
+        var index = $td.index();
+        $th = $td.closest("table").find("tr:last-child").children("th:nth-child(" + (index + 1) + ")");
+        if ($th.find(".pasteDisabledBefore").length === 0) {
+            $th.append("<div class='pasteDisabledBefore'></div>");
+        }
+    });
     if (typeof dataLimit !== 'undefined') {
         if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
             checkedData = [];
