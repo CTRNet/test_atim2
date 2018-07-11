@@ -401,7 +401,7 @@ class TemplateController extends ToolsAppController
      */
     public function defaultValue($nodeId, $datamartStructureId, $controlId)
     {
-        AppController::addWarningMsg('click on submit button of the main form to record the default values');
+        AppController::addWarningMsg(__('click on submit button of the main form to record the default values'));
         AppController::forceMsgDisplayInPopup();
         $structure = $this->TemplateNode->getStructuresForNodeDefaultValuesEntry($datamartStructureId, $controlId);
         $this->set("structure", $structure);

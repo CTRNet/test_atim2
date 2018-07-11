@@ -125,6 +125,18 @@ VALUES
 ('load cores by csv', 'Load cores from CSV', 'Charger les cores du CSV'),
 ('undo positions load and barcodes scanned', "Undo positions load and barcodes scanned", "Annuler chargement des positions et codes à barres scannés");
 
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES
+('aliquot validation summary', "Aliquot(s) Validation Summary", "Résumé de la validation des aliquots"),
+('add to layout', "Add to Layout", "Ajouter au plan"),
+('number of aliquots analyzed = %d, validated = %d, warning = %d, error = %d', 
+"Number of aliquots : Analyzed = %d, Validated = %d, With warning = %d, With error = %d", 
+"Nombre d'aliquots: Analysés =% d, validé =% d, avec avertissement =% d, avec erreur =% d"),
+('analyzed = %d\nok = %d\nwarning = %d\nerror = %d', "Analyzed = %d\nOk = %d\nWarning = %d\nError = %d", "Analysés = %d\nOk = %d\nAvertissements = %d\nErreurs = %d"),
+("aliquot '%s' [%s-%s]", "Aliquot '%s' [%s-%s]", "Aliquot '%s' [%s-%s]"),
+("aliquot '%s' [%s]", "Aliquot '%s' [%s]", "Aliquot '%s' [%s]");
+
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
 -- -------------------------------------------------------------------------------------
