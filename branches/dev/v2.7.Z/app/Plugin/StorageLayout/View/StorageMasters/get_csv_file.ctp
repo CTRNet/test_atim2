@@ -2,15 +2,34 @@
 $finalAtimStructure = $emptyStructure;
 $finalOptions = array(
     'settings' => array(
-        'header' => __('the aliquots list')
+        'header' => __('aliquot validation summary')
     )
 );
 $this->Structures->build($finalAtimStructure, $finalOptions);
 if ($csvArrayData["valid"]) {
     ?>
 <div class="pop-up-csv-barcode">
-	<h2><?= __("barcode") ?>, X, Y, <?= __("message") ?></h2>
-        <?php
+    <?php
+    $numConfirm = $numError = $numWarning  = $numTotal = 0;    
+    foreach ($csvArrayData["data"] as $i => $aliquot) {
+        $numTotal++;
+        $message = $aliquot["message"];
+        if (empty($message["error"]) && empty($message["warning"])) {
+            $numConfirm++;
+        } elseif (! empty($message["error"])) {
+            $numError++;
+        } elseif (! empty($message["warning"])) {
+            $numWarning++;
+        }
+        
+    }
+    ?>
+        <ul class="confirm hidden-ul">
+            <li data-aliquot= "" title="<?php echo __("analyzed = %d\nok = %d\nwarning = %d\nerror = %d", $numTotal, $numConfirm, $numWarning, $numError); ?>" >
+                <b><?php echo __("number of aliquots analyzed = %d, validated = %d, warning = %d, error = %d", $numTotal, $numConfirm, $numWarning, $numError);?></b>
+            </li>
+	</ul>
+    <?php
     foreach ($csvArrayData["data"] as $i => $aliquot) {
         $message = $aliquot["message"];
         $class = (isset($aliquot["class"])) ? $aliquot["class"] : "";
@@ -27,31 +46,34 @@ if ($csvArrayData["valid"]) {
         $dataAliquot["y"] = ($aliquot["y"]) ? $aliquot["y"] : "1";
         $dataAliquot["OK"] = $aliquot["OK"];
         $dataAliquot["message"] = (! empty($warningMessagePrint)) ? $warningMessagePrint : "";
+        $aliquotPositionText = ($aliquot["y"])?__("aliquot '%s' [%s-%s]", $dataAliquot["barcode"], $dataAliquot["x"], $dataAliquot["y"]):__("aliquot '%s' [%s]", $dataAliquot["barcode"], $dataAliquot["x"]);
         
         $aliquot["x"] = (is_numeric($aliquot["x"])) ? abs($aliquot["x"]) : $aliquot["x"];
         $aliquot["y"] = (is_numeric($aliquot["y"])) ? abs($aliquot["y"]) : $aliquot["y"];
         
         if (empty($message["error"]) && empty($message["warning"])) {
-            ?>
-                <ul class="confirm" style = "display:none">
-		<li data-aliquot='<?= json_encode($dataAliquot) ?>'
-			title="<?= __("line %s", $i + 1) ?>" data-class-name="<?=$class?>"
-			class="no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y']; ?></li>
-	</ul>
-                <?php
+        ?>
+                <ul class="confirm" style="display: none">
+                    <li data-aliquot='<?= json_encode($dataAliquot) ?>' title="<?= __("line %s", $i + 1) ?>" data-class-name="<?=$class?>" class="no-border">
+                        <?php echo $aliquotPositionText; ?>
+                    </li>
+        	</ul>
+        <?php
         } elseif (! empty($message["error"])) {
             ?>
-                <ul class="error">
-		<li data-aliquot='<?= json_encode($dataAliquot) ?>'
-			data-class-name="<?=$class?>" class="no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 1), ': ', $errorMessagePrint; ?></li>
-	</ul>
+            <ul class="error">
+		<li data-aliquot='<?= json_encode($dataAliquot) ?>'data-class-name="<?=$class?>" class="no-border">
+                    <?php echo $i + 1, "- ", $aliquotPositionText, ", ", ': ', $errorMessagePrint; ?>
+                </li>
+            </ul>
                 <?php
         } elseif (! empty($message["warning"])) {
             ?>
-                <ul class="warning">
-		<li data-aliquot='<?= json_encode($dataAliquot) ?>'
-			data-class-name="<?=$class?>" class="no-border"><?= $aliquot['barcode'], ", ", $aliquot['x'], ", ", $aliquot['y'], ", ", __("line %s", $i + 1), ': ', $warningMessagePrint; ?></li>
-	</ul>
+            <ul class="warning">
+		<li data-aliquot='<?= json_encode($dataAliquot) ?>'data-class-name="<?=$class?>" class="no-border">
+                    <?php echo $i + 1, "- ", $aliquotPositionText, ", ", ': ', $warningMessagePrint ?>
+                </li>
+            </ul>
                 <?php
         }
     }
@@ -61,7 +83,7 @@ if ($csvArrayData["valid"]) {
         <?php
     $structureLinks = array(
         'bottom' => array(
-            "add" => "javascript:void(0)"
+            __("add to layout") => "javascript:void(0)"
         )
     );
 } else {
