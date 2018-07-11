@@ -6,7 +6,10 @@ $structureLinks = array(
             'icon' => 'detail'
         ),
         'edit' => '/Administrate/StorageControls/edit/%%StorageCtrl.id%%/',
-        'copy' => '/Administrate/StorageControls/add/0/%%StorageCtrl.id%%/',
+        'copy for new storage control' => array(
+            'link' => '/Administrate/StorageControls/add/0/%%StorageCtrl.id%%/',
+            'icon' => 'duplicate'
+        ),
         'change active status' => array(
             'link' => '/Administrate/StorageControls/changeActiveStatus/%%StorageCtrl.id%%/listAll/',
             'icon' => 'confirm'
