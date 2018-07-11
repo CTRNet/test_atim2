@@ -113,10 +113,11 @@ class TemplateController extends ToolsAppController
         // > 0 -> node in database
         
         // validate access
+        $templateData = $this->Template->getOrRedirect($templateId);
+        
         $tmpTemplate = $this->Template->getTools('template edition', $templateId);
         if (empty($tmpTemplate)) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
-            return;
         }
         
         // js menus required data-------
@@ -286,8 +287,9 @@ class TemplateController extends ToolsAppController
     public function editProperties($templateId)
     {
         $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData))
+        if (empty($templateData)){
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         if (! $templateData['Template']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
             return;
@@ -343,9 +345,12 @@ class TemplateController extends ToolsAppController
      */
     public function delete($templateId)
     {
+        $templateData = $this->Template->getOrRedirect($templateId);
+
         $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData))
+        if (empty($templateData)){
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         if (! $templateData['Template']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
             return;
