@@ -1638,6 +1638,8 @@ class OrderItemsController extends OrderAppController
                 }
             }
             
+            AppController::addWarningMsg(__('the return information was deleted'));
+            
             $hookLink = $this->hook('postsave_process');
             if ($hookLink) {
                 require ($hookLink);

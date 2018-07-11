@@ -2,7 +2,10 @@
 $structureLinks = array(
     'bottom' => array(
         'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'copy' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+        'copy for new storage control' => array(
+            'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+            'icon' => 'duplicate'
+        ),
         'change active status' => array(
             'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
             'icon' => 'confirm'
