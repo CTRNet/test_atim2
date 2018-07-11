@@ -18,16 +18,17 @@ function manageContacts(){
 				var cells = $(row).find("td");
 				if(cells.length > 7){
 					var clean = function(str){
-						return str == "- " ? "" : str;
+                                            str = str.trim();
+						return str == "-" ? "" : str;
 					};
 
 					var fields = ['recipient', 'delivery_phone_number', 'facility', 'delivery_department_or_door', 'delivery_street_address', 'delivery_city', 'delivery_province', 'delivery_postal_code', 'delivery_country'];
 					for(i in fields){
 						//console.log(i + " - " + fields[i]);
 						//console.log($("input[name=data\\[Shipment\\]\\[" + fields[i] + "\\]]"));
-						$("input[name=data\\[Shipment\\]\\[" + fields[i] + "\\]]").val(clean($(cells[parseInt(i) + 1]).html()));
+						$("input[name=data\\[Shipment\\]\\[" + fields[i] + "\\]]").val(clean($(cells[parseInt(i) + 1]).children().eq(0).html()));
 					}
-					$("textarea[name=data\\[Shipment\\]\\[delivery_notes\\]]").html(clean($(cells[fields.length + 1]).html().replace(/<br(\/)?>/g, "\n")));
+					$("textarea[name=data\\[Shipment\\]\\[delivery_notes\\]]").html(clean($(cells[fields.length + 1]).children().eq(0).html().replace(/<br(\/)?>/g, "\n")));
 				}
 				$("#manageContactPopup").popup('close');
 			});
