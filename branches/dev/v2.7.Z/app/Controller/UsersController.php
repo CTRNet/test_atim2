@@ -259,6 +259,7 @@ class UsersController extends AppController
         $this->Session->write('ctrapp_core.warning_no_trace_msg', array());
         $this->Session->write('ctrapp_core.warning_trace_msg', array());
         $this->Session->write('ctrapp_core.info_msg', array());
+        $this->Session->write('ctrapp_core.force_msg_display_in_popup', false);
     }
 
     /**
