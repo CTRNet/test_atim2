@@ -11,121 +11,131 @@
 --	Issue #3359: The pwd reset form has fields with different look and feel.
 -- -------------------------------------------------------------------------------------
 
-INSERT 
-INTO 
-	`structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
 VALUES 
-	(NULL, 
-	(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='confirm_password' AND `type`='password' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_confirmpassword' AND `language_tag`='')
-	, 'notBlank', '', 'password is required'),
-	(NULL, 
-	(SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='field1' AND `type`='input' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='')
-	, 'notBlank', '', 'password is required');
-	
+(NULL, 
+(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='confirm_password' AND `type`='password' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_confirmpassword' AND `language_tag`='')
+, 'notBlank', '', 'password is required'),
+(NULL, 
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='field1' AND `type`='input' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='')
+, 'notBlank', '', 'password is required');
+
 -- -------------------------------------------------------------------------------------
 --	The warning for CSV file
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES 	
-	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier");
+("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier");
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES 	
-	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
-	("download %s", "Download %s", "Télécharger %s"),
-	("default_values", "Default values", "Valeurs par defaux"),
-	("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
+("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier"),
+("download %s", "Download %s", "Télécharger %s"),
+("default_values", "Default values", "Valeurs par defaux"),
+("file does not exist", "The file does not exist.", "Le fichier n'existe pas.");
 	
 -- -------------------------------------------------------------------------------------
 --	The warning about max_input_vars
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES 	
-	('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit', 
-	'The PHP "max_input_vars" defined into the "php.ini" file is less than the "databrowser_and_report_results_display_limit" defined into the ATiM "core.php" file. Configuration will generate problems whenever you display more options than "max_input_vars". Please update either the "php.ini" file or the "core.php" file.',
-	'La variable PHP "max_input_vars" définie dans le fichier "php.ini" est inférieure au "databrowser_and_report_results_display_limit" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque vous afficherez plus de valeurs que "max_input_vars". Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
-    ('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading',
-    'The PHP "upload_max_filesize" defined into the "php.ini" file is less than the "maxUploadFileSize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
-	'La variable PHP "upload_max_filesize" définie dans le fichier "php.ini" est inférieure au "maxUploadFileSize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
-    ('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading',
-    'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the "php.ini" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
-	'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier "php.ini". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
+('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit', 
+'The PHP "max_input_vars" defined into the "php.ini" file is less than the "databrowser_and_report_results_display_limit" defined into the ATiM "core.php" file. Configuration will generate problems whenever you display more options than "max_input_vars". Please update either the "php.ini" file or the "core.php" file.',
+'La variable PHP "max_input_vars" définie dans le fichier "php.ini" est inférieure au "databrowser_and_report_results_display_limit" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque vous afficherez plus de valeurs que "max_input_vars". Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
+('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading',
+'The PHP "upload_max_filesize" defined into the "php.ini" file is less than the "maxUploadFileSize" defined into the ATiM "core.php" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+'La variable PHP "upload_max_filesize" définie dans le fichier "php.ini" est inférieure au "maxUploadFileSize" défini dans le fichier ATiM "core.php". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".'),
+('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading',
+'The PHP "post_max_size" defined into the "php.ini" file is less than the "upload_max_filesize" defined into the "php.ini" file. Configuration will generate problems when user will download big files. Please update either the "php.ini" file or the "core.php" file.',
+'La variable PHP "post_max_size" définie dans le fichier "php.ini" est inférieure au "upload_max_filesize" défini dans le fichier "php.ini". La configuration génèrera des problèmes lorsque l''utilisateur téléchargera de gros fichiers. Veuillez mettre à jour le fichier "php.ini" ou le fichier "core.php".');
 
 -- -------------------------------------------------------------------------------------
 --	File size error message
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES(
-	"the file size should be less than %d bytes", 
-	"The file size should be less than %d bytes", 
-	"La taille de fichier dois être inférieure à %d octets");
+"the file size should be less than %d bytes", 
+"The file size should be less than %d bytes", 
+"La taille de fichier dois être inférieure à %d octets");
 
 -- -------------------------------------------------------------------------------------
 --	upload directory permission incorrect
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES(
-	'the permission of "upload" directory is not correct.', 
-	'The permissions on "upload" directory are not correct.', 
-	"Les autorisations sur le répertoire de téléchargement ne sont pas correctes.");
+'the permission of "upload" directory is not correct.', 
+'The permissions on "upload" directory are not correct.', 
+"Les autorisations sur le répertoire de téléchargement ne sont pas correctes.");
 
 -- -------------------------------------------------------------------------------------
 --	Storage layout
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES
-	('for now listed storage is not supported', 
-	"The 'Load aliquots from CSV' is not supported for storage with 'Coordinates managed by users' in the current release of ATiM.",
-	"Le 'chargement des aliquots à partir d'un CSV' n'est pas supporté pour les entreposages dont les 'coordonnées sont géreés par les utilisteurs' dans la version actuelle d'ATiM."),
-	('aliquot does not exist', 'Aliquot does not exist', 'L''aliquot n\'existe pas'),
-	('aliquot is not in stock', 'Aliquot is not in stock', 'L''aliquot n\'est pas en stock'),
-	('this aliquot is registered in another place. label: %s, x: %s, y: %s', 
-	'The current position of the aliquot is different than the defined position in the file: Storage [%s] & position %s - %s.', 
-	"La position actuelle de l'aliquot est différente de la position définie dans le fichier: Entreposage [%s] & position %s - %s."),
-	('more than one aliquot have the same barcode', 'More than one aliquot have the same barcode', 'Plus d''un aliquot a le même code à barres'),
-	('the aliquots list', 'The list of aliquots', 'La liste des aliquots'),
-	('line %s', 'Line %s', 'Ligne %s'),
-	('load csv', 'Load CSV', 'Charger CSV'),
-	('clear the loaded and scanned barcode', 'Clear the loaded or scanned aliquots', 'Effacer les aliquots téléchargés ou scannés'),
-	('this aliquot is registered in another place', 'This aliquot is registered in another storage/position', 'Cet aliquot est enregistré dans un autre entreposage/position'),
-	('the y dimension out of range <= %s', 'The Y dimension is out of range <= %s', "La dimension Y est hors de l'intervalle <=%s"),
-	('the x dimension out of range <= %s', 'The X dimension is out of range <= %s', "La dimension X est hors de l'intervalle <=%s"),
-	('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Codes à barres dupliqués dans le fichier CSV'),
-	('should have Y column', 'Column Y missing. Please check your CSV separator.', 'Colonne Y manquante. Veuillez vérifier votre séparateur CSV.'),
-	('should have barcode column', 'Barcodes column missing', 'Colonne des codes à barres manquante'),
-	('should have X column',  'Column X missing. Please check your CSV separator.', 'Colonne X manquante. Veuillez vérifier votre séparateur CSV.'),
-	('error in csv header file', 'Error in CSV header file', 'Erreur dans les en-têtes du fichier CSV'),
-	('error in opening %s', 'Error in opening file %s', "Erreur d'ouverture du fichier%s"),
-	('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur de dimension X: %s'),
-	('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur de dimension Y: %s'),
-	('error in opening csv file', 'Error in opening CSV file', "Erreur lors de l'ouverture du fichier CSV"),
-	('load the cores positions and barcodes by csv file', 
-	'Load the blocks barcodes and cores positions from CSV file', 
-	'Charger codes à barres des blocs et positions des cores à partir du CSV'),
-	('load aliquots by csv', 'Load aliquot postions from CSV', 'Charger les positions d''aliquots du CSV'),
-	('load the aliquots positions and barcodes by csv file', 'Load the aliquots positions from CSV file', 'Charger les positions des aliquots et les codes à barres par fichier CSV'),
-	('load the cores positions and block barcodes by csv file', 
-	'Load the blocks barcodes then create cores and set cores positions from CSV file', 
-	'Charger les codes à barres des blocs, créeation des cores et définition de la position des cores à paritr d''un fichier CSV'),
-	('load blocks by csv', 'Load blocks from CSV', 'Charger les blocs du CSV'),
-	('the x dimension should be alphabetical', 'The X dimension should be alphabetical', 'La dimension X doit être alphabétique'),
-	('the x dimension should be numeric', 'The X dimension should be numeric', 'La dimension X doit être numérique'),
-	('the y dimension should be alphabetical', 'The Y dimension should be alphabetical', 'La dimension Y devrait être alphabétique'),
-	('the y dimension should be numeric', 'The Y dimension should be numeric', 'La dimension Y devrait être numérique'),
-	('should not have y dimension', 'Should not have the Y dimension.', 'Ne devrait pas avoir de dimension Y.'),
-	('load cores by csv', 'Load cores from CSV', 'Charger les cores du CSV'),
-	('undo positions load and barcodes scanned', "Undo positions load and barcodes scanned", "Annuler chargement des positions et codes à barres scannés");
+('for now listed storage is not supported', 
+"The 'Load aliquots from CSV' is not supported for storage with 'Coordinates managed by users' in the current release of ATiM.",
+"Le 'chargement des aliquots à partir d'un CSV' n'est pas supporté pour les entreposages dont les 'coordonnées sont géreés par les utilisteurs' dans la version actuelle d'ATiM."),
+('aliquot does not exist', 'Aliquot does not exist', 'L''aliquot n\'existe pas'),
+('aliquot is not in stock', 'Aliquot is not in stock', 'L''aliquot n\'est pas en stock'),
+('this aliquot is registered in another place. label: %s, x: %s, y: %s', 
+'The current position of the aliquot is different than the defined position in the file: Storage [%s] & position %s - %s.', 
+"La position actuelle de l'aliquot est différente de la position définie dans le fichier: Entreposage [%s] & position %s - %s."),
+('more than one aliquot have the same barcode', 'More than one aliquot have the same barcode', 'Plus d''un aliquot a le même code à barres'),
+('the aliquots list', 'The list of aliquots', 'La liste des aliquots'),
+('line %s', 'Line %s', 'Ligne %s'),
+('load csv', 'Load CSV', 'Charger CSV'),
+('clear the loaded and scanned barcode', 'Clear the loaded or scanned aliquots', 'Effacer les aliquots téléchargés ou scannés'),
+('this aliquot is registered in another place', 'This aliquot is registered in another storage/position', 'Cet aliquot est enregistré dans un autre entreposage/position'),
+('the y dimension out of range <= %s', 'The Y dimension is out of range <= %s', "La dimension Y est hors de l'intervalle <=%s"),
+('the x dimension out of range <= %s', 'The X dimension is out of range <= %s', "La dimension X est hors de l'intervalle <=%s"),
+('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Codes à barres dupliqués dans le fichier CSV'),
+('should have Y column', 'Column Y missing. Please check your CSV separator.', 'Colonne Y manquante. Veuillez vérifier votre séparateur CSV.'),
+('should have barcode column', 'Barcodes column missing', 'Colonne des codes à barres manquante'),
+('should have X column',  'Column X missing. Please check your CSV separator.', 'Colonne X manquante. Veuillez vérifier votre séparateur CSV.'),
+('error in csv header file', 'Error in CSV header file', 'Erreur dans les en-têtes du fichier CSV'),
+('error in opening %s', 'Error in opening file %s', "Erreur d'ouverture du fichier%s"),
+('error in x dimension: %s', 'Error in X dimension: %s', 'Erreur de dimension X: %s'),
+('error in y dimension: %s', 'Error in Y dimension: %s', 'Erreur de dimension Y: %s'),
+('error in opening csv file', 'Error in opening CSV file', "Erreur lors de l'ouverture du fichier CSV"),
+('load the cores positions and barcodes by csv file', 
+'Load the blocks barcodes and cores positions from CSV file', 
+'Charger codes à barres des blocs et positions des cores à partir du CSV'),
+('load aliquots by csv', 'Load aliquot postions from CSV', 'Charger les positions d''aliquots du CSV'),
+('load the aliquots positions and barcodes by csv file', 'Load the aliquots positions from CSV file', 'Charger les positions des aliquots et les codes à barres par fichier CSV'),
+('load the cores positions and block barcodes by csv file', 
+'Load the blocks barcodes then create cores and set cores positions from CSV file', 
+'Charger les codes à barres des blocs, créeation des cores et définition de la position des cores à paritr d''un fichier CSV'),
+('load blocks by csv', 'Load blocks from CSV', 'Charger les blocs du CSV'),
+('the x dimension should be alphabetical', 'The X dimension should be alphabetical', 'La dimension X doit être alphabétique'),
+('the x dimension should be numeric', 'The X dimension should be numeric', 'La dimension X doit être numérique'),
+('the y dimension should be alphabetical', 'The Y dimension should be alphabetical', 'La dimension Y devrait être alphabétique'),
+('the y dimension should be numeric', 'The Y dimension should be numeric', 'La dimension Y devrait être numérique'),
+('should not have y dimension', 'Should not have the Y dimension.', 'Ne devrait pas avoir de dimension Y.'),
+('load cores by csv', 'Load cores from CSV', 'Charger les cores du CSV'),
+('undo positions load and barcodes scanned', "Undo positions load and barcodes scanned", "Annuler chargement des positions et codes à barres scannés");
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES
+('aliquot validation summary', "Aliquot(s) Validation Summary", "Résumé de la validation des aliquots"),
+('add to layout', "Add to Layout", "Ajouter au plan"),
+('number of aliquots analyzed = %d, validated = %d, warning = %d, error = %d', 
+"Number of aliquots : Analyzed = %d, Validated = %d, With warning = %d, With error = %d", 
+"Nombre d'aliquots: Analysés =% d, validé =% d, avec avertissement =% d, avec erreur =% d"),
+('analyzed = %d\nok = %d\nwarning = %d\nerror = %d', "Analyzed = %d\nOk = %d\nWarning = %d\nError = %d", "Analysés = %d\nOk = %d\nAvertissements = %d\nErreurs = %d"),
+("aliquot '%s' [%s-%s]", "Aliquot '%s' [%s-%s]", "Aliquot '%s' [%s-%s]"),
+("aliquot '%s' [%s]", "Aliquot '%s' [%s]", "Aliquot '%s' [%s]");
 
 -- -------------------------------------------------------------------------------------
 --	Created sample type TIL (tumor infiltrating lymphocyte)
@@ -201,21 +211,21 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES
-	('previous search', 'Previous', 'Précédente'),
-	('reset search', 'Reset', 'Réinitialiser');
+('previous search', 'Previous', 'Précédente'),
+('reset search', 'Reset', 'Réinitialiser');
 
 -- -------------------------------------------------------------------------------------
 --	Issue #3424: Replace '<br>' characters in message.
 -- -------------------------------------------------------------------------------------
 UPDATE i18n
 SET 
-	en = REPLACE (en, '<br><br>', '<br>'),
-	fr = REPLACE (fr, '<br><br>', '<br>')
+en = REPLACE (en, '<br><br>', '<br>'),
+fr = REPLACE (fr, '<br><br>', '<br>')
 WHERE 
-	en LIKE '%<br><br>%' OR
-	fr LIKE '%<br><br>%';
+en LIKE '%<br><br>%' OR
+fr LIKE '%<br><br>%';
 
 -- -------------------------------------------------------------------------------------
 --	issue #3473: There is a type 'adtetime' in structure_fields table
@@ -714,7 +724,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='storage_control_2d'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='permute_x_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='permute_x_y' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT IGNORE INTO 	i18n (id,en,fr) VALUES 	('permute_x_y', 'Permute X and Y', 'Permuter X et Y');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 	('permute_x_y', 'Permute X and Y', 'Permuter X et Y');
 UPDATE storage_controls SET permute_x_y = '0' WHERE coord_y_type IN ('alphabetical', 'integer');
 
 -- -------------------------------------------------------------------------------------
@@ -851,30 +861,35 @@ VALUES
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES
-	('number of data', 'Number of Data', 'Nombre de données'),
-	('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
-	('detach the chart', 'Open in Pop-up', 'Ouvrir dans pop-up'),
-	('report data table', 'Report', 'Rapport'),
-	('graphics', 'Graphics', 'Graphiques'),
-	('graphic', 'Graphic', 'Graphique'),
-	('diagrams', 'Graphics', 'Graphiques'),
-	('diagram', 'Graphic', 'Graphique'),
-	('file', 'File', 'Fichier'),
-	('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
-	('open file', 'Open File', 'Ouvrir fichier');
+('click on submit button of the main form to record the default values', 
+"Please don't forget to click on submit button of the main form to record any default value entered or updated",
+"Veuillez ne pas oublier de cliquer sur le bouton 'Envoyer' du formulaire principal pour enregistrer toute valeur par défaut saisie ou mise à jour"),
+('edit modified order items to remove any information about the return', 'Please edit modified order items to remove any information about the return.', "Veuillez modifier les éléments de commande modifiés pour supprimer toute information sur le retour."),
+('copy for new storage control', 'Copy for New Type', 'Copier pour nouveau type'),
+('number of data', 'Number of Data', 'Nombre de données'),
+('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
+('detach the chart', 'Open in Pop-up', 'Ouvrir dans pop-up'),
+('report data table', 'Report', 'Rapport'),
+('graphics', 'Graphics', 'Graphiques'),
+('graphic', 'Graphic', 'Graphique'),
+('diagrams', 'Graphics', 'Graphiques'),
+('diagram', 'Graphic', 'Graphique'),
+('file', 'File', 'Fichier'),
+('obtained consents', 'Obtained Consents', 'Consentements obtenus'),
+('open file', 'Open File', 'Ouvrir fichier');
 
 -- -------------------------------------------------------------------------------------
 --	Issue #3607: No data to select returned items
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
-	i18n (id,en,fr)
+i18n (id,en,fr)
 VALUES
-	('order items data update will be limited to the item defined as returned',
-	'The update of the order items data will be limited to the items selected to be defined as returned',
-	"La mise à jour des données des articles de commande sera limitée aux articles sélectionnés pour être définis comme retournés");
+('order items data update will be limited to the item defined as returned',
+'The update of the order items data will be limited to the items selected to be defined as returned',
+"La mise à jour des données des articles de commande sera limitée aux articles sélectionnés pour être définis comme retournés");
 	
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------

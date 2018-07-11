@@ -190,22 +190,24 @@ function csvOpen(e) {
                 var $html = $('<div />', {html: data});
                 $html.find(".actions").eq(0).remove();
                 $html.find(".pop-up-csv-barcode li").each(function () {
-                    barcodeNumber = $.parseJSON($(this).attr("data-aliquot"))["barcode"];
-                    message = $.parseJSON($(this).attr("data-aliquot"))["message"];
-                    dupMessage = DUPLICATED_ALIQUOT;
-                    var existe = false;
-                    if (message.search("dupMessage") == -1) {
-                        $(".just-added span.handle").each(function () {
-                            if ($(this).text() == barcodeNumber) {
-                                existe = true;
-                                return;
-                            }
-                        });
-                    }
-                    if (existe) {
-                        $.parseJSON($(this).attr("data-aliquot"))["message"] = message + "," + dupMessage;
-                        $(this).text($(this).text() + ", " + dupMessage);
-                        $(this).closest("ul").removeClass("confirm").addClass("warning");
+                    if ($(this).attr("data-aliquot")!=""){
+                        barcodeNumber = $.parseJSON($(this).attr("data-aliquot"))["barcode"];
+                        message = $.parseJSON($(this).attr("data-aliquot"))["message"];
+                        dupMessage = DUPLICATED_ALIQUOT;
+                        var existe = false;
+                        if (message.search("dupMessage") == -1) {
+                            $(".just-added span.handle").each(function () {
+                                if ($(this).text() == barcodeNumber) {
+                                    existe = true;
+                                    return;
+                                }
+                            });
+                        }
+                        if (existe) {
+                            $.parseJSON($(this).attr("data-aliquot"))["message"] = message + "," + dupMessage;
+                            $(this).text($(this).text() + ", " + dupMessage);
+                            $(this).closest("ul").removeClass("confirm").addClass("warning");
+                        }
                     }
                 });
 
@@ -228,7 +230,7 @@ function csvOpen(e) {
 }
 
 function csvToLayout(){
-    confirms = $("#csvDialogPopup").find("ul.confirm li");
+    confirms = $("#csvDialogPopup").find("ul.confirm:not(.hidden-ul) li");
     errors = $("#csvDialogPopup").find("ul.error li");
     warnings = $("#csvDialogPopup").find("ul.warning li");
     $html = "<li class='dragme AliquotMaster ui-draggable just-added csv-just-added' data-json='{ \"id\" : \"\", \"type\" : \"AliquotMaster\"}' style='position: relative;' title = ''>\n" +
