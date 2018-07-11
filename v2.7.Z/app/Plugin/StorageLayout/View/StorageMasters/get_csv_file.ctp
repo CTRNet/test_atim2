@@ -24,7 +24,12 @@ if ($csvArrayData["valid"]) {
         
     }
     ?>
-        <ul class="confirm hidden-ul">
+		<ul class="warning">
+            <li data-aliquot= "" title="" >
+                <b><?php echo __("click on submit button of the main form to record the default values");?></b>
+            </li>
+	</ul>
+		<ul class="confirm hidden-ul">
             <li data-aliquot= "" title="<?php echo __("analyzed = %d\nok = %d\nwarning = %d\nerror = %d", $numTotal, $numConfirm, $numWarning, $numError); ?>" >
                 <b><?php echo __("number of aliquots analyzed = %d, validated = %d, warning = %d, error = %d", $numTotal, $numConfirm, $numWarning, $numError);?></b>
             </li>
@@ -63,7 +68,7 @@ if ($csvArrayData["valid"]) {
             ?>
             <ul class="error">
 		<li data-aliquot='<?= json_encode($dataAliquot) ?>'data-class-name="<?=$class?>" class="no-border">
-                    <?php echo $i + 1, "- ", $aliquotPositionText, ", ", ': ', $errorMessagePrint; ?>
+                    <?php echo $i + 1, "- ", $aliquotPositionText, " ", ': ', $errorMessagePrint; ?>
                 </li>
             </ul>
                 <?php
@@ -71,7 +76,7 @@ if ($csvArrayData["valid"]) {
             ?>
             <ul class="warning">
 		<li data-aliquot='<?= json_encode($dataAliquot) ?>'data-class-name="<?=$class?>" class="no-border">
-                    <?php echo $i + 1, "- ", $aliquotPositionText, ", ", ': ', $warningMessagePrint ?>
+                    <?php echo $i + 1, "- ", $aliquotPositionText, " ", ': ', $warningMessagePrint ?>
                 </li>
             </ul>
                 <?php
@@ -83,7 +88,10 @@ if ($csvArrayData["valid"]) {
         <?php
     $structureLinks = array(
         'bottom' => array(
-            __("add to layout") => "javascript:void(0)"
+            __("add to layout") => array(
+                'link' => "javascript:void(0)",
+                'icon' => 'add'
+                )
         )
     );
 } else {
