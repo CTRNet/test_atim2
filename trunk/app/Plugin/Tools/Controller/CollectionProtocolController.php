@@ -209,11 +209,14 @@ class CollectionProtocolController extends ToolsAppController
         
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
-        if (empty($collectionProtocolData)) {
-            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        }
-        $this->set('collectionProtocolData', $collectionProtocolData);
         
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
+            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
+        }
+
+
+        $this->set('collectionProtocolData', $collectionProtocolData);
         $collectionProtocolVisitData = $this->CollectionProtocolVisit->find('all', array(
             'conditions' => array(
                 'CollectionProtocolVisit.collection_protocol_id' => $collectionProtocolId
@@ -253,8 +256,10 @@ class CollectionProtocolController extends ToolsAppController
         
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
-        if (empty($collectionProtocolData)) {
-            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
+            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
         }
         $this->set('collectionProtocolData', $collectionProtocolData);
         $initialCollectionProtocolData = $collectionProtocolData;
@@ -460,9 +465,6 @@ class CollectionProtocolController extends ToolsAppController
                         if (! $this->CollectionProtocolVisit->save($submittedCollectionProtocolVisistToUpdate, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
-                        $this->CollectionProtocolVisit->removeWritableField(array(
-                            'collection_protocol_id'
-                        ));
                     }
                 }
                 
@@ -492,12 +494,12 @@ class CollectionProtocolController extends ToolsAppController
      */
     public function delete($collectionProtocolId)
     {
-        $protocolData = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
-        if (empty($protocolData))
-            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        if (! $protocolData['CollectionProtocol']['allow_properties_edition']) {
+        // MANAGE DATA
+        $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
+        
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
-            return;
         }
         
         $visitsToDelete = $this->CollectionProtocolVisit->find('list', array(

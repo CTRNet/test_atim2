@@ -130,6 +130,21 @@ class MenusController extends AppController
                 }
                 $this->set('missingForgottenPasswordResetAnswers', $missingForgottenPasswordResetAnswers);
             }
+            
+           // ser questions to reset forgotten passwor
+            
+            if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
+                AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit'));
+            }
+            
+            if (convertFromKMG(ini_get("upload_max_filesize")) <= Configure::read('maxUploadFileSize')) {
+                AppController::addWarningMsg(__('warning_PHP upload_max_filesize is <= than atim maxUploadFileSize, problem in uploading'));
+            }
+            
+            if (convertFromKMG(ini_get("post_max_size")) < convertFromKMG(ini_get("upload_max_filesize"))) {
+                AppController::addWarningMsg(__('warning_PHP post_max_size is <= than upload_max_filesize, problem in uploading'));
+            }
+            
         } elseif ($setOfMenus == "tools") {
             $this->set('atimMenu', $this->Menus->get('/menus/tools'));
             $menuData = $this->Menu->find('all', array(

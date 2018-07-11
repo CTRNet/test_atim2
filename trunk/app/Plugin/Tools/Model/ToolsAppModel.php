@@ -60,6 +60,9 @@ class ToolsAppModel extends AppModel
                         ),
                         array(
                             $modelName . '.owner' => 'all'
+                        ),
+                        array(
+                            $modelName . '.visibility' => 'all'
                         )
                     ),
                     // Both active and inactive template

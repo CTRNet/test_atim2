@@ -246,7 +246,7 @@ class ShellHelper extends AppHelper
         }
         
         $return = "";
-        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0 && ! $this->request->is('ajax')) {
+        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0 && (! $this->request->is('ajax') || $_SESSION['ctrapp_core']['force_msg_display_in_popup'])) {
             $return .= '
 				<!-- start #validation -->
 				<div class="validation">
@@ -255,6 +255,8 @@ class ShellHelper extends AppHelper
 				<!-- end #validation -->
 				';
         }
+        
+        $_SESSION['ctrapp_core']['force_msg_display_in_popup'] = false;
         
         return $return;
     }

@@ -19,7 +19,7 @@ $structureLinks = array(
         'edit' => '/Order/Shipments/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
         'copy for new shipment' => array(
             'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
-            'icon' => 'copy'
+            'icon' => 'duplicate'
         ),
         'delete' => '/Order/Shipments/delete/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
         'order items' => array(
