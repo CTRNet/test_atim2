@@ -851,6 +851,9 @@ VALUES
 INSERT IGNORE INTO 
 i18n (id,en,fr)
 VALUES
+('click on submit button of the main form to record the default values', 
+"Please don't forget to click on submit button of the main form to record any default value entered or updated",
+"Veuillez ne pas oublier de cliquer sur le bouton 'Envoyer' du formulaire principal pour enregistrer toute valeur par défaut saisie ou mise à jour"),
 ('edit modified order items to remove any information about the return', 'Please edit modified order items to remove any information about the return.', "Veuillez modifier les éléments de commande modifiés pour supprimer toute information sur le retour."),
 ('copy for new storage control', 'Copy for New Type', 'Copier pour nouveau type'),
 ('number of data', 'Number of Data', 'Nombre de données'),
