@@ -465,9 +465,6 @@ class CollectionProtocolController extends ToolsAppController
                         if (! $this->CollectionProtocolVisit->save($submittedCollectionProtocolVisistToUpdate, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
-                        $this->CollectionProtocolVisit->removeWritableField(array(
-                            'collection_protocol_id'
-                        ));
                     }
                 }
                 
