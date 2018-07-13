@@ -86,11 +86,11 @@ class ToolsAppModel extends AppModel
         
         $allConditions = array();
         
-        $allConditions['all'] = array();
+        $allConditions['all'] = array('TRUE');
         
         $allConditions['edition'] = (AppController::getInstance()->Session->read('Auth.User.group_id') == '1') ?
             // Admin can work on all templates
-            array() :
+            array('TRUE') :
             // Set specific conditions for non admin group
             array(
                 'OR' => array(
@@ -284,8 +284,8 @@ class ToolsAppModel extends AppModel
                         'datetime'
                     ))) {
                         $formattedDate = AppController::getFormatedDateString($value['year'], $value['month'], $value['day'], false);
-                        $formattedTime = AppController::getFormatedTimeString($value['hour'], $value['min'], false);
-                        $value = $formattedDate . ' ' . $formattedTime;
+                        $formattedTime = (isset($value['hour']) || isset($value['min']))? ' ' . AppController::getFormatedTimeString($value['hour'], $value['min'], false) : '';
+                        $value = $formattedDate . $formattedTime;
                     }
                     $formattedDefaultValues[] = $tmpCollectionTemplateNodesStructuresField['language_label'] . " = [$value]";
                 } else {

@@ -57,12 +57,12 @@ if (! $isAjax) {
         $addButtonLinks = array();
         $addButtonLinks['collection'] = array(
             'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/',
-            'icon' => 'collection'
+            'icon' => 'add_collection'
         );
         foreach ($collectionProtocols as $collectionProtocolId => $collectionProtocolName) {
             $addButtonLinks[$collectionProtocolName] = array(
                 'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/' . $collectionProtocolId,
-                'icon' => 'template'
+                'icon' => 'add_collection_protocol'
             );
         }
     }

@@ -263,7 +263,7 @@ class TemplateController extends ToolsAppController
         
         // loading tree and setting variables
         $this->Template->id = $templateId;
-        $this->request->data = $tmpTemplate;
+        $this->request->data = $templateData;
         $this->set('editProperties', $tmpTemplate['Template']['allow_properties_edition']);
         $tree = $this->Template->init($this->Structures);
         $this->set('treeData', $tree['']);

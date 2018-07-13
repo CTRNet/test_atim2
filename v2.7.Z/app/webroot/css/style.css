@@ -1300,6 +1300,14 @@ a.form {
 	background-position: -64px -112px;
 }
 
+.icon16.add_collection {
+	background-position: -64px -160px;
+}
+
+.icon16.add_collection_protocol {
+	background-position: -80px -160px;
+}
+
 .icon16.add_mini {
 	background-position: -112px -32px;
 }
