@@ -169,7 +169,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             'Participant.id' => $participantId
         ));
         
-        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('protocol use'));
+        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('use'));
         
         // BUILD COLLECTION CONTENT TREE VIEW
         

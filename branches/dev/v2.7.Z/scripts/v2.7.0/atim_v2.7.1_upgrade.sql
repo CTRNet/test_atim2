@@ -336,7 +336,7 @@ ALTER TABLE `collection_protocol_visits`
 INSERT INTO structures(`alias`) VALUES ('collection_protocol_visit');
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
-('collection_protocol_template_all', "Tools.Template::getTemplatesList('template all')"),
+('collection_protocol_template_all', "Tools.Template::getTemplatesList('all')"),
 ('collection_protocol_template', "Tools.Template::getTemplatesList"),
 ("time_from_first_visit_unit", NULL);
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("day", "day"),('week','week');
@@ -420,7 +420,7 @@ ALTER TABLE `collections`
 
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
-('collection_protocols', "Tools.CollectionProtocol::getProtocolsList('protocol all')");
+('collection_protocols', "Tools.CollectionProtocol::getProtocolsList('all')");
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'ViewCollection', '', 'collection_protocol_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') , '0', '', '', '', 'protocol', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -863,6 +863,8 @@ VALUES
 INSERT IGNORE INTO 
 i18n (id,en,fr)
 VALUES
+('you do not own that protocol','You do not own that protocol',"Vous n'êtes pas propiétaire du protocole"),
+('data can not be changed', 'Data can not be changed', "Les données ne peuvent pas être modifiées"),
 ('click on submit button of the main form to record the default values', 
 "Please don't forget to click on submit button of the main form to record any default value entered or updated",
 "Veuillez ne pas oublier de cliquer sur le bouton 'Envoyer' du formulaire principal pour enregistrer toute valeur par défaut saisie ou mise à jour"),

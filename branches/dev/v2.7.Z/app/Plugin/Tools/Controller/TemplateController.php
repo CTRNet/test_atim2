@@ -42,7 +42,7 @@ class TemplateController extends ToolsAppController
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/listProtocolsAndTemplates'));
         $this->Structures->set('template');
         
-        $templates = $this->Template->getTools('template edition');
+        $templates = $this->Template->getTools('list all');
         $templateIds = array();
         foreach ($templates as $newTemplate) {
             $templateIds[] = $newTemplate['Template']['id'];
@@ -120,9 +120,9 @@ class TemplateController extends ToolsAppController
         // validate access
         $templateData = $this->Template->getOrRedirect($templateId);
         
-        $tmpTemplate = $this->Template->getTools('template edition', $templateId);
-        if (empty($tmpTemplate)) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+        $tmpTemplate = $this->Template->getTools('edition', $templateId);
+        if (! $tmpTemplate['Template']['allow_properties_edition']) {
+            AppController::addWarningMsg(__('you do not own that template'));
         }
         
         // js menus required data-------
@@ -178,6 +178,8 @@ class TemplateController extends ToolsAppController
                 Configure::write('debug', 0);
                 $this->request->data['Template']['id'] = $templateId;
                 $this->set('isAjax', true);
+            } elseif (! $tmpTemplate['Template']['allow_properties_edition']) {
+                AppController::addWarningMsg(__('data can not be changed'));
             } else {
                 // non ajax is made to save the tree
                 $tree = json_decode('[' . $this->request->data['tree'] . ']');
@@ -291,12 +293,12 @@ class TemplateController extends ToolsAppController
      */
     public function editProperties($templateId)
     {
-        $templateData = $this->Template->getTools('template edition', $templateId);
+        $templateData = $this->Template->getTools('edition', $templateId);
         if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/Template/edit/' . $templateId);
             return;
         }
         
@@ -352,12 +354,12 @@ class TemplateController extends ToolsAppController
     {
         $templateData = $this->Template->getOrRedirect($templateId);
         
-        $templateData = $this->Template->getTools('template edition', $templateId);
+        $templateData = $this->Template->getTools('edition', $templateId);
         if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/Template/edit/' . $templateId);
             return;
         }
         

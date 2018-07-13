@@ -28,7 +28,7 @@ class CollectionProtocolController extends ToolsAppController
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/listProtocolsAndTemplates'));
         $this->Structures->set('collection_protocol');
         
-        $protocols = $this->CollectionProtocol->getTools('protocol edition');
+        $protocols = $this->CollectionProtocol->getTools('list all');
         $protocolIds = array();
         foreach ($protocols as $newTemplate) {
             $protocolIds[] = $newTemplate['CollectionProtocol']['id'];
@@ -212,13 +212,13 @@ class CollectionProtocolController extends ToolsAppController
     public function detail($collectionProtocolId)
     {
         
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
+        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
+            AppController::addWarningMsg(__('you do not own that protocol'));
+        }
+        
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
-        
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
-        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
-        }
         
         $this->set('collectionProtocolData', $collectionProtocolData);
         $collectionProtocolVisitData = $this->CollectionProtocolVisit->find('all', array(
@@ -261,9 +261,9 @@ class CollectionProtocolController extends ToolsAppController
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
         
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/CollectionProtocol/detail/' . $collectionProtocolId);
         }
         $this->set('collectionProtocolData', $collectionProtocolData);
         $initialCollectionProtocolData = $collectionProtocolData;
@@ -273,9 +273,9 @@ class CollectionProtocolController extends ToolsAppController
                 'CollectionProtocolVisit.collection_protocol_id' => $collectionProtocolId
             )
         ));
-        $activeTemplateIds = $this->Template->getTemplatesList($useDefinition = 'template use');
+        $activeTemplateIds = $this->Template->getTemplatesList('use');
         $activeTemplateIds = array_keys($activeTemplateIds);
-        $activeTemplateAll = $this->Template->getTemplatesList($useDefinition = 'template all');
+        $activeTemplateAll = $this->Template->getTemplatesList('all');
         $displayTemplateWarning = false;
         foreach ($collectionProtocolVisitData as &$tmpProtocolVisitData) {
             if (strlen($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'])) {
@@ -501,9 +501,9 @@ class CollectionProtocolController extends ToolsAppController
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
         
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/CollectionProtocol/detail/' . $collectionProtocolId);
         }
         
         $visitsToDelete = $this->CollectionProtocolVisit->find('list', array(
