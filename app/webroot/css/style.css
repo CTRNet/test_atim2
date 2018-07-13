@@ -130,6 +130,14 @@ fieldset.mainFieldset {
 	margin-top: 10px;
 }
 
+#header h2.prod{
+    color: white;
+}
+
+#header h2.test{
+    color: red;
+}
+
 div.wrapper div:not(.browsable.info){
 margin:0;
 padding:0;
@@ -1290,6 +1298,14 @@ a.form {
 
 .icon16.add {
 	background-position: -64px -112px;
+}
+
+.icon16.add_collection {
+	background-position: -64px -160px;
+}
+
+.icon16.add_collection_protocol {
+	background-position: -80px -160px;
 }
 
 .icon16.add_mini {

@@ -206,8 +206,9 @@ class CollectionsController extends InventoryManagementAppController
             ));
             if ($collectionData && $collectionData['Collection']['collection_protocol_id']) {
                 $collectionProtocolModel = AppModel::getInstance("Tools", "CollectionProtocol", true);
-                $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('protocol use');
+                $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('use');
                 if (! array_key_exists($collectionData['Collection']['collection_protocol_id'], $collectionProtocolLists)) {
+                    // Can only happen if protocol properties have been modified just after user clicked on submit in clinical collection link (should probably never happen)
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 } else {
                     // New participant collection part of a collections protocol and collection being the first one
@@ -248,8 +249,9 @@ class CollectionsController extends InventoryManagementAppController
                     $additionalColCopyStructure = ',col_copy_protocol_opt';
                     if (! $needToSave) {
                         $collectionProtocolModel = AppModel::getInstance("Tools", "CollectionProtocol", true);
-                        $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('protocol use');
+                        $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('use');
                         if (! array_key_exists($this->request->data['Collection']['collection_protocol_id'], $collectionProtocolLists)) {
+                            // User is not supposed to work with this protocol but because it's a copy, protocol will be copied
                             AppController::addWarningMsg(__("you don't have permission to use the protocol but this one will be linked to the collections"));
                         }
                     }

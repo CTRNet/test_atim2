@@ -2983,12 +2983,123 @@ INSERT INTO `txe_surgeries_revs` (`surgical_procedure`, `version_id`, `version_c
 ('Mastectomy bilateral', 2, '2016-08-26 19:07:06', 13);
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- New groups and users
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TRUNCATE `aros`;
+INSERT INTO `aros` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
+(1, NULL, 'Group', 1, 'Group::1', 1, 4),
+(2, NULL, 'Group', 2, 'Group::2', 5, 8),
+(3, NULL, 'Group', 3, 'Group::3', 9, 12),
+(4, 1, 'User', 1, 'User::1', 2, 3),
+(5, 2, 'User', 2, 'User::2', 6, 7),
+(6, 3, 'User', 3, 'User::3', 10, 11),
+(7, NULL, 'Group', 4, 'Group::4', 13, 16),
+(8, 7, 'User', 4, NULL, 14, 15),
+(9, NULL, 'Group', 5, 'Group::5', 17, 22),
+(10, 9, 'User', 5, NULL, 18, 19),
+(11, 9, 'User', 6, NULL, 20, 21),
+(12, NULL, 'Group', 6, 'Group::6', 23, 26),
+(13, 12, 'User', 7, NULL, 24, 25);
+
+TRUNCATE `aros_acos`;
+INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`, `_delete`) VALUES
+(1, 1, 1, '1', '1', '1', '1'),
+(2, 2, 1, '1', '1', '1', '1'),
+(3, 3, 1, '1', '1', '1', '1'),
+(4, 7, 1, '1', '1', '1', '1'),
+(5, 7, 3, '-1', '-1', '-1', '-1'),
+(6, 7, 11, '-1', '-1', '-1', '-1'),
+(7, 7, 17, '-1', '-1', '-1', '-1'),
+(8, 7, 23, '1', '1', '1', '1'),
+(9, 7, 30, '1', '1', '1', '1'),
+(10, 7, 33, '-1', '-1', '-1', '-1'),
+(11, 7, 35, '-1', '-1', '-1', '-1'),
+(12, 7, 32, '-1', '-1', '-1', '-1'),
+(13, 7, 34, '-1', '-1', '-1', '-1'),
+(14, 7, 36, '-1', '-1', '-1', '-1'),
+(15, 7, 40, '-1', '-1', '-1', '-1'),
+(16, 7, 44, '-1', '-1', '-1', '-1'),
+(17, 7, 46, '-1', '-1', '-1', '-1'),
+(18, 7, 56, '-1', '-1', '-1', '-1'),
+(19, 7, 59, '1', '1', '1', '1'),
+(20, 7, 62, '1', '1', '1', '1'),
+(21, 7, 69, '-1', '-1', '-1', '-1'),
+(22, 7, 73, '-1', '-1', '-1', '-1'),
+(23, 7, 77, '-1', '-1', '-1', '-1'),
+(24, 9, 1, '1', '1', '1', '1'),
+(25, 9, 3, '-1', '-1', '-1', '-1'),
+(26, 9, 11, '-1', '-1', '-1', '-1'),
+(27, 9, 17, '-1', '-1', '-1', '-1'),
+(28, 9, 23, '1', '1', '1', '1'),
+(29, 9, 30, '1', '1', '1', '1'),
+(30, 9, 33, '-1', '-1', '-1', '-1'),
+(31, 9, 35, '-1', '-1', '-1', '-1'),
+(32, 9, 32, '-1', '-1', '-1', '-1'),
+(33, 9, 34, '-1', '-1', '-1', '-1'),
+(34, 9, 36, '-1', '-1', '-1', '-1'),
+(35, 9, 40, '-1', '-1', '-1', '-1'),
+(36, 9, 44, '-1', '-1', '-1', '-1'),
+(37, 9, 46, '-1', '-1', '-1', '-1'),
+(38, 9, 56, '-1', '-1', '-1', '-1'),
+(39, 9, 59, '1', '1', '1', '1'),
+(40, 9, 62, '1', '1', '1', '1'),
+(41, 9, 69, '-1', '-1', '-1', '-1'),
+(42, 9, 73, '-1', '-1', '-1', '-1'),
+(43, 9, 77, '-1', '-1', '-1', '-1'),
+(44, 12, 1, '1', '1', '1', '1'),
+(45, 12, 3, '-1', '-1', '-1', '-1'),
+(46, 12, 11, '-1', '-1', '-1', '-1'),
+(47, 12, 17, '-1', '-1', '-1', '-1'),
+(48, 12, 23, '1', '1', '1', '1'),
+(49, 12, 30, '1', '1', '1', '1'),
+(50, 12, 33, '-1', '-1', '-1', '-1'),
+(51, 12, 35, '-1', '-1', '-1', '-1'),
+(52, 12, 32, '-1', '-1', '-1', '-1'),
+(53, 12, 34, '-1', '-1', '-1', '-1'),
+(54, 12, 36, '-1', '-1', '-1', '-1'),
+(55, 12, 40, '-1', '-1', '-1', '-1'),
+(56, 12, 44, '-1', '-1', '-1', '-1'),
+(57, 12, 46, '-1', '-1', '-1', '-1'),
+(58, 12, 56, '-1', '-1', '-1', '-1'),
+(59, 12, 59, '1', '1', '1', '1'),
+(60, 12, 62, '1', '1', '1', '1'),
+(61, 12, 69, '-1', '-1', '-1', '-1'),
+(62, 12, 73, '-1', '-1', '-1', '-1'),
+(63, 12, 77, '-1', '-1', '-1', '-1');
+
+TRUNCATE `groups`;
+INSERT INTO `groups` (`id`, `name`, `bank_id`, `flag_show_confidential`, `created`, `modified`, `deleted`, `created_by`, `modified_by`) VALUES
+(1, 'Administrators', NULL, 1, '2009-02-18 13:05:46', '2009-02-18 13:05:46', 0, 0, 0),
+(2, 'Managers', NULL, 0, '2009-02-18 13:05:52', '2009-04-06 12:58:21', 0, 0, 0),
+(3, 'Users - No bank', NULL, 0, '2009-02-18 13:05:59', '2009-04-06 12:58:31', 0, 0, 0),
+(4, 'Bank Breast Group 1', 3, 1, '2018-07-13 15:24:50', '2018-07-13 15:27:21', 0, 1, 1),
+(5, 'Bank Breast Group 2', 3, 1, '2018-07-13 15:32:31', '2018-07-13 15:33:28', 0, 1, 1),
+(6, 'Prostate Bank Group 1', 2, 1, '2018-07-13 15:41:24', '2018-07-13 15:41:41', 0, 1, 1);
+
+TRUNCATE `system_vars`;
+INSERT INTO `system_vars` (`k`, `v`) VALUES
+('permission_timestamp', '1531496502');
+
+-- Paswword 'ctrnetdemo' => '4add314fb94d06f8ce3d9ce478245643edd7c6f4'
+TRUNCATE `users`;
+INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `email`, `department`, `job_title`, `institution`, `laboratory`, `help_visible`, `street`, `city`, `region`, `country`, `mail_code`, `phone_work`, `phone_home`, `group_id`, `flag_active`, `created`, `modified`, `deleted`, `password_modified`, `created_by`, `modified_by`, `force_password_reset`, `forgotten_password_reset_question_1`, `forgotten_password_reset_answer_1`, `forgotten_password_reset_question_2`, `forgotten_password_reset_answer_2`, `forgotten_password_reset_question_3`, `forgotten_password_reset_answer_3`) 
+VALUES
+(1, 'administrator', 'John Doe', NULL, '81a717c1def10e2d2406a198661abf8fdb8fd6f5', 'administrator@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2009-02-18 13:06:38', '2009-02-18 13:06:38', 0, '2018-07-13 11:07:50', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'manager', 'John Smith', NULL, '4add314fb94d06f8ce3d9ce478245643edd7c6f4', 'manager@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1, '2009-02-18 13:07:00', '2009-02-18 13:07:00', 0, NULL, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'NoBankkUser1', 'Joe Example', NULL, '4add314fb94d06f8ce3d9ce478245643edd7c6f4', 'user@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, 1, '2009-02-18 13:07:07', '2009-02-18 13:07:07', 0, NULL, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'BreastGrp1User1', 'Breast Bank Group 1 User 1', '', '4add314fb94d06f8ce3d9ce478245643edd7c6f4', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 4, 1, '2018-07-13 15:31:01', '2018-07-13 15:31:01', 0, '2018-07-13 15:31:01', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'BreastGrp2User1', 'Breast Bank Group 2 User 1', '', '4add314fb94d06f8ce3d9ce478245643edd7c6f4', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 5, 1, '2018-07-13 15:34:56', '2018-07-13 15:34:56', 0, '2018-07-13 15:34:56', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'BreastGrp2User2', 'Breast Bank Group 2 User 2', '', '4add314fb94d06f8ce3d9ce478245643edd7c6f4', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 5, 1, '2018-07-13 15:35:25', '2018-07-13 15:35:25', 0, '2018-07-13 15:35:25', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 'ProstGrp1User1', 'Prostate Bank Group 1 User 1', '', '4add314fb94d06f8ce3d9ce478245643edd7c6f4', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 6, 1, '2018-07-13 17:05:33', '2018-07-13 17:05:33', 0, '2018-07-13 17:05:33',0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Collection Protocol and Template
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO `collection_protocols` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `created_by`, `last_activation_date`) VALUES
-(1, 0, 'Breast Bank Prot#2453', 'user', 'user', 1, 1, 1, 1, '2018-05-17'),
-(2, 0, 'Blood Prot#0575', 'user', 'user', 1, 1, 1, 1, '2018-05-17');
+INSERT INTO `collection_protocols` (`id`, `flag_system`, `name`, `owner`, user_id, group_id, `visibility`, `flag_active`, `last_activation_date`) VALUES
+(1, 0, 'Prot#2453', 'user', 1, 1, 'user', 1, '2018-05-17'),
+(2, 0, 'Blood Prot#0575', 'user', 1, 1, 'user', 1, '2018-05-17');
 
 INSERT INTO `collection_protocol_visits` (`id`, `collection_protocol_id`, `template_id`, `name`, `default_values`, `time_from_first_visit`, `time_from_first_visit_unit`, `first_visit`, `created_by`) VALUES
 (1, 1, 2, 'BR-V1', '{"Collection":{"acquisition_label":"BR Visit1 - Tissue","bank_id":"3","collection_site":"surg  room 2","collection_datetime":{"month":"","day":"","year":"2018","hour":"","min":""},"sop_master_id":"1"}}', 0, 'day', 1, 1),
@@ -3002,10 +3113,10 @@ INSERT INTO `collection_protocol_visits` (`id`, `collection_protocol_id`, `templ
 (9, 2, 1, '2', '{"Collection":{"acquisition_label":"Bood - v2","bank_id":"2","collection_site":"surg room 1","collection_datetime":{"month":"","day":"","year":"","hour":"","min":""}}}', 1, 'month', 0, 1),
 (10, 2, 1, '3', '{"Collection":{"acquisition_label":"Bood - v3","bank_id":"2","collection_site":"surg room 1","collection_datetime":{"month":"","day":"","year":"","hour":"","min":""}}}', 2, 'month', 0, 1);
 
-INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `created_by`, `last_activation_date`) VALUES
-(1, 0, 'Blood', 'user', 'user', 1, 1, 1, 1, '2018-05-17'),
-(2, 0, 'Tissue', 'user', 'user', 1, 1, 1, 1, '2018-05-17'),
-(3, 0, 'Urine', 'user', 'user', 1, 1, 1, 1, '2018-05-17');
+INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, user_id, group_id, `visibility`, `flag_active`, `last_activation_date`) VALUES
+(1, 0, 'Blood', 'user', 1, 1, 'user', 1, '2018-05-17'),
+(2, 0, 'Tissue', 'user', 1, 1, 'user', 1, '2018-05-17'),
+(3, 0, 'Urine', 'user', 1, 1, 'user', 1, '2018-05-17');
 
 INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`, `default_values`) VALUES
 (1, NULL, 1, 5, 2, 1, '{"SpecimenDetail":{"supplier_dept":"Surgery Room","reception_by":"res. assist. 1","time_at_room_temp_mn":"5"},"SampleDetail":{"blood_type":"EDTA","collected_tube_nbr":"5"}}'),

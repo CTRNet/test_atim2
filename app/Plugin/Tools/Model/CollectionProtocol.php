@@ -44,10 +44,10 @@ class CollectionProtocol extends ToolsAppModel
      *
      * @return array List of protocols
      */
-    public function getProtocolsList($useDefinition = 'protocol use')
+    public function getProtocolsList($useDefinition = 'use')
     {
         if (empty($useDefinition)) {
-            $useDefinition = 'protocol use';
+            $useDefinition = 'use';
         }
         $visibleProtocols = $this->getTools($useDefinition);
         $protocolsList = array();

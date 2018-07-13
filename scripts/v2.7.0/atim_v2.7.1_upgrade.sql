@@ -336,7 +336,7 @@ ALTER TABLE `collection_protocol_visits`
 INSERT INTO structures(`alias`) VALUES ('collection_protocol_visit');
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
-('collection_protocol_template_all', "Tools.Template::getTemplatesList('template all')"),
+('collection_protocol_template_all', "Tools.Template::getTemplatesList('all')"),
 ('collection_protocol_template', "Tools.Template::getTemplatesList"),
 ("time_from_first_visit_unit", NULL);
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("day", "day"),('week','week');
@@ -420,7 +420,7 @@ ALTER TABLE `collections`
 
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
-('collection_protocols', "Tools.CollectionProtocol::getProtocolsList('protocol all')");
+('collection_protocols', "Tools.CollectionProtocol::getProtocolsList('all')");
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'ViewCollection', '', 'collection_protocol_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') , '0', '', '', '', 'protocol', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -863,9 +863,14 @@ VALUES
 INSERT IGNORE INTO 
 i18n (id,en,fr)
 VALUES
+('you do not own that protocol','You do not own that protocol',"Vous n'êtes pas propiétaire du protocole"),
+('data can not be changed', 'Data can not be changed', "Les données ne peuvent pas être modifiées"),
 ('click on submit button of the main form to record the default values', 
 "Please don't forget to click on submit button of the main form to record any default value entered or updated",
 "Veuillez ne pas oublier de cliquer sur le bouton 'Envoyer' du formulaire principal pour enregistrer toute valeur par défaut saisie ou mise à jour"),
+('click on submit button of the main form to save the loaded records', 
+"Please don't forget to click on submit button of the main form to record any aliquot entered or updated",
+"Veuillez ne pas oublier de cliquer sur le bouton 'Envoyer' du formulaire principal pour enregistrer toute aliquot saisie ou mise à jour"),
 ('edit modified order items to remove any information about the return', 'Please edit modified order items to remove any information about the return.', "Veuillez modifier les éléments de commande modifiés pour supprimer toute information sur le retour."),
 ('copy for new storage control', 'Copy for New Type', 'Copier pour nouveau type'),
 ('number of data', 'Number of Data', 'Nombre de données'),
@@ -891,6 +896,52 @@ VALUES
 'The update of the order items data will be limited to the items selected to be defined as returned',
 "La mise à jour des données des articles de commande sera limitée aux articles sélectionnés pour être définis comme retournés");
 	
+-- -------------------------------------------------------------------------------------
+--	Issue #3614: Unbale to edit protocol created by another user - Validate and change 
+--    rules to use or edit a collection template or protocol
+--    Review protocol owner/use/etc
+-- -------------------------------------------------------------------------------------
+
+-- Add bank level to sharing value domain
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="bank");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="all");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("group", "group");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="sharing"), (SELECT id FROM structure_permissible_values WHERE value="group" AND language_alias="group"), "2", "1");
+
+-- Add user id and group id to tables templates and collection_protocols;
+-- Remove owning_entity_id, visible_entity_id, created_by
+
+ALTER TABLE templates
+   ADD COLUMN `user_id` int(11) NOT NULL AFTER owner,
+   ADD COLUMN `group_id` int(11) NOT NULL AFTER user_id;
+UPDATE templates, users
+SET user_id = users.id,
+templates.group_id = users.group_id
+WHERE templates.created_by = users.id;
+ALTER TABLE templates
+   ADD CONSTRAINT `templates_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+   ADD CONSTRAINT `templates_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`);
+ALTER TABLE templates
+   DROP COLUMN owning_entity_id,
+   DROP COLUMN visible_entity_id,
+   DROP COLUMN created_by;
+
+ALTER TABLE collection_protocols
+   ADD COLUMN `user_id` int(11) NOT NULL AFTER owner,
+   ADD COLUMN `group_id` int(11) NOT NULL AFTER user_id;
+UPDATE collection_protocols, users
+SET user_id = users.id,
+collection_protocols.group_id = users.group_id
+WHERE collection_protocols.created_by = users.id;
+ALTER TABLE collection_protocols
+   ADD CONSTRAINT `collection_protocols_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+   ADD CONSTRAINT `collection_protocols_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`);
+ALTER TABLE collection_protocols
+	DROP COLUMN owning_entity_id,
+	DROP COLUMN visible_entity_id,
+	DROP COLUMN created_by;
+
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 

@@ -169,7 +169,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             'Participant.id' => $participantId
         ));
         
-        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('protocol use'));
+        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('use'));
         
         // BUILD COLLECTION CONTENT TREE VIEW
         
@@ -259,8 +259,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         $this->set('collectionId', isset($this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null);
         // Set collection protocol
         if ($collectionProtocolId) {
-            pr('la');
-            $collectionProtocolLists = $this->CollectionProtocol->getProtocolsList('protocol use');
+            $collectionProtocolLists = $this->CollectionProtocol->getProtocolsList('use');
             if (! array_key_exists($collectionProtocolId, $collectionProtocolLists)) {
                 AppController::addWarningMsg(__("you don't have permission to use the protocol"));
                 $collectionProtocolId = null;
