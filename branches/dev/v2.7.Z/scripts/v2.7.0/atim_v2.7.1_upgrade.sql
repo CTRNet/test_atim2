@@ -891,6 +891,52 @@ VALUES
 'The update of the order items data will be limited to the items selected to be defined as returned',
 "La mise à jour des données des articles de commande sera limitée aux articles sélectionnés pour être définis comme retournés");
 	
+-- -------------------------------------------------------------------------------------
+--	Issue #3614: Unbale to edit protocol created by another user - Validate and change 
+--    rules to use or edit a collection template or protocol
+--    Review protocol owner/use/etc
+-- -------------------------------------------------------------------------------------
+
+-- Add bank level to sharing value domain
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="bank");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="all");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("group", "group");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="sharing"), (SELECT id FROM structure_permissible_values WHERE value="group" AND language_alias="group"), "2", "1");
+
+-- Add user id and group id to tables templates and collection_protocols;
+-- Remove owning_entity_id, visible_entity_id, created_by
+
+ALTER TABLE templates
+   ADD COLUMN `user_id` int(11) NOT NULL AFTER owner,
+   ADD COLUMN `group_id` int(11) NOT NULL AFTER user_id;
+UPDATE templates, users
+SET user_id = users.id,
+templates.group_id = users.group_id
+WHERE templates.created_by = users.id;
+ALTER TABLE templates
+   ADD CONSTRAINT `templates_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+   ADD CONSTRAINT `templates_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`);
+ALTER TABLE templates
+   DROP COLUMN owning_entity_id,
+   DROP COLUMN visible_entity_id,
+   DROP COLUMN created_by;
+
+ALTER TABLE collection_protocols
+   ADD COLUMN `user_id` int(11) NOT NULL AFTER owner,
+   ADD COLUMN `group_id` int(11) NOT NULL AFTER user_id;
+UPDATE collection_protocols, users
+SET user_id = users.id,
+collection_protocols.group_id = users.group_id
+WHERE collection_protocols.created_by = users.id;
+ALTER TABLE collection_protocols
+   ADD CONSTRAINT `collection_protocols_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+   ADD CONSTRAINT `collection_protocols_groups` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`);
+ALTER TABLE collection_protocols
+	DROP COLUMN owning_entity_id,
+	DROP COLUMN visible_entity_id,
+	DROP COLUMN created_by;
+
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
