@@ -121,11 +121,12 @@ class ShellHelper extends AppHelper
             $loggedIn = false;
         }
         $return .= "<fieldset class='mainFieldset'>"; // the fieldset is present to manage the display for wide forms such as addgrids
+        $headerClass = (Configure::read("prod")) ? "prod" : "test";
         $return .= '
 			<!-- start #header -->
 			<div id="header"><div>
 				<h1>' . __('core_appname') . '</h1>
-				<h2>' . __('core_installname') . '</h2>
+				<h2 class = "'.$headerClass.'">' . __('core_installname') . '</h2>
 				' . $rootMenuForHeader . '
 			</div></div>
 			<!-- end #header -->

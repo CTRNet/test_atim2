@@ -18,6 +18,7 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 $debug = 0;
+$prod = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -32,6 +33,7 @@ $debug = 0;
  * In development mode, you need to click the flash message to continue.
  */
 Configure::write('debug', $debug);
+Configure::write('prod', $prod);
 
 /**
  * Configure the Error handler used to handle errors for your application.
