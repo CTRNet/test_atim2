@@ -21,7 +21,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         'ClinicalAnnotation.TreatmentMaster',
         'ClinicalAnnotation.MiscIdentifierControl',
         'Codingicd.CodingIcd10Who',
-        'Codingicd.CodingIcd10Ca'
+        'Codingicd.CodingIcd10Ca',
+        
+        'Tools.CollectionProtocol'
     );
 
     public $paginate = array(
@@ -124,6 +126,8 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
         $this->set('identifierControlsList', $identifierControlsList);
         $this->Structures->set('empty', 'emptyStructure');
+        
+        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('use'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
