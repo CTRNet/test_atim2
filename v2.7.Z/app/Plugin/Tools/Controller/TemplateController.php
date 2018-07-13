@@ -75,8 +75,13 @@ class TemplateController extends ToolsAppController
         if (! empty($this->request->data)) {
             $submittedDataValidates = true;
             
-            $this->Template->setOwnerAndVisibility($this->request->data);
-            
+            $this->Template->setOwner($this->request->data);
+            $this->request->data['Template']['user_id'] = AppController::getInstance()->Session->read('Auth.User.id');
+            $this->request->data['Template']['group_id'] = AppController::getInstance()->Session->read('Auth.User.group_id');
+            $this->Template->addWritableField(array(
+                'user_id',
+                'group_id'
+            ));
             if ($this->request->data['Template']['flag_active']) {
                 $this->request->data['Template']['last_activation_date'] = date('Y-m-d');
                 $this->Template->addWritableField(array(
@@ -287,7 +292,7 @@ class TemplateController extends ToolsAppController
     public function editProperties($templateId)
     {
         $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData)){
+        if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {
@@ -311,7 +316,7 @@ class TemplateController extends ToolsAppController
         } else {
             $submittedDataValidates = true;
             
-            $this->Template->setOwnerAndVisibility($this->request->data, $templateData['Template']['created_by']);
+            $this->Template->setOwner($this->request->data);
             
             if (! $templateData['Template']['flag_active'] && $this->request->data['Template']['flag_active']) {
                 $this->request->data['Template']['last_activation_date'] = date('Y-m-d');
@@ -346,9 +351,9 @@ class TemplateController extends ToolsAppController
     public function delete($templateId)
     {
         $templateData = $this->Template->getOrRedirect($templateId);
-
+        
         $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData)){
+        if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {

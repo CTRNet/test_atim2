@@ -133,10 +133,15 @@ class CollectionProtocolController extends ToolsAppController
             // LAUNCH SAVE PROCESS
             
             if ($submittedDataValidates) {
+                
                 // Set additional protocol data and save
-                
-                $this->CollectionProtocol->setOwnerAndVisibility($collectionProtocolData);
-                
+                $this->CollectionProtocol->setOwner($collectionProtocolData);
+                $collectionProtocolData['CollectionProtocol']['user_id'] = AppController::getInstance()->Session->read('Auth.User.id');
+                $collectionProtocolData['CollectionProtocol']['group_id'] = AppController::getInstance()->Session->read('Auth.User.group_id');
+                $this->CollectionProtocol->addWritableField(array(
+                    'user_id',
+                    'group_id'
+                ));
                 if ($collectionProtocolData['CollectionProtocol']['flag_active']) {
                     $collectionProtocolData['CollectionProtocol']['last_activation_date'] = date('Y-m-d');
                     $this->CollectionProtocol->addWritableField(array(
@@ -214,8 +219,7 @@ class CollectionProtocolController extends ToolsAppController
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
             $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
         }
-
-
+        
         $this->set('collectionProtocolData', $collectionProtocolData);
         $collectionProtocolVisitData = $this->CollectionProtocolVisit->find('all', array(
             'conditions' => array(
@@ -388,7 +392,7 @@ class CollectionProtocolController extends ToolsAppController
                 
                 // Set additional protocol data and save
                 
-                $this->CollectionProtocol->setOwnerAndVisibility($collectionProtocolData);
+                $this->CollectionProtocol->setOwner($collectionProtocolData);
                 
                 if (! $initialCollectionProtocolData['CollectionProtocol']['flag_active'] && $collectionProtocolData['CollectionProtocol']['flag_active']) {
                     $collectionProtocolData['CollectionProtocol']['last_activation_date'] = date('Y-m-d');

@@ -8,8 +8,9 @@ class ToolsAppModel extends AppModel
 
     public static $sharing = array(
         'user' => 0,
-        'bank' => 1,
-        'all' => 2
+        'group' => 1,
+        'bank' => 2,
+        'all' => 3
     );
 
     private $collectionToolsStructuresFields = array();
@@ -17,7 +18,31 @@ class ToolsAppModel extends AppModel
     /**
      * Get template(s) or Collection Protocols list based on use definition.
      * When $toolId is set, system defined if tool properties can be edited or not by the user.
-     * (Only user who created the template/collection protocol or administrators can change template properties or delete the tool)
+     *
+     * Rules:
+     * ## 1 - Edition
+     * . A tool can only be edited when this one is not a system tool (flag_system != 1 - this rule is apply to all following rules)
+     * . An administrator can edit all tools
+     * . A user can edit all tools he created
+     * . A tool with owner equal to 'user' can only be edited by user who created the tool (and the administrators)
+     * . A tool with owner equal to 'group' can only be edited by the users of the group of the user who created the tool (and the administrators)
+     * (Note: If the user changed from group, the group to consider is the group the user was linked the day of the tool creation)
+     * . A tool with owner equal to 'bank' can only be edited by
+     * either the users of groups linked to the same bank than the group of the user who created the tool
+     * or by the users of the group of the user who created the tool (in case group is not linked to a bank)
+     * (or the administrators)
+     * (Note: If the user changed from group, the group to consider is the group the user was linked the day of the tool creation)
+     * . A tool with owner equal to 'all' can be edited by all user
+     * ## 2 - Use
+     * . A tool can only be used when this one is active (flag_active = 1 - this rule is apply to all following rules)
+     * . A tool with visibility equal to 'user' can only be used by user who created the tool
+     * . A tool with visibility equal to 'group' by the users of the group of the user who created the tool
+     * (Note: If the user changed from group, the group to consider is the group the user was linked the day of the tool creation)
+     * . A tool with visibility equal to 'bank' can only be used by
+     * either the users of groups linked to the same bank than the group of the user who created the tool
+     * or by the users of the group of the user who created the tool (in case group is not linked to a bank)
+     * (Note: If the user changed from group, the group to consider is the group the user was linked the day of the tool creation)
+     * . A tool with visibility equal to 'all' can be used by all users
      *
      * @param string $useDefintion
      * @param null $toolId
@@ -38,6 +63,25 @@ class ToolsAppModel extends AppModel
             $useDefintion = $useDefintion[0];
         }
         
+        $userBankId = AppController::getInstance()->Session->read('Auth.User.Group.bank_id');
+        $userBankGroupIds = array(
+            '-1'
+        );
+        if ($userBankId) {
+            // $groupModel = AppModel::getInstance('', 'Group', true);
+            // $tmpGroupIds = $groupModel->find('all', array(
+            // 'conditions' => array('Group.bank_id' => $userBankId),
+            // 'fields' => array(
+            // "GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids"
+            // )));
+            // Note: Code above does not work
+            $query = "SELECT GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids FROM groups AS `Group` WHERE Group.bank_id = $userBankId AND Group.deleted != 1";
+            $tmpBankGroupIds = $this->query($query);
+            if ($tmpBankGroupIds) {
+                $userBankGroupIds = explode(',', $tmpBankGroupIds[0][0]['ids']);
+            }
+        }
+        
         $conditions = array();
         $findType = $toolId ? 'first' : 'all';
         switch ($useDefintion) {
@@ -48,28 +92,38 @@ class ToolsAppModel extends AppModel
             
             case 'template edition':
             case 'protocol edition':
-                $conditions = array(
+                $conditions = (AppController::getInstance()->Session->read('Auth.User.group_id') == '1') ? 
+                // Admin can work on all templates
+                array() : 
+                // Set specific conditions for non admin group
+                array(
                     'OR' => array(
                         array(
+                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                        ),
+                        array(
                             $modelName . '.owner' => 'user',
-                            $modelName . '.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                        ),
+                        // Bank owner condition added if group of the user is not linked to a bank
+                        array(
+                            $modelName . '.owner' => array(
+                                'group',
+                                'bank'
+                            ),
+                            $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
                         ),
                         array(
                             $modelName . '.owner' => 'bank',
-                            $modelName . '.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                            $modelName . '.group_id' => $userBankGroupIds
                         ),
                         array(
                             $modelName . '.owner' => 'all'
-                        ),
-                        array(
-                            $modelName . '.visibility' => 'all'
                         )
                     ),
                     // Both active and inactive template
                     $modelName . '.flag_system' => false
                 );
-                if (AppController::getInstance()->Session->read('Auth.User.group_id') == '1')
-                    unset($conditions['OR']); // Admin can work on all templates
                 if ($toolId)
                     $conditions[$modelName . '.id'] = $toolId;
                 break;
@@ -80,11 +134,19 @@ class ToolsAppModel extends AppModel
                     'OR' => array(
                         array(
                             $modelName . '.visibility' => 'user',
-                            $modelName . '.visible_entity_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                        ),
+                        // Bank visibility condition added if group of the user is not linked to a bank
+                        array(
+                            $modelName . '.visibility' => array(
+                                'group',
+                                'bank'
+                            ),
+                            $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
                         ),
                         array(
                             $modelName . '.visibility' => 'bank',
-                            $modelName . '.visible_entity_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                            $modelName . '.group_id' => $userBankGroupIds
                         ),
                         array(
                             $modelName . '.visibility' => 'all'
@@ -101,24 +163,23 @@ class ToolsAppModel extends AppModel
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $templates = $this->find($findType, array(
+        $tools = $this->find($findType, array(
             'conditions' => $conditions
         ));
-        if ($templates && $findType == 'first') {
-            $templates[$modelName]['allow_properties_edition'] = ((AppController::getInstance()->Session->read('Auth.User.group_id') == 1) || (AppController::getInstance()->Session->read('Auth.User.id') == $templates[$modelName]['created_by']));
-        }
-        return $templates;
+        
+        $tools[$modelName]['allow_properties_edition'] = ($tools && $findType == 'first') ? true : false;
+        
+        return $tools;
     }
 
     /**
-     * Complete the fields 'owning_entity_id' and 'visible_entity_id' of the recorded tool.
+     * Validate and set owner value.
      *
      * @param array $toolData Data of the recorded template or collection protocol
-     * @param integer $createdBy Id of the user who is creating the record
      *       
      * @return null
      */
-    public function setOwnerAndVisibility(&$toolData, $createdBy = null)
+    public function setOwner(&$toolData)
     {
         $modelName = $this->name;
         if (! in_array($modelName, array(
@@ -132,62 +193,6 @@ class ToolsAppModel extends AppModel
             $toolData[$modelName]['owner'] = $toolData[$modelName]['visibility'];
             AppController::addWarningMsg(__('visibility reduced to owner level'));
         }
-        
-        // Get tool user & group ids--------------
-        $templateUserId = AppController::getInstance()->Session->read('Auth.User.id');
-        $templateGroupId = AppController::getInstance()->Session->read('Auth.User.group_id');
-        if ($createdBy && $createdBy != $templateUserId) {
-            // Get real tool owner and group in case admiistrator is changing data
-            $templateUserId = $createdBy;
-            
-            $userModel = AppModel::getInstance("", "User", true);
-            $templateUserData = $userModel->find('first', array(
-                'conditions' => array(
-                    'User.id' => $createdBy,
-                    'User.deleted' => array(
-                        0,
-                        1
-                    )
-                )
-            ));
-            $templateUserId = $templateUserData['User']['id'];
-            $templateGroupId = $templateUserData['Group']['id'];
-        }
-        
-        // update entities----------
-        $toolData[$modelName]['owning_entity_id'] = null;
-        $toolData[$modelName]['visible_entity_id'] = null;
-        $tmp = array(
-            'owner' => array(
-                $toolData[$modelName]['owner'] => &$toolData[$modelName]['owning_entity_id']
-            ),
-            'visibility' => array(
-                $toolData[$modelName]['visibility'] => &$toolData[$modelName]['visible_entity_id']
-            )
-        );
-        
-        foreach ($tmp as $level) {
-            foreach ($level as $sharing => &$value) {
-                switch ($sharing) {
-                    case "user":
-                        $value = $templateUserId;
-                        break;
-                    case "bank":
-                        $value = $templateGroupId;
-                        break;
-                    case "all":
-                        $value = '0';
-                        break;
-                    default:
-                        AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
-            }
-        }
-        
-        $this->addWritableField(array(
-            'owning_entity_id',
-            'visible_entity_id'
-        ));
     }
 
     /**
