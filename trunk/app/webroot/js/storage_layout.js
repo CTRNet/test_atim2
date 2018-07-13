@@ -189,8 +189,9 @@ function csvOpen(e) {
                 data = data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 var $html = $('<div />', {html: data});
                 $html.find(".actions").eq(0).remove();
+                $html.find("div.descriptive_heading").css("margin", "0");
                 $html.find(".pop-up-csv-barcode li").each(function () {
-                    if ($(this).attr("data-aliquot")!=""){
+                    if (typeof $(this).attr("data-aliquot")!=='undefined' && $(this).attr("data-aliquot")!=""){
                         barcodeNumber = $.parseJSON($(this).attr("data-aliquot"))["barcode"];
                         message = $.parseJSON($(this).attr("data-aliquot"))["message"];
                         dupMessage = DUPLICATED_ALIQUOT;
@@ -295,7 +296,7 @@ function csvToLayout(){
     for (var i = 0; i < warnings.length; i++) {
         var aliquotData = $.parseJSON($(warnings[i]).attr("data-aliquot"));
         aliquotClass = "warning-aliquot";
-        if (aliquotData["OK"]==0){
+        if (aliquotData==null || typeof aliquotData["OK"] !== "undefined" || aliquotData["OK"]==0){
             continue;
         }
         var li = $('<div />', {html: $html});

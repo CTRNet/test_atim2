@@ -42,7 +42,7 @@ class TemplateController extends ToolsAppController
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/listProtocolsAndTemplates'));
         $this->Structures->set('template');
         
-        $templates = $this->Template->getTools('template edition');
+        $templates = $this->Template->getTools('list all');
         $templateIds = array();
         foreach ($templates as $newTemplate) {
             $templateIds[] = $newTemplate['Template']['id'];
@@ -75,8 +75,13 @@ class TemplateController extends ToolsAppController
         if (! empty($this->request->data)) {
             $submittedDataValidates = true;
             
-            $this->Template->setOwnerAndVisibility($this->request->data);
-            
+            $this->Template->setOwner($this->request->data);
+            $this->request->data['Template']['user_id'] = AppController::getInstance()->Session->read('Auth.User.id');
+            $this->request->data['Template']['group_id'] = AppController::getInstance()->Session->read('Auth.User.group_id');
+            $this->Template->addWritableField(array(
+                'user_id',
+                'group_id'
+            ));
             if ($this->request->data['Template']['flag_active']) {
                 $this->request->data['Template']['last_activation_date'] = date('Y-m-d');
                 $this->Template->addWritableField(array(
@@ -115,9 +120,9 @@ class TemplateController extends ToolsAppController
         // validate access
         $templateData = $this->Template->getOrRedirect($templateId);
         
-        $tmpTemplate = $this->Template->getTools('template edition', $templateId);
-        if (empty($tmpTemplate)) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+        $tmpTemplate = $this->Template->getTools('edition', $templateId);
+        if (! $tmpTemplate['Template']['allow_properties_edition']) {
+            AppController::addWarningMsg(__('you do not own that template'));
         }
         
         // js menus required data-------
@@ -173,6 +178,8 @@ class TemplateController extends ToolsAppController
                 Configure::write('debug', 0);
                 $this->request->data['Template']['id'] = $templateId;
                 $this->set('isAjax', true);
+            } elseif (! $tmpTemplate['Template']['allow_properties_edition']) {
+                AppController::addWarningMsg(__('data can not be changed'));
             } else {
                 // non ajax is made to save the tree
                 $tree = json_decode('[' . $this->request->data['tree'] . ']');
@@ -256,7 +263,7 @@ class TemplateController extends ToolsAppController
         
         // loading tree and setting variables
         $this->Template->id = $templateId;
-        $this->request->data = $tmpTemplate;
+        $this->request->data = $templateData;
         $this->set('editProperties', $tmpTemplate['Template']['allow_properties_edition']);
         $tree = $this->Template->init($this->Structures);
         $this->set('treeData', $tree['']);
@@ -286,12 +293,12 @@ class TemplateController extends ToolsAppController
      */
     public function editProperties($templateId)
     {
-        $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData)){
+        $templateData = $this->Template->getTools('edition', $templateId);
+        if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/Template/edit/' . $templateId);
             return;
         }
         
@@ -311,7 +318,7 @@ class TemplateController extends ToolsAppController
         } else {
             $submittedDataValidates = true;
             
-            $this->Template->setOwnerAndVisibility($this->request->data, $templateData['Template']['created_by']);
+            $this->Template->setOwner($this->request->data);
             
             if (! $templateData['Template']['flag_active'] && $this->request->data['Template']['flag_active']) {
                 $this->request->data['Template']['last_activation_date'] = date('Y-m-d');
@@ -346,13 +353,13 @@ class TemplateController extends ToolsAppController
     public function delete($templateId)
     {
         $templateData = $this->Template->getOrRedirect($templateId);
-
-        $templateData = $this->Template->getTools('template edition', $templateId);
-        if (empty($templateData)){
+        
+        $templateData = $this->Template->getTools('edition', $templateId);
+        if (empty($templateData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         if (! $templateData['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/Template/edit/' . $templateId);
             return;
         }
         

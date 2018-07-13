@@ -24,12 +24,7 @@ if ($csvArrayData["valid"]) {
         
     }
     ?>
-		<ul class="warning">
-            <li data-aliquot= "" title="" >
-                <b><?php echo __("click on submit button of the main form to record the default values");?></b>
-            </li>
-	</ul>
-		<ul class="confirm hidden-ul">
+        <ul class="confirm hidden-ul">
             <li data-aliquot= "" title="<?php echo __("analyzed = %d\nok = %d\nwarning = %d\nerror = %d", $numTotal, $numConfirm, $numWarning, $numError); ?>" >
                 <b><?php echo __("number of aliquots analyzed = %d, validated = %d, warning = %d, error = %d", $numTotal, $numConfirm, $numWarning, $numError);?></b>
             </li>
@@ -111,4 +106,7 @@ if ($csvArrayData["valid"]) {
 $finalOptions = array(
     'links' => $structureLinks
 );
+    AppController::addWarningMsg('click on submit button of the main form to save the loaded records');
+    AppController::forceMsgDisplayInPopup();
+
 $this->Structures->build($finalAtimStructure, $finalOptions);

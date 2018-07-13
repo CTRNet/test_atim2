@@ -28,7 +28,7 @@ class CollectionProtocolController extends ToolsAppController
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/listProtocolsAndTemplates'));
         $this->Structures->set('collection_protocol');
         
-        $protocols = $this->CollectionProtocol->getTools('protocol edition');
+        $protocols = $this->CollectionProtocol->getTools('list all');
         $protocolIds = array();
         foreach ($protocols as $newTemplate) {
             $protocolIds[] = $newTemplate['CollectionProtocol']['id'];
@@ -133,10 +133,15 @@ class CollectionProtocolController extends ToolsAppController
             // LAUNCH SAVE PROCESS
             
             if ($submittedDataValidates) {
+                
                 // Set additional protocol data and save
-                
-                $this->CollectionProtocol->setOwnerAndVisibility($collectionProtocolData);
-                
+                $this->CollectionProtocol->setOwner($collectionProtocolData);
+                $collectionProtocolData['CollectionProtocol']['user_id'] = AppController::getInstance()->Session->read('Auth.User.id');
+                $collectionProtocolData['CollectionProtocol']['group_id'] = AppController::getInstance()->Session->read('Auth.User.group_id');
+                $this->CollectionProtocol->addWritableField(array(
+                    'user_id',
+                    'group_id'
+                ));
                 if ($collectionProtocolData['CollectionProtocol']['flag_active']) {
                     $collectionProtocolData['CollectionProtocol']['last_activation_date'] = date('Y-m-d');
                     $this->CollectionProtocol->addWritableField(array(
@@ -207,15 +212,14 @@ class CollectionProtocolController extends ToolsAppController
     public function detail($collectionProtocolId)
     {
         
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
+        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
+            AppController::addWarningMsg(__('you do not own that protocol'));
+        }
+        
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
         
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
-        if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
-        }
-
-
         $this->set('collectionProtocolData', $collectionProtocolData);
         $collectionProtocolVisitData = $this->CollectionProtocolVisit->find('all', array(
             'conditions' => array(
@@ -257,9 +261,9 @@ class CollectionProtocolController extends ToolsAppController
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
         
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/CollectionProtocol/detail/' . $collectionProtocolId);
         }
         $this->set('collectionProtocolData', $collectionProtocolData);
         $initialCollectionProtocolData = $collectionProtocolData;
@@ -269,9 +273,9 @@ class CollectionProtocolController extends ToolsAppController
                 'CollectionProtocolVisit.collection_protocol_id' => $collectionProtocolId
             )
         ));
-        $activeTemplateIds = $this->Template->getTemplatesList($useDefinition = 'template use');
+        $activeTemplateIds = $this->Template->getTemplatesList('use');
         $activeTemplateIds = array_keys($activeTemplateIds);
-        $activeTemplateAll = $this->Template->getTemplatesList($useDefinition = 'template all');
+        $activeTemplateAll = $this->Template->getTemplatesList('all');
         $displayTemplateWarning = false;
         foreach ($collectionProtocolVisitData as &$tmpProtocolVisitData) {
             if (strlen($tmpProtocolVisitData['CollectionProtocolVisit']['default_values'])) {
@@ -388,7 +392,7 @@ class CollectionProtocolController extends ToolsAppController
                 
                 // Set additional protocol data and save
                 
-                $this->CollectionProtocol->setOwnerAndVisibility($collectionProtocolData);
+                $this->CollectionProtocol->setOwner($collectionProtocolData);
                 
                 if (! $initialCollectionProtocolData['CollectionProtocol']['flag_active'] && $collectionProtocolData['CollectionProtocol']['flag_active']) {
                     $collectionProtocolData['CollectionProtocol']['last_activation_date'] = date('Y-m-d');
@@ -497,9 +501,9 @@ class CollectionProtocolController extends ToolsAppController
         // MANAGE DATA
         $collectionProtocolData = $this->CollectionProtocol->getOrRedirect($collectionProtocolId);
         
-        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('protocol edition', $collectionProtocolId);
+        $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
-            $this->atimFlashWarning(__('you do not own that protocol'), '/Tools/Template/listProtocolsAndTemplates/');
+            $this->atimFlashWarning(__('data can not be changed'), '/Tools/CollectionProtocol/detail/' . $collectionProtocolId);
         }
         
         $visitsToDelete = $this->CollectionProtocolVisit->find('list', array(
