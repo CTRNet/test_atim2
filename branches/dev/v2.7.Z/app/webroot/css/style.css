@@ -130,6 +130,14 @@ fieldset.mainFieldset {
 	margin-top: 10px;
 }
 
+#header h2.prod{
+    color: white;
+}
+
+#header h2.test{
+    color: red;
+}
+
 div.wrapper div:not(.browsable.info){
 margin:0;
 padding:0;
