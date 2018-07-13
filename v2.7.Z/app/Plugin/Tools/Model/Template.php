@@ -50,7 +50,7 @@ class Template extends ToolsAppModel
      */
     public function getAddFromTemplateMenu($collectionId, $collectionTempalteId = null)
     {
-        $visibleNodes = $this->getTools('template use');
+        $visibleNodes = $this->getTools('use');
         $options['empty template'] = array(
             'icon' => 'add',
             'link' => '/InventoryManagement/Collections/template/' . $collectionId . '/0'
@@ -78,10 +78,10 @@ class Template extends ToolsAppModel
      *
      * @return array List of template
      */
-    public function getTemplatesList($useDefinition = 'template use')
+    public function getTemplatesList($useDefinition = 'use')
     {
         if (empty($useDefinition)) {
-            $useDefinition = 'template use';
+            $useDefinition = 'use';
         }
         $visibleNodes = $this->getTools($useDefinition);
         $templatesList = array();

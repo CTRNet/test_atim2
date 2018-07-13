@@ -82,92 +82,99 @@ class ToolsAppModel extends AppModel
             }
         }
         
-        $conditions = array();
-        $findType = $toolId ? 'first' : 'all';
-        switch ($useDefintion) {
-            case 'template all':
-            case 'protocol all':
-                // No condition
-                break;
-            
-            case 'template edition':
-            case 'protocol edition':
-                $conditions = (AppController::getInstance()->Session->read('Auth.User.group_id') == '1') ? 
-                // Admin can work on all templates
-                array() : 
-                // Set specific conditions for non admin group
-                array(
-                    'OR' => array(
-                        array(
-                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
-                        ),
-                        array(
-                            $modelName . '.owner' => 'user',
-                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
-                        ),
-                        // Bank owner condition added if group of the user is not linked to a bank
-                        array(
-                            $modelName . '.owner' => array(
-                                'group',
-                                'bank'
-                            ),
-                            $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
-                        ),
-                        array(
-                            $modelName . '.owner' => 'bank',
-                            $modelName . '.group_id' => $userBankGroupIds
-                        ),
-                        array(
-                            $modelName . '.owner' => 'all'
-                        )
+        // Conditions
+        
+        $allConditions = array();
+        
+        $allConditions['all'] = array();
+        
+        $allConditions['edition'] = (AppController::getInstance()->Session->read('Auth.User.group_id') == '1') ?
+            // Admin can work on all templates
+            array() :
+            // Set specific conditions for non admin group
+            array(
+                'OR' => array(
+                    array(
+                        $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
                     ),
-                    // Both active and inactive template
-                    $modelName . '.flag_system' => false
-                );
-                if ($toolId)
-                    $conditions[$modelName . '.id'] = $toolId;
-                break;
-            
-            case 'template use':
-            case 'protocol use':
-                $conditions = array(
-                    'OR' => array(
-                        array(
-                            $modelName . '.visibility' => 'user',
-                            $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
-                        ),
-                        // Bank visibility condition added if group of the user is not linked to a bank
-                        array(
-                            $modelName . '.visibility' => array(
-                                'group',
-                                'bank'
-                            ),
-                            $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
-                        ),
-                        array(
-                            $modelName . '.visibility' => 'bank',
-                            $modelName . '.group_id' => $userBankGroupIds
-                        ),
-                        array(
-                            $modelName . '.visibility' => 'all'
-                        ),
-                        array(
-                            $modelName . '.flag_system' => true
-                        )
+                    array(
+                        $modelName . '.owner' => 'user',
+                        $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
                     ),
-                    $modelName . '.flag_active' => 1
-                );
-                break;
-            
-            default:
-                AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                    // Bank owner condition added if group of the user is not linked to a bank
+                    array(
+                        $modelName . '.owner' => array(
+                            'group',
+                            'bank'
+                        ),
+                        $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                    ),
+                    array(
+                        $modelName . '.owner' => 'bank',
+                        $modelName . '.group_id' => $userBankGroupIds
+                    ),
+                    array(
+                        $modelName . '.owner' => 'all'
+                    )
+                ),
+                // Both active and inactive template
+                $modelName . '.flag_system' => false
+            );
+        if ($toolId) {
+            $allConditions['edition'][$modelName . '.id'] = $toolId;
         }
+        
+        $allConditions['use'] = array(
+            'OR' => array(
+                array(
+                    $modelName . '.visibility' => 'user',
+                    $modelName . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
+                ),
+                // Bank visibility condition added if group of the user is not linked to a bank
+                array(
+                    $modelName . '.visibility' => array(
+                        'group',
+                        'bank'
+                    ),
+                    $modelName . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                ),
+                array(
+                    $modelName . '.visibility' => 'bank',
+                    $modelName . '.group_id' => $userBankGroupIds
+                ),
+                array(
+                    $modelName . '.visibility' => 'all'
+                )
+            ),
+            $modelName . '.flag_active' => 1
+        );
+        
+        $allConditions['list all'] = array(
+            'OR' => array(
+                $allConditions['use'],
+                $allConditions['edition']
+            )
+        );
+        
+        $allConditions['use']['OR'][] = array(
+            $modelName . '.flag_system' => true
+        );
+        
+        if (!array_key_exists($useDefintion, $allConditions)) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        $conditions = $allConditions[$useDefintion];
+        $findType = $toolId ? 'first' : 'all';
+        
+        // Find data
         
         $tools = $this->find($findType, array(
             'conditions' => $conditions
         ));
         
-        $tools[$modelName]['allow_properties_edition'] = ($tools && $findType == 'first') ? true : false;
+        if ($findType == 'first') {
+            $tools[$modelName]['allow_properties_edition'] = $tools? true : false;
+        }
         
         return $tools;
     }
