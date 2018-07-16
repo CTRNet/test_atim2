@@ -222,7 +222,20 @@ class AliquotMastersController extends InventoryManagementAppController
             $templateNodeDefaultValues = array();
             foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
                 foreach ($fieldsValues as $field => $Value) {
-                    $templateNodeDefaultValues["$model.$field"] = is_array($Value) ? $this->getFormatedDatetimeSQL($Value) : $Value;
+                    if (is_array($Value)) {
+                        $tmpDateTimeArray = array(
+                            'year' => '',
+                            'month' => '',
+                            'day' => '',
+                            'hour' => '',
+                            'min' => '',
+                            'sec' => ''
+                        );
+                        $tmpDateTimeArray = array_merge($tmpDateTimeArray, $Value);
+                        $templateNodeDefaultValues["$model.$field"] = sprintf("%s-%s-%s %s:%s:%s", $tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day'], $tmpDateTimeArray['hour'], $tmpDateTimeArray['min'], $tmpDateTimeArray['sec']);
+                    } else {
+                        $templateNodeDefaultValues["$model.$field"] = $Value;
+                    }
                 }
             }
             $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);

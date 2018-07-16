@@ -283,8 +283,16 @@ class ToolsAppModel extends AppModel
                         'date',
                         'datetime'
                     ))) {
-                        $formattedDate = AppController::getFormatedDateString($value['year'], $value['month'], $value['day'], false);
-                        $formattedTime = (isset($value['hour']) || isset($value['min']))? ' ' . AppController::getFormatedTimeString($value['hour'], $value['min'], false) : '';
+                        $tmpDateTimeArray = array(
+                            'year' => '',
+                            'month' => '',
+                            'day' => '',
+                            'hour' => '',
+                            'min' => ''
+                        );
+                        $tmpDateTimeArray = array_merge($tmpDateTimeArray, $value);
+                        $formattedDate = AppController::getFormatedDateString($tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day'], false);
+                        $formattedTime = ($tmpDateTimeArray['hour'] || $tmpDateTimeArray['min']) ? ' ' . AppController::getFormatedTimeString($tmpDateTimeArray['hour'], $tmpDateTimeArray['min'], false) : '';
                         $value = $formattedDate . $formattedTime;
                     }
                     $formattedDefaultValues[] = $tmpCollectionTemplateNodesStructuresField['language_label'] . " = [$value]";
