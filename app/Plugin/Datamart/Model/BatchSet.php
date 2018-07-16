@@ -184,6 +184,23 @@ class BatchSet extends DatamartAppModel
             case 'group':
                 $allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
                 break;
+            case 'bank':
+                $allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
+                if (! $allowed) {
+                    $userBankId = $_SESSION['Auth']['User']['Group']['bank_id'];
+                    $userBankGroupIds = array(
+                        '-1'
+                    );
+                    if ($userBankId) {
+                        $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+                        $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+                        if ($tmpBankGroupIds) {
+                            $userBankGroupIds = $tmpBankGroupIds;
+                        }
+                    }
+                    $allowed = in_array($_SESSION['Auth']['User']['group_id'], $userBankGroupIds);
+                }
+                break;
             case 'all':
                 $allowed = true;
                 break;

@@ -68,17 +68,10 @@ class ToolsAppModel extends AppModel
             '-1'
         );
         if ($userBankId) {
-            // $groupModel = AppModel::getInstance('', 'Group', true);
-            // $tmpGroupIds = $groupModel->find('all', array(
-            // 'conditions' => array('Group.bank_id' => $userBankId),
-            // 'fields' => array(
-            // "GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids"
-            // )));
-            // Note: Code above does not work
-            $query = "SELECT GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids FROM groups AS `Group` WHERE Group.bank_id = $userBankId AND Group.deleted != 1";
-            $tmpBankGroupIds = $this->query($query);
+            $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+            $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
             if ($tmpBankGroupIds) {
-                $userBankGroupIds = explode(',', $tmpBankGroupIds[0][0]['ids']);
+                $userBankGroupIds = $tmpBankGroupIds;
             }
         }
         
@@ -283,8 +276,16 @@ class ToolsAppModel extends AppModel
                         'date',
                         'datetime'
                     ))) {
-                        $formattedDate = AppController::getFormatedDateString($value['year'], $value['month'], $value['day'], false);
-                        $formattedTime = (isset($value['hour']) || isset($value['min']))? ' ' . AppController::getFormatedTimeString($value['hour'], $value['min'], false) : '';
+                        $tmpDateTimeArray = array(
+                            'year' => '',
+                            'month' => '',
+                            'day' => '',
+                            'hour' => '',
+                            'min' => ''
+                        );
+                        $tmpDateTimeArray = array_merge($tmpDateTimeArray, $value);
+                        $formattedDate = AppController::getFormatedDateString($tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day'], false);
+                        $formattedTime = ($tmpDateTimeArray['hour'] || $tmpDateTimeArray['min']) ? ' ' . AppController::getFormatedTimeString($tmpDateTimeArray['hour'], $tmpDateTimeArray['min'], false) : '';
                         $value = $formattedDate . $formattedTime;
                     }
                     $formattedDefaultValues[] = $tmpCollectionTemplateNodesStructuresField['language_label'] . " = [$value]";

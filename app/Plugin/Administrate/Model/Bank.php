@@ -68,6 +68,36 @@ class Bank extends AdministrateAppModel
     }
 
     /**
+     * Return the ids of all the groups linked to the bank.
+     *
+     * @param $bankId integer Id of the studied bank.
+     * 
+     * @return array Ids of the groups
+     *
+     * @author N. Luc
+     * @since 2019-07-16
+     *        @updated N. Luc
+     */
+    public function getBankGroupIds($bankId)
+    { 
+        // $groupModel = AppModel::getInstance('', 'Group', true);
+        // $tmpGroupIds = $groupModel->find('all', array(
+        // 'conditions' => array('Group.bank_id' => $userBankId),
+        // 'fields' => array(
+        // "GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids"
+        // )));
+        // Note: Code above does not work
+            
+        $userBankGroupIds = array();
+        $query = "SELECT GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids FROM groups AS `Group` WHERE Group.bank_id = '$bankId' AND Group.deleted != 1";
+        $tmpBankGroupIds = $this->query($query);
+        if ($tmpBankGroupIds) {
+            $userBankGroupIds = explode(',', $tmpBankGroupIds[0][0]['ids']);
+        }
+        return $userBankGroupIds;
+    }
+    
+    /**
      *
      * @param int $bankId
      * @return array
