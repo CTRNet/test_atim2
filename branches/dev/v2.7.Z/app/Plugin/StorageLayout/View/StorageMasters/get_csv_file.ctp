@@ -106,7 +106,7 @@ if ($csvArrayData["valid"]) {
 $finalOptions = array(
     'links' => $structureLinks
 );
-    AppController::addWarningMsg('click on submit button of the main form to save the loaded records');
+    AppController::addWarningMsg(__('click on submit button of the main form to save the loaded records'));
     AppController::forceMsgDisplayInPopup();
 
 $this->Structures->build($finalAtimStructure, $finalOptions);

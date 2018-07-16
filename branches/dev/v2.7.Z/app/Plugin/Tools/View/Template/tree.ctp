@@ -216,7 +216,7 @@ if (isset($isAjax)) {
                 });
 
                 $(scope).find(".default-value").unbind('click').click(function () {
-                    $this = $(this);
+                    var $this = $(this);
                     var url = $this.attr("data-url");
                     var id = $this.attr("data-id");
                     id = (typeof id === 'undefined')?0:id;
@@ -321,10 +321,10 @@ if (isset($isAjax)) {
                                 $this.closest("li").data("defaultValueJSON", defaultValueString);
                                 $this.siblings(".default-value-template").html("<span class='icon16 fetching'></span>");
                                 $.post(urlGetDefaultValue, defaultValue, function(data){
-                                    ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                                    var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                                     data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                                     saveSqlLogAjax(ajaxSqlLog);
-                                    label =" | " +data;
+                                    var label =" | " +data;
                                     $this.siblings(".default-value-template").text(label);
                                     $("span.default-value-template").hover(showDefaultValues);
                                 });
