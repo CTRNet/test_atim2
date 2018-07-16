@@ -1276,7 +1276,7 @@ class Browser extends DatamartAppModel
     /**
      * Builds the search parameters array
      * @note: Hardcoded for collections
-     * 
+     *
      * @param $primaryNodeIds
      * @param $order
      */

@@ -68,17 +68,10 @@ class ToolsAppModel extends AppModel
             '-1'
         );
         if ($userBankId) {
-            // $groupModel = AppModel::getInstance('', 'Group', true);
-            // $tmpGroupIds = $groupModel->find('all', array(
-            // 'conditions' => array('Group.bank_id' => $userBankId),
-            // 'fields' => array(
-            // "GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids"
-            // )));
-            // Note: Code above does not work
-            $query = "SELECT GROUP_CONCAT(DISTINCT Group.id SEPARATOR ',') as ids FROM groups AS `Group` WHERE Group.bank_id = $userBankId AND Group.deleted != 1";
-            $tmpBankGroupIds = $this->query($query);
+            $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+            $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
             if ($tmpBankGroupIds) {
-                $userBankGroupIds = explode(',', $tmpBankGroupIds[0][0]['ids']);
+                $userBankGroupIds = $tmpBankGroupIds;
             }
         }
         
