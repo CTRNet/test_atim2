@@ -1637,7 +1637,18 @@ class AppModel extends Model
      * @return array
      */
     public function getOwnershipConditions()
-    {
+    {   
+        $userBankId = AppController::getInstance()->Session->read('Auth.User.Group.bank_id');
+        $userBankGroupIds = array(
+            '-1'
+        );
+        if ($userBankId) {
+            $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+            $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+            if ($tmpBankGroupIds) {
+                $userBankGroupIds = $tmpBankGroupIds;
+            }
+        }
         return array(
             'OR' => array(
                 array(
@@ -1645,8 +1656,15 @@ class AppModel extends Model
                     $this->name . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
                 ),
                 array(
-                    $this->name . '.sharing_status' => 'group',
+                    $this->name . '.sharing_status' => array(
+                        'group',
+                        'bank'
+                    ),
                     $this->name . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                ),
+                array(
+                    $this->name . '.sharing_status' => 'bank',
+                    $this->name . '.group_id' => $userBankGroupIds
                 ),
                 array(
                     $this->name . '.sharing_status' => 'all'

@@ -900,6 +900,7 @@ VALUES
 --	Issue #3614: Unbale to edit protocol created by another user - Validate and change 
 --    rules to use or edit a collection template or protocol
 --    Review protocol owner/use/etc
+--    Add created by
 -- -------------------------------------------------------------------------------------
 
 -- Add bank level to sharing value domain
@@ -941,6 +942,37 @@ ALTER TABLE collection_protocols
 	DROP COLUMN owning_entity_id,
 	DROP COLUMN visible_entity_id,
 	DROP COLUMN created_by;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Tool', 'CollectionProtocol', 'collection_protocols', 'user_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='users_list') , '0', '', '', '', 'created by', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collection_protocol'), (SELECT id FROM structure_fields WHERE `model`='CollectionProtocol' AND `tablename`='collection_protocols' AND `field`='user_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='users_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by' AND `language_tag`=''), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Tool', 'Template', 'templates', 'user_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='users_list') , '0', '', '', '', 'created by', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='user_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='users_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- -------------------------------------------------------------------------------------
+--	Issue #3617: Apply same owner rules than 'Collection Templates & Protocols' 
+--     to 'Batchsets' and 'Saved Browsing Steps'
+-- -------------------------------------------------------------------------------------
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='batch_sets_sharing_status' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="public");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("bank", "share with the bank");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"), (SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="share with the bank"), "3", "1");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('share with the bank', 'Share With The Bank', 'Partager avec la banque'),
+('at least one batchset is locked', "At least one batchset is locked. Please click on 'Detail' to unlock the batchset.", "Au moins un lot de données est bloqué. Veuillez cliquer sur 'Détail' pour le débloquer'.");
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('this batchset is locked', "This batchset is locked. Please click on 'Detail' to unlock the batchset.", "Ce lot de données est bloqué. Veuillez cliquer sur 'Détail' pour le débloquer'.");
+
+-- -------------------------------------------------------------------------------------
+--	Issue #3618: Missing Steps in 'Saved Browsing Steps' detail form
+-- -------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='datamart_saved_browsing') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------

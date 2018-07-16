@@ -33,9 +33,19 @@ class BatchSetsController extends DatamartAppController
         if ($typeOfList && in_array($typeOfList, array(
             'temporary',
             'saved',
-            'group',
             'all'
         ))) {
+            $userBankId = AppController::getInstance()->Session->read('Auth.User.Group.bank_id');
+            $userBankGroupIds = array(
+                '-1'
+            );
+            if ($userBankId) {
+                $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+                $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+                if ($tmpBankGroupIds) {
+                    $userBankGroupIds = $tmpBankGroupIds;
+                }
+            }
             
             $conditions = array();
             switch ($typeOfList) {
@@ -51,25 +61,31 @@ class BatchSetsController extends DatamartAppController
                         'BatchSet.flag_tmp <> 1'
                     );
                     break;
-                case 'group':
-                    $conditions = array(
-                        'BatchSet.user_id <> ' . $_SESSION['Auth']['User']['id'],
-                        'BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'],
-                        'BatchSet.sharing_status' => array(
-                            'group',
-                            'all'
-                        ),
-                        'BatchSet.flag_tmp <> 1'
-                    );
-                    break;
                 case 'all':
                     $conditions = array(
-                        'BatchSet.user_id <> ' . $_SESSION['Auth']['User']['id'],
-                        'BatchSet.group_id <> ' . $_SESSION['Auth']['User']['group_id'],
-                        'BatchSet.sharing_status' => array(
-                            'all'
+                        array(
+                            'BatchSet.user_id <> ' . $_SESSION['Auth']['User']['id'],
+                            'BatchSet.flag_tmp <> 1'
                         ),
-                        'BatchSet.flag_tmp <> 1'
+                        array(
+                            'OR' => array(
+                                // Bank owner condition added if group of the user is not linked to a bank
+                                array(
+                                    'BatchSet.sharing_status' => array(
+                                        'group',
+                                        'bank'
+                                    ),
+                                    'BatchSet.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                                ),
+                                array(
+                                    'BatchSet.sharing_status' => 'bank',
+                                    'BatchSet.group_id' => $userBankGroupIds
+                                ),
+                                array(
+                                    'BatchSet.sharing_status' => 'all'
+                                )
+                            )
+                        )
                     );
             }
             
@@ -499,12 +515,31 @@ class BatchSetsController extends DatamartAppController
     public function deleteInBatch()
     {
         // Get all user batchset
+        $userBankId = $_SESSION['Auth']['User']['Group']['bank_id'];
+        $userBankGroupIds = array(
+            '-1'
+        );
+        if ($userBankId) {
+            $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+            $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+            if ($tmpBankGroupIds) {
+                $userBankGroupIds = $tmpBankGroupIds;
+            }
+        }
+        
         $availableBatchsetsConditions = array(
             'OR' => array(
                 'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
                 array(
                     'BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'],
-                    'BatchSet.sharing_status' => 'group'
+                    'BatchSet.sharing_status' => array(
+                        'group',
+                        'bank'
+                    )
+                ),
+                array(
+                    'BatchSet.group_id' => $userBankGroupIds,
+                    'BatchSet.sharing_status' => 'bank'
                 ),
                 'BatchSet.sharing_status' => 'all'
             )
@@ -513,8 +548,10 @@ class BatchSetsController extends DatamartAppController
             'conditions' => $availableBatchsetsConditions,
             'order' => 'BatchSet.created DESC'
         ));
+        $userBatchsetsFromId = array();
         foreach ($userBatchsets as $key => $tmpData) {
             $userBatchsets[$key]['BatchSet']['count_of_BatchId'] = count($tmpData['BatchId']);
+            $userBatchsetsFromId[$tmpData['BatchSet']['id']] = $tmpData;
         }
         $this->BatchSet->completeData($userBatchsets);
         $this->set('userBatchsets', $userBatchsets);
@@ -527,18 +564,24 @@ class BatchSetsController extends DatamartAppController
         
         if (! empty($this->request->data)) {
             $deletionDone = false;
+            $this->request->data['BatchSet']['ids'] = array_filter($this->request->data['BatchSet']['ids']);
+            $submittedDataValidates = true;
             foreach ($this->request->data['BatchSet']['ids'] as $batchSetId) {
-                if (! empty($batchSetId)) {
-                    if (! $this->BatchSet->delete($batchSetId)) {
-                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
-                    $deletionDone = true;
+                if (! array_key_exists($batchSetId, $userBatchsetsFromId)) {
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+                if ($userBatchsetsFromId[$batchSetId]['BatchSet']['locked']) {
+                    AppController::addWarningMsg(__('at least one batchset is locked'));
+                    $submittedDataValidates = false;
                 }
             }
-            if ($deletionDone) {
+            if ($submittedDataValidates) {
+                foreach ($this->request->data['BatchSet']['ids'] as $batchSetId) {
+                    if (! empty($batchSetId)) {
+                        $this->BatchSet->delete($batchSetId);
+                    }
+                }
                 $this->atimFlash(__('your data has been deleted'), '/Datamart/BatchSets/index/user');
-            } else {
-                $this->BatchSet->validationErrors[] = 'check at least one element from the batch set';
             }
         }
     }
