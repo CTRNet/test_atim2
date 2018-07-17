@@ -290,3 +290,33 @@ FROM treatment_masters WHERE modified = @modified aND modified_by = @modified_by
 INSERT INTO qc_tf_tx_empty_revs (treatment_master_id, version_created) (SELECT id,modified FROM treatment_masters WHERE modified = @modified aND modified_by = @modified_by);
 
 UPDATE `versions` SET branch_build_number = '6910' WHERE version_number = '2.7.0';
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- 2018-04-23
+-- -------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="6" WHERE svd.domain_name='qc_tf_grade' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "5", "1");
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("microscopic", "microscopic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_residual_disease"), (SELECT id FROM structure_permissible_values WHERE value="microscopic" AND language_alias="microscopic"), "0", "1");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('microscopic', 'Microscopic', 'Microscopique');
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- 2018-04-23
+-- -------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('dead from disease', 'Dead from Disease', 'Décédé de la maladie');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("dead", "dead from disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="dead" AND language_alias="dead from disease"), "2", "1");
+
+UPDATE `versions` SET branch_build_number = '7255' WHERE version_number = '2.7.0';
+
+
+
+
+
+
+
