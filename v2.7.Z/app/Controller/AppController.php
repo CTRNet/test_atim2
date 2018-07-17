@@ -210,6 +210,7 @@ class AppController extends Controller
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
             Configure::write('debug', 0);
+            $this->Components->unload('DebugKit.Toolbar');
         } else {
             $atimSubMenuForHeader = array();
             $menuModel = AppModel::getInstance("", "Menu", true);
