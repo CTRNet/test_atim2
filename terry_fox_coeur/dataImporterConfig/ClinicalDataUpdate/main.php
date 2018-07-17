@@ -46,8 +46,8 @@
 // @created 2017-05-17
 // @author Nicolas Luc
 // *******************************************************************************************************************************************************
-
-require_once 'system.php';
+$is_serveur = true;
+require_once ($is_serveur)? '/ATiM/atim-tfri/dataUpdate/coeur/ClinicalDataUpdate/system.php' : './system.php';
 
 $commit_all = true;
 if(isset($argv[1])) {
@@ -88,6 +88,13 @@ foreach($bank_excel_files as $new_bank_file) {
 	$file_name = $new_bank_file['file'];
 	$file_name_for_summary = "file '<b>".substr($file_name, 0, 15)."...xls</b>' of bank '$bank_name'";
 	list($profile_worksheet_name, $treatment_worksheet_name) = $new_bank_file['worksheets'];
+	if (empty($treatment_worksheet_name)) {
+    	recordErrorAndMessage(
+    	    'Excel Data Reading',
+    	    '@@ERROR@@',
+    	    "No treatment worksheet defined.",
+    	    "See bank $file_name_for_summary defined into config.php.");
+    }
 	$parser_function_suffix = $new_bank_file['parser_function'];
 	$file_xls_offset = $new_bank_file['file_xls_offset'];
 	
@@ -212,6 +219,8 @@ foreach($bank_excel_files as $new_bank_file) {
                     $atim_participant_data_from_excel['vital_status'] = 'deceased';
                 }
                 //Check notes
+                $atim_participant_data['notes'] = str_replace('"', "'", $atim_participant_data['notes']);
+                $excel_line_clinical_data['participants']['notes'][0] = str_replace('"', "'", $excel_line_clinical_data['participants']['notes'][0]);
                 if(strlen($excel_line_clinical_data['participants']['notes'][0]) && (strpos($atim_participant_data['notes'], $excel_line_clinical_data['participants']['notes'][0]) === false)) {
                     $atim_participant_notes = $atim_participant_data['notes'];
                     if(strlen($atim_participant_data['notes'])) {
@@ -1934,7 +1943,7 @@ function getClinicalEventByGeneralParser($excel_file_name, $file_name_for_summar
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function getProfileByOtbParser($excel_file_name, $file_name_for_summary, $worksheet_name, $file_xls_offset) {
-
+    $notes_to_add  =array();
     list($excel_line_counter, $next_excel_line_clinical_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $file_xls_offset);
     if(!$next_excel_line_clinical_data) return null;
     $excel_file_name_and_line_for_summary = $file_name_for_summary. " worksheet '<b>$worksheet_name</b>' and <b>line $excel_line_counter</b>";
