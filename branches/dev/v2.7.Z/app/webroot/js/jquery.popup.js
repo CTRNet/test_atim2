@@ -33,7 +33,7 @@ jQuery.fn.popup = function(options){
 		$(fmPopup.popupOuter).click(function(){
 			if(fmPopup.closePop && fmPopup.closable){
 				$(fmPopup.popupOuter).hide();
-                                setPopUpTabIndex();
+                                setMainFormTabIndex();
 			}else{
 				fmPopup.closePop = true;
 			}
@@ -45,7 +45,7 @@ jQuery.fn.popup = function(options){
 			if(event.keyCode == 27 && fmPopup.closable) { // Capture Esc key
 				//TODO: close only toppest popup
 				$(fmPopup.popupOuter).hide();
-                                setPopUpTabIndex();
+                                setMainFormTabIndex();
 			}
 		});
 		
@@ -57,16 +57,16 @@ jQuery.fn.popup = function(options){
 		fmPopup.popupOuter.find(".popup_container").append($(this));
 		if(fmPopup.closable){
 			fmPopup.popupOuter.find(".popup_container").append(fmPopup.popupOuter.find(".popup_close"));
-			fmPopup.popupOuter.find(".popup_close").click(function(){fmPopup.popupOuter.hide();setPopUpTabIndex();});
+			fmPopup.popupOuter.find(".popup_close").click(function(){fmPopup.popupOuter.hide();setMainFormTabIndex();});
 		}else{
 			fmPopup.popupOuter.find(".popup_close").hide();
-                        setPopUpTabIndex();
+                        setMainFormTabIndex();
 		}
 	}
 	
 	if(options == "close"){
 		fmPopup.popupOuter.hide();
-                setPopUpTabIndex()
+                setMainFormTabIndex();
 	}else if(options == "center"){
 		if(fmPopup.popupOuter.find(":first:visible")){
 			var container = $(fmPopup.popupOuter).find(".popup_container");
@@ -109,12 +109,14 @@ FmPopup.prototype.retainFocus = function(event){
 	}
 };
 
-function setPopUpTabIndex(){
+function setMainFormTabIndex(){
 //    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
 //        var $this = $(this);
 //        var tabIndex = $this.attr("tabindex");
 //        if (tabIndex ==-9999){
 //                tabIndex = -9999;
+//        }else if (tabIndex ==-8888){
+//            tabIndex ="";
 //        }else{
 //                tabIndex = -tabIndex;
 //        }
@@ -126,8 +128,10 @@ function setPopUpTabIndex(){
 //    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
 //        var $this = $(this);
 //        var tabIndex = $this.attr("tabindex");
-//        if (tabIndex ==""){
+//        if (tabIndex<0){
 //                tabIndex = -9999;
+//        }else if (tabIndex =="" || tabIndex == 0 || isNaN(tabIndex)){
+//            tabIndex =-8888;
 //        }else{
 //                tabIndex = -tabIndex;
 //        }
