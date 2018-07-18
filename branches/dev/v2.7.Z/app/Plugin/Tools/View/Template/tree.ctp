@@ -229,7 +229,7 @@ if (isset($isAjax)) {
                         $("#default_popup").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
                         $("#default_popup").popup();
                         $.get(url, function (data) {
-                            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
 
