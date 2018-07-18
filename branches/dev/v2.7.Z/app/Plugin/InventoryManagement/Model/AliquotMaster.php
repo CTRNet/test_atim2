@@ -1370,7 +1370,7 @@ class AliquotMaster extends InventoryManagementAppModel
                 $availableCheck = $resultCheck['AliquotMaster']['in_stock'];
                 $labelCheck = $resultCheck['AliquotMaster']['aliquot_label'];
                 
-                if (! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) {
+                if ((! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) && strpos($dataArray["class"], 'duplicated-aliquot')===false) {
                     $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
                     $dataArray["class"] = 'duplicated-aliquot warning-aliquot';
                 }
