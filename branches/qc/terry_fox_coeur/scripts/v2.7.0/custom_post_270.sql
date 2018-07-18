@@ -303,7 +303,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('microscopic', 'Microscopic', 'Microscopique');
 
 -- -------------------------------------------------------------------------------------------------------------------------
--- 2018-04-23
+-- 2018-07-18
 -- -------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr)
@@ -313,6 +313,29 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="dead" AND language_alias="dead from disease"), "2", "1");
 
 UPDATE `versions` SET branch_build_number = '7255' WHERE version_number = '2.7.0';
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- 2018-07-19
+-- -------------------------------------------------------------------------------------------------------------------------
+
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="health_status" AND spv.value="dead" AND spv.language_alias="dead from disease";
+DELETE FROM structure_permissible_values WHERE value="dead" AND language_alias="dead from disease" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='health_status' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("deceased from disease", "deceased from disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="deceased from disease" AND language_alias="deceased from disease"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("deceased from other disease", "deceased from other disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="deceased from other disease" AND language_alias="deceased from other disease"), "4", "1");
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('deceased from disease', 'Deceased from Disease', 'Décédé de la maladie'),
+('deceased from other disease', 'Deceased from Other Disease', "Décédé d'une autre maladie");
+
+UPDATE `versions` SET branch_build_number = '7259' WHERE version_number = '2.7.0';
+
+
+
+
 
 
 
