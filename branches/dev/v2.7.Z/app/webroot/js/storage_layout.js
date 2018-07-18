@@ -297,7 +297,7 @@ function csvToLayout(){
     for (var i = 0; i < warnings.length; i++) {
         var aliquotData = $.parseJSON($(warnings[i]).attr("data-aliquot"));
         aliquotClass = "warning-aliquot";
-        if (aliquotData==null || typeof aliquotData["OK"] !== "undefined" || aliquotData["OK"]==0){
+        if (aliquotData==null || typeof aliquotData["OK"] === "undefined" || aliquotData["OK"]==0){
             continue;
         }
         var li = $('<div />', {html: $html});
