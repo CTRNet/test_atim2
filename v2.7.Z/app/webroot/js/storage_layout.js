@@ -274,6 +274,7 @@ function csvToLayout(){
         destination.find("li:last-child").draggable({
             revert: 'invalid',
             zIndex: 1,
+            scroll: false,
             start: function (event, ui) {
                 dragging = true;
             }, stop: function (event, ui) {
@@ -331,6 +332,7 @@ function csvToLayout(){
         destination.find("li:last-child").draggable({
             revert: 'invalid',
             zIndex: 1,
+            scroll: false,
             start: function (event, ui) {
                 dragging = true;
             }, stop: function (event, ui) {
@@ -393,6 +395,7 @@ function initRow(row, data, ctrls){
 		$(row).find(".dragme").draggable({
 			revert : 'invalid',
 			zIndex: 1,
+                        scroll: false,
 			start: function(event, ui){
 				dragging = true;
 			}, stop: function(event, ui){
@@ -763,6 +766,7 @@ function checkAliquotBarcode($this) {
         li.draggable({
                 revert : 'invalid',
                 zIndex: 1,
+                scroll: false,
                 start: function(event, ui){
                         dragging = true;
                 }, stop: function(event, ui){
