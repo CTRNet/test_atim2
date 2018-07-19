@@ -229,7 +229,7 @@ if (isset($isAjax)) {
                         $("#default_popup").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
                         $("#default_popup").popup();
                         $.get(url, function (data) {
-                            ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
 
@@ -279,59 +279,61 @@ if (isset($isAjax)) {
                                 }
                             }
 //                            $("#default_popup form").attr('novalidate');
-                            $("#default_popup a.submit").unbind('click keydown').bind("click keydown", function(){
-                                var defaultValueArray = $("#default_popup form").serializeArray();
-                                defaultValue = {};
-                                for (var i=0; i<defaultValueArray.length; i++){
-                                        current = defaultValueArray[i];
-                                        if (current.value!=""){
-                                                name = current.name;
-                                                value = current.value;
-                                                name = name.replace("data[", "");
-                                                name = name.replace(/\]\[/g, ", ");
-                                                name = name.replace("]", "");
-                                                p = name.split(", ");
-                                                k = p[0];
-                                                v = p[1];
-                                                if (p.length===2){
-                                                    if (typeof defaultValue[k] !== 'undefined'){
-                                                            defaultValue[k][v]=value;
-                                                    }else{
-                                                        defaultValue[k] = {};
-                                                        defaultValue[k][v]= value;
+                            $("#default_popup a.submit").unbind('click keydown').bind("click keydown", function(event){
+                                if(event.type =='click' ||(event.type =='keydown' && event.keyCode == 13)){
+                                    var defaultValueArray = $("#default_popup form").serializeArray();
+                                    defaultValue = {};
+                                    for (var i=0; i<defaultValueArray.length; i++){
+                                            current = defaultValueArray[i];
+                                            if (current.value!=""){
+                                                    name = current.name;
+                                                    value = current.value;
+                                                    name = name.replace("data[", "");
+                                                    name = name.replace(/\]\[/g, ", ");
+                                                    name = name.replace("]", "");
+                                                    p = name.split(", ");
+                                                    k = p[0];
+                                                    v = p[1];
+                                                    if (p.length===2){
+                                                        if (typeof defaultValue[k] !== 'undefined'){
+                                                                defaultValue[k][v]=value;
+                                                        }else{
+                                                            defaultValue[k] = {};
+                                                            defaultValue[k][v]= value;
+                                                        }
+                                                    }else if (p.length>2){
+                                                        if (typeof defaultValue[k] === 'undefined'){
+                                                            defaultValue[k] = {};
+                                                            defaultValue[k][v]={};
+                                                            defaultValue[k][v][p[2]]=value;
+                                                        }else if (typeof defaultValue[k][v] === 'undefined'){
+                                                            defaultValue[k][v]={};
+                                                            defaultValue[k][v][p[2]]=value;
+                                                        }else if (typeof defaultValue[k][v] !== 'undefined'){
+                                                            defaultValue[k][v][p[2]]=value;
+                                                        }
                                                     }
-                                                }else if (p.length>2){
-                                                    if (typeof defaultValue[k] === 'undefined'){
-                                                        defaultValue[k] = {};
-                                                        defaultValue[k][v]={};
-                                                        defaultValue[k][v][p[2]]=value;
-                                                    }else if (typeof defaultValue[k][v] === 'undefined'){
-                                                        defaultValue[k][v]={};
-                                                        defaultValue[k][v][p[2]]=value;
-                                                    }else if (typeof defaultValue[k][v] !== 'undefined'){
-                                                        defaultValue[k][v][p[2]]=value;
-                                                    }
-                                                }
-                                        }
-                                }                                
-                                
-                                defaultValueString = JSON.stringify(defaultValue);
-                                $this.attr("data-default-value", defaultValueString);
-                                $this.closest("li").data("defaultValues", defaultValueString);
-                                $this.closest("li").data("defaultValueJSON", defaultValueString);
-                                $this.siblings(".default-value-template").html("<span class='icon16 fetching'></span>");
-                                $.post(urlGetDefaultValue, defaultValue, function(data){
-                                    var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
-                                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
-                                    saveSqlLogAjax(ajaxSqlLog);
-                                    var label =" | " +data;
-                                    $this.siblings(".default-value-template").text(label);
-                                    $("span.default-value-template").hover(showDefaultValues);
-                                });
-                                    
+                                            }
+                                    }                                
 
-                                $("#default_popup").popup('close');
-                                return false;
+                                    defaultValueString = JSON.stringify(defaultValue);
+                                    $this.attr("data-default-value", defaultValueString);
+                                    $this.closest("li").data("defaultValues", defaultValueString);
+                                    $this.closest("li").data("defaultValueJSON", defaultValueString);
+                                    $this.siblings(".default-value-template").html("<span class='icon16 fetching'></span>");
+                                    $.post(urlGetDefaultValue, defaultValue, function(data){
+                                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                                        saveSqlLogAjax(ajaxSqlLog);
+                                        var label =" | " +data;
+                                        $this.siblings(".default-value-template").text(label);
+                                        $("span.default-value-template").hover(showDefaultValues);
+                                    });
+
+
+                                    $("#default_popup").popup('close');
+                                    return false;
+                                }
                             });
                             $("#default_popup form" ).unbind('submit').bind('submit', function(){
                                 $("#default_popup a.submit" ).trigger( "click" );

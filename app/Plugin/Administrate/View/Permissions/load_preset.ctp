@@ -67,7 +67,7 @@ function deletePreset(id){
 	$.post(root_url + "Administrate/Permissions/deletePreset/" + id, "", function(data){
 		$.get(root_url + "Administrate/Permissions/loadPreset/", null, function(data){
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    
@@ -131,7 +131,7 @@ function savePresetPopup(){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    
@@ -169,7 +169,7 @@ function savePreset(){
 			loadPresetFrame();
 		}else{
                     if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    

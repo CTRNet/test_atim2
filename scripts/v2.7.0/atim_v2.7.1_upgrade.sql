@@ -97,8 +97,8 @@ VALUES
 ('load csv', 'Load CSV', 'Charger CSV'),
 ('clear the loaded and scanned barcode', 'Clear the loaded or scanned aliquots', 'Effacer les aliquots téléchargés ou scannés'),
 ('this aliquot is registered in another place', 'This aliquot is registered in another storage/position', 'Cet aliquot est enregistré dans un autre entreposage/position'),
-('the y dimension out of range <= %s', 'The Y dimension is out of range <= %s', "La dimension Y est hors de l'intervalle <=%s"),
-('the x dimension out of range <= %s', 'The X dimension is out of range <= %s', "La dimension X est hors de l'intervalle <=%s"),
+('the y dimension out of range <= %s', 'The Y dimension is out of range > %s', "La dimension Y est hors de l'intervalle > %s"),
+('the x dimension out of range <= %s', 'The X dimension is out of range > %s', "La dimension X est hors de l'intervalle > %s"),
 ('duplicate barcode in csv file', 'Duplicated barcode in CSV file', 'Codes à barres dupliqués dans le fichier CSV'),
 ('should have Y column', 'Column Y missing. Please check your CSV separator.', 'Colonne Y manquante. Veuillez vérifier votre séparateur CSV.'),
 ('should have barcode column', 'Barcodes column missing', 'Colonne des codes à barres manquante'),
@@ -647,7 +647,7 @@ VALUES
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("list", "storage coordinates managed by users");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="storage_coord_types"), (SELECT id FROM structure_permissible_values WHERE value="list" AND language_alias="storage coordinates managed by users"), "3", "1");
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="storage_coord_types" AND spv.value="list" AND spv.language_alias="list";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS Spv ON svdpv.structure_permissible_value_id=Spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="storage_coord_types" AND Spv.value="list" AND Spv.language_alias="list";
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ("storage coordinates managed by users", "Coordinates managed by users", "Coordonnées géreés par utilisteurs");
@@ -668,8 +668,8 @@ ALTER TABLE storage_controls
   ADD COLUMN `storage_type_en` varchar(255) DEFAULT NULL,
   ADD COLUMN `storage_type_fr` varchar(255) DEFAULT NULL;
 UPDATE storage_controls Sc, structure_permissible_values_custom_controls Spc, structure_permissible_values_customs Spv  
-SET storage_type_en = spv.en,
-storage_type_fr = spv.fr
+SET storage_type_en = Spv.en,
+storage_type_fr = Spv.fr
 WHERE Spc.name = 'storage types'
 AND Spc.id = Spv.control_id AND Spv.deleted <> 1
 AND Spv.value = Sc.storage_type;
@@ -905,8 +905,8 @@ VALUES
 
 -- Add bank level to sharing value domain
 
-UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="bank");
-UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='sharing' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="all");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS Spv ON Spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='sharing' AND Spv.id=(SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="bank");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS Spv ON Spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='sharing' AND Spv.id=(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="all");
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("group", "group");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="sharing"), (SELECT id FROM structure_permissible_values WHERE value="group" AND language_alias="group"), "2", "1");
 
