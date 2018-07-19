@@ -29,6 +29,7 @@ class PostsController extends AppController
     }
 
     /**
+     *
      * @param null $id
      */
     public function view($id = null)
@@ -58,6 +59,7 @@ class PostsController extends AppController
     }
 
     /**
+     *
      * @param null $id
      */
     public function edit($id = null)
@@ -84,6 +86,7 @@ class PostsController extends AppController
     }
 
     /**
+     *
      * @param null $id
      */
     public function delete($id = null)

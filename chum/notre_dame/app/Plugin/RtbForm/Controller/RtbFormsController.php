@@ -22,6 +22,7 @@ class RtbformsController extends RtbformAppController
     }
 
     /**
+     *
      * @param $searchId
      */
     public function search($searchId)
@@ -37,6 +38,7 @@ class RtbformsController extends RtbformAppController
     }
 
     /**
+     *
      * @param null $rtbformId
      */
     public function profile($rtbformId = null)
@@ -71,6 +73,7 @@ class RtbformsController extends RtbformAppController
     }
 
     /**
+     *
      * @param null $rtbformId
      */
     public function edit($rtbformId = null)
@@ -101,6 +104,7 @@ class RtbformsController extends RtbformAppController
     }
 
     /**
+     *
      * @param null $rtbformId
      */
     public function delete($rtbformId = null)

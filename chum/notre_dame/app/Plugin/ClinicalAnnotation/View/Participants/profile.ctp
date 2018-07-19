@@ -18,13 +18,32 @@ if (empty($identifiersMenu)) {
     $identifiersMenu = '/underdev/';
 }
 
+$addCollectionButtonLinks = array(
+    'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/',
+    'icon' => 'add_collection'
+);
+if ($collectionProtocols) {
+    $addCollectionButtonLinks = array();
+    $addCollectionButtonLinks['collection'] = array(
+        'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/',
+        'icon' => 'add_collection'
+    );
+    foreach ($collectionProtocols as $collectionProtocolId => $collectionProtocolName) {
+        $addCollectionButtonLinks[$collectionProtocolName] = array(
+            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/' . $collectionProtocolId,
+            'icon' => 'add_collection_protocol'
+        );
+    }
+}
+
 // 1- PARTICIPANT PROFILE
 $structureLinks = array(
     'index' => array(),
     'bottom' => array(
         'edit' => '/ClinicalAnnotation/Participants/edit/' . $atimMenuVariables['Participant.id'],
         'delete' => '/ClinicalAnnotation/Participants/delete/' . $atimMenuVariables['Participant.id'],
-        'add identifier' => $identifiersMenu
+        'add identifier' => $identifiersMenu,
+        'add collection' => $addCollectionButtonLinks
     )
 );
 // Set form structure and option

@@ -25,6 +25,9 @@ class UsersController extends AppController
         } else {
             $this->Auth->allow('login', 'logout');
         }
+        if ($this->request->is('ajax')) {
+            $this->Auth->allow('getUserId');
+        }
         $this->Auth->authenticate = array(
             'Form' => array(
                 'userModel' => 'User',
@@ -37,15 +40,90 @@ class UsersController extends AppController
     }
 
     /**
+     *
+     * @return bool
+     */
+    private function doLogin()
+    {
+        $isLdap = Configure::read("if_use_ldap_authentication");
+        
+        if (empty($isLdap)) {
+            return $this->Auth->login();
+        } elseif ($isLdap === true) {
+            if (! isset($this->request->data['User']['username']) && ! isset($this->request->data['User']['password']) && $this->Auth->login()) {
+                return true;
+            } elseif (isset($this->request->data['User']['username'])) {
+                
+                $username = (isset($this->request->data['User']['username'])) ? $this->request->data['User']['username'] : null;
+                $password = (isset($this->request->data['User']['password'])) ? $this->request->data['User']['password'] : null;
+                
+                $conditions = array(
+                    'User.username' => $username,
+                    'User.deleted' => '0',
+                    'User.flag_active' => 1
+                );
+                $user = $this->User->find('first', array(
+                    'conditions' => $conditions
+                ));
+                $forcePasswordReset = (! empty($user)) ? $user['User']['force_password_reset'] : null;
+                if (empty($forcePasswordReset)) {
+                    $adServer = Configure::read('ldap_server');
+                    $ldaprdn = Configure::read('ldap_domain');
+                    
+                    $ldaprdn = sprintf($ldaprdn, $username);
+                    
+                    $ldap = ldap_connect($adServer);
+                    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+                    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+                    
+                    try {
+                        $bind = @ldap_bind($ldap, $ldaprdn, $password);
+                    } catch (Exception $ex) {
+                        $bind = null;
+                    }
+                    
+                    if (! empty($bind)) {
+                        $conditions = array(
+                            'User.username' => $username,
+                            'User.deleted' => '0',
+                            'User.flag_active' => 1
+                        );
+                        $user = $this->User->find('all', array(
+                            'conditions' => $conditions
+                        ));
+                        if (empty($user)) {
+                            return false;
+                        } elseif (count($user) === 1) {
+                            unset($user[0]['User']['password']);
+                            $tempUser = $user[0]['User'];
+                            $tempUser['Group'] = $user[0]['Group'];
+                            $this->Auth->login($tempUser);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    return $this->Auth->login();
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
      * Login Method
      *
      * @return \Cake\Network\Response|null
      */
     public function login()
     {
-        $username=$this->UserLoginAttempt->find('first', array('order' => 'attempt_time DESC'));
-        $username=(isset($username["UserLoginAttempt"]["username"])?$username["UserLoginAttempt"]["username"]:null);
-        if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
+        $username = $this->UserLoginAttempt->find('first', array(
+            'order' => 'attempt_time DESC'
+        ));
+        $username = (isset($username["UserLoginAttempt"]["username"]) ? $username["UserLoginAttempt"]["username"] : null);
+        if (! empty($_SESSION['Auth']['User']) && ! isset($this->passedArgs['login'])) {
             return $this->redirect('/Menus');
         }
         
@@ -65,7 +143,7 @@ class UsersController extends AppController
         ));
         $this->Version->id = $versionData[0]['id'];
         $this->Version->read();
-
+        
         if ($this->Version->data['Version']['permissions_regenerated'] == 0) {
             $this->newVersionSetup();
         }
@@ -75,11 +153,11 @@ class UsersController extends AppController
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
             $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled')));
-        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
-
+        } elseif ((! isset($this->passedArgs['login'])) && $this->doLogin()) {
             // Log in user
-            if ($this->request->data['User']['username'])
+            if ($this->request->data['User']['username']) {
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+            }
             $this->_initializeNotificationSessionVariables();
             
             $this->_setSessionSearchId();
@@ -91,39 +169,40 @@ class UsersController extends AppController
                 return $this->redirect('/Customize/Passwords/index');
             }
             
-            if (isset($this->passedArgs['login'])) {
-                return $this->render('ok');
-            } else {
-                return $this->redirect('/Menus');
-            }
-        } elseif (isset($this->request->data['User']['username'])&&! isset($this->passedArgs['login'])) {
+            return $this->redirect('/Menus');
+        } elseif (isset($this->request->data['User']['username']) && ! isset($this->passedArgs['login'])) {
             // Save failed login attempt
             $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
             if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
                 AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
             }
             $this->request->data = array();
-            $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
-        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username===$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+            $ldap = Configure::read("if_use_ldap_authentication");
+            if (empty($ldap)) {
+                $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+            } else {
+                $this->Auth->flash(__('login failed - invalid username or password or disabled user or LDAP server connection error'));
+            }
+        } elseif (isset($this->request->data['User']['username']) && isset($this->passedArgs['login']) && $username === $this->request->data['User']['username']) {
+            if ($this->doLogin()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
                 }
                 $this->_initializeNotificationSessionVariables();
-
+                
                 $this->_setSessionSearchId();
                 $this->resetPermissions();
                 return $this->render('ok');
             }
-        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username!==$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+        } elseif (isset($this->request->data['User']['username']) && isset($this->passedArgs['login']) && $username !== $this->request->data['User']['username']) {
+            if ($this->doLogin()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
                 }
                 $this->_initializeNotificationSessionVariables();
-
+                
                 $this->_setSessionSearchId();
                 $this->resetPermissions();
                 
@@ -165,6 +244,7 @@ class UsersController extends AppController
     public function logout()
     {
         $this->Acl->flushCache();
+        $this->Session->destroy();
         $this->redirect($this->Auth->logout());
     }
 
@@ -179,6 +259,7 @@ class UsersController extends AppController
         $this->Session->write('ctrapp_core.warning_no_trace_msg', array());
         $this->Session->write('ctrapp_core.warning_trace_msg', array());
         $this->Session->write('ctrapp_core.info_msg', array());
+        $this->Session->write('ctrapp_core.force_msg_display_in_popup', false);
     }
 
     /**
@@ -202,7 +283,7 @@ class UsersController extends AppController
             // Display of the form to set the username.
             
             $this->Structures->set('username');
-            if ($ipTemporarilyDisabled){
+            if ($ipTemporarilyDisabled) {
                 $this->User->validationErrors[][] = __('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled'));
             }
             
@@ -224,10 +305,12 @@ class UsersController extends AppController
             
             foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
                 if (empty($dbUserData['User'][$questionFieldName])) {
-                    $this->atimFlashWarning(__('User has not been yet answered to the reset questions.'), array('action'=>'resetForgottenPassword'));
+                    $this->atimFlashWarning(__('User has not been yet answered to the reset questions.'), array(
+                        'action' => 'resetForgottenPassword'
+                    ));
                 }
             }
-
+            
             if (! $dbUserData) {
                 
                 // 2- User name does not exist in the database or is disabled
@@ -266,7 +349,7 @@ class UsersController extends AppController
                 // Validate user questions answers
                 foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
                     // Check db/form questions matche
-
+                    
                     if ($dbUserData['User'][$questionFieldName] != $this->request->data['User'][$questionFieldName]) {
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
@@ -330,6 +413,17 @@ class UsersController extends AppController
                 $this->request->data['User']['new_password'] = '';
                 $this->request->data['User']['confirm_password'] = '';
             }
+        }
+    }
+
+    /**
+     * Reset user Id and esncrypte it just in AJAX mode to front-end.
+     */
+    public function getUserId()
+    {
+        if ($this->request->is('ajax')) {
+            ob_clean();
+            die((! empty($_SESSION['Auth']['User']['id'])) ? AppController::encrypt($_SESSION['Auth']['User']['id']) : AppController::encrypt("nul string"));
         }
     }
 }

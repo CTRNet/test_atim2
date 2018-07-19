@@ -14,17 +14,20 @@
 -- -----------------
 
   mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.1_upgrade.sql
   
 -- ATiM v2.7.0 upgrade
 -- -------------------
 
   mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_upgrade.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.1_upgrade.sql
 
 -- Demo installation
 -- -----------------
 
   mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
-  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < ./DemoData/atim_v2.7.0_demo_data.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.1_upgrade.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < ./DemoData/atim_v2.7.1_demo_data.sql
 
 
 
@@ -35,7 +38,7 @@
 -- v2.7.0
 --   See ATiM Version Release Notes 
 --      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.0)
--- ----------------------------------------------------------------------------
+-- -------------------------------------------------------------------------------------------------------------------
 
    ### 1 # CakePhp version upgrade and Reformating source code
    -----------------------------------------------------------
@@ -184,4 +187,90 @@
       Review structure 'sample_uses_for_collection_tree_view' and function SampleMastersController.contentTreeView() for
       any customisation.
 
+
+
+-- v2.7.1
+--   See ATiM Version Release Notes 
+--      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.1)
+-- -------------------------------------------------------------------------------------------------------------------
+
+   ### 1 # Collection protocols
+   -----------------------------------------------------------
+ 
+      New features added to the Template tool to let user to create collections protocols (definition of a list of collections 
+      a participant is supposed to participate defining the timeline, the default values and also the collection templates to use).
    
+      TODO :  
+   
+      Create file \app\Plugin\Tools\View\Template\Hook\listProtocolsAndTemplates_protocol.php and add code to not display the Collection Protocols sub list and add protocol option.
+
+      Hide all fields displaying protocol data into Inventory Management module.
+      
+         UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+         WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') 
+         AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
+
+         UPDATE structure_formats SET `language_heading`='collection' 
+         WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
+         AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+         UPDATE structure_formats SET `language_heading`='', `flag_index`='0' 
+         WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
+         AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
+
+         UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' 
+         WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') 
+         AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
+ 
+ 
+   ### 2 # Database connection details : 'persistent' field
+   -----------------------------------------------------------
+   
+      To guarantee that the right error page will be displayed when database connection will failed, be sure that the 'persistent' is set to 'false'.
+   
+         public $default = array(
+           'datasource' => 'Database/Mysql',
+           'persistent' => false,
+           'host' => '127.0.0.1',
+           'login' => 'root',
+           'password' => '',
+           'database' => 'v27z',
+           'prefix' => '',
+           'encoding' => 'utf8',
+           'port' => 3306
+         );
+   
+   
+   ### 3 # ReportsControllerCustom & javascript:history.back()
+   -----------------------------------------------------------
+   
+   The code 'javascript:history.back()' does not work into ReportsControllerCustom functions.
+   
+   TODO: 
+   
+   Check if a ReportsControllerCustom has been developped for your local installation and replace code ['javascript:history.back()'] by [Router::url(null , true)]
+   
+   
+   ### 3 # UserAnnouncementsController
+   -----------------------------------------------------------
+   
+   The AnnouncementsController of the Customize plugin has been renamed to UserAnnouncementsController to remove all conflicts the AnnouncementsController of the 
+   Administrate plugin. 
+   
+   TODO: 
+   
+   Check if custom hooks have been developped for the Announcements controller (\app\Plugin\Customize\Controller\AnnouncementsController.php) 
+   and view (\app\Plugin\Customize\View\Announcements) into the Customize plugin for your local installation.
+   
+   Replace all custom code, custom file names or custom folder names of this plugin that contain Announcements by UserAnnouncements
+
+   
+   ### 3 # New pre_search_handler Hooks
+   -----------------------------------------------------------
+   
+   A new hook call has been added before any searchHandler() call.
+   
+   TODO: 
+   
+   Check if custom hook 'format' has been developped for the search function of the StudySummaries controller. One of the hook
+   has been replaced by the new hook name.

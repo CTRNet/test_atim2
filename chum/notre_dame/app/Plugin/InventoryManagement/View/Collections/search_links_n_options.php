@@ -4,7 +4,7 @@ $structureLinks = array(
         'detail' => '/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%',
         'copy for new collection' => array(
             'link' => '/InventoryManagement/Collections/add/0/%%ViewCollection.collection_id%%',
-            'icon' => 'copy'
+            'icon' => 'duplicate'
         )
     ),
     'bottom' => array(

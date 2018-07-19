@@ -72,6 +72,7 @@ class ToolbarComponent extends Component implements CakeEventListener {
 		'DebugKit.SqlLog',
 		'DebugKit.Timer',
 		'DebugKit.Log',
+		'DebugKit.AjaxSqlLog',
 		'DebugKit.Variables',
 		'DebugKit.Environment',
 		'DebugKit.Include'
@@ -168,9 +169,8 @@ class ToolbarComponent extends Component implements CakeEventListener {
 		) {
 			$this->_createCacheConfig();
 		}
-
+		
 		$this->_loadPanels($panels, $settings);
-		$this->panels["d_history"]->title="D (output)";
 		return false;
 	}
 

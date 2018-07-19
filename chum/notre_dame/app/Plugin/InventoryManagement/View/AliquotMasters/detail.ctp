@@ -51,13 +51,13 @@ if ($isFromTreeViewOrLayout == 1) {
     // Tree view
     $settings['header'] = __('aliquot', null) . ': ' . __('details');
 } elseif ($isFromTreeViewOrLayout == 2) {
-        // Storage Layout
-        $structureLinks = array();
-        $structureLinks['bottom']['access to aliquot'] = '/InventoryManagement/AliquotMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['AliquotMaster.id'];
-        if ($aliquotMasterData['Collection']['participant_id'])
-            $structureLinks['bottom']['access to participant'] = '/ClinicalAnnotation/Participants/profile/' . $aliquotMasterData['Collection']['participant_id'];
-        $settings['header'] = __('aliquot', null);
-    }
+    // Storage Layout
+    $structureLinks = array();
+    $structureLinks['bottom']['access to aliquot'] = '/InventoryManagement/AliquotMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['AliquotMaster.id'];
+    if ($aliquotMasterData['Collection']['participant_id'])
+        $structureLinks['bottom']['access to participant'] = '/ClinicalAnnotation/Participants/profile/' . $aliquotMasterData['Collection']['participant_id'];
+    $settings['header'] = __('aliquot', null);
+}
 
 $finalAtimStructure = $atimStructure;
 if ($isFromTreeViewOrLayout) {
