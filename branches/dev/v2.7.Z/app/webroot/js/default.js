@@ -101,10 +101,10 @@ $(document).ready(function () {
         }
 
         var errorFunction = function (jqXHR, textStatus, errorThrown) {
-            $(document).remove('#popupError');
-            var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            $(document).append(popupError);
+            //$(document).remove('#popupError');
+            //var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            //popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            //$(document).append(popupError);
 //        $(popupError).popup();
             if (DEBUG_MODE_JS > 0) {
                 console.log (jqXHR);
