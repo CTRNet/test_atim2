@@ -1252,10 +1252,10 @@ class AliquotMaster extends InventoryManagementAppModel
             //$y = - 1;
         }
         
-        $barcodesList = array();
         $dataArray = array();
-        while (($data = fgetcsv($handle, 1000, $csvSeparator)) !== FALSE) 
-        {
+        $barcodes = array();
+
+        while (($data = fgetcsv($handle, 1000, $csvSeparator)) !== false){
             foreach($data as &$d){
                 $d=trim($d);
             }
@@ -1263,86 +1263,16 @@ class AliquotMaster extends InventoryManagementAppModel
             if (empty($data[$barcode])) {
                 continue;
             }
-            $error = false;
+            
             $dataArray["message"] = array(
                 "warning" => array(),
                 "error" => array()
             );
             $dataArray["class"] = "";
-            $dataArray["barcode"] = $data[$barcode];
             
-            $aliquotsCheck = $this->find('all', array(
-                'conditions' => array(
-                    'BINARY(AliquotMaster.barcode)' => $data[$barcode]
-                ),
-                'fields' => array(
-                    'AliquotMaster.id',
-                    'AliquotMaster.barcode',
-                    'AliquotMaster.aliquot_label',
-                    'AliquotMaster.collection_id',
-                    'AliquotMaster.aliquot_control_id',
-                    'AliquotMaster.sample_master_id',
-                    'AliquotMaster.sop_master_id',
-                    'AliquotMaster.in_stock',
-                    'AliquotMaster.storage_master_id',
-                    'AliquotMaster.storage_coord_x',
-                    'AliquotMaster.storage_coord_y',
-                    'AliquotMaster.aliquot_control_id',
-                    'StorageMaster.short_label',
-                    'AliquotControl.aliquot_type',
-                    'AliquotMaster.id'
-                )
-            ));
-            if (count($aliquotsCheck) == 1) {
-                $resultCheck = $aliquotsCheck[0];
-                $dataArray["id"] = $resultCheck['AliquotMaster']['id'];
-                $dataArray["collectionId"] = $resultCheck['AliquotMaster']['collection_id'];
-                $dataArray["sampleMasterId"] = $resultCheck['AliquotMaster']['sample_master_id'];
-                $xCheck = $resultCheck['AliquotMaster']['storage_coord_x'];
-                $yCheck = $resultCheck['AliquotMaster']['storage_coord_y'];
-                $storageLabelCheck = $resultCheck['StorageMaster']['short_label'];
-                $aliquotTypeCheck = $resultCheck['AliquotControl']['aliquot_type'];
-                $availableCheck = $resultCheck['AliquotMaster']['in_stock'];
-                $labelCheck = $resultCheck['AliquotMaster']['aliquot_label'];
-                
-                if (! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) {
-                    $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
-                    $dataArray["class"] = 'duplicated-aliquot warning-aliquot';
-                }
-                if ($aliquotTypeCheck != 'core' && $isTma) {
-                    $dataArray["message"]['error'][] = __('only sample core can be stored into tma block');
-                    $error = true;
-                }
-                if ($availableCheck == 'no' && ! $error) {
-                    $dataArray["message"]['error'][] = __('aliquot is not in stock');
-                    $error = true;
-                }
-                if (! $error) {
-                    if (in_array($data[$barcode], $barcodesList) !== false) {
-                        $dataArray["message"]['warning'][] = __("duplicate barcode in csv file");
-                        foreach ($response['data'] as &$aliquotValue) {
-                            if ($aliquotValue['barcode'] == $data[$barcode]) {
-                                if (empty($aliquotValue["message"]['error'])) {
-                                    $existe = false;
-                                    foreach ($aliquotValue["message"]['warning'] as $message) {
-                                        if ($message == __("duplicate barcode in csv file")) {
-                                            $existe = true;
-                                            break;
-                                        }
-                                    }
-                                    if (! $existe) {
-                                        $aliquotValue["message"]['warning'][] = __("duplicate barcode in csv file");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    $barcodesList[] = $data[$barcode];
-                }
-            } elseif (count($aliquotsCheck) == 0) {
-                $dataArray["message"]['error'][] = __('aliquot does not exist');
-                $error = true;
-            }
+            $dataArray["barcode"] = $data[$barcode];
+            $barcodes[]= $data[$barcode];
+
             $dataArray["OK"] = 1;
             if ($coordXType == 'alphabetical') {
                 $xx = strtoupper($data[$x]);
@@ -1392,13 +1322,97 @@ class AliquotMaster extends InventoryManagementAppModel
                     }
                 }
             }
+            
+            $response['data'][] = $dataArray;
+            
+        }
+        $aliquotsCheckAll = $this->find('all', array(
+            'conditions' => array(
+                'BINARY(AliquotMaster.barcode)' => $barcodes
+            ),
+            'fields' => array(
+                'AliquotMaster.id',
+                'AliquotMaster.barcode',
+                'AliquotMaster.aliquot_label',
+                'AliquotMaster.collection_id',
+                'AliquotMaster.aliquot_control_id',
+                'AliquotMaster.sample_master_id',
+                'AliquotMaster.sop_master_id',
+                'AliquotMaster.in_stock',
+                'AliquotMaster.storage_master_id',
+                'AliquotMaster.storage_coord_x',
+                'AliquotMaster.storage_coord_y',
+                'AliquotMaster.aliquot_control_id',
+                'StorageMaster.short_label',
+                'AliquotControl.aliquot_type',
+                'AliquotMaster.id'
+            )
+        ));
+        $barcodesList = array();
+        foreach ($response['data'] as &$dataArray){
+            $aliquotsCheck = array();
+            foreach ($aliquotsCheckAll as $ali){
+                if ($ali['AliquotMaster']['barcode'] == $dataArray['barcode']){
+                    $aliquotsCheck[] =$ali;
+                    break;
+                }
+            }
+
+            if (count($aliquotsCheck) == 1) {
+                $resultCheck = $aliquotsCheck[0];
+                $dataArray["id"] = $resultCheck['AliquotMaster']['id'];
+                $dataArray["collectionId"] = $resultCheck['AliquotMaster']['collection_id'];
+                $dataArray["sampleMasterId"] = $resultCheck['AliquotMaster']['sample_master_id'];
+                $xCheck = $resultCheck['AliquotMaster']['storage_coord_x'];
+                $yCheck = $resultCheck['AliquotMaster']['storage_coord_y'];
+                $storageLabelCheck = $resultCheck['StorageMaster']['short_label'];
+                $aliquotTypeCheck = $resultCheck['AliquotControl']['aliquot_type'];
+                $availableCheck = $resultCheck['AliquotMaster']['in_stock'];
+                $labelCheck = $resultCheck['AliquotMaster']['aliquot_label'];
+                
+                if ((! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) && strpos($dataArray["class"], 'duplicated-aliquot')===false) {
+                    $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
+                    $dataArray["class"] = 'duplicated-aliquot warning-aliquot';
+                }
+                if ($aliquotTypeCheck != 'core' && $isTma) {
+                    $dataArray["message"]['error'][] = __('only sample core can be stored into tma block');
+                    $error = true;
+                }
+                if ($availableCheck == 'no' && ! $error) {
+                    $dataArray["message"]['error'][] = __('aliquot is not in stock');
+                    $error = true;
+                }
+                if (! $error) {
+                    if (in_array($dataArray['barcode'], $barcodesList) !== false) {
+//                        $dataArray["message"]['warning'][] = __("duplicate barcode in csv file");
+                        foreach ($response['data'] as $k=>$aliquotValue) {
+                            if ($aliquotValue['barcode'] == $dataArray['barcode']) {
+                                if (empty($aliquotValue["message"]['error'])) {
+                                    $existe = false;
+                                    foreach ($aliquotValue["message"]['warning'] as $message) {
+                                        if ($message == __("duplicate barcode in csv file")) {
+                                            $existe = true;
+                                            break;
+                                        }
+                                    }
+                                    if (! $existe) {
+                                        $response['data'][$k]["message"]['warning'][] = __("duplicate barcode in csv file");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $barcodesList[] = $dataArray['barcode'];
+                }
+            } elseif (count($aliquotsCheck) == 0) {
+                $dataArray["message"]['error'][] = __('aliquot does not exist');
+                $error = true;
+            }
             if (! empty($labelCheck)) {
                 $dataArray["label"] = $labelCheck;
             }
-            $response['data'][] = $dataArray;
         }
         fclose($handle);
-        
         return $response;
     }
 }

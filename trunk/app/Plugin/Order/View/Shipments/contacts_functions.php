@@ -5,7 +5,7 @@ function manageContacts(){
 		$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 		$.get(root_url + "Order/Shipments/manageContact/", function(data){
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }                    
@@ -46,7 +46,7 @@ function saveContact(){
 	$("#saveContactPopup").popup();
 	$.post(root_url + "Order/Shipments/saveContact/", $("form").serialize(), function(data){
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }                    
@@ -69,7 +69,7 @@ function deleteContact(id){
 	$("#manageContactPopup").popup();
 	$.get(root_url + "Order/Shipments/deleteContact/" + id, function(data){
             if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }                    
