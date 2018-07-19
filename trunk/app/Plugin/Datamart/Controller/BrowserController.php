@@ -156,8 +156,9 @@ class BrowserController extends DatamartAppController
             $plugin = $this->request->params['plugin'];
             $controller = $this->request->params['controller'];
             $action = $this->request->params['action'];
-            if (isset($_SESSION['post_data'][$plugin][$controller][$action])) {
-                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action], 'jsPostData');
+            $param = $controlId."";
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$param])) {
+                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action][$param], 'jsPostData');
             }
         }
         $this->BrowsingResult->checkWritableFields = false;
