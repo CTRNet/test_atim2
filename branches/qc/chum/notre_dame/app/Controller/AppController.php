@@ -12,11 +12,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Controller
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Controller
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Controller', 'Controller');
 
@@ -77,7 +77,7 @@ class AppController extends Controller
         'Time',
         'Form'
     );
-
+    
     // use AppController::getCalInfo to get those with translations
     private static $calInfoShort = array(
         1 => 'jan',
@@ -116,9 +116,26 @@ class AppController extends Controller
     private static $calInfoLongTranslated = false;
 
     public static $highlightMissingTranslations = true;
-
+    
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
+
+    private function checkUrl()
+    {
+        if (empty($_SESSION['url'])) {
+            $_SESSION['url'] = array(
+                'nonAjax' => array(),
+                'ajax' => array(),
+                'all' => array()
+            );
+        }
+        if (! $this->request->is('ajax')) {
+            $_SESSION['url']['nonAjax'][] = "/" . Router::getPaths($this->here)->url;
+        } else {
+            $_SESSION['url']['ajax'][] = "/" . Router::getPaths($this->here)->url;
+        }
+        $_SESSION['url']['all'][] = "/" . Router::getPaths($this->here)->url;
+    }
 
     /**
      * This function is executed before every action in the controller.
@@ -127,6 +144,7 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
+        $this->checkUrl();
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -149,7 +167,7 @@ class AppController extends Controller
         $lowerUrlHere = strtolower($this->request->here);
         if ($this->Session->read('Auth.User.force_password_reset') && strpos($lowerUrlHere, '/users/logout') === false) {
             if (strpos($lowerUrlHere, '/customize/passwords/index') === false) {
-                if (!$this->request->is('ajax')){
+                if (! $this->request->is('ajax')) {
                     $this->redirect('/Customize/Passwords/index/');
                 }
             }
@@ -170,9 +188,29 @@ class AppController extends Controller
         
         $logActivityModel->save($logActivityData);
         
+        // record URL in logs file
+        
+        if (Configure::read('atim_user_log_output_path')) {
+            $userLogFileHandle = fopen(Configure::read('atim_user_log_output_path') . '/user_logs.txt', "a");
+            if ($userLogFileHandle) {
+                $userLogStrg = '[' . $logActivityData['UserLog']['visited'] . '] ' . '{IP: ' . AppModel::getRemoteIPAddress() . ' || user_id: ' . (strlen($logActivityData['UserLog']['user_id']) ? $logActivityData['UserLog']['user_id'] : 'NULL') . '} ' . $logActivityData['UserLog']['url'] . ' (allowed:' . $logActivityData['UserLog']['allowed'] . ')';
+                fwrite($userLogFileHandle, "$userLogStrg\n");
+                fclose($userLogFileHandle);
+            } else {
+                $logDirectory = Configure::read('atim_user_log_output_path');
+                $permission = substr(sprintf('%o', fileperms($logDirectory)), - 4);
+                if ($permission != '0777') {
+                    AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
+                } else {
+                    AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+                }
+            }
+        }
+        
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
             Configure::write('debug', 0);
+            $this->Components->unload('DebugKit.Toolbar');
         } else {
             $atimSubMenuForHeader = array();
             $menuModel = AppModel::getInstance("", "Menu", true);
@@ -204,30 +242,61 @@ class AppController extends Controller
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
         
-        if (isset($this->request->query['file'])) {
-            pr($this->request->query['file']);
-        }
-        
-        if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
-            AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
-        }
+        $this->checkIfDownloadFile();
         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
         $this->Auth->authError = __('You are not authorized to access that location.');
     }
 
+    private function checkIfDownloadFile()
+    {
+        if (isset($this->request->query['file']) && $this->Auth->isAuthorized()) {
+            $plugin = $this->request->params['plugin'];
+            $modelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
+            $fileName = $this->request->query['file'];
+            if (! $this->Session->read('flag_show_confidential')) {
+                preg_match('/(' . $modelName . ')\.(.+)\.([0-9]+)\.(.+)/', $fileName, $matches, PREG_OFFSET_CAPTURE);
+                if (! empty($matches)) {
+                    if ($matches[1][0] == $modelName) {
+                        $model = AppModel::getInstance($plugin, $modelName, true);
+                        $fields = $model->schema();
+                        if (isset($fields[$matches[2][0]])) {
+                            $this->atimFlashError(__('You are not authorized to access that location.'), '/Menus');
+                        }
+                    }
+                }
+            }
+            $file = Configure::read('uploadDirectory') . DS . $fileName;
+            if (file_exists($file)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($file));
+                readfile($file);
+            } else {
+                $this->atimFlashError(__('file does not exist'), '');
+            }
+        }
+    }
+
     /**
      * AppController constructor.
+     *
      * @param null $request
      * @param null $response
      */
-    public function __construct($request = null, $response = null) {
+    public function __construct($request = null, $response = null)
+    {
         $className = get_class($this);
         $this->name = substr($className, 0, strlen(get_class($this)) - (strpos($className, 'ControllerCustom') === false ? 10 : 16));
         parent::__construct($request, $response);
     }
 
     /**
+     *
      * @param string $hookExtension
      * @return bool|string
      */
@@ -247,13 +316,14 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @return CakeResponse|null
      */
     private function handleFileRequest()
     {
         $file = $this->request->query['file'];
         
-        $redirectInvalidFile = function ($caseType) use (&$file) {
+        $redirectInvalidFile = function ($caseType) use(&$file) {
             CakeLog::error("User tried to download invalid file (" . $caseType . "): " . $file);
             if ($caseType === 3) {
                 AppController::getInstance()->redirect("/Pages/err_file_not_auth?p[]=" . $file);
@@ -303,8 +373,8 @@ class AppController extends Controller
         
         if (isset($this->passedArgs['batchsetVar'])) {
             // batchset handling
-            $data=null;
-            if (isset($this->viewVars[$this->passedArgs['batchsetVar']])){
+            $data = null;
+            if (isset($this->viewVars[$this->passedArgs['batchsetVar']])) {
                 $data = $this->viewVars[$this->passedArgs['batchsetVar']];
             }
             if (empty($data)) {
@@ -318,6 +388,10 @@ class AppController extends Controller
             $this->requestAction('/Datamart/BatchSets/add/0', array(
                 '_data' => $data
             ));
+        }
+        
+        if ($this->layout == 'ajax') {
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         }
     }
 
@@ -349,6 +423,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $word
      */
     public static function missingTranslation(&$word)
@@ -362,14 +437,33 @@ class AppController extends Controller
     }
 
     /**
+     *
+     * @param array|string $url
+     * @param null $status
+     * @param bool $exit
+     * @return \Cake\Network\Response|null|void
+     */
+    public function redirect($url, $status = null, $exit = true)
+    {
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        parent::redirect($url, $status, $exit);
+    }
+
+    /**
+     *
      * @param $message
      * @param $url
      * @param int $type
      */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
-        if (strpos(strtolower($url), 'javascript')===false){
+        if (empty($url)) {
+            $url = "/Menus";
+        }
+        if (strpos(strtolower($url), 'javascript') !== false) {
+            $url = $_SERVER["HTTP_REFERER"];
+        }
+        if (strpos(strtolower($url), 'javascript') === false) {
             if ($type == self::CONFIRM) {
                 $_SESSION['ctrapp_core']['confirm_msg'] = $message;
             } elseif ($type == self::INFORMATION) {
@@ -380,13 +474,10 @@ class AppController extends Controller
                 $_SESSION['ctrapp_core']['error_msg'][] = $message;
             }
             $this->redirect($url);
-        }elseif(false){
-        //TODO:: Check if can use javascript functions for blue screen message
-        echo '<script type="text/javascript">',
-                    'javascript:history.back();',
-                    'window.location.reload();',
-                '</script>';
-        }else{
+        } elseif (false) {
+            // TODO:: Check if can use javascript functions for blue screen message
+            echo '<script type="text/javascript">', 'javascript:history.back();', 'window.location.reload();', '</script>';
+        } else {
             $this->autoRender = false;
             $this->set('url', Router::url($url));
             $this->set('message', $message);
@@ -396,46 +487,51 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $message
      * @param $url
      * @param null $compatibility
      */
-    public function atimFlashError($message, $url, $compatibility=null)
+    public function atimFlashError($message, $url, $compatibility = null)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
 
     /**
+     *
      * @param $message
      * @param $url
      * @param null $compatibility
      */
-    public function atimFlashInfo($message, $url, $compatibility=null)
+    public function atimFlashInfo($message, $url, $compatibility = null)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
     /**
+     *
      * @param $message
      * @param $url
      * @param null $compatibility
      */
-    public function atimFlashConfirm($message, $url, $compatibility=null)
+    public function atimFlashConfirm($message, $url, $compatibility = null)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
     /**
+     *
      * @param $message
      * @param $url
      * @param null $compatibility
      */
-    public function atimFlashWarning($message, $url, $compatibility=null)
+    public function atimFlashWarning($message, $url, $compatibility = null)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
 
     /**
+     *
      * @return null
      */
     public static function getInstance()
@@ -534,8 +630,7 @@ class AppController extends Controller
 
     /**
      *
-     * @param boolean $short
-     *            Wheter to return short or long month names
+     * @param boolean $short Wheter to return short or long month names
      * @return an associative array containing the translated months names so that key = month_number and value = month_name
      */
     public static function getCalInfo($short = true)
@@ -557,14 +652,11 @@ class AppController extends Controller
 
     /**
      *
-     * @param int $year            
-     * @param
-     *            mixed int | string $month
-     * @param int $day            
-     * @param boolean $nbspSpaces
-     *            True if white spaces must be printed as &nbsp;
-     * @param boolean $shortMonths
-     *            True if months names should be short (used if $month is an int)
+     * @param int $year
+     * @param mixed int | string $month
+     * @param int $day
+     * @param boolean $nbspSpaces True if white spaces must be printed as &nbsp;
+     * @param boolean $shortMonths True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
     public static function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
@@ -590,6 +682,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $hour
      * @param $minutes
      * @param bool $nbspSpaces
@@ -615,12 +708,9 @@ class AppController extends Controller
      *
      * Enter description here ...
      *
-     * @param $datetimeString String
-     *            with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
-     * @param boolean $nbspSpaces
-     *            True if white spaces must be printed as &nbsp;
-     * @param boolean $shortMonths
-     *            True if months names should be short (used if $month is an int)
+     * @param $datetimeString String with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
+     * @param boolean $nbspSpaces True if white spaces must be printed as &nbsp;
+     * @param boolean $shortMonths True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
     public static function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
@@ -656,22 +746,21 @@ class AppController extends Controller
     /**
      * Return formatted date in SQL format from a date array returned by an application form.
      *
-     * @param $datetimeArray Array
-     *            gathering date data into following structure:
-     *            array('month' => string, '
-     *            'day' => string,
-     *            'year' => string,
-     *            'hour' => string,
-     *            'min' => string)
+     * @param $datetimeArray Array gathering date data into following structure:
+     *        array('month' => string, '
+     *        'day' => string,
+     *        'year' => string,
+     *        'hour' => string,
+     *        'min' => string)
      * @param Specify|string $dateType Specify
-     *            the type of date ('normal', 'start', 'end')
-     *            - normal => Will force function to build a date witout specific rules.
-     *            - start => Will force function to build date as a 'start date' of date range defintion
-     *            (ex1: when just year is specified, will return a value like year-01-01 00:00)
-     *            (ex2: when array is empty, will return a value like -9999-99-99 00:00)
-     *            - end => Will force function to build date as an 'end date' of date range defintion
-     *            (ex1: when just year is specified, will return a value like year-12-31 23:59)
-     *            (ex2: when array is empty, will return a value like 9999-99-99 23:59)
+     *        the type of date ('normal', 'start', 'end')
+     *        - normal => Will force function to build a date witout specific rules.
+     *        - start => Will force function to build date as a 'start date' of date range defintion
+     *        (ex1: when just year is specified, will return a value like year-01-01 00:00)
+     *        (ex2: when array is empty, will return a value like -9999-99-99 00:00)
+     *        - end => Will force function to build date as an 'end date' of date range defintion
+     *        (ex1: when just year is specified, will return a value like year-12-31 23:59)
+     *        (ex2: when array is empty, will return a value like 9999-99-99 23:59)
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
     public static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
@@ -742,8 +831,7 @@ class AppController extends Controller
     /**
      * Clones the first level of an array
      *
-     * @param array $arr
-     *            The array to clone
+     * @param array $arr The array to clone
      * @return array
      */
     public static function cloneArray(array $arr)
@@ -760,6 +848,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $msg
      * @param bool $withTrace
      */
@@ -780,6 +869,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $msg
      */
     public static function addInfoMsg($msg)
@@ -792,6 +882,15 @@ class AppController extends Controller
     }
 
     /**
+     *
+     */
+    public static function forceMsgDisplayInPopup()
+    {
+        $_SESSION['ctrapp_core']['force_msg_display_in_popup'] = true;
+    }
+    
+    /**
+     *
      * @return array
      */
     public static function getStackTrace()
@@ -809,7 +908,7 @@ class AppController extends Controller
      *
      * @param array $data
      * @return array
-     * @internal param $ array They data array to build the values with*            array They data array to build the values with
+     * @internal param $ array They data array to build the values with* array They data array to build the values with
      */
     public static function getUpdateAllValues(array $data)
     {
@@ -829,8 +928,20 @@ class AppController extends Controller
     }
 
     /**
+     * Encrypt a text
+     *
+     * @param String $string
+     * @return String
+     */
+    public static function encrypt($string)
+    {
+        return Security::hash($string, null, true);
+    }
+
+    /**
      * cookie manipulation to counter cake problems.
      * see eventum #1032
+     *
      * @param $skipExpirationCookie
      */
     public static function atimSetCookie($skipExpirationCookie)
@@ -842,6 +953,8 @@ class AppController extends Controller
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
                 setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");
             }
+            $sessionId = (! empty($_SESSION['Auth']['User']['id'])) ? self::encrypt($_SESSION['Auth']['User']['id']) : self::encrypt("nul string");
+            setcookie('sessionId', $sessionId, 0, "/");
         }
     }
 
@@ -849,18 +962,12 @@ class AppController extends Controller
      * Global function to initialize a batch action.
      * Redirect/flashes on error.
      *
-     * @param AppModek $model
-     *            The model to work on
-     * @param string $dataModelName
-     *            The model name used in $this->request->data
-     * @param string $dataKey
-     *            The data key name used in $this->request->data
-     * @param string $controlKeyName
-     *            The name of the control field used in the model table
-     * @param AppModel $possibilitiesModel
-     *            The model to fetch the possibilities from
-     * @param string $possibilitiesParentKey
-     *            The possibilities parent key to base the search on
+     * @param AppModek $model The model to work on
+     * @param string $dataModelName The model name used in $this->request->data
+     * @param string $dataKey The data key name used in $this->request->data
+     * @param string $controlKeyName The name of the control field used in the model table
+     * @param AppModel $possibilitiesModel The model to fetch the possibilities from
+     * @param string $possibilitiesParentKey The possibilities parent key to base the search on
      * @param $noPossibilitiesMsg
      * @return An array with the ids and the possibilities
      */
@@ -933,13 +1040,10 @@ class AppController extends Controller
     /**
      * Replaces the array key (generally of a find) with an inner value
      *
-     * @param array $inArray            
-     * @param string $model
-     *            The model ($inArray[$model])
-     * @param string $field
-     *            The field (new key = $inArray[$model][$field])
-     * @param bool $unique
-     *            If true, the array block will be directly under the model.field, not in an array.
+     * @param array $inArray
+     * @param string $model The model ($inArray[$model])
+     * @param string $field The field (new key = $inArray[$model][$field])
+     * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
      * @return array
      */
     public static function defineArrayKey($inArray, $model, $field, $unique = false)
@@ -966,7 +1070,7 @@ class AppController extends Controller
      * Recursively removes entries returning true on empty($value).
      *
      * @param array $data
-     * @internal param $ array &$data*            array &$data
+     * @internal param $ array &$data* array &$data
      */
     public static function removeEmptyValues(array &$data)
     {
@@ -981,6 +1085,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @return mixed
      */
     public static function getNewSearchId()
@@ -990,8 +1095,7 @@ class AppController extends Controller
 
     /**
      *
-     * @param string $link
-     *            The link to check
+     * @param string $link The link to check
      * @return True if the user can access that page, false otherwise
      */
     public static function checkLinkPermission($link)
@@ -1013,6 +1117,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $inArray
      * @param $model
      * @param $field
@@ -1028,12 +1133,9 @@ class AppController extends Controller
      * Handles automatic pagination of model records Adding
      * the necessary bind on the model to fetch detail level, if there is a unique ctrl id
      *
-     * @param Model|string $object
-     *            Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
-     * @param string|array $scope
-     *            Conditions to use while paginating
-     * @param array $whitelist
-     *            List of allowed options for paging
+     * @param Model|string $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+     * @param string|array $scope Conditions to use while paginating
+     * @param array $whitelist List of allowed options for paging
      * @return array Model query results
      */
     public function paginate($object = null, $scope = array(), $whitelist = array())
@@ -1059,18 +1161,12 @@ class AppController extends Controller
      * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id,
      * false otherwise. (Non master/detail models will return false)
      *
-     * @param int $searchId
-     *            The search id used by the pagination
-     * @param Object $model
-     *            The model to search upon
-     * @param string $structureAlias
-     *            The structure alias to parse the search conditions on
-     * @param string $url
-     *            The base url to use in the pagination links (meaning without the search_id)
-     * @param bool $ignoreDetail
-     *            If true, even if the model is a master_detail ,the detail level won't be loaded
-     * @param mixed $limit
-     *            If false, will make a paginate call, if an int greater than 0, will make a find with the limit
+     * @param int $searchId The search id used by the pagination
+     * @param Object $model The model to search upon
+     * @param string $structureAlias The structure alias to parse the search conditions on
+     * @param string $url The base url to use in the pagination links (meaning without the search_id)
+     * @param bool $ignoreDetail If true, even if the model is a master_detail ,the detail level won't be loaded
+     * @param mixed $limit If false, will make a paginate call, if an int greater than 0, will make a find with the limit
      */
     public function searchHandler($searchId, $model, $structureAlias, $url, $ignoreDetail = false, $limit = false)
     {
@@ -1078,9 +1174,17 @@ class AppController extends Controller
         $structure = $this->Structures->get('form', $structureAlias);
         $this->set('atimStructure', $structure);
         if (empty($searchId)) {
+            $plugin = $this->request->params['plugin'];
+            $controller = $this->request->params['controller'];
+            $action = $this->request->params['action'];
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action])) {
+                convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action], 'jsPostData');
+            }
+            
             $this->Structures->set('empty', 'emptyStructure');
         } else {
             if ($this->request->data) {
+                
                 // newly submitted search, parse conditions and store in session
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
@@ -1124,12 +1228,11 @@ class AppController extends Controller
     /**
      * Set the Pagination settings based on user preferences and controller Pagination settings.
      *
-     * @param Object $model
-     *            The model to search upon
+     * @param Object $model The model to search upon
      */
     public function setControlerPaginatorSettings($model)
     {
-        if (PAGINATION_AMOUNT){
+        if (PAGINATION_AMOUNT) {
             $this->Paginator->settings = array_merge($this->Paginator->settings, array(
                 'limit' => PAGINATION_AMOUNT
             ));
@@ -1142,12 +1245,9 @@ class AppController extends Controller
     /**
      * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
      *
-     * @param
-     *            AppModel &$model
-     * @param array $conditions
-     *            Search conditions
-     * @param
-     *            string &$structureAlias
+     * @param AppModel &$model
+     * @param array $conditions Search conditions
+     * @param string &$structureAlias
      */
     public static function buildDetailBinding(&$model, array $conditions, &$structureAlias)
     {
@@ -1255,9 +1355,8 @@ class AppController extends Controller
     /**
      * Builds menu options based on 1-display_order and 2-translation
      *
-     * @param array $menuOptions
-     *            An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
-     *            The label must be translated already.
+     * @param array $menuOptions An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
+     *        The label must be translated already.
      */
     public static function buildBottomMenuOptions(array &$menuOptions)
     {
@@ -1307,6 +1406,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param array $list
      * @param $lModel
      * @param $lKey
@@ -1331,8 +1431,7 @@ class AppController extends Controller
      * Builds a cancel link based on the passed data.
      * Works for data send by batch sets and browsing.
      *
-     * @param
-     *            strint or null $data
+     * @param strint or null $data
      * @return null|string
      */
     public static function getCancelLink($data)
@@ -1368,8 +1467,14 @@ class AppController extends Controller
         $this->PermissionManager->buildAcl();
         AppController::addWarningMsg(__('permissions have been regenerated'));
         
-        // *** 2 *** update the i18n string for version
+        // *** 1.5 *** Check the upload, temp and local directory permission
+        $uploadDirectory = Configure::read('uploadDirectory');
+        $permission = substr(sprintf('%o', fileperms($uploadDirectory)), - 4);
+        if ($permission != '0777') {
+            AppController::addWarningMsg(__('the permission of "upload" directory is not correct.'));
+        }
         
+        // *** 2 *** update the i18n string for version
         $storageControlModel = AppModel::getInstance('StorageLayout', 'StorageControl', true);
         $isTmaBlock = $storageControlModel->find('count', array(
             'condition' => array(
@@ -1498,6 +1603,7 @@ class AppController extends Controller
             AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
             AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
         );
+        
         foreach ($viewModels as $viewModel) {
             $this->Version->query('DROP TABLE IF EXISTS ' . $viewModel->table);
             $this->Version->query('DROP VIEW IF EXISTS ' . $viewModel->table);
@@ -1510,6 +1616,17 @@ class AppController extends Controller
                 }
             } else {
                 $this->Version->query('CREATE TABLE ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $viewModel::$tableQuery) . ')');
+                if ($viewModel->table == 'view_aliquots') {
+                    $this->Version->query('ALTER TABLE `' . $viewModel->table . '` ADD INDEX `view_aliquot_barcode_index` (`barcode`)');
+                    $this->Version->query('ALTER TABLE `' . $viewModel->table . '` ADD INDEX `view_aliquot_aliquot_label_index` (`aliquot_label`)');
+                    $this->Version->query('ALTER TABLE `' . $viewModel->table . '` ADD INDEX `view_aliquot_acquisition_label_index` (`acquisition_label`)');
+                }
+                if ($viewModel->table == 'view_samples') {
+                    $this->Version->query('ALTER TABLE `' . $viewModel->table . '` ADD INDEX `view_samples_sample_code_index` (`sample_code`)');
+                }
+                if ($viewModel->table == 'view_collections') {
+                    $this->Version->query('ALTER TABLE `' . $viewModel->table . '` ADD INDEX `view_collections_acquisition_label_index` (`acquisition_label`)');
+                }
             }
             $desc = $this->Version->query('DESC ' . $viewModel->table);
             $fields = array();
@@ -1521,6 +1638,18 @@ class AppController extends Controller
                 }
             }
             $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
+            /*
+             * $database = new DATABASE_CONFIG();
+             * $database = $database->default['database'];
+             * $columns = $this->Version->query("SELECT column_name FROM information_schema.columns WHERE table_name = '".$viewModel->table."' && TABLE_SCHEMA='".$database."' order by column_name ;");
+             * foreach($columns as $column){
+             * $c= $column['columns']['column_name'];
+             * try {
+             * $this->Version->query("ALTER TABLE ".$viewModel->table." ADD INDEX (".$c.");");
+             * } catch (Exception $exc) {
+             * }
+             * }
+             */
         }
         
         AppController::addWarningMsg(__('views have been rebuilt'));
@@ -1600,8 +1729,9 @@ class AppController extends Controller
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
-        if ($currentVolumesUpdated)
+        if ($currentVolumesUpdated) {
             AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ') . (implode(', ', $currentVolumesUpdated)));
+        }
         // -C-Used Volume
         $usedVolumeUpdated = array();
         // Search all aliquot internal use having used volume not null but no volume unit
@@ -1812,7 +1942,7 @@ class AppController extends Controller
         $storageCtrlModel = AppModel::getInstance('Administrate', 'StorageCtrl', true);
         $storageCtrlModel->validatesAllStorageControls();
         
-        // *** 12 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
+        // *** 13 *** Update structure_formats of 'shippeditems', 'orderitems' and 'orderlines' forms based on core variable 'order_item_type_config'
         
         $tmpSql = "SELECT DISTINCT `flag_detail`
 			FROM structure_formats
@@ -1820,8 +1950,9 @@ class AppController extends Controller
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
         $flagDetailResult = $aliquotMasterModel->query($tmpSql);
         $aliquotLabelFlagDetail = '1';
-        if ($flagDetailResult)
+        if ($flagDetailResult) {
             $aliquotLabelFlagDetail = empty($flagDetailResult[0]['structure_formats']['flag_detail']) ? '0' : '1';
+        }
         
         $structureFormatsQueries = array();
         switch (Configure::read('order_item_type_config')) {
@@ -1867,21 +1998,7 @@ class AppController extends Controller
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='1' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -1890,7 +2007,7 @@ class AppController extends Controller
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='1'
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -1943,21 +2060,7 @@ class AppController extends Controller
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='0' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -1966,7 +2069,7 @@ class AppController extends Controller
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='1'
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -2013,18 +2116,7 @@ class AppController extends Controller
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
                     
-                    // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters');",
-                    "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot');",
-                    "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
-						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
-						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
-                    
-                    // 4 - `orderlines` structure
+                    // 3 - `orderlines` structure
                     "UPDATE structure_formats SET `flag_search`='0' 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id IN (SELECT id FROM structure_fields 
@@ -2033,7 +2125,7 @@ class AppController extends Controller
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
                     
-                    // 5 - `orderitems_plus` structure
+                    // 4 - `orderitems_plus` structure
                     "UPDATE structure_formats SET `flag_index`='0' 
 						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus') 
 						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
@@ -2046,9 +2138,15 @@ class AppController extends Controller
             
             default:
         }
-        foreach ($structureFormatsQueries as $tmpSql)
+        $ldap = Configure::read('if_use_ldap_authentication');
+        if (! empty($ldap)) {
+            $structureFormatsQueries[] = "update structure_formats SET `flag_edit`='0', `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='users_form_for_admin') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='User' AND `tablename`='users' AND `field`='force_password_reset')";
+        }
+        
+        foreach ($structureFormatsQueries as $tmpSql) {
             $aliquotMasterModel->query($tmpSql);
-        AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
+        }
+        AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
@@ -2065,6 +2163,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $config
      */
     public function configureCsv($config)
@@ -2074,6 +2173,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param $connection
      * @param array $options
      * @return string
@@ -2100,6 +2200,7 @@ class AppController extends Controller
     }
 
     /**
+     *
      * @param null $array
      * @return array
      */
@@ -2112,7 +2213,7 @@ class AppController extends Controller
             }
         }
         return $answer;
-    }    
+    }
 }
 
 AppController::init();
@@ -2128,6 +2229,7 @@ function now()
 }
 
 /**
+ *
  * @param $errno
  * @param $errstr
  * @param $errfile

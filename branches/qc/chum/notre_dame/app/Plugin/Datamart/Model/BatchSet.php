@@ -28,6 +28,7 @@ class BatchSet extends DatamartAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array
      */
@@ -94,11 +95,10 @@ class BatchSet extends DatamartAppModel
 
     /**
      *
-     * @param string $plugin            
-     * @param string $model            
-     * @param string $datamartStructureId            
-     * @param int $ignoreId
-     *            Id to ignore (usually, we do not want a batch set to be compatible to itself)
+     * @param string $plugin
+     * @param string $model
+     * @param string $datamartStructureId
+     * @param int $ignoreId Id to ignore (usually, we do not want a batch set to be compatible to itself)
      * @return array Compatible Batch sets
      */
     public function getCompatibleBatchSets($plugin, $model, $datamartStructureId, $ignoreId = null)
@@ -167,10 +167,8 @@ class BatchSet extends DatamartAppModel
      * If it fails, the browser
      * will be redirected to a flash screen.
      *
-     * @param array $batchset
-     *            The batchset data
-     * @param boolean $mustBeUnlocked
-     *            If true, the batchset must be unlocked to authorize access.
+     * @param array $batchset The batchset data
+     * @param boolean $mustBeUnlocked If true, the batchset must be unlocked to authorize access.
      * @return bool
      */
     public function isUserAuthorizedToRw(array $batchset, $mustBeUnlocked)
@@ -186,6 +184,23 @@ class BatchSet extends DatamartAppModel
             case 'group':
                 $allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
                 break;
+            case 'bank':
+                $allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
+                if (! $allowed) {
+                    $userBankId = $_SESSION['Auth']['User']['Group']['bank_id'];
+                    $userBankGroupIds = array(
+                        '-1'
+                    );
+                    if ($userBankId) {
+                        $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+                        $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+                        if ($tmpBankGroupIds) {
+                            $userBankGroupIds = $tmpBankGroupIds;
+                        }
+                    }
+                    $allowed = in_array($_SESSION['Auth']['User']['group_id'], $userBankGroupIds);
+                }
+                break;
             case 'all':
                 $allowed = true;
                 break;
@@ -199,7 +214,7 @@ class BatchSet extends DatamartAppModel
         }
         
         if ($mustBeUnlocked && $batchset['BatchSet']['locked']) {
-            AppController::getInstance()->atimFlashWarning(__('this batchset is locked'), 'javascript:history.back()');
+            AppController::getInstance()->atimFlashError(__('this batchset is locked'), 'javascript:history.back()');
             return false;
         }
         
@@ -210,7 +225,7 @@ class BatchSet extends DatamartAppModel
      * Completes batch set data arrays by adding query_type, model and flag_use_query_results values.
      *
      * @param array $dataArray
-     * @internal param $ array &$dataArray*            array &$dataArray
+     * @internal param $ array &$dataArray* array &$dataArray
      */
     public function completeData(array &$dataArray)
     {
@@ -230,6 +245,7 @@ class BatchSet extends DatamartAppModel
     }
 
     /**
+     *
      * @param array $batchSetData
      * @param array $ids
      */
@@ -265,6 +281,7 @@ class BatchSet extends DatamartAppModel
     }
 
     /**
+     *
      * @param $batchSetId
      * @return bool
      */
@@ -275,7 +292,7 @@ class BatchSet extends DatamartAppModel
         );
         $batchSet = $this->find('first', array(
             'conditions' => $conditions,
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($batchSet))
             $this->redirect('/Pages/err_plugin_system_error?Bmethod=' . $bt[1]['function'] . ',line=' . $bt[1]['line'], null, true);
@@ -302,8 +319,7 @@ class BatchSet extends DatamartAppModel
     /**
      * Builds a label to help user to identify a batch set
      *
-     * @param array $batchSetData
-     *            data of the batch set
+     * @param array $batchSetData data of the batch set
      * @return string The label
      */
     public function getBatchSetLabel($batchSetData)

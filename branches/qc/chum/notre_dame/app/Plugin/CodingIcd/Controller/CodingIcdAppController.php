@@ -7,6 +7,7 @@ class CodingIcdAppController extends AppController
 {
 
     /**
+     *
      * @param $useIcdType
      */
     public function tool($useIcdType)
@@ -19,12 +20,10 @@ class CodingIcdAppController extends AppController
     /**
      * Search through an icd coding model
      *
-     * @param boolean $isTool
-     *            Is the search made from a popup tool
-     * @param AppModel $modelToUse
-     *            The model to base the search on
+     * @param boolean $isTool Is the search made from a popup tool
+     * @param AppModel $modelToUse The model to base the search on
      * @return bool
-     * @internal param array $searchFieldsPrefix The fields prefix to base the search on*            The fields prefix to base the search on
+     * @internal param array $searchFieldsPrefix The fields prefix to base the search on* The fields prefix to base the search on
      */
     public function globalSearch($isTool, $modelToUse)
     {
@@ -52,6 +51,7 @@ class CodingIcdAppController extends AppController
     }
 
     /**
+     *
      * @param $modelToUse
      */
     public function globalAutocomplete($modelToUse)

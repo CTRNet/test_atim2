@@ -13,11 +13,11 @@
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Config
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Config
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 /**
  * In this file you set up your database connection details.
@@ -60,14 +60,14 @@
  */
 class DATABASE_CONFIG
 {
-    
+
     public $default = array(
         'datasource' => 'Database/Mysql',
-        'persistent' => true,
+        'persistent' => false,
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'chumonco',
+        'database' => 'trunk',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306

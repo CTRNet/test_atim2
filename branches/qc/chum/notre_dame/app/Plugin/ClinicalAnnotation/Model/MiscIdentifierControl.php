@@ -57,6 +57,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @return array|null
      */
     public function getConfidentialIds()

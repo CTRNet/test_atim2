@@ -3,12 +3,14 @@
 /**
  * Class AnnouncementsController
  */
+App::uses('AdministrateAppController', 'Administrate.Controller');
+
 class AnnouncementsController extends AdministrateAppController
 {
 
     public $uses = array(
         'User',
-        'Administrate.Announcement',
+        'Announcement',
         'Administrate.Bank'
     );
 
@@ -19,6 +21,7 @@ class AnnouncementsController extends AdministrateAppController
     );
 
     /**
+     *
      * @param $linkedModel
      * @param int $bankOrUserId
      */
@@ -94,6 +97,7 @@ class AnnouncementsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $linkedModel
      * @param int $bankOrUserId
      */
@@ -150,6 +154,7 @@ class AnnouncementsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param null $announcementId
      */
     public function detail($announcementId = null)
@@ -185,6 +190,7 @@ class AnnouncementsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param null $announcementId
      */
     public function edit($announcementId = null)
@@ -237,6 +243,7 @@ class AnnouncementsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param null $announcementId
      */
     public function delete($announcementId = null)
@@ -250,9 +257,7 @@ class AnnouncementsController extends AdministrateAppController
         
         $arrAllowDeletion = $this->Announcement->allowDeletion($announcementId);
         
-        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? 
-            "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['user_id'] : 
-            "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
+        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['user_id'] : "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
         
         // CUSTOM CODE
         $hookLink = $this->hook('delete');

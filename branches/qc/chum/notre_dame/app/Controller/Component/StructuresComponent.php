@@ -12,6 +12,12 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
+    public static $dateRange = array(
+        "date",
+        "datetime",
+        "time"
+    );
+
     public static $rangeTypes = array(
         "date",
         "datetime",
@@ -22,7 +28,15 @@ class StructuresComponent extends Component
         "float_positive"
     );
 
+    public static $rangeTypesNumber = array(
+        "integer",
+        "integer_positive",
+        "float",
+        "float_positive"
+    );
+
     /**
+     *
      * @param Controller $controller
      */
     public function initialize(Controller $controller)
@@ -34,12 +48,12 @@ class StructuresComponent extends Component
     /*
      * Combined function to simplify plugin usage,
      * sets validation for models AND sets atim_structure for view
-     *
      * @param $alias Form alias of the new structure
      * @param $structureName Structure name (by default name will be 'atim_structure')
      * @param array $parameters
      */
     /**
+     *
      * @param null $alias
      * @param string $structureName
      * @param array $parameters
@@ -124,7 +138,7 @@ $parameters);
             $structure['Structure'] = $structure['Structure'][0];
         }
         $structureName = Inflector::variable($structureName);
-//        $structureName = AppController::snakeToCamel($structureName);
+        // $structureName = AppController::snakeToCamel($structureName);
         $this->controller->set($structureName, $structure);
     }
 
@@ -132,7 +146,7 @@ $parameters);
      * Stores data into model accuracy_config.
      * Will be used for validation. Stores the same data into the structure.
      *
-     * @param array $structure            
+     * @param array $structure
      */
     private function updateAccuracyChecks(&$structure)
     {
@@ -174,6 +188,7 @@ $parameters);
     }
 
     /**
+     *
      * @param null $mode
      * @param null $alias
      * @return array|mixed
@@ -207,6 +222,27 @@ $parameters);
         if ($mode == 'rule' || $mode == 'rules') {
             $result = $result['rules'];
         } elseif ($mode == 'form') {
+            if (isset($result['structure']['Sfs'])) {
+                foreach ($result['structure']['Sfs'] as $sfs) {
+                    $tablename = $sfs['tablename'];
+                    if ($tablename) {
+                        foreach (array(
+                            'add',
+                            'edit',
+                            'addgrid',
+                            'editgrid',
+                            'batchedit'
+                        ) as $flag) {
+                            if ($sfs['flag_' . $flag] && ! $sfs['flag_' . $flag . '_readonly'] && $sfs['type'] != 'hidden') {
+                                AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
+                                if ($sfs['type'] == 'date' || $sfs['type'] == 'datetime') {
+                                    AppModel::$writableFields[$tablename][$flag][] = $sfs['field'] . '_accuracy';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             $result = $result['structure'];
         }
         
@@ -215,6 +251,7 @@ $parameters);
     }
 
     /**
+     *
      * @param null $alias
      * @return array|bool|mixed
      */
@@ -289,7 +326,7 @@ $parameters);
     /**
      * Sorts a structure based on display_column and display_order.
      *
-     * @param array $atimStructure            
+     * @param array $atimStructure
      */
     public static function sortStructure(&$atimStructure)
     {
@@ -308,6 +345,7 @@ $parameters);
     }
 
     /**
+     *
      * @param null $atimStructure
      * @param bool $autoAccuracy
      * @return array
@@ -344,7 +382,8 @@ $parameters);
                     'float',
                     'float_positive'
                 ));
-                if (in_array($valueType, self::$rangeTypes) || (strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
+                
+                if ((in_array($valueType, self::$rangeTypes) || strpos($value['setting'], "range") !== false) && isset($this->controller->data[$value['model']][$value['field'] . '_start'])) {
                     $keyStart = $formFieldsKey . '_start';
                     $formFields[$keyStart]['plugin'] = $value['plugin'];
                     $formFields[$keyStart]['model'] = $value['model'];
@@ -367,6 +406,13 @@ $parameters);
                         $formFields[$keyStart . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                         $formFields[$keyEnd . '_accuracy']['key'] = $formFieldsKey . '_accuracy';
                     }
+                } elseif (in_array($valueType, self::$rangeTypes)) {
+                    $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
+                    $formFields[$formFieldsKey]['model'] = $value['model'];
+                    $formFields[$formFieldsKey]['field'] = $value['field'];
+                    $formFields[$formFieldsKey]['key'] = $formFieldsKey . ' =';
+                    $formFields[$formFieldsKey]['is_float'] = $isFloat;
+                    $formFields[$formFieldsKey]['tablename'] = $value['tablename'];
                 } else {
                     $formFields[$formFieldsKey]['plugin'] = $value['plugin'];
                     $formFields[$formFieldsKey]['model'] = $value['model'];
@@ -417,6 +463,11 @@ $parameters);
         
         // parse DATA to generate SQL conditions
         // use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
+        $plugin = $this->controller->request->params['plugin'];
+        $controller = $this->controller->request->params['controller'];
+        $action = $this->controller->request->params['action'];
+        $_SESSION['post_data'][$plugin][$controller][$action] = removeEmptySubArray($this->controller->data);
+        
         foreach ($this->controller->data as $model => $fields) {
             if (is_array($fields)) {
                 foreach ($fields as $key => $data) {
@@ -558,6 +609,7 @@ $parameters);
     }
 
     /**
+     *
      * @param $val
      * @return bool
      */
@@ -567,6 +619,7 @@ $parameters);
     }
 
     /**
+     *
      * @param null $sql
      * @param null $conditions
      * @return array
@@ -711,6 +764,7 @@ $parameters);
     }
 
     /**
+     *
      * @param $id
      * @return mixed
      */

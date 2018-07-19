@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/Administrate/Announcements/edit/'.$atimMenuVariables['Announcement.id'],
+    'top' => '/Administrate/Announcements/edit/' . $atimMenuVariables['Announcement.id'],
     'bottom' => array(
-        'cancel' => '/Administrate/Announcements/detail/'.$atimMenuVariables['Announcement.id']
+        'cancel' => '/Administrate/Announcements/detail/' . $atimMenuVariables['Announcement.id']
     )
 );
 

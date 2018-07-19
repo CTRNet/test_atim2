@@ -9,9 +9,8 @@ class StorageLayoutAppController extends AppController
     /**
      * Inactivate the storage coordinate menu.
      *
-     * @param $atimMenu ATiM
-     *            menu.
-     *            
+     * @param $atimMenu ATiM menu.
+     *       
      * @return Modified ATiM menu.
      *        
      * @author N. Luc
@@ -34,9 +33,8 @@ class StorageLayoutAppController extends AppController
     /**
      * Inactivate the storage layout menu.
      *
-     * @param $atimMenu ATiM
-     *            menu.
-     *            
+     * @param $atimMenu ATiM menu.
+     *       
      * @return Modified ATiM menu.
      *        
      * @author N. Luc
