@@ -1,7 +1,8 @@
 <?php 
 
 
-
+/*
+ 
 //-------------------------------------------------------------------------------------------------------------
 //Note on 2018-03-20 from N. Luc
 Please note that the code has been updated considering following rules but not tested:
@@ -14,7 +15,7 @@ Please note that the code has been updated considering following rules but not t
 Please test code during next update.
 //-------------------------------------------------------------------------------------------------------------
 
-
+*/
 
 
 //=================================================================================================================
@@ -37,20 +38,12 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/todo/";
+$files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/";
 //$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateClinicalData/data/";
 
 // Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
 $excel_files_names = array(
-	'V0_2016-11-25_151020_UHNRT_Update of patients RNA_DNA_For Veronique_nl_revised.xls' => $mac_xls_offset,
-	'VO_HDQupdate2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_klotz batch3-2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_klotzbatch1-2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_klotzbatch2-2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_manitobaASupdate20128Nov16_nl_revised.xls' => $windows_xls_offset,
-	'VO_mcgill update 2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_update fleshner2016_nl_revised.xls' => $windows_xls_offset,
-	'VO_VPCupdate2016_nl_revised.xls' => $mac_xls_offset,
+	'partial import CPCBN_Drachenberg.xls' => $windows_xls_offset,
 );
 
 ?>

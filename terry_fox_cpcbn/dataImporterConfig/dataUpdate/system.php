@@ -368,7 +368,13 @@ function customInsertRecord($tables_data) {
 	$record_id = null;
 	$main_table_data = array();
 	$details_tables_data = array();
-//TODO: Add control on detail table based on _control_id	
+//TODO: Add control on detail table based on _control_id
+	foreach($tables_data as &$sub_table) {
+    	$sub_table = array_filter($sub_table, function($var){
+    	    return (!($var == '' || is_null($var)));
+    	});
+	}
+	array_filter($tables_data);	
 	if($tables_data) {
 		$tables_data_keys = array_keys($tables_data);
 		//--1-- Check data
@@ -516,7 +522,13 @@ function updateTableData($id, $tables_data) {
 			$table_data = $tables_data[$main_or_master_tablename];
 			unset($tables_data[$main_or_master_tablename]);
 			$set_sql_strings = array();
-			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
+            foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) {
+			    if(!is_null($value) && strlen($value)) {
+			        $set_sql_strings[] = "`$key` = \"$value\"";
+			    } else {
+			        "`$key` = null";
+			    }
+			}
 			$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `id` = $id;";
 			customQuery($query);
 			//Detail or SpecimenDetail/DerivativeDetail Table Update
@@ -525,7 +537,13 @@ function updateTableData($id, $tables_data) {
 			foreach($tables_data as $table_name => $table_data) {
 				if(!empty($table_data)) {
 					$set_sql_strings = array();
-					foreach($table_data  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
+					foreach($table_data  as $key => $value) {
+					    if(!is_null($value) && strlen($value)) {
+					        $set_sql_strings[] = "`$key` = \"$value\"";
+					    } else {
+					        "`$key` = null";
+					    }
+					}
 					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";
 					customQuery($query);
 					if(!in_array($table_name, array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $table_name;
