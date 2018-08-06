@@ -17,8 +17,7 @@
  * @since CakePHP(tm) v 0.2.9
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
-$prod = 0;
+
 /**
  * CakePHP Debug Level:
  *
@@ -32,8 +31,19 @@ $prod = 0;
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
+ 
+$debug = 0;
 Configure::write('debug', $debug);
-Configure::write('prod', $prod);
+
+/**
+ * ATiM Prod vs Test.
+ *
+ * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
+ * 0: Install name will be displayed as usual.
+ */
+ 
+$isTest = 0;
+Configure::write('IsTest', $isTest);
 
 /**
  * Configure the Error handler used to handle errors for your application.
@@ -526,8 +536,8 @@ Configure::write('edit_processed_items_limit', 50); // OrderItems.editInBatch()
 Configure::write('TmaSlideCreation_processed_items_limit', 50); // TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(),
                                                                 
 // --------------------------------------------------------------------------------------------------------------------------------------------
-                                                                // ORDER
-                                                                // --------------------------------------------------------------------------------------------------------------------------------------------
+// ORDER
+// --------------------------------------------------------------------------------------------------------------------------------------------
 
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
