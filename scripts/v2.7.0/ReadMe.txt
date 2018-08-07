@@ -35,6 +35,7 @@
 -- ATiM Migration Details & Action Items
 -- -------------------------------------------------------------------------------------------------------------------
 
+-- -------------------------------------------------------------------------------------------------------------------
 -- v2.7.0
 --   See ATiM Version Release Notes 
 --      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.0)
@@ -180,7 +181,7 @@
    
       Quality control and path review are now displayed into the collection tree view when they are not linked 
       to a tested aliquot. See "issue#3427: Add quality control and tissue review to collection tree view when data 
-      not linked to an aliquot". 
+      is not linked to an aliquot". 
    
       TODO :  
    
@@ -189,20 +190,30 @@
 
 
 
+-- -------------------------------------------------------------------------------------------------------------------
 -- v2.7.1
 --   See ATiM Version Release Notes 
 --      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.1)
 -- -------------------------------------------------------------------------------------------------------------------
 
-   ### 1 # Collection protocols
+   ### 1 # Collection Protocols
    -----------------------------------------------------------
  
-      New features added to the Template tool to let user to create collections protocols (definition of a list of collections 
-      a participant is supposed to participate defining the timeline, the default values and also the collection templates to use).
+      Improvement of the Template tool allowing user to create Collection Protocols being a list of collections a participant
+      is supposed to have. The tool lets users to define the timeline, the default values of each collection 
+      plus which collection templates to use for each visit.
    
       TODO :  
    
-      Create file \app\Plugin\Tools\View\Template\Hook\listProtocolsAndTemplates_protocol.php and add code to not display the Collection Protocols sub list and add protocol option.
+      Create Hook file \app\Plugin\Tools\View\Template\Hook\listProtocolsAndTemplates_protocol.php and 
+      add code to not display the Collection Protocols sub list and add protocol button.
+      
+         $displayNextForm = false;
+         $links = array(
+             'bottom' => array(
+                 'add' => '/Tools/Template/add/'
+             )
+         );
 
       Hide all fields displaying protocol data into Inventory Management module.
       
@@ -222,11 +233,14 @@
          WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') 
          AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
  
+      Check if Hook files exist on your local installation for the View '\app\Plugin\ClinicalAnnotation\View\ClinicalCollectionLinks\listall.ctp'
+      and check if $addButtonLinks is managed by these Hooks and have to be updated to support Collection Ptotocols.
+
  
    ### 2 # Database connection details : 'persistent' field
    -----------------------------------------------------------
    
-      To guarantee that the right error page will be displayed when database connection will failed, be sure that the 'persistent' is set to 'false'.
+      To guarantee that the right error page will be displayed when database connection fails, be sure that the 'persistent' is set to 'false'.
    
          public $default = array(
            'datasource' => 'Database/Mysql',
@@ -248,13 +262,13 @@
    
    TODO: 
    
-   Check if a ReportsControllerCustom has been developped for your local installation and replace code ['javascript:history.back()'] by [Router::url(null , true)]
+   Check if a ReportsControllerCustom has been developped on your local installation and replace any code ['javascript:history.back()'] by [Router::url(null , true)]
    
    
-   ### 3 # UserAnnouncementsController
+   ### 4 # UserAnnouncementsController
    -----------------------------------------------------------
    
-   The AnnouncementsController of the Customize plugin has been renamed to UserAnnouncementsController to remove all conflicts the AnnouncementsController of the 
+   The AnnouncementsController of the Customize plugin has been renamed to UserAnnouncementsController to remove all conflicts with the AnnouncementsController of the 
    Administrate plugin. 
    
    TODO: 
@@ -265,7 +279,7 @@
    Replace all custom code, custom file names or custom folder names of this plugin that contain Announcements by UserAnnouncements
 
    
-   ### 3 # New pre_search_handler Hooks
+   ### 5 # New pre_search_handler Hooks
    -----------------------------------------------------------
    
    A new hook call has been added before any searchHandler() call.
@@ -274,3 +288,102 @@
    
    Check if custom hook 'format' has been developped for the search function of the StudySummaries controller. One of the hook
    has been replaced by the new hook name.
+
+   
+   ### 6 # Upload file feature
+   -----------------------------------------------------------
+   
+   A new type of field has been created for downloading files on server (pdf, jpg, etc).
+   
+   TODO: 
+   
+   See page 'How to upload file on server with ATiM feature' on ATiM wiki to create specific fields.
+   (http://www.ctrnet.ca/mediawiki/index.php?title=How_to_upload_file_on_server_with_ATiM_feature)
+
+   
+   ### 7 # Charts feature to complete reports
+   -----------------------------------------------------------
+   
+   A new feature has been developped to add charts to reports.
+   
+   TODO: 
+   
+   See page 'How to create a report' on ATiM wiki to create specific charts.
+   (http://www.ctrnet.ca/mediawiki/index.php?title=How_to_create_a_report#Graphics)
+
+   
+   ### 8 # Option to copy user logs data to a server file
+   -----------------------------------------------------------
+   
+   A new feature has been developped to copy part of the information of the user_logs table to a file created on the server.
+   
+   TODO: 
+   
+   Set path of the server directory to the core variable 'atim_user_log_output_path'.
+
+   
+   ### 9 # LDAP
+   -----------------------------------------------------------
+   
+   A new feature has been developped to use LDAP as the authentifcation process.
+   
+   TODO: 
+   
+   Set core variables : 'if_use_ldap_authentication', etc. 
+   
+   See page 'ATiM Installation Guide' on ATiM wiki to have more details.
+   (http://www.ctrnet.ca/mediawiki/index.php?title=ATiM_Installation_Guide)
+
+   
+   ### 10 # Views update
+   -----------------------------------------------------------
+   
+   Following views have been modified: ViewCollection, ViewSample, ViewAliquot and ViewStorageMaster.
+   
+   TODO: 
+   
+   Update views in custom models (ViewCollectionCustom, ViewSampleCustom, ViewAliquotCustom and ViewStorageMasterCustom) if exist.
+   
+   
+   ### 11 # OrderItems.editInBatch() & orderitems_returned
+   -----------------------------------------------------------
+   
+   Function OrderItems.edit() is now deprecated and replaced by OrderItems.editInBatch().
+   
+   Structure 'orderitems_returned' has been deleted.
+   
+   TODO: 
+   
+   Migrate custom codes and hooks from edit to editInBatch if exist. 
+   
+   Check that no custom code and hook use 'orderitems_returned' structure.
+   
+   
+   ### 12 # Variable $structureOverride
+   -----------------------------------------------------------
+   
+   Any variable '$override' has been renamed to '$structureOverride' to be consistent all over the code.
+   
+   TODO: 
+   
+   Rename any variable '$override' to '$structureOverride' in custom code or hooks if exist.
+   
+   
+   ### 13 # Material tool clean up
+   -----------------------------------------------------------
+   
+   Material tool has been cleaned up and is now functionnal and the Material Model in SOP plugin has been deleted. 
+   
+   TODO: 
+   
+   Check that no custom code and hook use 'Material' model, functions else migrate custom codes and hooks.
+   
+   
+   ### 14 # Test version
+   -----------------------------------------------------------
+   
+   Added a $isTest core variable to display install name as a test version (in red + Test word) or as usual. 
+   
+   TODO: 
+   
+   Set core variable 'isTest' to 1 to display ATiM as a test version.

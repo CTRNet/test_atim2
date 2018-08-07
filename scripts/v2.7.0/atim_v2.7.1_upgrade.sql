@@ -863,6 +863,7 @@ VALUES
 INSERT IGNORE INTO 
 i18n (id,en,fr)
 VALUES
+('test', 'Test', 'Test'),
 ('you do not own that protocol','You do not own that protocol',"Vous n'êtes pas propiétaire du protocole"),
 ('data can not be changed', 'Data can not be changed', "Les données ne peuvent pas être modifiées"),
 ('click on submit button of the main form to record the default values', 
@@ -980,4 +981,4 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_de
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.7.1', NOW(),'xxxx','n/a');
+('2.7.1', NOW(),'7273','n/a');
