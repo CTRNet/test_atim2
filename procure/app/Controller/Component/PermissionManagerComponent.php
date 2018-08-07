@@ -51,7 +51,7 @@ class PermissionManagerComponent extends Component {
 			
 			if(isset($perms['allow']) && count($perms['allow'])){
 				foreach($perms['allow'] as $user_alias){
-					list($type,$id) = split('::',$user_alias);
+					list($type,$id) = explode('::',$user_alias);
 					
 					switch($type){
 					case 'Group':
@@ -67,7 +67,7 @@ class PermissionManagerComponent extends Component {
 			}
 			if(isset($perms['deny']) && count($perms['deny'])){
 				foreach($perms['deny'] as $user_alias){
-					list($type,$id) = split('::',$user_alias);
+					list($type,$id) = explode('::',$user_alias);
 					
 					switch($type){
 					case 'Group':

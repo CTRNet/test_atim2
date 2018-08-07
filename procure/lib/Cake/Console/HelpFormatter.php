@@ -13,7 +13,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::uses('String', 'Utility');
+App::uses('CakeText', 'Utility');
 
 /**
  * HelpFormatter formats help for console shells. Can format to either
@@ -63,7 +63,7 @@ class HelpFormatter {
 		$out = array();
 		$description = $parser->description();
 		if (!empty($description)) {
-			$out[] = String::wrap($description, $width);
+			$out[] = CakeText::wrap($description, $width);
 			$out[] = '';
 		}
 		$out[] = __d('cake_console', '<info>Usage:</info>');
@@ -75,7 +75,7 @@ class HelpFormatter {
 			$out[] = '';
 			$max = $this->_getMaxLength($subcommands) + 2;
 			foreach ($subcommands as $command) {
-				$out[] = String::wrap($command->help($max), array(
+				$out[] = CakeText::wrap($command->help($max), array(
 					'width' => $width,
 					'indent' => str_repeat(' ', $max),
 					'indentAt' => 1
@@ -92,7 +92,7 @@ class HelpFormatter {
 			$out[] = __d('cake_console', '<info>Options:</info>');
 			$out[] = '';
 			foreach ($options as $option) {
-				$out[] = String::wrap($option->help($max), array(
+				$out[] = CakeText::wrap($option->help($max), array(
 					'width' => $width,
 					'indent' => str_repeat(' ', $max),
 					'indentAt' => 1
@@ -107,7 +107,7 @@ class HelpFormatter {
 			$out[] = __d('cake_console', '<info>Arguments:</info>');
 			$out[] = '';
 			foreach ($arguments as $argument) {
-				$out[] = String::wrap($argument->help($max), array(
+				$out[] = CakeText::wrap($argument->help($max), array(
 					'width' => $width,
 					'indent' => str_repeat(' ', $max),
 					'indentAt' => 1
@@ -117,7 +117,7 @@ class HelpFormatter {
 		}
 		$epilog = $parser->epilog();
 		if (!empty($epilog)) {
-			$out[] = String::wrap($epilog, $width);
+			$out[] = CakeText::wrap($epilog, $width);
 			$out[] = '';
 		}
 		return implode("\n", $out);

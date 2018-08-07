@@ -29,7 +29,7 @@ App::uses('Hash', 'Utility');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/text.html
- * @see String
+ * @see CakeText
  */
 class TextHelper extends AppHelper {
 
@@ -49,7 +49,7 @@ class TextHelper extends AppHelper {
 	protected $_placeholders = array();
 
 /**
- * String utility instance
+ * CakeText utility instance
  *
  * @var stdClass
  */
@@ -60,7 +60,7 @@ class TextHelper extends AppHelper {
  *
  * ### Settings:
  *
- * - `engine` Class name to use to replace String functionality.
+ * - `engine` Class name to use to replace CakeText functionality.
  *            The class needs to be placed in the `Utility` directory.
  *
  * @param View $View the view object the helper is attached to.
@@ -68,7 +68,7 @@ class TextHelper extends AppHelper {
  * @throws CakeException when the engine class could not be found.
  */
 	public function __construct(View $View, $settings = array()) {
-		$settings = Hash::merge(array('engine' => 'String'), $settings);
+		$settings = Hash::merge(array('engine' => 'CakeText'), $settings);
 		parent::__construct($View, $settings);
 		list($plugin, $engineClass) = pluginSplit($settings['engine'], true);
 		App::uses($engineClass, $plugin . 'Utility');
@@ -80,7 +80,7 @@ class TextHelper extends AppHelper {
 	}
 
 /**
- * Call methods from String utility class
+ * Call methods from CakeText utility class
  * @return mixed Whatever is returned by called method, or false on failure
  */
 	public function __call($method, $params) {
@@ -218,7 +218,7 @@ class TextHelper extends AppHelper {
  * Highlights a given phrase in a text. You can specify any expression in highlighter that
  * may include the \1 expression to include the $phrase found.
  *
- * @see String::highlight()
+ * @see CakeText::highlight()
  *
  * @param string $text Text to search the phrase in
  * @param string $phrase The phrase that will be searched
@@ -256,7 +256,7 @@ class TextHelper extends AppHelper {
 /**
  * Strips given text of all links (<a href=....)
  *
- * @see String::stripLinks()
+ * @see CakeText::stripLinks()
  *
  * @param string $text Text
  * @return string The text without links
@@ -278,9 +278,9 @@ class TextHelper extends AppHelper {
  * - `exact` If false, $text will not be cut mid-word
  * - `html` If true, HTML tags would be handled correctly
  *
- * @see String::truncate()
+ * @see CakeText::truncate()
  *
- * @param string $text String to truncate.
+ * @param string $text CakeText to truncate.
  * @param integer $length Length of returned string, including ellipsis.
  * @param array $options An array of html attributes and options.
  * @return string Trimmed string.
@@ -301,9 +301,9 @@ class TextHelper extends AppHelper {
  * - `ellipsis` Will be used as Beginning and prepended to the trimmed string
  * - `exact` If false, $text will not be cut mid-word
  *
- * @see String::tail()
+ * @see CakeText::tail()
  *
- * @param string $text String to truncate.
+ * @param string $text CakeText to truncate.
  * @param integer $length Length of returned string, including ellipsis.
  * @param array $options An array of html attributes and options.
  * @return string Trimmed string.
@@ -317,9 +317,9 @@ class TextHelper extends AppHelper {
  * Extracts an excerpt from the text surrounding the phrase with a number of characters on each side
  * determined by radius.
  *
- * @see String::excerpt()
+ * @see CakeText::excerpt()
  *
- * @param string $text String to search the phrase in
+ * @param string $text CakeText to search the phrase in
  * @param string $phrase Phrase that will be searched for
  * @param integer $radius The amount of characters that will be returned on each side of the founded phrase
  * @param string $ending Ending that will be appended
@@ -333,7 +333,7 @@ class TextHelper extends AppHelper {
 /**
  * Creates a comma separated list where the last two items are joined with 'and', forming natural English
  *
- * @see String::toList()
+ * @see CakeText::toList()
  *
  * @param array $list The list to be joined
  * @param string $and The word used to join the last and second last items together with. Defaults to 'and'

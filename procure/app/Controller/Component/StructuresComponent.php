@@ -620,11 +620,11 @@ class StructuresComponent extends Component {
 		preg_match('(\(\'.*\'\))', $source, $matches);
 		if((sizeof($matches) == 1)) {
 			// Args are included into the source
-			$args = split("','", substr($matches[0], 2, (strlen($matches[0]) - 4)));
+			$args = explode("','", substr($matches[0], 2, (strlen($matches[0]) - 4)));
 			$source = str_replace($matches[0], '', $source);
 		}
 
-		list($pulldown_model, $pulldown_function) = split('::', $source);
+		list($pulldown_model, $pulldown_function) = explode('::', $source);
 		$pulldown_plugin = NULL;
 		if (strpos($pulldown_model,'.') !== false){
 			$combined_plugin_model_name = $pulldown_model;
