@@ -126,7 +126,7 @@ class ShellHelper extends AppHelper
 			<!-- start #header -->
 			<div id="header"><div>
 				<h1>' . __('core_appname') . '</h1>
-				<h2 class = "'. $headerClass . '">' . __('core_installname') . ($headerClass == "test" ? ' - ' . __('test') : '') . '</h2>
+				<h2 class = "' . $headerClass . '">' . __('core_installname') . ($headerClass == "test" ? ' - ' . __('test') : '') . '</h2>
 				' . $rootMenuForHeader . '
 			</div></div>
 			<!-- end #header -->

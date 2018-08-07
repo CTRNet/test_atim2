@@ -466,10 +466,10 @@ $parameters);
         $plugin = $this->controller->request->params['plugin'];
         $controller = $this->controller->request->params['controller'];
         $action = $this->controller->request->params['action'];
-        $param = (isset($this->controller->request->params['pass'][1]))?$this->controller->request->params['pass'][1]:"";
-        if (empty($param)){
+        $param = (isset($this->controller->request->params['pass'][1])) ? $this->controller->request->params['pass'][1] : "";
+        if (empty($param)) {
             $_SESSION['post_data'][$plugin][$controller][$action] = removeEmptySubArray($this->controller->data);
-        }else{
+        } else {
             $_SESSION['post_data'][$plugin][$controller][$action][$param] = removeEmptySubArray($this->controller->data);
         }
         

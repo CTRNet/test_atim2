@@ -79,11 +79,15 @@ class ToolsAppModel extends AppModel
         
         $allConditions = array();
         
-        $allConditions['all'] = array('TRUE');
+        $allConditions['all'] = array(
+            'TRUE'
+        );
         
         $allConditions['edition'] = (AppController::getInstance()->Session->read('Auth.User.group_id') == '1') ?
             // Admin can work on all templates
-            array('TRUE') :
+            array(
+				'TRUE'
+			) :
             // Set specific conditions for non admin group
             array(
                 'OR' => array(
@@ -153,7 +157,7 @@ class ToolsAppModel extends AppModel
             $modelName . '.flag_system' => true
         );
         
-        if (!array_key_exists($useDefintion, $allConditions)) {
+        if (! array_key_exists($useDefintion, $allConditions)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         $conditions = $allConditions[$useDefintion];
@@ -166,7 +170,7 @@ class ToolsAppModel extends AppModel
         ));
         
         if ($findType == 'first') {
-            $tools[$modelName]['allow_properties_edition'] = $tools? true : false;
+            $tools[$modelName]['allow_properties_edition'] = $tools ? true : false;
         }
         
         return $tools;

@@ -262,7 +262,7 @@
    
    TODO: 
    
-   Check if a ReportsControllerCustom has been developped on your local installation and replace any code ['javascript:history.back()'] by [Router::url(null , true)]
+   Check if a ReportsControllerCustom has been developed on your local installation and replace any code ['javascript:history.back()'] by [Router::url(null , true)]
    
    
    ### 4 # UserAnnouncementsController
@@ -273,7 +273,7 @@
    
    TODO: 
    
-   Check if custom hooks have been developped for the Announcements controller (\app\Plugin\Customize\Controller\AnnouncementsController.php) 
+   Check if custom hooks have been developed for the Announcements controller (\app\Plugin\Customize\Controller\AnnouncementsController.php) 
    and view (\app\Plugin\Customize\View\Announcements) into the Customize plugin for your local installation.
    
    Replace all custom code, custom file names or custom folder names of this plugin that contain Announcements by UserAnnouncements
@@ -286,7 +286,7 @@
    
    TODO: 
    
-   Check if custom hook 'format' has been developped for the search function of the StudySummaries controller. One of the hook
+   Check if custom hook 'format' has been developed for the search function of the StudySummaries controller. One of the hook
    has been replaced by the new hook name.
 
    
@@ -304,7 +304,7 @@
    ### 7 # Charts feature to complete reports
    -----------------------------------------------------------
    
-   A new feature has been developped to add charts to reports.
+   A new feature has been developed to add charts to reports.
    
    TODO: 
    
@@ -315,7 +315,7 @@
    ### 8 # Option to copy user logs data to a server file
    -----------------------------------------------------------
    
-   A new feature has been developped to copy part of the information of the user_logs table to a file created on the server.
+   A new feature has been developed to copy part of the information of the user_logs table to a file created on the server.
    
    TODO: 
    
@@ -325,7 +325,7 @@
    ### 9 # LDAP
    -----------------------------------------------------------
    
-   A new feature has been developped to use LDAP as the authentifcation process.
+   A new feature has been developed to use LDAP as the authentifcation process.
    
    TODO: 
    
@@ -372,7 +372,7 @@
    ### 13 # Material tool clean up
    -----------------------------------------------------------
    
-   Material tool has been cleaned up and is now functionnal and the Material Model in SOP plugin has been deleted. 
+   Material tool has been cleaned up and is now functional and the Material Model in SOP plugin has been deleted. 
    
    TODO: 
    

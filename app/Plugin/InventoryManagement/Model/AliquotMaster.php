@@ -1067,7 +1067,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
     /**
      * Find the list of aliquot related to the barcode and check if the storage type is TMA
-     * 
+     *
      * @param type $storageId
      * @param type $barcode
      * @return array The list of aliquot
@@ -1112,7 +1112,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
     /**
      * readCsvAndConvertToArray Read the CSV file and put the information in to the arrays with
-     * 
+     *
      * @param type $dataFile The file information come from front-end
      * @param type $storageId Storage ID
      * @return array The message, validation and Array of data
@@ -1249,15 +1249,15 @@ class AliquotMaster extends InventoryManagementAppModel
             return $response;
         }
         if (empty($coordYSize) && $y != - 1) {
-            //$y = - 1;
+            // $y = - 1;
         }
         
         $dataArray = array();
         $barcodes = array();
-
-        while (($data = fgetcsv($handle, 1000, $csvSeparator)) !== false){
-            foreach($data as &$d){
-                $d=trim($d);
+        
+        while (($data = fgetcsv($handle, 1000, $csvSeparator)) !== false) {
+            foreach ($data as &$d) {
+                $d = trim($d);
             }
             $row ++;
             if (empty($data[$barcode])) {
@@ -1271,8 +1271,8 @@ class AliquotMaster extends InventoryManagementAppModel
             $dataArray["class"] = "";
             
             $dataArray["barcode"] = $data[$barcode];
-            $barcodes[]= $data[$barcode];
-
+            $barcodes[] = $data[$barcode];
+            
             $dataArray["OK"] = 1;
             if ($coordXType == 'alphabetical') {
                 $xx = strtoupper($data[$x]);
@@ -1297,10 +1297,10 @@ class AliquotMaster extends InventoryManagementAppModel
             }
             
             if ($y != - 1) {
-                if (empty($coordYSize) && !empty($data[$y])){
+                if (empty($coordYSize) && ! empty($data[$y])) {
                     $dataArray["OK"] = 0;
                     $dataArray["message"]["error"][] = __("should not have y dimension");
-                }elseif ($coordYType == 'alphabetical') {
+                } elseif ($coordYType == 'alphabetical') {
                     $yy = strtoupper($data[$y]);
                     $dataArray["y"] = $yy;
                     if (is_numeric($yy)) {
@@ -1324,7 +1324,6 @@ class AliquotMaster extends InventoryManagementAppModel
             }
             
             $response['data'][] = $dataArray;
-            
         }
         $aliquotsCheckAll = $this->find('all', array(
             'conditions' => array(
@@ -1349,15 +1348,15 @@ class AliquotMaster extends InventoryManagementAppModel
             )
         ));
         $barcodesList = array();
-        foreach ($response['data'] as &$dataArray){
+        foreach ($response['data'] as &$dataArray) {
             $aliquotsCheck = array();
-            foreach ($aliquotsCheckAll as $ali){
-                if ($ali['AliquotMaster']['barcode'] == $dataArray['barcode']){
-                    $aliquotsCheck[] =$ali;
+            foreach ($aliquotsCheckAll as $ali) {
+                if ($ali['AliquotMaster']['barcode'] == $dataArray['barcode']) {
+                    $aliquotsCheck[] = $ali;
                     break;
                 }
             }
-
+            
             if (count($aliquotsCheck) == 1) {
                 $resultCheck = $aliquotsCheck[0];
                 $dataArray["id"] = $resultCheck['AliquotMaster']['id'];
@@ -1370,7 +1369,7 @@ class AliquotMaster extends InventoryManagementAppModel
                 $availableCheck = $resultCheck['AliquotMaster']['in_stock'];
                 $labelCheck = $resultCheck['AliquotMaster']['aliquot_label'];
                 
-                if ((! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) && strpos($dataArray["class"], 'duplicated-aliquot')===false) {
+                if ((! empty($xCheck) || ! empty($yCheck) || ! empty($storageLabelCheck)) && strpos($dataArray["class"], 'duplicated-aliquot') === false) {
                     $dataArray["message"]['warning'][] = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabelCheck, $xCheck, $yCheck);
                     $dataArray["class"] = 'duplicated-aliquot warning-aliquot';
                 }
@@ -1384,8 +1383,8 @@ class AliquotMaster extends InventoryManagementAppModel
                 }
                 if (! $error) {
                     if (in_array($dataArray['barcode'], $barcodesList) !== false) {
-//                        $dataArray["message"]['warning'][] = __("duplicate barcode in csv file");
-                        foreach ($response['data'] as $k=>$aliquotValue) {
+                        // $dataArray["message"]['warning'][] = __("duplicate barcode in csv file");
+                        foreach ($response['data'] as $k => $aliquotValue) {
                             if ($aliquotValue['barcode'] == $dataArray['barcode']) {
                                 if (empty($aliquotValue["message"]['error'])) {
                                     $existe = false;

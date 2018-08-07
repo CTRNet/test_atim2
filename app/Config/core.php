@@ -31,8 +31,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
- 
-$debug = 0;
+$debug = 2;
 Configure::write('debug', $debug);
 
 /**
@@ -41,7 +40,6 @@ Configure::write('debug', $debug);
  * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
  * 0: Install name will be displayed as usual.
  */
- 
 $isTest = 0;
 Configure::write('IsTest', $isTest);
 
@@ -102,7 +100,6 @@ Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .
- *
  *
  * htaccess
  * files:

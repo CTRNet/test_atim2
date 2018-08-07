@@ -130,7 +130,7 @@ class ViewAliquot extends InventoryManagementAppModel
 
     /**
      * ViewAliquot constructor.
-     * 
+     *
      * @param bool $id
      * @param null $table
      * @param null $ds
