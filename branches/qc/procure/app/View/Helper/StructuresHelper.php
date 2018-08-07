@@ -2832,7 +2832,7 @@ class StructuresHelper extends Helper {
 		$default_settings_wo_class = self::$default_settings_arr;
 		unset($default_settings_wo_class['class']);
 		foreach($raw_radiolist as $radiobutton_name => $radiobutton_value){
-			list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+			list($tmp_model, $tmp_field) = explode("\.", $radiobutton_name);
 			$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data);
 			$tmp_attributes = array('legend' => false, 'value' => false, 'id' => $radiobutton_name);
 			if(isset($data[$tmp_model][$tmp_field]) && $data[$tmp_model][$tmp_field] == $radiobutton_value){

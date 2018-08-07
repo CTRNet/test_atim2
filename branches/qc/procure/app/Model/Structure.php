@@ -101,7 +101,7 @@ class Structure extends AppModel {
 							// To support coma as decimal separator
 							$rule[0] = $validation['rule'];
 						}else if(strlen($validation['rule']) > 0){
-							$rule = split(',',$validation['rule']);
+							$rule = explode(',',$validation['rule']);
 						}
 						
 						if(count($rule) == 1){

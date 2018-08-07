@@ -37,14 +37,14 @@ class PermissionsController extends AdministrateAppController {
 		$aro = $this->Aro->find('first', array('conditions' => 'Aro.id = "'.$aro_id.'"', 'order'=>'alias ASC', 'recursive' => -1));
 		$this->updatePermission($aro_id,$aco_id,$state);
 		
-		list($type,$id) = split('::',$aro['Aro']['alias']);
+		list($type,$id) = explode('::',$aro['Aro']['alias']);
 		switch($type){
 		case 'Group':
 			$this->redirect('/Administrate/Permissions/tree/'.$id);
 			break;
 		case 'User':
 			$parent = $this->Aro->find('first', array('conditions' => 'Aro.id = "'.$aro['Aro']['parent_id'].'"', 'order'=>'alias ASC', 'recursive' => -1));
-			list($type,$gid) = split('::',$parent['Aro']['alias']);
+			list($type,$gid) = explode('::',$parent['Aro']['alias']);
 			$this->redirect('/Administrate/Permissions/tree/'.$gid.'/'.$id);
 			break;
 		}
