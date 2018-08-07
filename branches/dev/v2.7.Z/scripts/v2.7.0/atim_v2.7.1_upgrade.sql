@@ -975,10 +975,33 @@ VALUES
 
 UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='datamart_saved_browsing') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- -------------------------------------------------------------------------------------
+--	Re-design menus for Addministartion Bank and Group
+-- -------------------------------------------------------------------------------------
+
+UPDATE menus SET use_link = '/Administrate/Versions/detail/' WHERE id = 'core_CAN_41';
+UPDATE menus SET language_title = 'merge participants/collections', display_order = (display_order+1) WHERE id = 'core_CAN_41_6';
+SET @bank_display_order = (SELECT display_order FROM menus WHERE id = 'core_CAN_41_2');
+SET @group_display_order = (SELECT display_order FROM menus WHERE id = 'core_CAN_41_1');
+UPDATE menus SET display_order = @bank_display_order WHERE id = 'core_CAN_41_1';
+UPDATE menus SET display_order = @group_display_order WHERE id = 'core_CAN_41_2';
+UPDATE structure_fields SET  `language_label`='group' WHERE model='Group' AND tablename='groups' AND field='name' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE menus SET use_summary = 'Administrate.Bank::summary' WHERE use_summary = 'Bank::summary';
+UPDATE menus SET flag_active = 0 WHERE id = 'core_CAN_41_2_2';
+UPDATE menus SET flag_active = 0 WHERE id = 'core_CAN_41_1_3';
+UPDATE menus SET parent_id = 'core_CAN_41_1_1' WHERE parent_id = 'core_CAN_41_1_3';
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('add user', 'Add User', 'Créer utilisateur'),
+('add announcement', 'Add Announcement', 'Créer annonce'),
+('merge participants/collections', 'Merge Participants/Collections', 'Fusion de participants/collections');
+UPDATE structure_fields SET  `language_label`='new group' WHERE model='Group' AND tablename='groups' AND field='id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='group_select');
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/AdminUsers/changeGroup%';
+
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.7.1', NOW(),'7273','n/a');
+('2.7.1', NOW(),'7279','n/a');
