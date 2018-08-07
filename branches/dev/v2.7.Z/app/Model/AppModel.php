@@ -121,7 +121,7 @@ class AppModel extends Model
      * Update the $data array
      * with the name the stored file will have and returns the $modeFiles
      * directive array to
-     * 
+     *
      * @param $data
      * @return array
      */
@@ -221,7 +221,7 @@ class AppModel extends Model
     /**
      * Takes the move_files array returned by filter_move_files and moves the
      * uploaded files to the configured directory with the set file name.
-     * 
+     *
      * @param $moveFiles
      */
     private function moveFiles($moveFiles)
@@ -277,7 +277,7 @@ class AppModel extends Model
     /**
      * Checks Writable fields, sets trackability, manages floats ("," and ".")
      * and date strings.
-     * 
+     *
      * @param array $options
      * @return bool
      */
@@ -1637,7 +1637,7 @@ class AppModel extends Model
      * @return array
      */
     public function getOwnershipConditions()
-    {   
+    {
         $userBankId = AppController::getInstance()->Session->read('Auth.User.Group.bank_id');
         $userBankGroupIds = array(
             '-1'

@@ -283,7 +283,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
 
     /**
      * Arranges the threaded data
-     * 
+     *
      * @param array $threadedDxData
      * @param $seekingDxId
      * @param $seekingModelName
