@@ -105,7 +105,7 @@ class ViewSample extends InventoryManagementAppModel
 
     /**
      * ViewSample constructor.
-     * 
+     *
      * @param bool $id
      * @param null $table
      * @param null $ds

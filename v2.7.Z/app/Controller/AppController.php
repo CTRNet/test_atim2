@@ -882,13 +882,12 @@ class AppController extends Controller
     }
 
     /**
-     *
      */
     public static function forceMsgDisplayInPopup()
     {
         $_SESSION['ctrapp_core']['force_msg_display_in_popup'] = true;
     }
-    
+
     /**
      *
      * @return array
