@@ -57,6 +57,10 @@ class AdminUsersController extends AdministrateAppController
         $this->hook();
         
         $this->request->data = $this->User->getOrRedirect($userId);
+        
+        if ($this->request->data['User']['group_id'] != $groupId) {
+            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
     }
 
     /**
@@ -71,7 +75,7 @@ class AdminUsersController extends AdministrateAppController
             'Group.id' => $groupId
         ));
         $this->Structures->set('users,users_form_for_admin');
-        $this->set("atimMenu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
+        $this->set("atimMenu", $this->Menus->get('/Administrate/Groups/detail/%%Group.id%%/'));
         
         if ($this->Group->hasPermissions($groupId)) {
             $hookLink = $this->hook('format');
@@ -243,7 +247,7 @@ class AdminUsersController extends AdministrateAppController
         if ($arrAllowDeletion['allow_deletion']) {
             $this->User->id = $userId;
             $this->User->atimDelete($userId);
-            $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $groupId);
+            $this->atimFlash(__('your data has been deleted'), "/Administrate/Groups/detail/" . $groupId);
         } else {
             $this->atimFlashWarning(__($arrAllowDeletion['msg']), "/Administrate/AdminUsers/detail/$groupId/$userId");
         }
@@ -284,7 +288,11 @@ class AdminUsersController extends AdministrateAppController
         if ($user['Group']['id'] != $groupId) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
+        if ($userId == $_SESSION['Auth']['User']['id']) {
+            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
+        $this->set('atimMenu', $this->Menus->get('/Administrate/AdminUsers/detail'));
         $this->set('atimMenuVariables', array(
             'Group.id' => $user['Group']['id'],
             'User.id' => $userId
