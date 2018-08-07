@@ -1,7 +1,8 @@
 <?php
 $structureLinks = array(
     'index' => array(
-        'edit' => '/Tools/Template/edit/%%Template.id%%',
+        'detail' => '/Tools/Template/edit/%%Template.id%%',
+        'edit properties' => '/Tools/Template/editProperties/%%Template.id%%',
         'delete' => '/Tools/Template/delete/%%Template.id%%'
     )
 );

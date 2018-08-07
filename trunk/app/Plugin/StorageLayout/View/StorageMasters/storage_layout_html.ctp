@@ -54,7 +54,7 @@ $deteteText = __("undo positions load and barcodes scanned");
                 <?php echo(__("remove all storage's items")); ?>
             </span></li>
 		<li><input type="file" style="display: none;" id="LoadCSVFile"
-			name="CSVFile" accept=".xlsx, .xls, .csv"> <span
+			name="CSVFile" accept=".xlsx, .xls, .csv, .txt"> <span
 			class="button LoadCSV" style='width: 80%;' title="<?=$titleCsv?>"
 			onclick="csvConfig()"> <span
 				class="ui-icon ui-icon-arrowreturnthick-1-w"></span>
