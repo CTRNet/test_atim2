@@ -25,7 +25,7 @@ class CsvHelper extends AppHelper
     
     /**
      * CsvHelper constructor.
-     * 
+     *
      * @param View $view
      */
     public function __construct(View $view)

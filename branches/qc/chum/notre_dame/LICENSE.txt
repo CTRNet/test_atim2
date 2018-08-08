@@ -10,15 +10,25 @@
 -- Copyright (c) 2002-2017
 ------------------------------------------------------------------------------------
 
-  CRCHUM, Montreal
-  CTRNet, Victoria
-
-  Please see future release v2.7.1 of ATiM  for the detailled list. 
+  Nicolas Luc                 - CTRNet and CRCHUM, Montreal
+  François-Michel L'Heureux   - CTRNet and CRCHUM, Montreal
+  Yaser Naderi                - CTRNet and CRCHUM, Montreal
+  Aaron Suggitt               - CTRNet, Winnipeg
+  Simon Dee                   - CTRNet and UBC, Vancouver
+  Wil Alambre                 - Visual Lizard, Winnipeg 
+  Julian Moffatt              - Visual Lizard, Winnipeg 
+  Doug Ross                   - Visual Lizard, Winnipeg 
+  Peter Geary                 - CTRNet, Winnipeg
   
 -- Authors
 ------------------------------------------------------------------------------------
 
-  Please see future release v2.7.1 of ATiM  for the detailled list. 
+  - Dr Anne-Marie Mes-Masson, CTRNet and CRCHUM, Montreal
+          (http://crchum.chumontreal.qc.ca/en/researchers/mes-masson-anne-marie)
+  - Dr. Peter Watson, CTRNet and BCCA, Vancouver
+          (http://www.bccrc.ca/dept/ttr/bio/pwatson)
+  - Dr. Brent Schacter, CTRNet and CancerCare Manitoba, Winnipeg 
+          (http://www.ctrnet.ca/about/team-profile)
   
 -- Funding
 ------------------------------------------------------------------------------------ 

@@ -2,7 +2,7 @@
 
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
- * 
+ *
  * @param unknown_type $var The variable to loop on, must be null on the first iteration
  * @param unknown_type $reverseOrder True to reverse the order
  * @param unknown_type $limit The limit of the axis
@@ -54,7 +54,7 @@ $deteteText = __("undo positions load and barcodes scanned");
                 <?php echo(__("remove all storage's items")); ?>
             </span></li>
 		<li><input type="file" style="display: none;" id="LoadCSVFile"
-			name="CSVFile" accept=".xlsx, .xls, .csv"> <span
+			name="CSVFile" accept=".xlsx, .xls, .csv, .txt"> <span
 			class="button LoadCSV" style='width: 80%;' title="<?=$titleCsv?>"
 			onclick="csvConfig()"> <span
 				class="ui-icon ui-icon-arrowreturnthick-1-w"></span>

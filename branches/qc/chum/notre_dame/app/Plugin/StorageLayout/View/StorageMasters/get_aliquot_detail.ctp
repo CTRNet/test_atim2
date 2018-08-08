@@ -28,11 +28,10 @@ if (empty($result)) {
     } elseif ($aliquotType != 'core' && $isTma) {
         $valid = 0;
         $message = __('only sample core can be stored into tma block');
-    } else 
-        if (! empty($x) || ! empty($y) || ! empty($storageLabel)) {
-            $valid = 3;
-            $message = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabel, $x, $y);
-        }
+    } elseif (! empty($x) || ! empty($y) || ! empty($storageLabel)) {
+        $valid = 3;
+        $message = __('this aliquot is registered in another place. label: %s, x: %s, y: %s', $storageLabel, $x, $y);
+    }
 } elseif (count($result) > 1) {
     $valid = 0;
     $message = __('more than one aliquot have the same barcode');

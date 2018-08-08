@@ -1183,7 +1183,7 @@ class StorageMaster extends StorageLayoutAppModel
 
     /**
      * Checks conflicts for batch layout
-     * 
+     *
      * @param $data
      * @param $modelName
      * @param $labelName
