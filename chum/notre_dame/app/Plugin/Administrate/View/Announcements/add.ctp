@@ -2,7 +2,14 @@
 $structureLinks = array(
     'top' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/',
     'bottom' => array(
-        'cancel' => "/Administrate/Announcements/index/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/'
+        'cancel' => (isset($atimMenuVariables['User.id']) ? "/Administrate/Announcements/index/$linkedModel/" . $atimMenuVariables['User.id'] . '/' : "/Administrate/Banks/detail/" . $atimMenuVariables['Bank.id']) . '/'
+    )
+);
+
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => array(
+        'header' => isset($atimMenuVariables['User.id']) ? '' : __('announcement', null)
     )
 );
 
@@ -12,6 +19,4 @@ if ($hookLink) {
     require ($hookLink);
 }
 
-$this->Structures->build($atimStructure, array(
-    'links' => $structureLinks
-));
+$this->Structures->build($atimStructure, $finalOptions);

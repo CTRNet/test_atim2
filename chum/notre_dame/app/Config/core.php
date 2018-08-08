@@ -17,8 +17,7 @@
  * @since CakePHP(tm) v 0.2.9
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
-$prod = 0;
+
 /**
  * CakePHP Debug Level:
  *
@@ -32,8 +31,17 @@ $prod = 0;
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
+$debug = 2;
 Configure::write('debug', $debug);
-Configure::write('prod', $prod);
+
+/**
+ * ATiM Prod vs Test.
+ *
+ * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
+ * 0: Install name will be displayed as usual.
+ */
+$isTest = 0;
+Configure::write('IsTest', $isTest);
 
 /**
  * Configure the Error handler used to handle errors for your application.
@@ -92,7 +100,6 @@ Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .
- *
  *
  * htaccess
  * files:

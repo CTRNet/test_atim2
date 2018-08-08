@@ -1333,7 +1333,7 @@ class StorageMastersController extends StorageLayoutAppController
         if (! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/add') || ! AppController::checkLinkPermission('/InventoryManagement/AliquotMasters/edit')) {
             $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
         }
-        $csvSeparator = !empty($this->request->data['csvSeparator']) ? $this->request->data['csvSeparator'] : CSV_SEPARATOR;
+        $csvSeparator = ! empty($this->request->data['csvSeparator']) ? $this->request->data['csvSeparator'] : CSV_SEPARATOR;
         unset($this->request->data['csvSeparator']);
         $dataFile = $_FILES['media'];
         $response = $this->AliquotMaster->readCsvAndConvertToArray($dataFile, $storageId, $csvSeparator);

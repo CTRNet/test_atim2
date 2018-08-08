@@ -389,9 +389,8 @@ function convertFromKMG($data)
         $number = floatval(substr($data, 0, - 1)) * 1024 * 1024;
     } elseif (strtoupper(substr($data, - 1)) == 'G') {
         $number = floatval(substr($data, 0, - 1)) * 1024 * 1024 * 1024;
-    } else 
-        if (is_numeric($data)) {
-            $number = floatval($data);
-        }
+    } elseif (is_numeric($data)) {
+        $number = floatval($data);
+    }
     return $number;
 }

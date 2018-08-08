@@ -44,7 +44,7 @@ class AnnouncementsController extends AdministrateAppController
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/detail'));
             $this->set('atimMenuVariables', array(
                 'Bank.id' => $bankOrUserId
             ));
@@ -134,7 +134,7 @@ class AnnouncementsController extends AdministrateAppController
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/detail'));
             $this->set('atimMenuVariables', array(
                 'Bank.id' => $bankOrUserId
             ));
@@ -176,7 +176,7 @@ class AnnouncementsController extends AdministrateAppController
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/detail'));
             $this->set('atimMenuVariables', array(
                 'Bank.id' => $this->request->data['Announcement']['bank_id']
             ));
@@ -213,7 +213,7 @@ class AnnouncementsController extends AdministrateAppController
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/detail'));
             $this->set('atimMenuVariables', array(
                 'Announcement.id' => $announcementId,
                 'Bank.id' => $announcementData['Announcement']['bank_id']
@@ -257,7 +257,7 @@ class AnnouncementsController extends AdministrateAppController
         
         $arrAllowDeletion = $this->Announcement->allowDeletion($announcementId);
         
-        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['user_id'] : "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
+        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['user_id'] : "/Administrate/Banks/detail/" . $announcementData['Announcement']['bank_id'];
         
         // CUSTOM CODE
         $hookLink = $this->hook('delete');

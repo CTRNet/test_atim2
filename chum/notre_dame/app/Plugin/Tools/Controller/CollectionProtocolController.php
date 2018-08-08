@@ -211,7 +211,6 @@ class CollectionProtocolController extends ToolsAppController
      */
     public function detail($collectionProtocolId)
     {
-        
         $collectionProtocolDataCheck = $this->CollectionProtocol->getTools('edition', $collectionProtocolId);
         if (! $collectionProtocolDataCheck['CollectionProtocol']['allow_properties_edition']) {
             AppController::addWarningMsg(__('you do not own that protocol'));
