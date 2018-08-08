@@ -21,6 +21,16 @@ VALUES
 , 'notBlank', '', 'password is required');
 
 -- -------------------------------------------------------------------------------------
+--	The warning for LOG directory
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	(
+'the permission of "log" directory is not correct.', 
+'The permissions on "log" directory are not correct.',
+'Les autorisations sur le répertoire de "log" ne sont pas correctes.');
+-- -------------------------------------------------------------------------------------
 --	The warning for CSV file
 -- -------------------------------------------------------------------------------------
 
