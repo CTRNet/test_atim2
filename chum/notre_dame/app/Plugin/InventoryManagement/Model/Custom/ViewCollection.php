@@ -4,8 +4,8 @@ class ViewCollectionCustom extends ViewCollection
 {
 
     var $name = 'ViewCollection';
-
-    static $tableQuery = '
+    
+    public static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -15,6 +15,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -35,8 +36,8 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
-			WHERE Collection.deleted <> 1 %%WHERE%%';
-
+        WHERE Collection.deleted <> 1 %%WHERE%%';
+    
     public function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
