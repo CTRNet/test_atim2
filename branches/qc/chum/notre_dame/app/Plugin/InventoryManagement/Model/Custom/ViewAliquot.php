@@ -5,7 +5,7 @@ class ViewAliquotCustom extends ViewAliquot
 
     var $name = 'ViewAliquot';
 
-    static $tableQuery = 'SELECT
+    public static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
@@ -16,6 +16,7 @@ class ViewAliquotCustom extends ViewAliquot
 			Participant.participant_identifier,
 		
 			Collection.acquisition_label,
+            Collection.collection_protocol_id AS collection_protocol_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -58,7 +59,7 @@ class ViewAliquotCustom extends ViewAliquot
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-	
+    
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
 		
 MiscIdentifier.identifier_value AS identifier_value,
@@ -85,7 +86,7 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-
+        
     public function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
