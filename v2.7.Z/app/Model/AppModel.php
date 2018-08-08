@@ -1069,7 +1069,9 @@ class AppModel extends Model
         if ($instance === false && $errorViewOnNull) {
             if (Configure::read('debug') > 0) {
                 pr(AppController::getStackTrace());
-                die('died in AppModel::getInstance [' . $pluginName . $className . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
+                die('died in AppModel::getInstance [' . $pluginName . $className . '] <br>' .
+                    '(If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty) <br>' . 
+                    ('(If getInstance() is called by function fetchSummary(), please validate that the plugin is defined for the menus.use_summary field as follow : {Plugin}.{Model}::summary)'));
             } else {
                 AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $className, null, true);
             }

@@ -299,7 +299,10 @@
    
    See page 'How to upload file on server with ATiM feature' on ATiM wiki to create specific fields.
    (http://www.ctrnet.ca/mediawiki/index.php?title=How_to_upload_file_on_server_with_ATiM_feature)
-
+   
+   Set path of the server directory to the core variable 'uploadDirectory'.
+   Change directory permissions.
+   (See http://www.ctrnet.ca/mediawiki/index.php?title=ATiM_Installation_Guide#Quick_Install_Guide_.28Step_by_Step.29)
    
    ### 7 # Charts feature to complete reports
    -----------------------------------------------------------
@@ -320,6 +323,8 @@
    TODO: 
    
    Set path of the server directory to the core variable 'atim_user_log_output_path'.
+   Change directory permissions.
+   (See http://www.ctrnet.ca/mediawiki/index.php?title=ATiM_Installation_Guide#Quick_Install_Guide_.28Step_by_Step.29)
 
    
    ### 9 # LDAP
