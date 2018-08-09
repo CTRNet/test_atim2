@@ -5,9 +5,9 @@ class DrugCustom extends Drug {
 	var $name = 'Drug';
 	var $useTable = 'drugs';
 
-	private $drug_type_values = array();
+	private $drugTypeValues = array();
 	
-	function getDrugDataAndCodeForDisplay($drug_data) {
+	public function getDrugDataAndCodeForDisplay($drugData) {
 	
 		//-- NOTE ----------------------------------------------------------------
 		//
@@ -21,28 +21,28 @@ class DrugCustom extends Drug {
 		//
 		//------------------------------------------------------------------------
 	
-		$formatted_data = '';
-		if((!empty($drug_data)) && isset($drug_data['Drug']['id']) && (!empty($drug_data['Drug']['id']))) {
-			if(!isset($this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']])) {
-				if(!isset($drug_data['Drug']['generic_name'])) {
-					$drug_data = $this->find('first', array('conditions' => array('Drug.id' => ($drug_data['Drug']['id']))));
+		$formattedData = '';
+		if((!empty($drugData)) && isset($drugData['Drug']['id']) && (!empty($drugData['Drug']['id']))) {
+			if(!isset($this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']])) {
+				if(!isset($drugData['Drug']['generic_name'])) {
+					$drugData = $this->find('first', array('conditions' => array('Drug.id' => ($drugData['Drug']['id']))));
 				}
-				if(!$this->drug_type_values) {
+				if(!$this->drugTypeValues) {
 					App::uses('StructureValueDomain', 'Model');
 					$StructureValueDomain = new StructureValueDomain();
-					$drug_types = $StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'type'), 'recursive' => 2));
-					foreach($drug_types['StructurePermissibleValue'] as $new_value) {
-						$this->drug_type_values[$new_value['value']] = __($new_value['language_alias']);
+					$drugTypes = $StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'type'), 'recursive' => 2));
+					foreach($drugTypes['StructurePermissibleValue'] as $newValue) {
+						$this->drugTypeValues[$newValue['value']] = __($newValue['language_alias']);
 					}
 				}
-				$this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']] = $drug_data['Drug']['generic_name'] . ' :: '. $this->drug_type_values[$drug_data['Drug']['type']] . ' [' . $drug_data['Drug']['id'] . ']';
+				$this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']] = $drugData['Drug']['generic_name'] . ' :: '. $this->drugTypeValues[$drugData['Drug']['type']] . ' [' . $drugData['Drug']['id'] . ']';
 			}
-			$formatted_data = $this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']];
+			$formattedData = $this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']];
 		}
-		return $formatted_data;
+		return $formattedData;
 	}
 	
-	function getDrugIdFromDrugDataAndCode($drug_data_and_code){
+	public function getDrugIdFromDrugDataAndCode($drugDataAndCode){
 	
 		//-- NOTE ----------------------------------------------------------------
 		//
@@ -56,32 +56,30 @@ class DrugCustom extends Drug {
 		//
 		//------------------------------------------------------------------------
 		
-		if(!isset($this->drug_titles_already_checked[$drug_data_and_code])) {
+		if(!isset($this->drugTitlesAlreadyChecked[$drugDataAndCode])) {
 			$matches = array();
-			$selected_drugs = array();
-			if(preg_match("/(.+)\ ::\ (.+)\[([0-9]+)\]$/", $drug_data_and_code, $matches) > 0){
+			$selectedDrugs = array();
+			if(preg_match("/(.+)\ ::\ (.+)\[([0-9]+)\]$/", $drugDataAndCode, $matches) > 0){
 				// Auto complete tool has been used
-				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[3])));
+				$selectedDrugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[3])));
 			} else {
-				// consider $drug_data_and_code contains just drug title
-				$term = str_replace('_', '\_', str_replace('%', '\%', $drug_data_and_code));
+				// consider $drugDataAndCode contains just drug title
+				$term = str_replace('_', '\_', str_replace('%', '\%', $drugDataAndCode));
 				$terms = array();
-				foreach(explode(' ', $term) as $key_word) $terms[] = "Drug.generic_name LIKE '%".$key_word."%'";
+				foreach(explode(' ', $term) as $keyWord) $terms[] = "Drug.generic_name LIKE '%".$keyWord."%'";
 				$conditions = array('AND' => $terms);
-				$selected_drugs = $this->find('all', array('conditions' => $conditions));
+				$selectedDrugs = $this->find('all', array('conditions' => $conditions));
 			}
-			if(sizeof($selected_drugs) == 1) {
-				$this->drug_titles_already_checked[$drug_data_and_code] = array('Drug' => $selected_drugs[0]['Drug']);
-			} else if(sizeof($selected_drugs) > 1) {
-				$this->drug_titles_already_checked[$drug_data_and_code] = array('error' => str_replace('%s', $drug_data_and_code, __('more than one drug matches the following data [%s]')));
+			if(sizeof($selectedDrugs) == 1) {
+				$this->drugTitlesAlreadyChecked[$drugDataAndCode] = array('Drug' => $selectedDrugs[0]['Drug']);
+			} elseif(sizeof($selectedDrugs) > 1) {
+				$this->drugTitlesAlreadyChecked[$drugDataAndCode] = array('error' => str_replace('%s', $drugDataAndCode, __('more than one drug matches the following data [%s]')));
 			} else {
-				$this->drug_titles_already_checked[$drug_data_and_code] = array('error' => str_replace('%s', $drug_data_and_code, __('no drug matches the following data [%s]')));
+				$this->drugTitlesAlreadyChecked[$drugDataAndCode] = array('error' => str_replace('%s', $drugDataAndCode, __('no drug matches the following data [%s]')));
 			}
 		}
 		
-		return $this->drug_titles_already_checked[$drug_data_and_code];
+		return $this->drugTitlesAlreadyChecked[$drugDataAndCode];
 	}
 	
 }
-
-?>

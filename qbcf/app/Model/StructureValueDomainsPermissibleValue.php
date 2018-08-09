@@ -1,15 +1,17 @@
 <?php
 
-class StructureValueDomainsPermissibleValue extends AppModel {
+/**
+ * Class StructureValueDomainsPermissibleValue
+ */
+class StructureValueDomainsPermissibleValue extends AppModel
+{
 
-	var $name = 'StructureValueDomainsPermissibleValue';
+    public $name = 'StructureValueDomainsPermissibleValue';
 
-	var $belongsTo = array(        
-		'StructurePermissibleValue' => array(            
-			'className'    => 'StructurePermissibleValue',            
-			'foreignKey'    => 'structure_permissible_value_id'
-		)
-	);	
+    public $belongsTo = array(
+        'StructurePermissibleValue' => array(
+            'className' => 'StructurePermissibleValue',
+            'foreignKey' => 'structure_permissible_value_id'
+        )
+    );
 }
-
-?>

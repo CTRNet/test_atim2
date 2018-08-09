@@ -1,6 +1,6 @@
 <?php 
 
-if($treatment_master_data['TreatmentControl']['tx_method'] == 'breast diagnostic event') {
-	$this->DiagnosisMaster->setBreastDxLaterality($participant_id);
-	$this->TreatmentMaster->calculateTimesTo($participant_id);
+if($treatmentMasterData['TreatmentControl']['tx_method'] == 'breast diagnostic event') {
+	$this->DiagnosisMaster->setBreastDxLaterality($participantId);
+	$this->TreatmentMaster->calculateTimesTo($participantId);
 }

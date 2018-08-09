@@ -1,36 +1,35 @@
 <?php 
 	
-	$beast_dx_intervention = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Type of intervention'));
-	$beast_dx_intervention = array_merge($beast_dx_intervention['defined'], $beast_dx_intervention['previously_defined']);
+	$beastDxIntervention = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Type of intervention'));
+	$beastDxIntervention = array_merge($beastDxIntervention['defined'], $beastDxIntervention['previously_defined']);
 
-	$beast_dx_progression_site = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Progressions Sites'));
-	$beast_dx_progression_site = array_merge($beast_dx_progression_site['defined'], $beast_dx_progression_site['previously_defined']);
+	$beastDxProgressionSite = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Progressions Sites'));
+	$beastDxProgressionSite = array_merge($beastDxProgressionSite['defined'], $beastDxProgressionSite['previously_defined']);
 	
-	$other_dx_progression_sites = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Other Cancer Progression Sites'));
-	$other_dx_progression_sites = array_merge($other_dx_progression_sites['defined'], $other_dx_progression_sites['previously_defined']);
+	$otherDxProgressionSites = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Other Cancer Progression Sites'));
+	$otherDxProgressionSites = array_merge($otherDxProgressionSites['defined'], $otherDxProgressionSites['previously_defined']);
 	
-	$ctrnet_submission_disease_site = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
-	$ctrnet_submission_disease_site_values = array();
-	if($ctrnet_submission_disease_site) {
-		foreach($ctrnet_submission_disease_site['StructurePermissibleValue'] as $new_value) {
-			$ctrnet_submission_disease_site_values[$new_value['value']] = __($new_value['language_alias']);
+	$ctrnetSubmissionDiseaseSite = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
+	$ctrnetSubmissionDiseaseSiteValues = array();
+	if($ctrnetSubmissionDiseaseSite) {
+		foreach($ctrnetSubmissionDiseaseSite['StructurePermissibleValue'] as $newValue) {
+			$ctrnetSubmissionDiseaseSiteValues[$newValue['value']] = __($newValue['language_alias']);
 		}
 	}
 	
-	$other_cancer_tx = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
-	$other_cancer_tx = array_merge($other_cancer_tx['defined'], $other_cancer_tx['previously_defined']);
+	$otherCancerTx = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
+	$otherCancerTx = array_merge($otherCancerTx['defined'], $otherCancerTx['previously_defined']);
 	
-	$qbcf_dx_laterality = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Laterality'));
-	$qbcf_dx_laterality = array_merge($qbcf_dx_laterality['defined'], $qbcf_dx_laterality['previously_defined']);
+	$qbcfDxLaterality = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Laterality'));
+	$qbcfDxLaterality = array_merge($qbcfDxLaterality['defined'], $qbcfDxLaterality['previously_defined']);
 	
-	$treatment_extend_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
+	$treatmentExtendModel = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
 	$this->ViewCollection = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
 	
-	$health_status = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'health_status'), 'recursive' => 2));
-	$health_status_values = array();
-	if($health_status) {
-		foreach($health_status['StructurePermissibleValue'] as $new_value) {
-			$health_status_values[$new_value['value']] = __($new_value['language_alias']);
+	$healthStatus = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'health_status'), 'recursive' => 2));
+	$healthStatusValues = array();
+	if($healthStatus) {
+		foreach($healthStatus['StructurePermissibleValue'] as $newValue) {
+			$healthStatusValues[$newValue['value']] = __($newValue['language_alias']);
 		}
 	}
-	

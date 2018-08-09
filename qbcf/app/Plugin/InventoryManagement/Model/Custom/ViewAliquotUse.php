@@ -5,7 +5,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 	var $name = 'ViewAliquotUse';
 	
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
-	static $table_query =
+	static $tableQuery =
 		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
@@ -204,7 +204,7 @@ CONCAT('QBCF# ',AliquotMasterChild.barcode) AS use_code,
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 	
-	function getUseDefinitions() {
+	public function getUseDefinitions() {
 		$result = array(
 			'aliquot shipment'	=> __('aliquot shipment'),
 			'shipped aliquot return'	=> __('shipped aliquot return'),
@@ -217,14 +217,14 @@ CONCAT('QBCF# ',AliquotMasterChild.barcode) AS use_code,
 		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
+		$useAndEventTypes = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
+		foreach($useAndEventTypes as $newType) $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang])? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
 		
 		// Develop sample derivative creation
 		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
-		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
-		foreach($sample_controls as $sampl_control_id => $sample_type) {
-			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
+		$sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+		foreach($sampleControls as $samplControlId => $sampleType) {
+			$result['sample derivative creation#'.$samplControlId] = __('sample derivative creation#').$sampleType;
 		}
 		
 		natcasesort($result);
