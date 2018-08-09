@@ -1,9 +1,10 @@
 <?php
 
-class Menu extends AppModel {
+/**
+ * Class Menu
+ */
+class Menu extends AppModel
+{
 
-	var $name = 'Menu';
-
+    public $name = 'Menu';
 }
-
-?>

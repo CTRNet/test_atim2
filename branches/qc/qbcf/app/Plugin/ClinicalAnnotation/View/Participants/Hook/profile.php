@@ -1,6 +1,5 @@
 <?php
  
-	$final_options['settings']['actions'] = true;
-	$is_ajax = true;
-	unset($final_options['links']['bottom']['add identifier']);
-	
+	$finalOptions['settings']['actions'] = true;
+	$isAjax = true;
+	unset($finalOptions['links']['bottom']['add identifier']);

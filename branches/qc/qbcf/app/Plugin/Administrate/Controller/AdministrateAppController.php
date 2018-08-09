@@ -1,7 +1,10 @@
 <?php
 
-class AdministrateAppController extends AppController {	
+/**
+ * Class AdministrateAppController
+ */
+App::uses('AppController', 'Controller');
 
+class AdministrateAppController extends AppController
+{
 }
-
-?>

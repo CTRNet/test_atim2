@@ -1,6 +1,8 @@
 <?php
 
-class CustomizeAppModel extends AppModel {
+/**
+ * Class CustomizeAppModel
+ */
+class CustomizeAppModel extends AppModel
+{
 }
-
-?>

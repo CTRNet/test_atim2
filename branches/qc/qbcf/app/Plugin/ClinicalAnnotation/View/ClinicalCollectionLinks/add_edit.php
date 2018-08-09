@@ -1,140 +1,162 @@
 <?php
 
-
-//Consent----------------
-$structure_links['radiolist'] = array('Collection.consent_master_id'=>'%%ConsentMaster.id%%');
-$structure_settings['header'] = __('consent');
-$structure_settings['form_top'] = false;
-//consent
-$final_atim_structure = $atim_structure_consent_detail;
-$final_options = array(
-		'type'		=> 'index',
-		'data'		=> $consent_data,
-		'settings'	=> $structure_settings,
-		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" '.($consent_found ? '' : 'checked="checked"').'" value=""/>'.__('n/a'))
+// Consent----------------
+$structureLinks['radiolist'] = array(
+    'Collection.consent_master_id' => '%%ConsentMaster.id%%'
 );
-if(!AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/detail/')) {
-	$final_atim_structure = array();
-	$final_options['type'] = 'detail';
-	$final_options['data'] = array();
-	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+$structureSettings['header'] = __('consent');
+$structureSettings['form_top'] = false;
+// consent
+$finalAtimStructure = $atimStructureConsentDetail;
+$finalOptions = array(
+    'type' => 'index',
+    'data' => $consentData,
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => array(
+        'end' => '<input type="radio" name="data[Collection][consent_master_id]" ' . ($consentFound ? '' : 'checked="checked"') . '" value=""/>' . __('n/a')
+    )
+);
+if (! AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/detail/')) {
+    $finalAtimStructure = array();
+    $finalOptions['type'] = 'detail';
+    $finalOptions['data'] = array();
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$display_next_sub_form = true;
+$displayNextSubForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('consent_detail');
-if( $hook_link ) {
-	require($hook_link);
+$hookLink = $this->Structures->hook('consent_detail');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if($display_next_sub_form) $this->Structures->build($final_atim_structure, $final_options );
-
-
-//Dx---------------------
-$structure_links['radiolist'] = array('Collection.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%');
-$structure_links['tree'] = array(
-		'DiagnosisMaster' => array(
-				'radiolist' => array('Collection.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%')
-		)
-);
-
-$structure_settings['header'] = __('diagnosis');
-$structure_settings['tree'] = array('DiagnosisMaster' => 'DiagnosisMaster');
-
-$final_atim_structure = array('DiagnosisMaster' => $atim_structure_diagnosis_detail);
-$final_options = array(
-		'type'		=> 'tree',
-		'data'		=> $diagnosis_data,
-		'settings'	=> $structure_settings,
-		'links'	=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  '.($found_dx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
-);
-if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/detail/')) {
-	$final_atim_structure = array();
-	$final_options['type'] = 'detail';
-	$final_options['data'] = array();
-	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+if ($displayNextSubForm) {
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
-$display_next_sub_form = true;
+// Dx---------------------
+$structureLinks['radiolist'] = array(
+    'Collection.diagnosis_master_id' => '%%DiagnosisMaster.id' . '%%'
+);
+$structureLinks['tree'] = array(
+    'DiagnosisMaster' => array(
+        'radiolist' => array(
+            'Collection.diagnosis_master_id' => '%%DiagnosisMaster.id' . '%%'
+        )
+    )
+);
+
+$structureSettings['header'] = __('diagnosis');
+$structureSettings['tree'] = array(
+    'DiagnosisMaster' => 'DiagnosisMaster'
+);
+
+$finalAtimStructure = array(
+    'DiagnosisMaster' => $atimStructureDiagnosisDetail
+);
+$finalOptions = array(
+    'type' => 'tree',
+    'data' => $diagnosisData,
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => array(
+        'end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  ' . ($foundDx ? '' : 'checked="checked"') . ' value=""/>' . __('n/a')
+    )
+);
+if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/detail/')) {
+    $finalAtimStructure = array();
+    $finalOptions['type'] = 'detail';
+    $finalOptions['data'] = array();
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
+}
+
+$displayNextSubForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('diagnosis_detail');
-if( $hook_link ) {
-	require($hook_link);
+$hookLink = $this->Structures->hook('diagnosis_detail');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
-
-
-//tx----------------
-$structure_links['radiolist'] = array('Collection.treatment_master_id' => '%%TreatmentMaster.id%%');
-unset($structure_links['tree']);
-
-$structure_settings['header'] = __('treatments');
-unset($structure_settings['tree']);
-
-$final_atim_structure = $atim_structure_tx;
-$final_options = array(
-		'type'		=> 'index',
-		'data'		=> $tx_data,
-		'settings'	=> $structure_settings,
-		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][treatment_master_id]"  '.($found_tx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+    
+    // tx----------------
+$structureLinks['radiolist'] = array(
+    'Collection.treatment_master_id' => '%%TreatmentMaster.id%%'
 );
-if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')) {
-	$final_atim_structure = array();
-	$final_options['type'] = 'detail';
-	$final_options['data'] = array();
-	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+unset($structureLinks['tree']);
+
+$structureSettings['header'] = __('treatments');
+unset($structureSettings['tree']);
+
+$finalAtimStructure = $atimStructureTx;
+$finalOptions = array(
+    'type' => 'index',
+    'data' => $txData,
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => array(
+        'end' => '<input type="radio" name="data[Collection][treatment_master_id]"  ' . ($foundTx ? '' : 'checked="checked"') . ' value=""/>' . __('n/a')
+    )
+);
+if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')) {
+    $finalAtimStructure = array();
+    $finalOptions['type'] = 'detail';
+    $finalOptions['data'] = array();
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$display_next_sub_form = true;
+$displayNextSubForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('trt_detail');
-if( $hook_link ) {
-	require($hook_link);
+$hookLink = $this->Structures->hook('trt_detail');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
-
-
-
-//event----------------
-$structure_links['radiolist'] = array('Collection.event_master_id' => '%%EventMaster.id%%');
-
-$structure_settings['header'] = __('annotation');
-$structure_settings['form_bottom'] = true;
-$structure_settings['actions'] = true;
-
-$final_atim_structure = $atim_structure_event;
-$final_options = array(
-		'type'		=> 'index',
-		'data'		=> $event_data,
-		'settings'	=> $structure_settings,
-		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][event_master_id]"  '.($found_event ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+    
+    // event----------------
+$structureLinks['radiolist'] = array(
+    'Collection.event_master_id' => '%%EventMaster.id%%'
 );
-if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detail/')) {
-	$final_atim_structure = array();
-	$final_options['type'] = 'detail';
-	$final_options['data'] = array();
-	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+
+$structureSettings['header'] = __('annotation');
+$structureSettings['form_bottom'] = true;
+$structureSettings['actions'] = true;
+
+$finalAtimStructure = $atimStructureEvent;
+$finalOptions = array(
+    'type' => 'index',
+    'data' => $eventData,
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => array(
+        'end' => '<input type="radio" name="data[Collection][event_master_id]"  ' . ($foundEvent ? '' : 'checked="checked"') . ' value=""/>' . __('n/a')
+    )
+);
+if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detail/')) {
+    $finalAtimStructure = array();
+    $finalOptions['type'] = 'detail';
+    $finalOptions['data'] = array();
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$display_next_sub_form = true;
+$displayNextSubForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('event_detail');
-if( $hook_link ) {
-	require($hook_link);
+$hookLink = $this->Structures->hook('event_detail');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);

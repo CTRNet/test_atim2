@@ -13,7 +13,7 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Controller
  * @since         CakePHP(tm) v 1.2.0.5436
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('PagesController', 'Controller');
@@ -74,5 +74,22 @@ class PagesControllerTest extends CakeTestCase {
 		Configure::write('debug', 1);
 		$Pages = new PagesController(new CakeRequest(null, false), new CakeResponse());
 		$Pages->display('non_existing_page');
+	}
+
+/**
+ * Test directory traversal protection
+ *
+ * @expectedException ForbiddenException
+ * @expectedExceptionCode 403
+ * @return void
+ */
+	public function testDirectoryTraversalProtection() {
+		App::build(array(
+			'View' => array(
+				CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS
+			)
+		));
+		$Pages = new PagesController(new CakeRequest(null, false), new CakeResponse());
+		$Pages->display('..', 'Posts', 'index');
 	}
 }

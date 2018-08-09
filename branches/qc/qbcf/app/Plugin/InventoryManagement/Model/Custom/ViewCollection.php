@@ -4,7 +4,7 @@ class ViewCollectionCustom extends ViewCollection {
 	
 	var $name = 'ViewCollection';
 	
-	static $table_query = '
+	static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 --		Collection.bank_id AS bank_id,
@@ -32,35 +32,35 @@ Collection.qbcf_pathology_id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 		
-	function summary($variables=array()) {
+	public function summary($variables=array()) {
 		$return = false;
 		
 		if(isset($variables['Collection.id'])) {
-			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
+			$collectionData = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
 
 			$title = '';
-			if($collection_data['ViewCollection']['collection_property'] == 'independent collection') {
+			if($collectionData['ViewCollection']['collection_property'] == 'independent collection') {
 				$title = __('independent collection');
-			} else if(empty($collection_data['ViewCollection']['participant_identifier'])) {
+			} elseif(empty($collectionData['ViewCollection']['participant_identifier'])) {
 				$title = __('unlinked collection');
-			} else if($collection_data['ViewCollection']['qbcf_bank_participant_identifier'] == CONFIDENTIAL_MARKER) {
-				$title = __('participant identifier').' '.$collection_data['ViewCollection']['participant_identifier'];
+			} elseif($collectionData['ViewCollection']['qbcf_bank_participant_identifier'] == CONFIDENTIAL_MARKER) {
+				$title = __('participant identifier').' '.$collectionData['ViewCollection']['participant_identifier'];
 			} else {
-				$title = __('bank patient #').' '.$collection_data['ViewCollection']['qbcf_bank_participant_identifier'];
+				$title = __('bank patient #').' '.$collectionData['ViewCollection']['qbcf_bank_participant_identifier'];
 			}
 			
 			$return = array(
 				'menu' => array(null, $title),
 				'title' => array(null, __('collection') . ' : ' . $title),
 				'structure alias' 	=> 'view_collection',
-				'data'				=> $collection_data
+				'data'				=> $collectionData
 			);
 		}
 		
 		return $return;
 	}
 	
-	function beforeFind($queryData){
+	public function beforeFind($queryData){
 		if(($_SESSION['Auth']['User']['group_id'] != '1')
 		&& is_array($queryData['conditions'])) {
 			if(AppModel::isFieldUsedAsCondition("ViewCollection.qbcf_bank_participant_identifier", $queryData['conditions'])
@@ -68,31 +68,31 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 			|| AppModel::isFieldUsedAsCondition("ViewCollection.bank_id", $queryData['conditions'])) {
 				AppController::addWarningMsg(__('your search will be limited to your bank'));
 				$GroupModel = AppModel::getInstance("", "Group", true);
-				$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-				$user_bank_id = $group_data['Group']['bank_id'];
-				$queryData['conditions'][] = array("ViewCollection.bank_id" => $user_bank_id);
+				$groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+				$userBankId = $groupData['Group']['bank_id'];
+				$queryData['conditions'][] = array("ViewCollection.bank_id" => $userBankId);
 			}
 		}
 		return $queryData;
 	}
 	
-	function afterFind($results, $primary = false){
+	public function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
 		if($_SESSION['Auth']['User']['group_id'] != '1') {
 			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
+			$groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$userBankId = $groupData['Group']['bank_id'];
 			if(isset($results[0]['ViewCollection']['bank_id']) 
 			|| isset($results[0]['ViewCollection']['qbcf_bank_participant_identifier'])
 			|| isset($results[0]['ViewCollection']['qbcf_pathology_id'])) {
 				foreach($results as &$result){
-					if((!isset($result['ViewCollection']['bank_id'])) || $result['ViewCollection']['bank_id'] != $user_bank_id) {
+					if((!isset($result['ViewCollection']['bank_id'])) || $result['ViewCollection']['bank_id'] != $userBankId) {
 						if(isset($result['ViewCollection']['bank_id'])) $result['ViewCollection']['bank_id'] = CONFIDENTIAL_MARKER;
 						if(isset($result['ViewCollection']['qbcf_bank_participant_identifier'])) $result['ViewCollection']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 						if(isset($result['ViewCollection']['qbcf_pathology_id'])) $result['ViewCollection']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
 					}
 				}
-			} else if(isset($results['ViewCollection'])){
+			} elseif(isset($results['ViewCollection'])){
 				pr('TODO afterFind ViewCollection');
 				pr($results);
 				exit;
@@ -103,4 +103,3 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 	}	
 		
 }
-

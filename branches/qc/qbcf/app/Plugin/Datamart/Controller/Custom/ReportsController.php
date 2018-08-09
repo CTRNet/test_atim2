@@ -1,11 +1,11 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 	
-	function buildQbcfSummary($parameters) {
+	public function buildQbcfSummary($parameters) {
 		
 		$conditions = array();
-		$participant_conditions_only = array();
-		$include_tma_core = false;
+		$participantConditionsOnly = array();
+		$includeTmaCore = false;
 		$warnings = array();	
 		
 		if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'no') {
@@ -14,32 +14,32 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Conditions from parameters *********** 
 		
-		$user_bank_id = ($_SESSION['Auth']['User']['group_id'] == '1')? 
+		$userBankId = ($_SESSION['Auth']['User']['group_id'] == '1')? 
 			'all' :
 			(empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);			
-		$limit_to_bank = false;
+		$limitToBank = false;
 		
 		if(isset($parameters['Browser'])) {
 			
 			// 0-REPORT LAUNCHED FROM DATA BROWSER
 				
 			if(isset($parameters['ViewStorageMaster']['id'])) {
-				$include_tma_core = true;
+				$includeTmaCore = true;
 				if(($parameters['ViewStorageMaster']['id'] != 'all')) {
 					$conditions[] = 'StorageMaster.id IN ('.implode(array_filter($parameters['ViewStorageMaster']['id']), ',').')' ;
 				}				
-			} else if(isset($parameters['TmaBlock']['id'])) {
-				$include_tma_core = true;
+			} elseif(isset($parameters['TmaBlock']['id'])) {
+				$includeTmaCore = true;
 				if(($parameters['TmaBlock']['id'] != 'all')) {
 					$conditions[] = 'StorageMaster.id IN ('.implode(array_filter($parameters['TmaBlock']['id']), ',').')' ;
 				}				
-			} else if(isset($parameters['Participant']['id'])) {
+			} elseif(isset($parameters['Participant']['id'])) {
 				if(($parameters['Participant']['id'] != 'all')) {
 					$conditions[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
-					$participant_conditions_only[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+					$participantConditionsOnly[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
 				}
-			} else if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
-				$include_tma_core = true;
+			} elseif(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
+				$includeTmaCore = true;
 				if(($parameters['ViewAliquot']['aliquot_master_id'] != 'all')) {
 					$conditions[] = 'ViewAliquot.aliquot_master_id IN ('.implode(array_filter($parameters['ViewAliquot']['aliquot_master_id']), ',').')' ;
 				}
@@ -52,20 +52,20 @@ class ReportsControllerCustom extends ReportsController {
 			
 			// 1-BANKS
 			
-			$bank_ids = array();
+			$bankIds = array();
 			if(isset($parameters['Participant']['qbcf_bank_id'])) {
-				$bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
-				if($bank_ids) {
-					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-					$participant_conditions_only[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-					$limit_to_bank = true;
+				$bankIds = array_filter($parameters['Participant']['qbcf_bank_id']);
+				if($bankIds) {
+					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+					$participantConditionsOnly[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+					$limitToBank = true;
 				}
-			} else if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
-				$bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
-				$include_tma_core = true;
-				if($bank_ids) {
-					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-					$limit_to_bank = true;
+			} elseif(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
+				$bankIds = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
+				$includeTmaCore = true;
+				if($bankIds) {
+					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+					$limitToBank = true;
 				}
 			}
 			
@@ -74,32 +74,32 @@ class ReportsControllerCustom extends ReportsController {
 			if(isset($parameters['Participant']['participant_identifier_start'])) {
 				if(strlen($parameters['Participant']['participant_identifier_start'])) {
 					$conditions[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
-					$participant_conditions_only[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+					$participantConditionsOnly[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
 				}
 				if(strlen($parameters['Participant']['participant_identifier_end'])) {
 					$conditions[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
-					$participant_conditions_only[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+					$participantConditionsOnly[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
 				}
-			} else if(isset($parameters['Participant']['participant_identifier'])) {
-				$participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-				if($participant_identifiers) {
-					$conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-					$participant_conditions_only[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+			} elseif(isset($parameters['Participant']['participant_identifier'])) {
+				$participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+				if($participantIdentifiers) {
+					$conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+					$participantConditionsOnly[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
 				}
 			}
 			
 			if(isset($parameters['Participant']['qbcf_bank_participant_identifier'])) {
-				$participant_identifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
-				if($participant_identifiers) {
-					$conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-					$participant_conditions_only[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-					$limit_to_bank = true;
+				$participantIdentifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
+				if($participantIdentifiers) {
+					$conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+					$participantConditionsOnly[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+					$limitToBank = true;
 				}
 			}
 			
 			// 3- ALIQUOTS
 			
-			if(isset($parameters['ViewAliquot'])) $include_tma_core = true;
+			if(isset($parameters['ViewAliquot'])) $includeTmaCore = true;
 			
 			if(isset($parameters['ViewAliquot']['barcode_start'])) {
 				if(strlen($parameters['ViewAliquot']['barcode_start'])) {
@@ -108,97 +108,97 @@ class ReportsControllerCustom extends ReportsController {
 				if(strlen($parameters['ViewAliquot']['barcode_end'])) {
 					$conditions[] = 'ViewAliquot.barcode <= '."'".str_replace("'", "''", $parameters['ViewAliquot']['barcode_end'])."'";
 				}
-			} else if(isset($parameters['ViewAliquot']['barcode'])) {
+			} elseif(isset($parameters['ViewAliquot']['barcode'])) {
 				$barcodes = array_filter($parameters['ViewAliquot']['barcode']);
 				if($barcodes) $conditions[] = 'ViewAliquot.barcode IN ('."'".implode(str_replace("'", "''", $barcodes), "','")."'".')';
 			}
 			
 			if(isset($parameters['ViewAliquot']['qbcf_pathology_id'])) {
-				$qbcf_pathology_ids = array_filter($parameters['ViewAliquot']['qbcf_pathology_id']);
-				if($qbcf_pathology_ids) {
-					$conditions[] = 'Collection.qbcf_pathology_id IN ('."'".implode(str_replace("'", "''", $qbcf_pathology_ids), "','")."'".')';
-					$limit_to_bank = true;
+				$qbcfPathologyIds = array_filter($parameters['ViewAliquot']['qbcf_pathology_id']);
+				if($qbcfPathologyIds) {
+					$conditions[] = 'Collection.qbcf_pathology_id IN ('."'".implode(str_replace("'", "''", $qbcfPathologyIds), "','")."'".')';
+					$limitToBank = true;
 				}
 			}
 
 			if(isset($parameters['ViewAliquot']['aliquot_label'])) {
-				$aliquot_labels = array_filter($parameters['ViewAliquot']['aliquot_label']);
-				if($aliquot_labels) {
-					$conditions[] = 'ViewAliquot.aliquot_label IN ('."'".implode(str_replace("'", "''", $aliquot_labels), "','")."'".')';
-					$limit_to_bank = true;
+				$aliquotLabels = array_filter($parameters['ViewAliquot']['aliquot_label']);
+				if($aliquotLabels) {
+					$conditions[] = 'ViewAliquot.aliquot_label IN ('."'".implode(str_replace("'", "''", $aliquotLabels), "','")."'".')';
+					$limitToBank = true;
 				}
 			}
 			
 			if(isset($parameters['ViewAliquot']['selection_label'])) {
-				$selection_labels = array_filter($parameters['ViewAliquot']['selection_label']);
-				if($selection_labels) $conditions[] = 'StorageMaster.selection_label IN ('."'".implode(str_replace("'", "''", $selection_labels), "','")."'".')';
+				$selectionLabels = array_filter($parameters['ViewAliquot']['selection_label']);
+				if($selectionLabels) $conditions[] = 'StorageMaster.selection_label IN ('."'".implode(str_replace("'", "''", $selectionLabels), "','")."'".')';
 			}
 			
 			// 2-STORAGE
 			
 			if(isset($parameters['TmaBlock'])) {
-				$include_tma_core = true;
-				foreach($parameters['TmaBlock'] as $field => $new_field_criteria) {
-					$tmp_criteria = array_filter($new_field_criteria);
-					if($tmp_criteria) $conditions[] = "StorageMaster.$field IN ("."'".implode(str_replace("'", "''", $tmp_criteria), "','")."'".')';
+				$includeTmaCore = true;
+				foreach($parameters['TmaBlock'] as $field => $newFieldCriteria) {
+					$tmpCriteria = array_filter($newFieldCriteria);
+					if($tmpCriteria) $conditions[] = "StorageMaster.$field IN ("."'".implode(str_replace("'", "''", $tmpCriteria), "','")."'".')';
 				}
 			}
 			
 		}
 	
-		if($limit_to_bank && $user_bank_id != 'all') {
-			$conditions[] = "Participant.qbcf_bank_id = $user_bank_id";
-			if($participant_conditions_only) $participant_conditions_only[] = "Participant.qbcf_bank_id = $user_bank_id";
+		if($limitToBank && $userBankId != 'all') {
+			$conditions[] = "Participant.qbcf_bank_id = $userBankId";
+			if($participantConditionsOnly) $participantConditionsOnly[] = "Participant.qbcf_bank_id = $userBankId";
 			$warnings[] = __('your search will be limited to your bank');
 		}
 		
-		$conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
+		$conditionsStr = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
 		
 		// *********** Get Control Data & all ***********
 		
-		$tx_controls = array();
+		$txControls = array();
 		$query = "SELECT id, tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1";
-		foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
-			$tx_controls[$new_ctr['treatment_controls']['tx_method']] = $new_ctr['treatment_controls'];
+		foreach($this->Report->tryCatchQuery($query) as $newCtr) {
+			$txControls[$newCtr['treatment_controls']['tx_method']] = $newCtr['treatment_controls'];
 		}
 		
 		$this->StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true); 
-		$other_dx_progression_sites = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Progressions Sites'));
-		$other_dx_progression_sites = array_merge($other_dx_progression_sites['defined'], $other_dx_progression_sites['previously_defined']);
+		$otherDxProgressionSites = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Progressions Sites'));
+		$otherDxProgressionSites = array_merge($otherDxProgressionSites['defined'], $otherDxProgressionSites['previously_defined']);
 		
-		$other_dx_treatments = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
-		$other_dx_treatments = array_merge($other_dx_treatments['defined'], $other_dx_treatments['previously_defined']);
+		$otherDxTreatments = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
+		$otherDxTreatments = array_merge($otherDxTreatments['defined'], $otherDxTreatments['previously_defined']);
 		
 		App::uses('StructureValueDomain', 'Model');
 		$this->StructureValueDomain = new StructureValueDomain();
-		$ctrnet_submission_disease_site = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
-		$ctrnet_submission_disease_site_values = array();
-		if($ctrnet_submission_disease_site) {
-			foreach($ctrnet_submission_disease_site['StructurePermissibleValue'] as $new_value) {
-				$ctrnet_submission_disease_site_values[$new_value['value']] = __($new_value['language_alias']);
+		$ctrnetSubmissionDiseaseSite = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
+		$ctrnetSubmissionDiseaseSiteValues = array();
+		if($ctrnetSubmissionDiseaseSite) {
+			foreach($ctrnetSubmissionDiseaseSite['StructurePermissibleValue'] as $newValue) {
+				$ctrnetSubmissionDiseaseSiteValues[$newValue['value']] = __($newValue['language_alias']);
 			}
 		}		
 		
-		$dx_controls = array();
+		$dxControls = array();
 		$query = "SELECT id, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1";
-		foreach($this->Report->tryCatchQuery($query) as $new_dx) {
-			$dx_controls[$new_dx['diagnosis_controls']['controls_type']] = $new_dx['diagnosis_controls'];
+		foreach($this->Report->tryCatchQuery($query) as $newDx) {
+			$dxControls[$newDx['diagnosis_controls']['controls_type']] = $newDx['diagnosis_controls'];
 		}
 		
-		$tma_control_ids = array();
+		$tmaControlIds = array();
 		$query = "SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1'";
-		foreach($this->Report->tryCatchQuery($query) as $new_tma_ctrl) {
-			$tma_control_ids[] = $new_tma_ctrl['storage_controls']['id'];
+		foreach($this->Report->tryCatchQuery($query) as $newTmaCtrl) {
+			$tmaControlIds[] = $newTmaCtrl['storage_controls']['id'];
 		}	
 		
-		$tissue_block_aliquot_control_id = '';
+		$tissueBlockAliquotControlId = '';
 		$query = "SELECT aliquot_controls.id FROM sample_controls INNER JOIN aliquot_controls ON sample_controls.id = sample_control_id WHERE sample_type = 'tissue' AND aliquot_type = 'block' AND aliquot_controls.flag_active = '1'";
-		$tissue_block_aliquot_control_id = $this->Report->tryCatchQuery($query);
-		$tissue_block_aliquot_control_id = $tissue_block_aliquot_control_id? $tissue_block_aliquot_control_id[0]['aliquot_controls']['id'] : '-1';
+		$tissueBlockAliquotControlId = $this->Report->tryCatchQuery($query);
+		$tissueBlockAliquotControlId = $tissueBlockAliquotControlId? $tissueBlockAliquotControlId[0]['aliquot_controls']['id'] : '-1';
 		
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
 		
-		$sql_participant_fields = "Participant.id,
+		$sqlParticipantFields = "Participant.id,
 			Participant.participant_identifier,
 			Participant.qbcf_bank_id,
 			Participant.vital_status,
@@ -215,7 +215,7 @@ class ReportsControllerCustom extends ReportsController {
 			Participant.qbcf_aborta,
 			Participant.qbcf_abortaplus_integer_unknown,
 			Participant.qbcf_menopause";
-		$sql_treatment_fields = "TreatmentMaster.id,
+		$sqlTreatmentFields = "TreatmentMaster.id,
 			TreatmentMaster.diagnosis_master_id,
 			TreatmentMaster.start_date,
 			TreatmentMaster.start_date_accuracy,
@@ -252,7 +252,7 @@ class ReportsControllerCustom extends ReportsController {
 			TreatmentDetail.time_to_last_contact_months,
 			TreatmentDetail.time_to_first_progression_months,
 			TreatmentDetail.time_to_next_breast_dx_event_months";
-		$sql_core_fields = "ViewAliquot.aliquot_master_id,
+		$sqlCoreFields = "ViewAliquot.aliquot_master_id,
 			ViewAliquot.sample_master_id,
 			ViewAliquot.collection_id,
 			ViewAliquot.qbcf_pathology_id,
@@ -263,114 +263,114 @@ class ReportsControllerCustom extends ReportsController {
 			ViewAliquot.storage_coord_x,
 			ViewAliquot.storage_coord_y";
 		
-		$inner_join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (".implode(',',($tma_control_ids? $tma_control_ids : array('-1'))).")";
+		$innerJoinOnStorage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (".implode(',',($tmaControlIds? $tmaControlIds : array('-1'))).")";
 		
 		$sql =
 			"SELECT DISTINCT
-				$sql_participant_fields,
-				$sql_treatment_fields
-				".($include_tma_core? ",$sql_core_fields" : "")."
+				$sqlParticipantFields,
+				$sqlTreatmentFields
+				".($includeTmaCore? ",$sqlCoreFields" : "")."
 				FROM participants AS Participant
-				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
-				INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$txControls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
+				INNER JOIN ".$txControls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 				INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.treatment_master_id = TreatmentMaster.id AND Collection.deleted <> 1
-				".($include_tma_core? 
-					"INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id AND ViewAliquot.aliquot_type = 'core' $inner_join_on_storage" : 
+				".($includeTmaCore? 
+					"INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id AND ViewAliquot.aliquot_type = 'core' $innerJoinOnStorage" : 
 					"").
 				" WHERE Participant.deleted <> 1 
-				AND ($conditions_str)
+				AND ($conditionsStr)
 				ORDER BY ".
-				($include_tma_core? 
+				($includeTmaCore? 
 					"StorageMaster.selection_label ASC, ViewAliquot.storage_coord_x ASC, ViewAliquot.storage_coord_y ASC":
 					"Participant.qbcf_bank_id ASC, Participant.qbcf_bank_participant_identifier ASC");
-		$main_results = $this->Report->tryCatchQuery($sql);
+		$mainResults = $this->Report->tryCatchQuery($sql);
 		
-		if($participant_conditions_only) {
+		if($participantConditionsOnly) {
 			//Look for participants matching the participant criteria but not linked to a breast diagnosis event and/or an aliquot
-			$main_result_participant_ids = '-1';
-			if($main_results) {
-				$participant_id_query = "SELECT DISTINCT Participant.id ".substr($sql, strpos($sql, 'FROM participants AS Participant'), (strpos($sql, 'ORDER BY') - strpos($sql, 'FROM participants AS Participant')));
-				$main_result_participant_ids = $main_result_participant_ids = array();
-				foreach($this->Report->tryCatchQuery($participant_id_query) as $tmp_res) {
-					$main_result_participant_ids[] = $tmp_res['Participant']['id'];
+			$mainResultParticipantIds = '-1';
+			if($mainResults) {
+				$participantIdQuery = "SELECT DISTINCT Participant.id ".substr($sql, strpos($sql, 'FROM participants AS Participant'), (strpos($sql, 'ORDER BY') - strpos($sql, 'FROM participants AS Participant')));
+				$mainResultParticipantIds = $mainResultParticipantIds = array();
+				foreach($this->Report->tryCatchQuery($participantIdQuery) as $tmpRes) {
+					$mainResultParticipantIds[] = $tmpRes['Participant']['id'];
 				}
-				$main_result_participant_ids = implode(',', $main_result_participant_ids);
+				$mainResultParticipantIds = implode(',', $mainResultParticipantIds);
 			}
-			$sql_for_unlinked =
+			$sqlForUnlinked =
 				"SELECT DISTINCT
-					$sql_participant_fields
+					$sqlParticipantFields
 					FROM participants AS Participant
 					WHERE Participant.deleted <> 1 
-					AND (".implode($participant_conditions_only, ' AND ').")
-					AND Participant.id NOT IN ($main_result_participant_ids)
+					AND (".implode($participantConditionsOnly, ' AND ').")
+					AND Participant.id NOT IN ($mainResultParticipantIds)
 					ORDER BY Participant.qbcf_bank_id ASC, Participant.qbcf_bank_participant_identifier ASC;";
-			$result_for_unlinked = $this->Report->tryCatchQuery($sql_for_unlinked);
-			if($result_for_unlinked) {
-				$tx_empty_array = array();
-				foreach(explode(',', preg_replace("/[\n\r\s\s+]/","",$sql_treatment_fields)) as $new_field) {
-					list($model, $field) = explode('.', $new_field);
-					$tx_empty_array[$model][$field] = '';
+			$resultForUnlinked = $this->Report->tryCatchQuery($sqlForUnlinked);
+			if($resultForUnlinked) {
+				$txEmptyArray = array();
+				foreach(explode(',', preg_replace("/[\n\r\s\s+]/","",$sqlTreatmentFields)) as $newField) {
+					list($model, $field) = explode('.', $newField);
+					$txEmptyArray[$model][$field] = '';
 				}
-				foreach($result_for_unlinked as $new_participant) {
-					$main_results[] =$new_participant+$tx_empty_array;
+				foreach($resultForUnlinked as $newParticipant) {
+					$mainResults[] =$newParticipant+$txEmptyArray;
 				}
 			}
 		}
 		
-		if(sizeof($main_results) > Configure::read('databrowser_and_report_results_display_limit')) {
+		if(sizeof($mainResults) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
 				'columns_names' => null,
-				'error_msg' => __('the report contains too many results - please redefine search criteria')." [> ".sizeof($main_results)." ".__('lines').']');
+				'error_msg' => __('the report contains too many results - please redefine search criteria')." [> ".sizeof($mainResults)." ".__('lines').']');
 		}
-		foreach($main_results as &$new_participant) {
+		foreach($mainResults as &$newParticipant) {
 			
-			//if($new_participant['TreatmentMaster']['start_date_accuracy'] != 'y') $new_participant['TreatmentMaster']['start_date_accuracy'] = 'm';
-			$empty_value = '';
+			//if($newParticipant['TreatmentMaster']['start_date_accuracy'] != 'y') $newParticipant['TreatmentMaster']['start_date_accuracy'] = 'm';
+			$emptyValue = '';
 						
 			// ** 1 ** Set confidential data
 			
-			$confidential_record  = ($user_bank_id != 'all' && $new_participant['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
-			if($confidential_record) {
-				$new_participant['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
-				$new_participant['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-				if(isset($new_participant['ViewAliquot'])) {
-					$new_participant['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
-					$new_participant['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER;
+			$confidentialRecord  = ($userBankId != 'all' && $newParticipant['Participant']['qbcf_bank_id'] != $userBankId)? true : false;
+			if($confidentialRecord) {
+				$newParticipant['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
+				$newParticipant['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+				if(isset($newParticipant['ViewAliquot'])) {
+					$newParticipant['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
+					$newParticipant['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER;
 				}			
 			}
 			
 			// ** 2 ** Pre/Post Breast Diagnosis Event
 			
-			$new_participant['GeneratedQbcfPreBrDxEv'] = array(
-				'event_to_collection_months' => $empty_value,
-				'type_of_intervention' => $empty_value,
-				'laterality' => $empty_value,
-				'clinical_stage_summary' => $empty_value,
-				'clinical_tstage' => $empty_value,
-				'clinical_nstage' => $empty_value,
-				'clinical_mstage' => $empty_value,
-				'morphology' => $empty_value,
-				'grade_notthingham_sbr_ee' => $empty_value,
-				'er_overall' => $empty_value,
-				'pr_overall' => $empty_value,
-				'pr_percent' => $empty_value,
-				'her2_ihc' => $empty_value,
-				'her2_fish' => $empty_value,
-				'her_2_status' => $empty_value,
-				'tnbc' => $empty_value);
-			$new_participant['GeneratedQbcfPostBrDxEv'] = array(			
-				'collection_to_event_months' => $empty_value,
-				'type_of_post_breast_dx_event' => $empty_value,
-				'type_of_post_breast_dx_event_detail' => $empty_value,
-				'type_of_intervention' => $empty_value,
-				'laterality' => $empty_value,
-				'morphology' => $empty_value,
-				'er_overall' => $empty_value,
-				'pr_overall' => $empty_value,
-				'her_2_status' => $empty_value);
-			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
+			$newParticipant['GeneratedQbcfPreBrDxEv'] = array(
+				'event_to_collection_months' => $emptyValue,
+				'type_of_intervention' => $emptyValue,
+				'laterality' => $emptyValue,
+				'clinical_stage_summary' => $emptyValue,
+				'clinical_tstage' => $emptyValue,
+				'clinical_nstage' => $emptyValue,
+				'clinical_mstage' => $emptyValue,
+				'morphology' => $emptyValue,
+				'grade_notthingham_sbr_ee' => $emptyValue,
+				'er_overall' => $emptyValue,
+				'pr_overall' => $emptyValue,
+				'pr_percent' => $emptyValue,
+				'her2_ihc' => $emptyValue,
+				'her2_fish' => $emptyValue,
+				'her_2_status' => $emptyValue,
+				'tnbc' => $emptyValue);
+			$newParticipant['GeneratedQbcfPostBrDxEv'] = array(			
+				'collection_to_event_months' => $emptyValue,
+				'type_of_post_breast_dx_event' => $emptyValue,
+				'type_of_post_breast_dx_event_detail' => $emptyValue,
+				'type_of_intervention' => $emptyValue,
+				'laterality' => $emptyValue,
+				'morphology' => $emptyValue,
+				'er_overall' => $emptyValue,
+				'pr_overall' => $emptyValue,
+				'her_2_status' => $emptyValue);
+			if($newParticipant['TreatmentMaster']['id'] != 'n/a' && $newParticipant['TreatmentMaster']['start_date']) {
 				$sql =
 					"SELECT DISTINCT
 						GeneratedQbcfPreBrDxEvMaster.start_date,
@@ -391,19 +391,19 @@ class ReportsControllerCustom extends ReportsController {
 						GeneratedQbcfPreBrDxEv.her_2_status,
 						GeneratedQbcfPreBrDxEv.tnbc
 						FROM treatment_masters AS GeneratedQbcfPreBrDxEvMaster
-						INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS GeneratedQbcfPreBrDxEv ON GeneratedQbcfPreBrDxEv.treatment_master_id = GeneratedQbcfPreBrDxEvMaster.id
-						WHERE GeneratedQbcfPreBrDxEvMaster.id != ".$new_participant['TreatmentMaster']['id']."
-						AND GeneratedQbcfPreBrDxEvMaster.participant_id = ".$new_participant['Participant']['id']."
-						AND GeneratedQbcfPreBrDxEvMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']."
+						INNER JOIN ".$txControls['breast diagnostic event']['detail_tablename']." AS GeneratedQbcfPreBrDxEv ON GeneratedQbcfPreBrDxEv.treatment_master_id = GeneratedQbcfPreBrDxEvMaster.id
+						WHERE GeneratedQbcfPreBrDxEvMaster.id != ".$newParticipant['TreatmentMaster']['id']."
+						AND GeneratedQbcfPreBrDxEvMaster.participant_id = ".$newParticipant['Participant']['id']."
+						AND GeneratedQbcfPreBrDxEvMaster.treatment_control_id = ".$txControls['breast diagnostic event']['id']."
 						AND GeneratedQbcfPreBrDxEvMaster.deleted <> 1
-						AND GeneratedQbcfPreBrDxEvMaster.start_date < '".$new_participant['TreatmentMaster']['start_date']."'
+						AND GeneratedQbcfPreBrDxEvMaster.start_date < '".$newParticipant['TreatmentMaster']['start_date']."'
 						AND GeneratedQbcfPreBrDxEvMaster.start_date IS NOT NULL
 						AND (GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'fine needle aspiration%' OR GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'biopsy%')		
 						ORDER BY GeneratedQbcfPreBrDxEvMaster.start_date DESC";
-				$sub_results = $this->Report->tryCatchQuery($sql);
-				if($sub_results) {
-					$new_participant['GeneratedQbcfPreBrDxEv'] = array_merge($new_participant['GeneratedQbcfPreBrDxEv'], $sub_results[0]['GeneratedQbcfPreBrDxEv']);
-					$new_participant['GeneratedQbcfPreBrDxEv']['event_to_collection_months'] = $this->getDateDiffInMonths($sub_results[0]['GeneratedQbcfPreBrDxEvMaster']['start_date'], $new_participant['TreatmentMaster']['start_date']);
+				$subResults = $this->Report->tryCatchQuery($sql);
+				if($subResults) {
+					$newParticipant['GeneratedQbcfPreBrDxEv'] = array_merge($newParticipant['GeneratedQbcfPreBrDxEv'], $subResults[0]['GeneratedQbcfPreBrDxEv']);
+					$newParticipant['GeneratedQbcfPreBrDxEv']['event_to_collection_months'] = $this->getDateDiffInMonths($subResults[0]['GeneratedQbcfPreBrDxEvMaster']['start_date'], $newParticipant['TreatmentMaster']['start_date']);
 				}
 				$sql =
 					"SELECT DISTINCT
@@ -416,182 +416,182 @@ class ReportsControllerCustom extends ReportsController {
 						GeneratedQbcfPostBrDxEv.pr_overall,
 						GeneratedQbcfPostBrDxEv.her_2_status
 						FROM treatment_masters AS GeneratedQbcfPostBrDxEvMaster
-						INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS GeneratedQbcfPostBrDxEv ON GeneratedQbcfPostBrDxEv.treatment_master_id = GeneratedQbcfPostBrDxEvMaster.id
-						WHERE GeneratedQbcfPostBrDxEvMaster.id != ".$new_participant['TreatmentMaster']['id']."
-						AND GeneratedQbcfPostBrDxEvMaster.participant_id = ".$new_participant['Participant']['id']."
-						AND GeneratedQbcfPostBrDxEvMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']."
+						INNER JOIN ".$txControls['breast diagnostic event']['detail_tablename']." AS GeneratedQbcfPostBrDxEv ON GeneratedQbcfPostBrDxEv.treatment_master_id = GeneratedQbcfPostBrDxEvMaster.id
+						WHERE GeneratedQbcfPostBrDxEvMaster.id != ".$newParticipant['TreatmentMaster']['id']."
+						AND GeneratedQbcfPostBrDxEvMaster.participant_id = ".$newParticipant['Participant']['id']."
+						AND GeneratedQbcfPostBrDxEvMaster.treatment_control_id = ".$txControls['breast diagnostic event']['id']."
 						AND GeneratedQbcfPostBrDxEvMaster.deleted <> 1
-						AND GeneratedQbcfPostBrDxEvMaster.start_date > '".$new_participant['TreatmentMaster']['start_date']."'
+						AND GeneratedQbcfPostBrDxEvMaster.start_date > '".$newParticipant['TreatmentMaster']['start_date']."'
 						AND GeneratedQbcfPostBrDxEvMaster.start_date IS NOT NULL
 						ORDER BY GeneratedQbcfPostBrDxEvMaster.start_date ASC";			
-				$sub_results = $this->Report->tryCatchQuery($sql);
-				if($sub_results) {
-					$new_participant['GeneratedQbcfPostBrDxEv'] = array_merge($new_participant['GeneratedQbcfPostBrDxEv'], $sub_results[0]['GeneratedQbcfPostBrDxEv']);
-					$new_participant['GeneratedQbcfPostBrDxEv']['collection_to_event_months'] = $this->getDateDiffInMonths($new_participant['TreatmentMaster']['start_date'], $sub_results[0]['GeneratedQbcfPostBrDxEvMaster']['start_date']);
-					$type_of_post_breast_dx_event = __('new diagnosis');
-					$type_of_post_breast_dx_event_detail = '';
-					if($new_participant['GeneratedQbcfPostBrDxEv']['collection_to_event_months'] <= 60) {
-						$diff_on = array();
-						foreach(array('laterality' => 'laterality', 'morphology' => 'morphology', 'er_overall' => 'er overall  (from path report)', 'pr_overall' => 'pr overall (in path report)', 'her_2_status' => 'her 2 status') as $field => $language_id) {
-							if($new_participant['GeneratedQbcfPreBrDxEv'][$field] != $new_participant['GeneratedQbcfPostBrDxEv'][$field]) {
-								$diff_on[] = __($language_id).((!strlen($new_participant['GeneratedQbcfPreBrDxEv'][$field]) || !strlen($new_participant['GeneratedQbcfPostBrDxEv'][$field]))? ' ('.__('one empty value').')' : '');
+				$subResults = $this->Report->tryCatchQuery($sql);
+				if($subResults) {
+					$newParticipant['GeneratedQbcfPostBrDxEv'] = array_merge($newParticipant['GeneratedQbcfPostBrDxEv'], $subResults[0]['GeneratedQbcfPostBrDxEv']);
+					$newParticipant['GeneratedQbcfPostBrDxEv']['collection_to_event_months'] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $subResults[0]['GeneratedQbcfPostBrDxEvMaster']['start_date']);
+					$typeOfPostBreastDxEvent = __('new diagnosis');
+					$typeOfPostBreastDxEventDetail = '';
+					if($newParticipant['GeneratedQbcfPostBrDxEv']['collection_to_event_months'] <= 60) {
+						$diffOn = array();
+						foreach(array('laterality' => 'laterality', 'morphology' => 'morphology', 'er_overall' => 'er overall  (from path report)', 'pr_overall' => 'pr overall (in path report)', 'her_2_status' => 'her 2 status') as $field => $languageId) {
+							if($newParticipant['GeneratedQbcfPreBrDxEv'][$field] != $newParticipant['GeneratedQbcfPostBrDxEv'][$field]) {
+								$diffOn[] = __($languageId).((!strlen($newParticipant['GeneratedQbcfPreBrDxEv'][$field]) || !strlen($newParticipant['GeneratedQbcfPostBrDxEv'][$field]))? ' ('.__('one empty value').')' : '');
 							}
 						}	
-						if($diff_on) {
-							$type_of_post_breast_dx_event = __('new diagnosis');
-							$type_of_post_breast_dx_event_detail = __('differences on').' : '.implode(' + ', $diff_on);
+						if($diffOn) {
+							$typeOfPostBreastDxEvent = __('new diagnosis');
+							$typeOfPostBreastDxEventDetail = __('differences on').' : '.implode(' + ', $diffOn);
 						} else {
-							$type_of_post_breast_dx_event = __('progression');
+							$typeOfPostBreastDxEvent = __('progression');
 						}
 					} else {
-						$type_of_post_breast_dx_event_detail = __('> 5 years');
-						$type_of_post_breast_dx_event = __('new diagnosis');
+						$typeOfPostBreastDxEventDetail = __('> 5 years');
+						$typeOfPostBreastDxEvent = __('new diagnosis');
 					}
-					$new_participant['GeneratedQbcfPostBrDxEv']['type_of_post_breast_dx_event'] = $type_of_post_breast_dx_event;
-					$new_participant['GeneratedQbcfPostBrDxEv']['type_of_post_breast_dx_event_detail'] = $type_of_post_breast_dx_event_detail;
+					$newParticipant['GeneratedQbcfPostBrDxEv']['type_of_post_breast_dx_event'] = $typeOfPostBreastDxEvent;
+					$newParticipant['GeneratedQbcfPostBrDxEv']['type_of_post_breast_dx_event_detail'] = $typeOfPostBreastDxEventDetail;
 				}
 			} 
 				
 			// ** 3 ** Treatment
 			
-			$new_participant['GeneratedQbcfBxTx'] = array(
-				'pre_collection_chemotherapy' => $empty_value,
-				'pre_collection_hormonotherapy' => $empty_value,
-				'pre_collection_immunotherapy' => $empty_value,
-				'pre_collection_bone_specific_therapy' => $empty_value,
-				'pre_collection_other_systemic_treatment' => $empty_value,
-				'pre_collection_radiotherapy' => $empty_value,
-				'adjuvant_chemotherapy' => $empty_value,
-				'adjuvant_hormonotherapy' => $empty_value,
-				'adjuvant_immunotherapy' => $empty_value,
-				'adjuvant_bone_specific_therapy' => $empty_value,
-				'adjuvant_other_systemic_treatment' => $empty_value,
-				'adjuvant_radiotherapy' => $empty_value,
-				'adjuvant_chemotherapy_detail' => $empty_value,
-				'adjuvant_hormonotherapy_detail' => $empty_value,
-				'adjuvant_immunotherapy_detail' => $empty_value,
-				'adjuvant_bone_specific_therapy_detail' => $empty_value,
-				'adjuvant_other_systemic_treatment_detail' => $empty_value,
-				'adjuvant_radiotherapy_detail' => $empty_value,
-				'post_collection_chemotherapy' => $empty_value,
-				'post_collection_hormonotherapy' => $empty_value,
-				'post_collection_immunotherapy' => $empty_value,
-				'post_collection_bone_specific_therapy' => $empty_value,
-				'post_collection_other_systemic_treatment' => $empty_value,
-				'post_collection_radiotherapy' => $empty_value);
-			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
+			$newParticipant['GeneratedQbcfBxTx'] = array(
+				'pre_collection_chemotherapy' => $emptyValue,
+				'pre_collection_hormonotherapy' => $emptyValue,
+				'pre_collection_immunotherapy' => $emptyValue,
+				'pre_collection_bone_specific_therapy' => $emptyValue,
+				'pre_collection_other_systemic_treatment' => $emptyValue,
+				'pre_collection_radiotherapy' => $emptyValue,
+				'adjuvant_chemotherapy' => $emptyValue,
+				'adjuvant_hormonotherapy' => $emptyValue,
+				'adjuvant_immunotherapy' => $emptyValue,
+				'adjuvant_bone_specific_therapy' => $emptyValue,
+				'adjuvant_other_systemic_treatment' => $emptyValue,
+				'adjuvant_radiotherapy' => $emptyValue,
+				'adjuvant_chemotherapy_detail' => $emptyValue,
+				'adjuvant_hormonotherapy_detail' => $emptyValue,
+				'adjuvant_immunotherapy_detail' => $emptyValue,
+				'adjuvant_bone_specific_therapy_detail' => $emptyValue,
+				'adjuvant_other_systemic_treatment_detail' => $emptyValue,
+				'adjuvant_radiotherapy_detail' => $emptyValue,
+				'post_collection_chemotherapy' => $emptyValue,
+				'post_collection_hormonotherapy' => $emptyValue,
+				'post_collection_immunotherapy' => $emptyValue,
+				'post_collection_bone_specific_therapy' => $emptyValue,
+				'post_collection_other_systemic_treatment' => $emptyValue,
+				'post_collection_radiotherapy' => $emptyValue);
+			if($newParticipant['TreatmentMaster']['id'] != 'n/a' && $newParticipant['TreatmentMaster']['start_date']) {
 				//Pre
-				$control_ids = array(
-					$tx_controls['chemotherapy']['id'],
-					$tx_controls['hormonotherapy']['id'],
-					$tx_controls['immunotherapy']['id'],
-					$tx_controls['bone specific therapy']['id'],
-					$tx_controls['radiotherapy']['id'],
-					$tx_controls['other (breast cancer systemic treatment)']['id']
+				$controlIds = array(
+					$txControls['chemotherapy']['id'],
+					$txControls['hormonotherapy']['id'],
+					$txControls['immunotherapy']['id'],
+					$txControls['bone specific therapy']['id'],
+					$txControls['radiotherapy']['id'],
+					$txControls['other (breast cancer systemic treatment)']['id']
 				);
-				$control_ids = implode(',',$control_ids);
+				$controlIds = implode(',',$controlIds);
 				$sql = 
 					"SELECT DISTINCT treatment_control_id 
 						FROM treatment_masters 
 						WHERE deleted <> 1 
-						AND participant_id = ".$new_participant['Participant']['id']." 
-						AND treatment_control_id IN ($control_ids) 
+						AND participant_id = ".$newParticipant['Participant']['id']." 
+						AND treatment_control_id IN ($controlIds) 
 						AND start_date IS NOT NULL
-						AND start_date < '".$new_participant['TreatmentMaster']['start_date']."'";
-				foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
-					switch($new_tx['treatment_masters']['treatment_control_id']) {
-						case ($tx_controls['chemotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_chemotherapy'] = 'y';
+						AND start_date < '".$newParticipant['TreatmentMaster']['start_date']."'";
+				foreach($this->Report->tryCatchQuery($sql) as $newTx) {
+					switch($newTx['treatment_masters']['treatment_control_id']) {
+						case ($txControls['chemotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_chemotherapy'] = 'y';
 							break;
-						case ($tx_controls['hormonotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_hormonotherapy'] = 'y';
+						case ($txControls['hormonotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_hormonotherapy'] = 'y';
 							break;
-						case ($tx_controls['immunotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_immunotherapy'] = 'y';
+						case ($txControls['immunotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_immunotherapy'] = 'y';
 							break;
-						case ($tx_controls['bone specific therapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_bone_specific_therapy'] = 'y';
+						case ($txControls['bone specific therapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_bone_specific_therapy'] = 'y';
 							break;
-						case ($tx_controls['radiotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_radiotherapy'] = 'y';
+						case ($txControls['radiotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_radiotherapy'] = 'y';
 							break;
-						case ($tx_controls['other (breast cancer systemic treatment)']['id']):
-							$new_participant['GeneratedQbcfBxTx']['pre_collection_other_systemic_treatment'] = 'y';
+						case ($txControls['other (breast cancer systemic treatment)']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['pre_collection_other_systemic_treatment'] = 'y';
 							break;
 					}
 				}
 				//Adjuvant
-				preg_match('/^([0-9]{4})(\-[0-9]{2}\-[0-9]{2})$/', $new_participant['TreatmentMaster']['start_date'], $matches);
-				$end_date = (($matches[1])+1).$matches[2];
-				$adjuvant_treatment = array();
-				foreach(array('chemotherapy', 'hormonotherapy', 'immunotherapy', 'other (breast cancer systemic treatment)') as $tx_method) {
+				preg_match('/^([0-9]{4})(\-[0-9]{2}\-[0-9]{2})$/', $newParticipant['TreatmentMaster']['start_date'], $matches);
+				$endDate = (($matches[1])+1).$matches[2];
+				$adjuvantTreatment = array();
+				foreach(array('chemotherapy', 'hormonotherapy', 'immunotherapy', 'other (breast cancer systemic treatment)') as $txMethod) {
 					$sql = 
 						"SELECT TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number, TreatmentDetail.cycles_completed as completed, GROUP_CONCAT(DISTINCT Drug.generic_name ORDER BY Drug.generic_name DESC SEPARATOR ' + ') AS drug_names
 							FROM treatment_masters TreatmentMaster
-							INNER JOIN ".$tx_controls[$tx_method]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
+							INNER JOIN ".$txControls[$txMethod]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
 							LEFT JOIN treatment_extend_masters TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id AND TreatmentExtendMaster.deleted <> 1
 							LEFT JOIN drugs Drug ON Drug.id = TreatmentExtendMaster.drug_id
 							WHERE TreatmentMaster.deleted <> 1
-							AND TreatmentMaster.treatment_control_id = ".$tx_controls[$tx_method]['id']."
-							AND TreatmentMaster.participant_id = ".$new_participant['Participant']['id']." 
+							AND TreatmentMaster.treatment_control_id = ".$txControls[$txMethod]['id']."
+							AND TreatmentMaster.participant_id = ".$newParticipant['Participant']['id']." 
 							AND TreatmentMaster.start_date IS NOT NULL
-							AND TreatmentMaster.start_date >= '".$new_participant['TreatmentMaster']['start_date']."'
-							AND TreatmentMaster.start_date <= '$end_date'
+							AND TreatmentMaster.start_date >= '".$newParticipant['TreatmentMaster']['start_date']."'
+							AND TreatmentMaster.start_date <= '$endDate'
 							GROUP BY TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number, TreatmentDetail.cycles_completed";
-					foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
-						$new_tx['tx_method'] = $tx_method;
-						$adjuvant_treatment[] = $new_tx;
+					foreach($this->Report->tryCatchQuery($sql) as $newTx) {
+						$newTx['tx_method'] = $txMethod;
+						$adjuvantTreatment[] = $newTx;
 					}
 				}
-				$tx_method = 'bone specific therapy';
+				$txMethod = 'bone specific therapy';
 				$sql =
 					"SELECT TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number, '' AS completed, GROUP_CONCAT(DISTINCT Drug.generic_name ORDER BY Drug.generic_name DESC SEPARATOR ' + ') AS drug_names
 						FROM treatment_masters TreatmentMaster
-						INNER JOIN ".$tx_controls[$tx_method]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
+						INNER JOIN ".$txControls[$txMethod]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
 						LEFT JOIN treatment_extend_masters TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id AND TreatmentExtendMaster.deleted <> 1
 						LEFT JOIN drugs Drug ON Drug.id = TreatmentExtendMaster.drug_id
 						WHERE TreatmentMaster.deleted <> 1
-						AND TreatmentMaster.treatment_control_id = ".$tx_controls[$tx_method]['id']."
-						AND TreatmentMaster.participant_id = ".$new_participant['Participant']['id']."
+						AND TreatmentMaster.treatment_control_id = ".$txControls[$txMethod]['id']."
+						AND TreatmentMaster.participant_id = ".$newParticipant['Participant']['id']."
 						AND TreatmentMaster.start_date IS NOT NULL
-						AND TreatmentMaster.start_date >= '".$new_participant['TreatmentMaster']['start_date']."'
-						AND TreatmentMaster.start_date <= '$end_date'
+						AND TreatmentMaster.start_date >= '".$newParticipant['TreatmentMaster']['start_date']."'
+						AND TreatmentMaster.start_date <= '$endDate'
 						GROUP BY TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number";
-				foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
-					$new_tx['tx_method'] = $tx_method;
-					$new_tx['TreatmentDetail']['completed'] = $new_tx['0']['completed'];
-					$adjuvant_treatment[] = $new_tx;
+				foreach($this->Report->tryCatchQuery($sql) as $newTx) {
+					$newTx['tx_method'] = $txMethod;
+					$newTx['TreatmentDetail']['completed'] = $newTx['0']['completed'];
+					$adjuvantTreatment[] = $newTx;
 				}
-				$tx_method = 'radiotherapy';
+				$txMethod = 'radiotherapy';
 				$sql =
 					"SELECT TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number, completed AS completed, '' AS drug_names
 						FROM treatment_masters TreatmentMaster
-						INNER JOIN ".$tx_controls[$tx_method]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
+						INNER JOIN ".$txControls[$txMethod]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
 						WHERE TreatmentMaster.deleted <> 1
-						AND TreatmentMaster.treatment_control_id = ".$tx_controls[$tx_method]['id']."
-						AND TreatmentMaster.participant_id = ".$new_participant['Participant']['id']."
+						AND TreatmentMaster.treatment_control_id = ".$txControls[$txMethod]['id']."
+						AND TreatmentMaster.participant_id = ".$newParticipant['Participant']['id']."
 						AND TreatmentMaster.start_date IS NOT NULL
-						AND TreatmentMaster.start_date >= '".$new_participant['TreatmentMaster']['start_date']."'
-						AND TreatmentMaster.start_date <= '$end_date'
+						AND TreatmentMaster.start_date >= '".$newParticipant['TreatmentMaster']['start_date']."'
+						AND TreatmentMaster.start_date <= '$endDate'
 						GROUP BY TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number, TreatmentDetail.completed";
-				foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
-					$new_tx['tx_method'] = $tx_method;
-					$adjuvant_treatment[] = $new_tx;
+				foreach($this->Report->tryCatchQuery($sql) as $newTx) {
+					$newTx['tx_method'] = $txMethod;
+					$adjuvantTreatment[] = $newTx;
 				}
-				foreach($adjuvant_treatment as $new_tx) {
-					$tx_merthod = $new_tx['tx_method'];
-					$field_name = str_replace(array('chemotherapy', 'hormonotherapy', 'immunotherapy', 'bone specific therapy', 'radiotherapy', 'other (breast cancer systemic treatment)'),
+				foreach($adjuvantTreatment as $newTx) {
+					$txMerthod = $newTx['tx_method'];
+					$fieldName = str_replace(array('chemotherapy', 'hormonotherapy', 'immunotherapy', 'bone specific therapy', 'radiotherapy', 'other (breast cancer systemic treatment)'),
 						array('adjuvant_chemotherapy', 'adjuvant_hormonotherapy', 'adjuvant_immunotherapy', 'adjuvant_bone_specific_therapy', 'adjuvant_radiotherapy', 'adjuvant_other_systemic_treatment'),
-						$tx_merthod);
-					$new_participant['GeneratedQbcfBxTx'][$field_name] = 'y';				
-					$tx_detail = array(
-						str_replace(array('unknown', 'yes', 'no', ), array('', __('completed'), __('not completed')), $new_tx['TreatmentDetail']['completed']),
-						$new_tx['TreatmentMaster']['qbcf_clinical_trial_protocol_number'],
-						($new_tx['0']['drug_names']? '('.$new_tx['0']['drug_names'].')' : ''));
-					if(!$tx_detail) $tx_detail = __('completion unknown');
-					$tx_detail = array_filter($tx_detail);
-					if($tx_detail) {			
-						$new_participant['GeneratedQbcfBxTx'][$field_name.'_detail'] .= __($tx_merthod).' ['.implode(' ', $tx_detail).'] ';
+						$txMerthod);
+					$newParticipant['GeneratedQbcfBxTx'][$fieldName] = 'y';				
+					$txDetail = array(
+						str_replace(array('unknown', 'yes', 'no', ), array('', __('completed'), __('not completed')), $newTx['TreatmentDetail']['completed']),
+						$newTx['TreatmentMaster']['qbcf_clinical_trial_protocol_number'],
+						($newTx['0']['drug_names']? '('.$newTx['0']['drug_names'].')' : ''));
+					if(!$txDetail) $txDetail = __('completion unknown');
+					$txDetail = array_filter($txDetail);
+					if($txDetail) {			
+						$newParticipant['GeneratedQbcfBxTx'][$fieldName.'_detail'] .= __($txMerthod).' ['.implode(' ', $txDetail).'] ';
 					}
 					}
 				// Post
@@ -599,29 +599,29 @@ class ReportsControllerCustom extends ReportsController {
 					"SELECT DISTINCT treatment_control_id
 						FROM treatment_masters
 						WHERE deleted <> 1
-						AND participant_id = ".$new_participant['Participant']['id']."
-						AND treatment_control_id IN ($control_ids)
+						AND participant_id = ".$newParticipant['Participant']['id']."
+						AND treatment_control_id IN ($controlIds)
 						AND start_date IS NOT NULL
-						AND start_date >= '$end_date'";
-				foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
-					switch($new_tx['treatment_masters']['treatment_control_id']) {
-						case ($tx_controls['chemotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_chemotherapy'] = 'y';
+						AND start_date >= '$endDate'";
+				foreach($this->Report->tryCatchQuery($sql) as $newTx) {
+					switch($newTx['treatment_masters']['treatment_control_id']) {
+						case ($txControls['chemotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_chemotherapy'] = 'y';
 							break;
-						case ($tx_controls['hormonotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_hormonotherapy'] = 'y';
+						case ($txControls['hormonotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_hormonotherapy'] = 'y';
 							break;
-						case ($tx_controls['immunotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_immunotherapy'] = 'y';
+						case ($txControls['immunotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_immunotherapy'] = 'y';
 							break;
-						case ($tx_controls['bone specific therapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_bone_specific_therapy'] = 'y';
+						case ($txControls['bone specific therapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_bone_specific_therapy'] = 'y';
 							break;
-						case ($tx_controls['radiotherapy']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_radiotherapy'] = 'y';
+						case ($txControls['radiotherapy']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_radiotherapy'] = 'y';
 							break;
-						case ($tx_controls['other (breast cancer systemic treatment)']['id']):
-							$new_participant['GeneratedQbcfBxTx']['post_collection_other_systemic_treatment'] = 'y';
+						case ($txControls['other (breast cancer systemic treatment)']['id']):
+							$newParticipant['GeneratedQbcfBxTx']['post_collection_other_systemic_treatment'] = 'y';
 							break;
 					}
 				}
@@ -629,55 +629,55 @@ class ReportsControllerCustom extends ReportsController {
 				
 			// ** 4 ** Breast Progression
 			
-			$new_participant['GeneratedQbcfBrDxProg'] = array(
-				'first_progression' => $empty_value,
-				'collection_to_first_progression_months' => $empty_value,
-				'other_progressions' => array($empty_value));
-			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
+			$newParticipant['GeneratedQbcfBrDxProg'] = array(
+				'first_progression' => $emptyValue,
+				'collection_to_first_progression_months' => $emptyValue,
+				'other_progressions' => array($emptyValue));
+			if($newParticipant['TreatmentMaster']['id'] != 'n/a' && $newParticipant['TreatmentMaster']['start_date']) {
 				$sql =
 					"SELECT DiagnosisMaster.dx_date, DiagnosisDetail.site
 						FROM diagnosis_masters DiagnosisMaster
-						INNER JOIN ".$dx_controls['breast progression']['detail_tablename']." DiagnosisDetail ON DiagnosisMaster.id = DiagnosisDetail.diagnosis_master_id
+						INNER JOIN ".$dxControls['breast progression']['detail_tablename']." DiagnosisDetail ON DiagnosisMaster.id = DiagnosisDetail.diagnosis_master_id
 						WHERE DiagnosisMaster.deleted <> 1
-						AND  DiagnosisMaster.diagnosis_control_id = ".$dx_controls['breast progression']['id']."
-						AND DiagnosisMaster.parent_id = ".$new_participant['TreatmentMaster']['diagnosis_master_id']."
+						AND  DiagnosisMaster.diagnosis_control_id = ".$dxControls['breast progression']['id']."
+						AND DiagnosisMaster.parent_id = ".$newParticipant['TreatmentMaster']['diagnosis_master_id']."
 						AND DiagnosisMaster.dx_date IS NOT NULL
-						AND DiagnosisMaster.dx_date > '".$new_participant['TreatmentMaster']['start_date']."' ORDER BY DiagnosisMaster.dx_date ASC";
-				foreach($this->Report->tryCatchQuery($sql) as $new_prog) {
-					if(empty($new_participant['GeneratedQbcfBrDxProg']['first_progression'])) {
-						$new_participant['GeneratedQbcfBrDxProg']['first_progression'] = $new_prog['DiagnosisDetail']['site'];
-						$new_participant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] = $this->getDateDiffInMonths($new_participant['TreatmentMaster']['start_date'], $new_prog['DiagnosisMaster']['dx_date']);
+						AND DiagnosisMaster.dx_date > '".$newParticipant['TreatmentMaster']['start_date']."' ORDER BY DiagnosisMaster.dx_date ASC";
+				foreach($this->Report->tryCatchQuery($sql) as $newProg) {
+					if(empty($newParticipant['GeneratedQbcfBrDxProg']['first_progression'])) {
+						$newParticipant['GeneratedQbcfBrDxProg']['first_progression'] = $newProg['DiagnosisDetail']['site'];
+						$newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $newProg['DiagnosisMaster']['dx_date']);
 					} else {
-						$new_participant['GeneratedQbcfBrDxProg']['other_progressions'][$other_dx_progression_sites[$new_prog['DiagnosisDetail']['site']]] = $other_dx_progression_sites[$new_prog['DiagnosisDetail']['site']];
+						$newParticipant['GeneratedQbcfBrDxProg']['other_progressions'][$otherDxProgressionSites[$newProg['DiagnosisDetail']['site']]] = $otherDxProgressionSites[$newProg['DiagnosisDetail']['site']];
 					}
 				}
 			}
-			$new_participant['GeneratedQbcfBrDxProg']['other_progressions'] = implode(' & ', $new_participant['GeneratedQbcfBrDxProg']['other_progressions']);
+			$newParticipant['GeneratedQbcfBrDxProg']['other_progressions'] = implode(' & ', $newParticipant['GeneratedQbcfBrDxProg']['other_progressions']);
 			
 			// ** 5 ** Other Tumors
 			
 			$sql =
 				"SELECT DISTINCT DiagnosisDetail.disease_site
 					FROM diagnosis_masters DiagnosisMaster
-					INNER JOIN ".$dx_controls['other cancer']['detail_tablename']." AS DiagnosisDetail ON DiagnosisMaster.id = DiagnosisDetail.diagnosis_master_id
+					INNER JOIN ".$dxControls['other cancer']['detail_tablename']." AS DiagnosisDetail ON DiagnosisMaster.id = DiagnosisDetail.diagnosis_master_id
 					WHERE DiagnosisMaster.deleted <> 1
-					AND  DiagnosisMaster.diagnosis_control_id = ".$dx_controls['other cancer']['id']."
-					AND DiagnosisMaster.participant_id = ".$new_participant['Participant']['id'];
-			$other_dx = array();
-			foreach($this->Report->tryCatchQuery($sql) as $new_dx) $other_dx[] = $ctrnet_submission_disease_site_values[$new_dx['DiagnosisDetail']['disease_site']];
-			$new_participant['GeneratedQbcfOtherTumor']['other_tumor_sites'] = implode (' & ', $other_dx);
+					AND  DiagnosisMaster.diagnosis_control_id = ".$dxControls['other cancer']['id']."
+					AND DiagnosisMaster.participant_id = ".$newParticipant['Participant']['id'];
+			$otherDx = array();
+			foreach($this->Report->tryCatchQuery($sql) as $newDx) $otherDx[] = $ctrnetSubmissionDiseaseSiteValues[$newDx['DiagnosisDetail']['disease_site']];
+			$newParticipant['GeneratedQbcfOtherTumor']['other_tumor_sites'] = implode (' & ', $otherDx);
 			
-			$tx_method = 'other cancer';
+			$txMethod = 'other cancer';
 			$sql =
 				"SELECT DISTINCT TreatmentDetail.type
 					FROM treatment_masters TreatmentMaster
-					INNER JOIN ".$tx_controls[$tx_method]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
+					INNER JOIN ".$txControls[$txMethod]['detail_tablename']." TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id
 					WHERE TreatmentMaster.deleted <> 1
-					AND TreatmentMaster.treatment_control_id = ".$tx_controls[$tx_method]['id']."
-					AND TreatmentMaster.participant_id = ".$new_participant['Participant']['id'];
-			$other_tx = array();
-			foreach($this->Report->tryCatchQuery($sql) as $new_tx) $other_tx[] = $other_dx_treatments[$new_tx['TreatmentDetail']['type']];
-			$new_participant['GeneratedQbcfOtherTumor']['other_tumor_treatments'] = implode (' & ', $other_tx);	
+					AND TreatmentMaster.treatment_control_id = ".$txControls[$txMethod]['id']."
+					AND TreatmentMaster.participant_id = ".$newParticipant['Participant']['id'];
+			$otherTx = array();
+			foreach($this->Report->tryCatchQuery($sql) as $newTx) $otherTx[] = $otherDxTreatments[$newTx['TreatmentDetail']['type']];
+			$newParticipant['GeneratedQbcfOtherTumor']['other_tumor_treatments'] = implode (' & ', $otherTx);	
 			
 			// ** 6 ** Check if participant blocks are available
 			
@@ -685,48 +685,48 @@ class ReportsControllerCustom extends ReportsController {
 				"SELECT count(*) AS nbr_of_blocks
 				FROM collections Collection
 				INNER JOIN aliquot_masters AS TissueBlockAliquotMaster ON TissueBlockAliquotMaster.collection_id = Collection.id 
-				WHERE Collection.participant_id = ".$new_participant['Participant']['id']."
-				AND Collection.treatment_master_id = ".($new_participant['TreatmentMaster']['id']? $new_participant['TreatmentMaster']['id'] : '-1')."
+				WHERE Collection.participant_id = ".$newParticipant['Participant']['id']."
+				AND Collection.treatment_master_id = ".($newParticipant['TreatmentMaster']['id']? $newParticipant['TreatmentMaster']['id'] : '-1')."
 				AND TissueBlockAliquotMaster.deleted <> 1 
-				AND TissueBlockAliquotMaster.aliquot_control_id = '$tissue_block_aliquot_control_id' 
+				AND TissueBlockAliquotMaster.aliquot_control_id = '$tissueBlockAliquotControlId' 
 				AND TissueBlockAliquotMaster.in_stock IN ('yes - available', 'yes - not available');";
-			$res_count = $this->Report->tryCatchQuery($sql);
-			$new_participant['GeneratedQbcfBrDxEv']['block_available'] = $res_count[0][0]['nbr_of_blocks']? 'y' : 'n';				
+			$resCount = $this->Report->tryCatchQuery($sql);
+			$newParticipant['GeneratedQbcfBrDxEv']['block_available'] = $resCount[0][0]['nbr_of_blocks']? 'y' : 'n';				
 			
 			// ** 7 ** Add Core fields plus values equal to n/a when cores are not part of the display
 			
-			if(!array_key_exists('ViewAliquot', $new_participant)) {
-				$new_participant['ViewAliquot'] = array('selection_label' => 'n/a', 'storage_coord_x' => 'n/a', 'storage_coord_y' => 'n/a');
+			if(!array_key_exists('ViewAliquot', $newParticipant)) {
+				$newParticipant['ViewAliquot'] = array('selection_label' => 'n/a', 'storage_coord_x' => 'n/a', 'storage_coord_y' => 'n/a');
 			}
 			
 			// ** 8 ** No Biopsy - Replace cTNM by data of Dx Tx
 			
-			if(!strlen($new_participant['GeneratedQbcfPreBrDxEv']['type_of_intervention'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_tstage'].
-			$new_participant['GeneratedQbcfPreBrDxEv']['clinical_nstage'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_mstage'])) {
-				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'] = $new_participant['TreatmentDetail']['clinical_stage_summary'];
-				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_tstage'] = $new_participant['TreatmentDetail']['clinical_tstage'];
-				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_nstage'] = $new_participant['TreatmentDetail']['clinical_nstage'];
-				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_mstage'] = $new_participant['TreatmentDetail']['clinical_mstage'];
+			if(!strlen($newParticipant['GeneratedQbcfPreBrDxEv']['type_of_intervention'].$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'].$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_tstage'].
+			$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_nstage'].$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_mstage'])) {
+				$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'] = $newParticipant['TreatmentDetail']['clinical_stage_summary'];
+				$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_tstage'] = $newParticipant['TreatmentDetail']['clinical_tstage'];
+				$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_nstage'] = $newParticipant['TreatmentDetail']['clinical_nstage'];
+				$newParticipant['GeneratedQbcfPreBrDxEv']['clinical_mstage'] = $newParticipant['TreatmentDetail']['clinical_mstage'];
 			}
 		}
 		
-		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
+		foreach($warnings as $newWarning) AppController::addWarningMsg($newWarning);
 		
-		$array_to_return = array(
+		$arrayToReturn = array(
 			'header' => array(), 
-			'data' => $main_results, 
+			'data' => $mainResults, 
 			'columns_names' => null,
 			'error_msg' => null);
 		
-		return $array_to_return;		
+		return $arrayToReturn;		
 	}	
 	
-	function getDateDiffInMonths($start_date, $end_date) {
+	public function getDateDiffInMonths($startDate, $endDate) {
 		$months = '';
-		if(!empty($start_date) && !empty($end_date)) {
-			$start_date_ob = new DateTime($start_date);
-			$end_date_ob = new DateTime($end_date);
-			$interval = $start_date_ob->diff($end_date_ob);
+		if(!empty($startDate) && !empty($endDate)) {
+			$startDateOb = new DateTime($startDate);
+			$endDateOb = new DateTime($endDate);
+			$interval = $startDateOb->diff($endDateOb);
 			if($interval->invert) {
 				$months = 'ERR';
 			} else {
@@ -736,11 +736,11 @@ class ReportsControllerCustom extends ReportsController {
 		return $months;
 	}
 	
-	function buildQbcfCostRecoverySummary($parameters) {
+	public function buildQbcfCostRecoverySummary($parameters) {
 	
 	    $conditions = array();
-	    $participant_conditions_only = array();
-	    $include_tma_core = false;
+	    $participantConditionsOnly = array();
+	    $includeTmaCore = false;
 	    $warnings = array();
 	
 	    if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'no') {
@@ -749,10 +749,10 @@ class ReportsControllerCustom extends ReportsController {
 	
 	    // *********** Get Conditions from parameters ***********
 	
-	    $user_bank_id = ($_SESSION['Auth']['User']['group_id'] == '1')?
+	    $userBankId = ($_SESSION['Auth']['User']['group_id'] == '1')?
     	    'all' :
     	    (empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);
-	    $limit_to_bank = false;
+	    $limitToBank = false;
 	
 	    if(isset($parameters['Browser'])) {
 	        	
@@ -761,7 +761,7 @@ class ReportsControllerCustom extends ReportsController {
 	        if(isset($parameters['Participant']['id'])) {
 	            if(($parameters['Participant']['id'] != 'all')) {
 	                $conditions[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
-	                $participant_conditions_only[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+	                $participantConditionsOnly[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
 	            }
 	        } else {
 	            pr($parameters);
@@ -772,20 +772,20 @@ class ReportsControllerCustom extends ReportsController {
 	        	
 	        // 1-BANKS
 	        	
-	        $bank_ids = array();
+	        $bankIds = array();
 	        if(isset($parameters['Participant']['qbcf_bank_id'])) {
-	            $bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
-	            if($bank_ids) {
-	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $participant_conditions_only[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $limit_to_bank = true;
+	            $bankIds = array_filter($parameters['Participant']['qbcf_bank_id']);
+	            if($bankIds) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $participantConditionsOnly[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $limitToBank = true;
 	            }
-	        } else if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
-	            $bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
-	            $include_tma_core = true;
-	            if($bank_ids) {
-	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $limit_to_bank = true;
+	        } elseif(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
+	            $bankIds = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
+	            $includeTmaCore = true;
+	            if($bankIds) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $limitToBank = true;
 	            }
 	        }
 	        	
@@ -794,74 +794,74 @@ class ReportsControllerCustom extends ReportsController {
 	        if(isset($parameters['Participant']['participant_identifier_start'])) {
 	            if(strlen($parameters['Participant']['participant_identifier_start'])) {
 	                $conditions[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
-	                $participant_conditions_only[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+	                $participantConditionsOnly[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
 	            }
 	            if(strlen($parameters['Participant']['participant_identifier_end'])) {
 	                $conditions[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
-	                $participant_conditions_only[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+	                $participantConditionsOnly[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
 	            }
-	        } else if(isset($parameters['Participant']['participant_identifier'])) {
-	            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-	            if($participant_identifiers) {
-	                $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $participant_conditions_only[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	        } elseif(isset($parameters['Participant']['participant_identifier'])) {
+	            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+	            if($participantIdentifiers) {
+	                $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $participantConditionsOnly[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
 	            }
 	        }
 	        	
 	        if(isset($parameters['Participant']['qbcf_bank_participant_identifier'])) {
-	            $participant_identifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
-	            if($participant_identifiers) {
-	                $conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $participant_conditions_only[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $limit_to_bank = true;
+	            $participantIdentifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
+	            if($participantIdentifiers) {
+	                $conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $participantConditionsOnly[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $limitToBank = true;
 	            }
 	        }	
 	    }
 	
-	    if($limit_to_bank && $user_bank_id != 'all') {
-	        $conditions[] = "Participant.qbcf_bank_id = $user_bank_id";
-	        if($participant_conditions_only) $participant_conditions_only[] = "Participant.qbcf_bank_id = $user_bank_id";
+	    if($limitToBank && $userBankId != 'all') {
+	        $conditions[] = "Participant.qbcf_bank_id = $userBankId";
+	        if($participantConditionsOnly) $participantConditionsOnly[] = "Participant.qbcf_bank_id = $userBankId";
 	        $warnings[] = __('your search will be limited to your bank');
 	    }
 	
-	    $conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
+	    $conditionsStr = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
 	
 	    // *********** Get Control Data & all ***********
 	
-	    $tx_controls = array();
+	    $txControls = array();
 	    $query = "SELECT id, tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1";
-	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
-	        $tx_controls[$new_ctr['treatment_controls']['tx_method']] = $new_ctr['treatment_controls'];
+	    foreach($this->Report->tryCatchQuery($query) as $newCtr) {
+	        $txControls[$newCtr['treatment_controls']['tx_method']] = $newCtr['treatment_controls'];
 	    }
 	    
-	    $tissue_aliquot_control_ids = array();
+	    $tissueAliquotControlIds = array();
 	    $query = "SELECT AliquotControl.id, aliquot_type, AliquotControl.sample_control_id
     	    FROM sample_controls SampleControl INNER JOIN aliquot_controls AliquotControl ON AliquotControl.sample_control_id = SampleControl.id
     	    WHERE AliquotControl.flag_active = 1
     	    AND SampleControl.sample_type = 'tissue'
 	        AND AliquotControl.aliquot_type IN ('block', 'slide');";
-	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
-	        $tissue_aliquot_control_ids[$new_ctr['AliquotControl']['aliquot_type']] = $new_ctr['AliquotControl']['id'];
+	    foreach($this->Report->tryCatchQuery($query) as $newCtr) {
+	        $tissueAliquotControlIds[$newCtr['AliquotControl']['aliquot_type']] = $newCtr['AliquotControl']['id'];
 	    }
 	    
 	    $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-	    $aliquot_review_warnings = $StructurePermissibleValuesCustom->getCustomDropdown(array('Tissue Review Warnings'));
-	    $aliquot_review_warnings = array_merge($aliquot_review_warnings['defined'], $aliquot_review_warnings['previously_defined']);
+	    $aliquotReviewWarnings = $StructurePermissibleValuesCustom->getCustomDropdown(array('Tissue Review Warnings'));
+	    $aliquotReviewWarnings = array_merge($aliquotReviewWarnings['defined'], $aliquotReviewWarnings['previously_defined']);
 	    
 	    // *********** Get Participants Count Matching Criteria  ***********
 	
         $sql = "SELECT COUNT(*) AS Nbr_of_participants
             FROM participants AS Participant
             WHERE Participant.deleted <> 1
-			AND ($conditions_str)";
-        $nbr_of_participants_matching_criteria = $this->Report->tryCatchQuery($sql);
-        $nbr_of_participants_matching_criteria = $nbr_of_participants_matching_criteria[0][0]['Nbr_of_participants'];
+			AND ($conditionsStr)";
+        $nbrOfParticipantsMatchingCriteria = $this->Report->tryCatchQuery($sql);
+        $nbrOfParticipantsMatchingCriteria = $nbrOfParticipantsMatchingCriteria[0][0]['Nbr_of_participants'];
 
         // *********** Get Participant Blocks  ***********
         
-	    $blocks_details = array();
-	    $participants_blocks_counter = array();
-	    $samples_blocks_slides_reviews_counter = array();
+	    $blocksDetails = array();
+	    $participantsBlocksCounter = array();
+	    $samplesBlocksSlidesReviewsCounter = array();
 	    $sql =
     	    "SELECT DISTINCT
         	    Participant.id,
@@ -887,7 +887,7 @@ class ReportsControllerCustom extends ReportsController {
     			INNER JOIN aliquot_masters AliquotMaster 
     	           ON Collection.id = AliquotMaster.collection_id 
     	           AND AliquotMaster.deleted <> 1 
-    	           AND AliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['block']."
+    	           AND AliquotMaster.aliquot_control_id = ".$tissueAliquotControlIds['block']."
     			INNER JOIN ad_blocks AliquotDetail 
     	           ON AliquotMaster.id = AliquotDetail.aliquot_master_id
     			LEFT JOIN aliquot_internal_uses AliquotInternalUse 
@@ -896,30 +896,30 @@ class ReportsControllerCustom extends ReportsController {
 	               AND AliquotInternalUse.type IN ('cost recovery paid', 'returned to bank')
     			LEFT JOIN treatment_masters AS TreatmentMaster 
 	               ON Participant.id = TreatmentMaster.participant_id 
-	               AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." 
+	               AND TreatmentMaster.treatment_control_id = ".$txControls['breast diagnostic event']['id']." 
 	               AND TreatmentMaster.deleted <> 1			
     			WHERE Participant.deleted <> 1
-    		    AND ($conditions_str)";
-	    foreach($this->Report->tryCatchQuery($sql) as $new_result) {
-	        $participant_id = $new_result['Participant']['id'];
-	        $sample_master_id = $new_result['AliquotMaster']['sample_master_id'];
-	        $aliquot_master_id = $new_result['AliquotMaster']['id'];
-	        if(!isset($blocks_details[$aliquot_master_id])) {
+    		    AND ($conditionsStr)";
+	    foreach($this->Report->tryCatchQuery($sql) as $newResult) {
+	        $participantId = $newResult['Participant']['id'];
+	        $sampleMasterId = $newResult['AliquotMaster']['sample_master_id'];
+	        $aliquotMasterId = $newResult['AliquotMaster']['id'];
+	        if(!isset($blocksDetails[$aliquotMasterId])) {
 	           // Recrod New Block Data
-	            $blocks_details[$aliquot_master_id] = array(
-	               'Participant' => $new_result['Participant'],
-	                'AliquotMaster' => $new_result['AliquotMaster'],
-	                'AliquotDetail' => $new_result['AliquotDetail'],
+	            $blocksDetails[$aliquotMasterId] = array(
+	               'Participant' => $newResult['Participant'],
+	                'AliquotMaster' => $newResult['AliquotMaster'],
+	                'AliquotDetail' => $newResult['AliquotDetail'],
 	                'ViewAliquot' => array(
-	                    'collection_id' => $new_result['AliquotMaster']['collection_id'],
-	                    'sample_master_id' => $sample_master_id,
-	                    'aliquot_master_id' => $aliquot_master_id
+	                    'collection_id' => $newResult['AliquotMaster']['collection_id'],
+	                    'sample_master_id' => $sampleMasterId,
+	                    'aliquot_master_id' => $aliquotMasterId
 	                ),
 	                '0' =>  array(
 	                    'qbcf_generated_paid_block' => 'n',
 	                    'qbcf_generated_returned_block' => 'n',
 	                    
-	                    'qbcf_generated_breast_diagnosis_found' => $new_result['0']['breast_diagnosis_found'],
+	                    'qbcf_generated_breast_diagnosis_found' => $newResult['0']['breast_diagnosis_found'],
 	                    'qbcf_generated_patient_blocks_number' => '',
 	                    'qbcf_generated_patient_paid_blocks_number' => '',
 	                    'qbcf_generated_patient_returned_blocks_number' => '',
@@ -933,29 +933,29 @@ class ReportsControllerCustom extends ReportsController {
 	            );
 	        }
 	        // Counter and flag management
-	        if(!isset($participants_blocks_counter[$participant_id])) {
-	            $participants_blocks_counter[$participant_id] = array(
+	        if(!isset($participantsBlocksCounter[$participantId])) {
+	            $participantsBlocksCounter[$participantId] = array(
 	                'qbcf_generated_patient_blocks_number' => array(), 
 	                'qbcf_generated_patient_paid_blocks_number' => array(), 
 	                'qbcf_generated_patient_returned_blocks_number' => array());
 	        }
-            $participants_blocks_counter[$participant_id]['qbcf_generated_patient_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
-            if(!isset($samples_blocks_slides_reviews_counter[$sample_master_id])) {
-	            $samples_blocks_slides_reviews_counter[$sample_master_id] = array(
+            $participantsBlocksCounter[$participantId]['qbcf_generated_patient_blocks_number'][$aliquotMasterId] = $aliquotMasterId;
+            if(!isset($samplesBlocksSlidesReviewsCounter[$sampleMasterId])) {
+	            $samplesBlocksSlidesReviewsCounter[$sampleMasterId] = array(
 	                'qbcf_generated_sample_blocks_number' => array(), 
 	                'qbcf_generated_sample_slide_number' => array(), 
 	                'qbcf_generated_sample_path_reviews_number' => array(), 
 	                'qbcf_generated_sample_path_reviews_warnings_number' => array(), 
 	                'bcf_generated_sample_path_reviews_warnings' => array());
             }
-            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
-            if($new_result['AliquotInternalUse']['aliquot_event'] == 'cost recovery paid') {
-                $blocks_details[$aliquot_master_id]['0']['qbcf_generated_paid_block'] = 'y';
-                $participants_blocks_counter[$participant_id]['qbcf_generated_patient_paid_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            $samplesBlocksSlidesReviewsCounter[$sampleMasterId]['qbcf_generated_sample_blocks_number'][$aliquotMasterId] = $aliquotMasterId;
+            if($newResult['AliquotInternalUse']['aliquot_event'] == 'cost recovery paid') {
+                $blocksDetails[$aliquotMasterId]['0']['qbcf_generated_paid_block'] = 'y';
+                $participantsBlocksCounter[$participantId]['qbcf_generated_patient_paid_blocks_number'][$aliquotMasterId] = $aliquotMasterId;
             }
-            if($new_result['AliquotInternalUse']['aliquot_event'] == 'returned to bank') {
-                $blocks_details[$aliquot_master_id]['0']['qbcf_generated_returned_block'] = 'y';
-                $participants_blocks_counter[$participant_id]['qbcf_generated_patient_returned_blocks_number'][$aliquot_master_id] = $aliquot_master_id;
+            if($newResult['AliquotInternalUse']['aliquot_event'] == 'returned to bank') {
+                $blocksDetails[$aliquotMasterId]['0']['qbcf_generated_returned_block'] = 'y';
+                $participantsBlocksCounter[$participantId]['qbcf_generated_patient_returned_blocks_number'][$aliquotMasterId] = $aliquotMasterId;
             }
 	    }
 	    // Slide Review
@@ -976,62 +976,62 @@ class ReportsControllerCustom extends ReportsController {
     			LEFT JOIN qbcf_ar_tissue_blocks AliquotReviewDetail 
                     ON AliquotReviewMaster.id = AliquotReviewDetail.aliquot_review_master_id
     			WHERE AliquotMaster.deleted <> 1 
-                AND AliquotMaster.sample_master_id IN (".implode(',',array_keys(empty($samples_blocks_slides_reviews_counter)? array('-1' => '') : $samples_blocks_slides_reviews_counter)).")
-                AND AliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['slide'];
-	    foreach($this->Report->tryCatchQuery($sql) as $new_result) {
-	        $participant_id = $new_result['Collection']['participant_id'];
-	        $sample_master_id = $new_result['AliquotMaster']['sample_master_id'];
-	        $aliquot_master_id = $new_result['AliquotMaster']['id'];
-	        $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_slide_number'][$aliquot_master_id] = $aliquot_master_id;
-	        if($new_result['AliquotReviewMaster']['aliquot_review_master_id']) {
-	            $aliquot_review_master_id = $new_result['AliquotReviewMaster']['aliquot_review_master_id'];
-	            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_path_reviews_number'][$aliquot_review_master_id] = $aliquot_review_master_id;
+                AND AliquotMaster.sample_master_id IN (".implode(',',array_keys(empty($samplesBlocksSlidesReviewsCounter)? array('-1' => '') : $samplesBlocksSlidesReviewsCounter)).")
+                AND AliquotMaster.aliquot_control_id = ".$tissueAliquotControlIds['slide'];
+	    foreach($this->Report->tryCatchQuery($sql) as $newResult) {
+	        $participantId = $newResult['Collection']['participant_id'];
+	        $sampleMasterId = $newResult['AliquotMaster']['sample_master_id'];
+	        $aliquotMasterId = $newResult['AliquotMaster']['id'];
+	        $samplesBlocksSlidesReviewsCounter[$sampleMasterId]['qbcf_generated_sample_slide_number'][$aliquotMasterId] = $aliquotMasterId;
+	        if($newResult['AliquotReviewMaster']['aliquot_review_master_id']) {
+	            $aliquotReviewMasterId = $newResult['AliquotReviewMaster']['aliquot_review_master_id'];
+	            $samplesBlocksSlidesReviewsCounter[$sampleMasterId]['qbcf_generated_sample_path_reviews_number'][$aliquotReviewMasterId] = $aliquotReviewMasterId;
 	        }
-	        if(strlen($new_result['AliquotReviewDetail']['qbcf_warnings'])) {
-	            $aliquot_review_master_id = $new_result['AliquotReviewMaster']['aliquot_review_master_id'];
-	            $qbcf_warnings = $new_result['AliquotReviewDetail']['qbcf_warnings'];
-	            $samples_blocks_slides_reviews_counter[$sample_master_id]['qbcf_generated_sample_path_reviews_warnings_number'][$aliquot_review_master_id] = $aliquot_review_master_id;
-	            $samples_blocks_slides_reviews_counter[$sample_master_id]['bcf_generated_sample_path_reviews_warnings'][$qbcf_warnings] = isset($aliquot_review_warnings[$qbcf_warnings])? $aliquot_review_warnings[$qbcf_warnings] : $qbcf_warnings;;
+	        if(strlen($newResult['AliquotReviewDetail']['qbcf_warnings'])) {
+	            $aliquotReviewMasterId = $newResult['AliquotReviewMaster']['aliquot_review_master_id'];
+	            $qbcfWarnings = $newResult['AliquotReviewDetail']['qbcf_warnings'];
+	            $samplesBlocksSlidesReviewsCounter[$sampleMasterId]['qbcf_generated_sample_path_reviews_warnings_number'][$aliquotReviewMasterId] = $aliquotReviewMasterId;
+	            $samplesBlocksSlidesReviewsCounter[$sampleMasterId]['bcf_generated_sample_path_reviews_warnings'][$qbcfWarnings] = isset($aliquotReviewWarnings[$qbcfWarnings])? $aliquotReviewWarnings[$qbcfWarnings] : $qbcfWarnings;;
 	        }
 	    }
 	    // Merge Information
-	    foreach($blocks_details as $aliquot_master_id => &$block_data) {
-            $participant_id = $block_data['Participant']['id'];
-	        $sample_master_id = $block_data['AliquotMaster']['sample_master_id'];
-	        $aliquot_master_id = $block_data['AliquotMaster']['id'];
-	        foreach($block_data[0] as $block_data_field => &$block_data_field_value) {
-	            if(array_key_exists($block_data_field, $participants_blocks_counter[$participant_id])) {
-	                $block_data_field_value = sizeof($participants_blocks_counter[$participant_id][$block_data_field]);
+	    foreach($blocksDetails as $aliquotMasterId => &$blockData) {
+            $participantId = $blockData['Participant']['id'];
+	        $sampleMasterId = $blockData['AliquotMaster']['sample_master_id'];
+	        $aliquotMasterId = $blockData['AliquotMaster']['id'];
+	        foreach($blockData[0] as $blockDataField => &$blockDataFieldValue) {
+	            if(array_key_exists($blockDataField, $participantsBlocksCounter[$participantId])) {
+	                $blockDataFieldValue = sizeof($participantsBlocksCounter[$participantId][$blockDataField]);
 	            }
-	            if(array_key_exists($block_data_field, $samples_blocks_slides_reviews_counter[$sample_master_id])) {
-	                $block_data_field_value = ($block_data_field == 'bcf_generated_sample_path_reviews_warnings')?
-                        implode(' & ', $samples_blocks_slides_reviews_counter[$sample_master_id][$block_data_field]) :
-                        sizeof($samples_blocks_slides_reviews_counter[$sample_master_id][$block_data_field]);
+	            if(array_key_exists($blockDataField, $samplesBlocksSlidesReviewsCounter[$sampleMasterId])) {
+	                $blockDataFieldValue = ($blockDataField == 'bcf_generated_sample_path_reviews_warnings')?
+                        implode(' & ', $samplesBlocksSlidesReviewsCounter[$sampleMasterId][$blockDataField]) :
+                        sizeof($samplesBlocksSlidesReviewsCounter[$sampleMasterId][$blockDataField]);
 	            }
 	        }
-	        $confidential_record  = ($user_bank_id != 'all' && $block_data['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
-	        if($confidential_record) {
-	            $block_data['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
-	            $block_data['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+	        $confidentialRecord  = ($userBankId != 'all' && $blockData['Participant']['qbcf_bank_id'] != $userBankId)? true : false;
+	        if($confidentialRecord) {
+	            $blockData['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
+	            $blockData['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 	        }
 	    }
 	
-	    foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
+	    foreach($warnings as $newWarning) AppController::addWarningMsg($newWarning);
 	
-	    $array_to_return = array(
+	    $arrayToReturn = array(
 	        'header' => array(),
-	        'data' => $blocks_details,
+	        'data' => $blocksDetails,
 	        'columns_names' => null,
 	        'error_msg' => null);
 	
-	    return $array_to_return;
+	    return $arrayToReturn;
 	}
 	
-	function buildQbcfBlocksSelectionSummary($parameters) {
+	public function buildQbcfBlocksSelectionSummary($parameters) {
 	
 	    $conditions = array();
-	    $participant_conditions_only = array();
-	    $include_tma_core = false;
+	    $participantConditionsOnly = array();
+	    $includeTmaCore = false;
 	    $warnings = array();
 	
 	    if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'no') {
@@ -1040,10 +1040,10 @@ class ReportsControllerCustom extends ReportsController {
 	
 	    // *********** Get Conditions from parameters ***********
 	
-	    $user_bank_id = ($_SESSION['Auth']['User']['group_id'] == '1')?
+	    $userBankId = ($_SESSION['Auth']['User']['group_id'] == '1')?
 	    'all' :
 	    (empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);
-	    $limit_to_bank = false;
+	    $limitToBank = false;
 	
 	    if(isset($parameters['Browser'])) {
 	
@@ -1052,7 +1052,7 @@ class ReportsControllerCustom extends ReportsController {
 	        if(isset($parameters['Participant']['id'])) {
 	            if(($parameters['Participant']['id'] != 'all')) {
 	                $conditions[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
-	                $participant_conditions_only[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+	                $participantConditionsOnly[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
 	            }
 	        } else {
 	            pr($parameters);
@@ -1063,20 +1063,20 @@ class ReportsControllerCustom extends ReportsController {
 	
 	        // 1-BANKS
 	
-	        $bank_ids = array();
+	        $bankIds = array();
 	        if(isset($parameters['Participant']['qbcf_bank_id'])) {
-	            $bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
-	            if($bank_ids) {
-	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $participant_conditions_only[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $limit_to_bank = true;
+	            $bankIds = array_filter($parameters['Participant']['qbcf_bank_id']);
+	            if($bankIds) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $participantConditionsOnly[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $limitToBank = true;
 	            }
-	        } else if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
-	            $bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
-	            $include_tma_core = true;
-	            if($bank_ids) {
-	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-	                $limit_to_bank = true;
+	        } elseif(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
+	            $bankIds = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
+	            $includeTmaCore = true;
+	            if($bankIds) {
+	                $conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bankIds), "','")."'".')';
+	                $limitToBank = true;
 	            }
 	        }
 	
@@ -1085,74 +1085,74 @@ class ReportsControllerCustom extends ReportsController {
 	        if(isset($parameters['Participant']['participant_identifier_start'])) {
 	            if(strlen($parameters['Participant']['participant_identifier_start'])) {
 	                $conditions[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
-	                $participant_conditions_only[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+	                $participantConditionsOnly[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
 	            }
 	            if(strlen($parameters['Participant']['participant_identifier_end'])) {
 	                $conditions[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
-	                $participant_conditions_only[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+	                $participantConditionsOnly[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
 	            }
-	        } else if(isset($parameters['Participant']['participant_identifier'])) {
-	            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-	            if($participant_identifiers) {
-	                $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $participant_conditions_only[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+	        } elseif(isset($parameters['Participant']['participant_identifier'])) {
+	            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+	            if($participantIdentifiers) {
+	                $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $participantConditionsOnly[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
 	            }
 	        }
 	
 	        if(isset($parameters['Participant']['qbcf_bank_participant_identifier'])) {
-	            $participant_identifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
-	            if($participant_identifiers) {
-	                $conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $participant_conditions_only[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
-	                $limit_to_bank = true;
+	            $participantIdentifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
+	            if($participantIdentifiers) {
+	                $conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $participantConditionsOnly[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participantIdentifiers), "','")."'".')';
+	                $limitToBank = true;
 	            }
 	        }
 	    }
 	
-	    if($limit_to_bank && $user_bank_id != 'all') {
-	        $conditions[] = "Participant.qbcf_bank_id = $user_bank_id";
-	        if($participant_conditions_only) $participant_conditions_only[] = "Participant.qbcf_bank_id = $user_bank_id";
+	    if($limitToBank && $userBankId != 'all') {
+	        $conditions[] = "Participant.qbcf_bank_id = $userBankId";
+	        if($participantConditionsOnly) $participantConditionsOnly[] = "Participant.qbcf_bank_id = $userBankId";
 	        $warnings[] = __('your search will be limited to your bank');
 	    }
 	
-	    $conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
+	    $conditionsStr = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
 	
 	    // *********** Get Control Data & all ***********
 	
-	    $tx_controls = array();
+	    $txControls = array();
 	    $query = "SELECT id, tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1";
-	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
-	        $tx_controls[$new_ctr['treatment_controls']['tx_method']] = $new_ctr['treatment_controls'];
+	    foreach($this->Report->tryCatchQuery($query) as $newCtr) {
+	        $txControls[$newCtr['treatment_controls']['tx_method']] = $newCtr['treatment_controls'];
 	    }
 	     
-	    $tissue_aliquot_control_ids = array();
+	    $tissueAliquotControlIds = array();
 	    $query = "SELECT AliquotControl.id, aliquot_type, AliquotControl.sample_control_id
     	    FROM sample_controls SampleControl INNER JOIN aliquot_controls AliquotControl ON AliquotControl.sample_control_id = SampleControl.id
     	    WHERE AliquotControl.flag_active = 1
     	    AND SampleControl.sample_type = 'tissue'
 	        AND AliquotControl.aliquot_type IN ('block', 'slide');";
-	    foreach($this->Report->tryCatchQuery($query) as $new_ctr) {
-	        $tissue_aliquot_control_ids[$new_ctr['AliquotControl']['aliquot_type']] = $new_ctr['AliquotControl']['id'];
+	    foreach($this->Report->tryCatchQuery($query) as $newCtr) {
+	        $tissueAliquotControlIds[$newCtr['AliquotControl']['aliquot_type']] = $newCtr['AliquotControl']['id'];
 	    }
 	     
 	    $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-	    $aliquot_review_warnings = $StructurePermissibleValuesCustom->getCustomDropdown(array('Tissue Review Warnings'));
-	    $aliquot_review_warnings = array_merge($aliquot_review_warnings['defined'], $aliquot_review_warnings['previously_defined']);
+	    $aliquotReviewWarnings = $StructurePermissibleValuesCustom->getCustomDropdown(array('Tissue Review Warnings'));
+	    $aliquotReviewWarnings = array_merge($aliquotReviewWarnings['defined'], $aliquotReviewWarnings['previously_defined']);
 	     
 	    // *********** Get Participants Count Matching Criteria  ***********
 	
 	    $sql = "SELECT COUNT(*) AS Nbr_of_participants
 	    FROM participants AS Participant
 	    WHERE Participant.deleted <> 1
-	    AND ($conditions_str)";
-	    $nbr_of_participants_matching_criteria = $this->Report->tryCatchQuery($sql);
-	    $nbr_of_participants_matching_criteria = $nbr_of_participants_matching_criteria[0][0]['Nbr_of_participants'];
+	    AND ($conditionsStr)";
+	    $nbrOfParticipantsMatchingCriteria = $this->Report->tryCatchQuery($sql);
+	    $nbrOfParticipantsMatchingCriteria = $nbrOfParticipantsMatchingCriteria[0][0]['Nbr_of_participants'];
 	
 	    // *********** Get Participant Blocks  ***********
 	
-	    $blocks_details = array();
-	    $participants_blocks_counter = array();
-	    $samples_blocks_slides_reviews_counter = array();
+	    $blocksDetails = array();
+	    $participantsBlocksCounter = array();
+	    $samplesBlocksSlidesReviewsCounter = array();
 	    $sql =
 	       "SELECT DISTINCT
                 Participant.id,
@@ -1180,7 +1180,7 @@ class ReportsControllerCustom extends ReportsController {
                 INNER JOIN aliquot_masters BlockAliquotMaster
                     ON Collection.id = BlockAliquotMaster.collection_id
                     AND BlockAliquotMaster.deleted <> 1
-                    AND BlockAliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['block']."
+                    AND BlockAliquotMaster.aliquot_control_id = ".$tissueAliquotControlIds['block']."
                 INNER JOIN ad_blocks AliquotDetail
                     ON BlockAliquotMaster.id = AliquotDetail.aliquot_master_id
                 LEFT JOIN realiquotings Realiquoting
@@ -1189,7 +1189,7 @@ class ReportsControllerCustom extends ReportsController {
                 LEFT JOIN aliquot_masters SlideAliquotMaster
                     ON Realiquoting.child_aliquot_master_id = SlideAliquotMaster.id
                     AND SlideAliquotMaster.deleted <> 1
-                    AND SlideAliquotMaster.aliquot_control_id = ".$tissue_aliquot_control_ids['slide']."
+                    AND SlideAliquotMaster.aliquot_control_id = ".$tissueAliquotControlIds['slide']."
                 LEFT JOIN aliquot_review_masters AliquotReviewMaster
                     ON SlideAliquotMaster.id = AliquotReviewMaster.aliquot_master_id
                     AND AliquotReviewMaster.deleted <> 1
@@ -1197,73 +1197,73 @@ class ReportsControllerCustom extends ReportsController {
                     ON AliquotReviewMaster.id = AliquotReviewDetail.aliquot_review_master_id
                 LEFT JOIN treatment_masters AS TreatmentMaster
                     ON Participant.id = TreatmentMaster.participant_id
-                    AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']."
+                    AND TreatmentMaster.treatment_control_id = ".$txControls['breast diagnostic event']['id']."
                     AND TreatmentMaster.deleted <> 1
                 WHERE Participant.deleted <> 1
-                AND ($conditions_str)";
-	    $block_aliquot_master_ids = array('0');
-	    foreach($this->Report->tryCatchQuery($sql) as $new_result) {
-            $participant_id = $new_result['Participant']['id'];
-            $sample_master_id = $new_result['BlockAliquotMaster']['sample_master_id'];
-            $aliquot_master_id = $new_result['BlockAliquotMaster']['id'];
-            $blocks_details[] = array(
-                'Participant' => $new_result['Participant'],
-                'AliquotMaster' => $new_result['BlockAliquotMaster'],
-                'AliquotDetail' => $new_result['AliquotDetail'],
-                'AliquotReviewDetail' => $new_result['AliquotReviewDetail'],
+                AND ($conditionsStr)";
+	    $blockAliquotMasterIds = array('0');
+	    foreach($this->Report->tryCatchQuery($sql) as $newResult) {
+            $participantId = $newResult['Participant']['id'];
+            $sampleMasterId = $newResult['BlockAliquotMaster']['sample_master_id'];
+            $aliquotMasterId = $newResult['BlockAliquotMaster']['id'];
+            $blocksDetails[] = array(
+                'Participant' => $newResult['Participant'],
+                'AliquotMaster' => $newResult['BlockAliquotMaster'],
+                'AliquotDetail' => $newResult['AliquotDetail'],
+                'AliquotReviewDetail' => $newResult['AliquotReviewDetail'],
                 'ViewAliquot' => array(
-                    'collection_id' => $new_result['BlockAliquotMaster']['collection_id'],
-                    'sample_master_id' => $sample_master_id,
-                    'aliquot_master_id' => $aliquot_master_id
+                    'collection_id' => $newResult['BlockAliquotMaster']['collection_id'],
+                    'sample_master_id' => $sampleMasterId,
+                    'aliquot_master_id' => $aliquotMasterId
                 ),
                 '0' =>  array(
                     'qbcf_generated_paid_block' => 'n',
                     'qbcf_generated_returned_block' => 'n',
-                    'slide_barcode' => $new_result['SlideAliquotMaster']['barcode'],
-                    'slide_aliquot_label' => $new_result['SlideAliquotMaster']['aliquot_label'],
-                    'qbcf_generated_breast_diagnosis_found' => $new_result['0']['breast_diagnosis_found']
+                    'slide_barcode' => $newResult['SlideAliquotMaster']['barcode'],
+                    'slide_aliquot_label' => $newResult['SlideAliquotMaster']['aliquot_label'],
+                    'qbcf_generated_breast_diagnosis_found' => $newResult['0']['breast_diagnosis_found']
                 )
             );
-            $block_aliquot_master_ids[] = $aliquot_master_id;
+            $blockAliquotMasterIds[] = $aliquotMasterId;
 	    }
 	    
 	    $sql =
 	       "SELECT DISTINCT AliquotInternalUse.type, AliquotInternalUse.aliquot_master_id
 	       FROM aliquot_internal_uses AliquotInternalUse
-	       WHERE AliquotInternalUse.aliquot_master_id IN (".implode(',', $block_aliquot_master_ids).")
+	       WHERE AliquotInternalUse.aliquot_master_id IN (".implode(',', $blockAliquotMasterIds).")
 	       AND AliquotInternalUse.deleted <> 1
 	       AND AliquotInternalUse.type IN ('cost recovery paid', 'returned to bank')";
 	    $resInteranlUse = array('cost recovery paid' => array(), 'returned to bank' => array());
-	    foreach($this->Report->tryCatchQuery($sql) as $new_result_2) {
-	        $resInteranlUse[$new_result_2['AliquotInternalUse']['type']][$new_result_2['AliquotInternalUse']['aliquot_master_id']] = $new_result_2['AliquotInternalUse']['aliquot_master_id'];
+	    foreach($this->Report->tryCatchQuery($sql) as $newResult2) {
+	        $resInteranlUse[$newResult2['AliquotInternalUse']['type']][$newResult2['AliquotInternalUse']['aliquot_master_id']] = $newResult2['AliquotInternalUse']['aliquot_master_id'];
 	    }
 	    
 	    // Merge Information
-	    foreach($blocks_details as &$block_data) {
-	        $participant_id = $block_data['Participant']['id'];
-	        $sample_master_id = $block_data['AliquotMaster']['sample_master_id'];
-	        $aliquot_master_id = $block_data['AliquotMaster']['id'];
-	        if (in_array($aliquot_master_id, $resInteranlUse['returned to bank'])) {
-	            $block_data['0']['qbcf_generated_returned_block'] = 'y';
+	    foreach($blocksDetails as &$blockData) {
+	        $participantId = $blockData['Participant']['id'];
+	        $sampleMasterId = $blockData['AliquotMaster']['sample_master_id'];
+	        $aliquotMasterId = $blockData['AliquotMaster']['id'];
+	        if (in_array($aliquotMasterId, $resInteranlUse['returned to bank'])) {
+	            $blockData['0']['qbcf_generated_returned_block'] = 'y';
 	        }
-	        if (in_array($aliquot_master_id, $resInteranlUse['cost recovery paid'])) {
-	            $block_data['0']['qbcf_generated_paid_block'] = 'y';
+	        if (in_array($aliquotMasterId, $resInteranlUse['cost recovery paid'])) {
+	            $blockData['0']['qbcf_generated_paid_block'] = 'y';
 	        }
-	        $confidential_record  = ($user_bank_id != 'all' && $new_block['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
-	        if($confidential_record) {
-	            $block_data['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
-	            $block_data['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+	        $confidentialRecord  = ($userBankId != 'all' && $newBlock['Participant']['qbcf_bank_id'] != $userBankId)? true : false;
+	        if($confidentialRecord) {
+	            $blockData['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
+	            $blockData['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 	        }
 	    }
 	
-	    foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
+	    foreach($warnings as $newWarning) AppController::addWarningMsg($newWarning);
 	
-	    $array_to_return = array(
+	    $arrayToReturn = array(
 	        'header' => array(),
-	        'data' => $blocks_details,
+	        'data' => $blocksDetails,
 	        'columns_names' => null,
 	        'error_msg' => null);
 	
-	    return $array_to_return;
+	    return $arrayToReturn;
 	}
 }

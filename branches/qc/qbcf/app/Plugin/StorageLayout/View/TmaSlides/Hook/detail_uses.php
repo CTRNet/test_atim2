@@ -1,9 +1,7 @@
 <?php
 	
-	$final_options = array(
-		'links'	=> $structure_links,
+	$finalOptions = array(
+		'links'	=> $structureLinks,
 		'settings' => array(
 			'actions' => false,
 			'header' => null));
-	
-?>

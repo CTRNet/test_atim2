@@ -1,5 +1,3 @@
 <?php
 	
-	$this->AliquotMaster->updateAliquotLabel($collection_id);
-	
-?>
+	$this->AliquotMaster->updateAliquotLabel($collectionId);

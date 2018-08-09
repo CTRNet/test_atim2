@@ -5,7 +5,7 @@ class CollectionCustom extends Collection {
 	var $useTable = 'collections';
 	var $name = 'Collection';
 	
-	function validates($options = array()){
+	public function validates($options = array()){
 		if(isset($this->data['Collection']['qbcf_pathology_id'])) {
 			if(!isset($this->data['Collection']['collection_property'])) {
 				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
@@ -22,7 +22,7 @@ class CollectionCustom extends Collection {
 		return parent::validates($options);	
 	}
 	
-	function afterFind($results, $primary = false){
+	public function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
 		
 		if(isset($results[0]['Collection'])) {
@@ -30,19 +30,19 @@ class CollectionCustom extends Collection {
 			foreach($results as &$result) {
 				//Manage confidential information and create the collection qbcf_pathology_id to display: Will Use data returned by ViewCollection.afterFind() function
 				if(array_key_exists('qbcf_pathology_id', $result['Collection'])) {
-					$collection_view_data = null;
+					$collectionViewData = null;
 					if(!isset($result['ViewCollection'])) {
 						if(!$ViewCollectionModel) $ViewCollectionModel = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
-						$collection_view_data = $ViewCollectionModel->find('first', array('conditions' => array('ViewCollection.collection_id' => $result['Collection']['id']), 'recursive' => '-1'));
+						$collectionViewData = $ViewCollectionModel->find('first', array('conditions' => array('ViewCollection.collection_id' => $result['Collection']['id']), 'recursive' => -1));
 					} else {
-						$collection_view_data = array('ViewCollection' => $result['ViewCollection']);
+						$collectionViewData = array('ViewCollection' => $result['ViewCollection']);
 					}
 					if(isset($result['Collection']['qbcf_pathology_id'])) {
-						$result['Collection']['qbcf_pathology_id'] = isset($collection_view_data['ViewCollection']['qbcf_pathology_id'])? $collection_view_data['ViewCollection']['qbcf_pathology_id'] : CONFIDENTIAL_MARKER;
+						$result['Collection']['qbcf_pathology_id'] = isset($collectionViewData['ViewCollection']['qbcf_pathology_id'])? $collectionViewData['ViewCollection']['qbcf_pathology_id'] : CONFIDENTIAL_MARKER;
 					}
 				}
 			}
-		} else if(isset($results['Collection'])){
+		} elseif(isset($results['Collection'])){
 			pr('TODO afterFind Collection');
 			pr($results);
 			exit;
@@ -51,5 +51,3 @@ class CollectionCustom extends Collection {
 		return $results;
 	}
 }
-
-?>
