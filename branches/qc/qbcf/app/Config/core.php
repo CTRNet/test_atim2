@@ -31,7 +31,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-$debug = 2;
+$debug = 0;
 Configure::write('debug', $debug);
 
 /**
@@ -565,7 +565,7 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest)?:"/ATiM/logs/test/ATiMQBCF";"/ATiM/logs/prod/ATiMQBCF";
+$path = ($isTest)?"/ATiM/logs/test/ATiMQBCF":"/ATiM/logs/prod/ATiMQBCF";
 //Configure::write('atim_user_log_output_path', $path);
 Configure::write('atim_user_log_output_path', null);
 
