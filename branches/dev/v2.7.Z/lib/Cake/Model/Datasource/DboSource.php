@@ -490,6 +490,12 @@ class DboSource extends DataSource {
 			}
 			return $query;
 		} catch (PDOException $e) {
+		    
+		    //ATiM start------
+		    //Temporary patch to display SQL error message. 
+		    //Should be replaced by new code. See Issue#3628: Display sql error message for any SQL error
+		    pr($e->getMessage());
+		    //ATiM end------
 			if (isset($query->queryString)) {
 				$e->queryString = $query->queryString;
 			} else {
