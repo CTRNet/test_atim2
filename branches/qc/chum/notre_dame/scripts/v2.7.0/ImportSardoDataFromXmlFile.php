@@ -14,7 +14,7 @@ $import_summary = array();
 // Config
 //==============================================================================================
 
-$is_server = true;
+$is_server = false;
 // Database
 
 $db_user 		= "root";
@@ -22,13 +22,14 @@ $db_pwd			= "";
 $db_schema		= "chumonco";
 
 if($is_server) {
-    $db_user 		= "root";
-    $db_pwd			= "am3-y-4606";
-    $db_schema		= "atimoncologyaxisprod268";
+    $db_user 		= "testuser";
+    $db_pwd			= "";
+    $db_schema		= "test_atim_chum_onco";
 }
+
 // File
 
-$file_name = "NouveauFichierATiM_short.xml";
+$file_name = "ATiM_short.xml";
 $file_path = "C:/_NicolasLuc/Server/www/";
 
 if($is_server) {
@@ -482,6 +483,38 @@ foreach($sql_sardo_tables_creations as $new_query) {
     }
 }
 
+//Check duplacated labos
+
+$laboToCheck = array(
+    'CA125' => 'qc_nd_ed_ca125s',
+    'PSA' => 'qc_nd_ed_psas',
+    'SCC' => 'qc_nd_ed_sccs'    
+);
+foreach($laboToCheck as $typeLabo => $tableLabo) {
+    $query = "
+        SELECT participant_identifier, participant_id, event_date, event_control_id, GROUP_CONCAT(ERES3.value ORDER BY ERES3.value ASC SEPARATOR ' + ') AS all_day_values
+        FROM (
+            SELECT PART.participant_identifier, ERES2.participant_id, ERES2.event_date, ERES2.event_control_id, ED.value
+            FROM (
+                SELECT ERES1.participant_id, ERES1.event_date, ERES1.event_control_id FROM (
+                    SELECT EM.participant_id, EM.event_date, EM.event_control_id, COUNT(*) AS dup
+                    FROM event_masters EM
+                    INNER JOIN detail_table_name ED ON EM.id = ED.event_master_id AND EM.deleted <> 1
+                    WHERE EM.event_date IS NOT NULL
+                    GROUP BY EM.participant_id, EM.event_date, EM.event_control_id
+                ) ERES1 WHERE ERES1.dup > 1
+            ) ERES2
+            INNER JOIN event_masters EM ON EM.participant_id = ERES2.participant_id AND EM.event_date = ERES2.event_date AND EM.event_control_id = ERES2.event_control_id
+            INNER JOIN detail_table_name ED ON EM.id = ED.event_master_id AND EM.deleted <> 1
+            INNER JOIN participants PART ON PART.id = EM.participant_id
+        ) ERES3
+        GROUP BY ERES3.participant_identifier, ERES3.participant_id, ERES3.event_date, ERES3.event_control_id;";
+    $query_res = customQuery(str_replace('detail_table_name', $tableLabo, $query), __LINE__);
+    while($res = mysqli_fetch_assoc($query_res)) {
+        $import_summary['Labo']['WARNING']["More than one $typeLabo on same date. Please validate and clean up data ifrequired."][] = "See $typeLabo test on " . $res['event_date'] . " for 'Participant System Code' #" . $res['participant_identifier'] . " : " . $res['all_day_values'];  
+    }
+}
+
 //==============================================================================================
 // END OF THE PROCESS
 //==============================================================================================
@@ -506,7 +539,7 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 }
 $cd_icm_sardo_data_import_try_final_queries[] = "UPDATE cd_icm_sardo_data_import_tries
     SET global_result = 'successfull', 
-    last_sardo_treatment_event_dx_date = '$max_date',
+    last_sardo_treatment_event_dx_date = " . (empty($max_date)? "null" : "'$max_date'") . ",
     atim_data_management_result = 'successfull', 
     update_participant_counter = '$updated_participants_counter'
     WHERE id = $cd_icm_sardo_data_import_triy_id;";
@@ -571,7 +604,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	$sardo_ramq = $sardo_patient_data['RAMQ'];
 	if($sardo_ramq) {
 		if(isset($atim_patient_identifiers['ramq nbr'])) {
-			if($atim_patient_identifiers['ramq nbr'] != $sardo_ramq) {
+			if(trim($atim_patient_identifiers['ramq nbr']) != trim($sardo_ramq)) {
 				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_ramq'] = 'y';
 			} else {
 				$is_patient_identifier_validated = true;
@@ -588,7 +621,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		if(preg_match('/^([HSN])[0-9]+/', $hospital_nbr, $matches)) {
 			$misc_identifier_control_name = str_replace(array('H', 'S', 'N'), array('hotel-dieu id nbr', 'saint-luc id nbr', 'notre-dame id nbr'), $matches[1]);
 			if(isset($atim_patient_identifiers[$misc_identifier_control_name])) {
-				if($atim_patient_identifiers[$misc_identifier_control_name] != $hospital_nbr) {
+				if(trim($atim_patient_identifiers[$misc_identifier_control_name]) != trim($hospital_nbr)) {
 					$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_hospital_nbr'] = 'y';
 				} else {
 					$is_patient_identifier_validated = true;
@@ -1097,59 +1130,62 @@ function importReportData($pariticpant_id, $patient_rec_number, $diagnosis_rec_n
 			FROM sardo_traitement st INNER JOIN sardo_rapport sr ON sr.ParentRecNumber = st.RecNumber 
 			WHERE st.ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
 		while($sardo_report_data = mysqli_fetch_assoc($query_res)) {
-			$control = array();
-			$fish = false;
-			switch($sardo_report_data['ElementRapport']) {
-				case 'Récepteurs aux oestrogènes (RE)':
-					$control = $rapport_event_controls['estrogen receptor report (RE)'];
-					break;
-				case 'Récepteurs aux progestatifs (RP)':
-					$control = $rapport_event_controls['progestin receptor report (RP)'];
-					break;
-				case 'HER-2/NEU par FISH':
-					$fish = true;
-				case 'HER-2/NEU':
-					$control = $rapport_event_controls['her2/neu'];
-					break;
-			}
-			if($control) {
-				$atim_event_data_to_create= array(
-					'EventMaster' => array(
-						'event_control_id' => $control['id'],
-						'participant_id' => $pariticpant_id,
-						'diagnosis_master_id' => $diagnosis_rec_nbrs_to_ids[$sardo_report_data['diagnosis_RecNumber']],
-						'event_date' => $sardo_report_data['DateDebutTraitement'],
-						'event_date_accuracy' => $sardo_report_data['DateDebutTraitement_accuracy']),
-					'EventDetail' => array());
-				if(in_array($control['detail_tablename'], array('qc_nd_ed_estrogen_receptor_reports', 'qc_nd_ed_progestin_receptor_reports'))) {
-					$results = $sardo_report_data['Resultat'];
-					$atim_event_data_to_create['EventMaster']['event_summary'] = $results;
-					if(preg_match('/((,\ ){0,1}(\++))$/', $results, $matches)) {
-						$atim_event_data_to_create['EventDetail']['intensity'] = $matches[3];
-						$results = str_replace($matches[1], '', $results);
-					}
-					if(preg_match('/((,\ ){0,1}(([0-9]+)([\.,][0-9]+){0,1})\ %)$/', $results, $matches)) {
-						$atim_event_data_to_create['EventDetail']['percentage'] = str_Replace(',', '.', $matches[3]);
-						$results = str_replace($matches[1], '', $results);
-					}
-					$atim_event_data_to_create['EventDetail']['result'] = $results;
-				} else if($control['detail_tablename'] == 'qc_nd_ed_her2_neu') {
-					$results = $sardo_report_data['Resultat'];
-					$atim_event_data_to_create['EventMaster']['event_summary'] = $results;
-					if(preg_match('/((,\ ){0,1}(\++))$/', $results, $matches)) {
-						$atim_event_data_to_create['EventDetail']['intensity'] = $matches[3];
-						$results = str_replace($matches[1], '', $results);
-					}
-					$atim_event_data_to_create['EventDetail']['result'] = $results;
-					$atim_event_data_to_create['EventDetail']['fish'] = $fish? 'y' : 'n';
-				} else {
-					importDie("Unsupported detail tablename [".$control['detail_tablename']."]! ERR#_LAB00003");
-				}
-				$atim_event_data_to_create['EventMaster']['id'] = getNextReusableId('event_masters');
-				$event_master_id = customInsert($atim_event_data_to_create['EventMaster'], 'event_masters', __LINE__, false);
-				$atim_event_data_to_create['EventDetail']['event_master_id'] = $event_master_id;
-				customInsert($atim_event_data_to_create['EventDetail'], $control['detail_tablename'], __LINE__, true);
-			}
+		    if(strlen($sardo_report_data['Resultat']) && $sardo_report_data['ElementRapport'] != $sardo_report_data['Resultat']) {
+		        // If Résultat == ÉlementRapport LIKE 'Récepteurs aux oestrogènes (RE)', it means that no result exists in SARDO
+		        if(!preg_match('/ \-\-\-\-> \[ (.+) \]$/i', $sardo_report_data['Resultat'], $matches)) {
+                    $import_summary['Report']['ERROR']["Wrong report result format. Data won't be imported."][] = "See result [" .$sardo_report_data['Resultat']. "] for '".$sardo_report_data['ElementRapport']."' on ".$sardo_report_data['DateDebutTraitement']." NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+		        } else {
+                    $results = $matches[1];
+        			$control = array();
+        			$fish = false;
+        			switch($sardo_report_data['ElementRapport']) {
+        				case 'Récepteurs aux oestrogènes (RE)':
+        					$control = $rapport_event_controls['estrogen receptor report (RE)'];
+        					break;
+        				case 'Récepteurs aux progestatifs (RP)':
+        					$control = $rapport_event_controls['progestin receptor report (RP)'];
+        					break;
+        				case 'HER-2/NEU par FISH':
+        					$fish = true;
+        				case 'HER-2/NEU':
+        					$control = $rapport_event_controls['her2/neu'];
+        					break;
+        			}
+        			if($control) {
+        				$atim_event_data_to_create= array(
+        					'EventMaster' => array(
+        						'event_control_id' => $control['id'],
+        						'participant_id' => $pariticpant_id,
+        						'diagnosis_master_id' => $diagnosis_rec_nbrs_to_ids[$sardo_report_data['diagnosis_RecNumber']],
+        						'event_date' => $sardo_report_data['DateDebutTraitement'],
+        						'event_date_accuracy' => $sardo_report_data['DateDebutTraitement_accuracy'],
+        						'event_summary' => $results . (strlen($results)? " (données de SARDO)." : "")),
+        					'EventDetail' => array());
+        				if(preg_match('/^((\++)|(.*\ (\++))|(.*\ (\++),.*)|((\++),.*)|(.*intensité\ (0).*))$/i', $results, $matches)) {
+        				    $atim_event_data_to_create['EventDetail']['intensity'] = '';
+        				    foreach(array(2,4,6,8,10) as $matchId) {
+        				        $atim_event_data_to_create['EventDetail']['intensity'] .= (array_key_exists($matchId, $matches) && strlen($matches[$matchId]))? $matches[$matchId] : '';
+        				    }
+        				}
+        				if(preg_match('/((faiblement positif)|(douteux)|(positif)|(négatif))/i', $results, $matches)) {
+        				    $atim_event_data_to_create['EventDetail']['result'] = $matches[1];
+        				}
+        				if(in_array($control['detail_tablename'], array('qc_nd_ed_estrogen_receptor_reports', 'qc_nd_ed_progestin_receptor_reports'))) {
+        					if(preg_match('/(([0-9]+\.{0,1}[0-9]*)\ \%)/i', $results, $matches)) {
+        						$atim_event_data_to_create['EventDetail']['percentage'] = str_Replace(',', '.', $matches[2]);
+        					}
+        				} else if($control['detail_tablename'] == 'qc_nd_ed_her2_neu') {
+        					$atim_event_data_to_create['EventDetail']['fish'] = $fish? 'y' : 'n';
+        				} else {
+        					importDie("Unsupported detail tablename [".$control['detail_tablename']."]! ERR#_LAB00003");
+        				}
+        				$atim_event_data_to_create['EventMaster']['id'] = getNextReusableId('event_masters');
+        				$event_master_id = customInsert($atim_event_data_to_create['EventMaster'], 'event_masters', __LINE__, false);
+        				$atim_event_data_to_create['EventDetail']['event_master_id'] = $event_master_id;
+        				customInsert($atim_event_data_to_create['EventDetail'], $control['detail_tablename'], __LINE__, true);
+        			}
+		        }
+    		}
 		}
 	}
 }
@@ -1196,23 +1232,14 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test_title date is not defined. $atim_test_title has not been studied"][] = "$atim_test_title = ".$sardo_labo_data['Resultat'].". See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 				} else {
 					if($sardo_labo_data['Resultat'] == '-99') $sardo_labo_data['Resultat'] = '';
-					$sardo_ca125_exact_value_precision = '';
-					if($atim_test_title == 'ca125') {
-					    //Integer value
-					    $sardo_ca125_exact_value_precision = $sardo_labo_data['Resultat'];
-					    $sardo_labo_data['Resultat'] = round($sardo_labo_data['Resultat']);
-					    $sardo_ca125_exact_value_precision = ($sardo_ca125_exact_value_precision == $sardo_labo_data['Resultat'])? '' : "(rounded value of $sardo_ca125_exact_value_precision) ";
-					} else {
-					    $sardo_labo_data['Resultat'] = str_replace(',','.',$sardo_labo_data['Resultat']);
-					    if(preg_match('/^([0-9]+)(\.([0-9]+)){0,1}$/', $sardo_labo_data['Resultat'], $matches)) {
-					        $sardo_labo_data['Resultat'] = $matches[1].'.'.substr((isset($matches[3])? $matches[3].'000' : '000'), 0, (($atim_test_title == 'scc')? '2' : '3'));
-					    }
-					}
+                    $sardo_labo_data['Resultat'] = str_replace(',','.',$sardo_labo_data['Resultat']);
+				    if(preg_match('/^([0-9]+)(\.([0-9]+)){0,1}$/', $sardo_labo_data['Resultat'], $matches)) {
+				        $sardo_labo_data['Resultat'] = $matches[1].'.'.substr((isset($matches[3])? $matches[3].'000' : '000'), 0, (($atim_test_title == 'scc')? '2' : '3'));
+				    }
 					$sardo_all_labos_data[$atim_test_title][$sardo_formated_date][] = array(
 					    'Date' => $sardo_labo_data['Date'],
 					    'Date_accuracy' => $sardo_labo_data['Date_accuracy'],
-					    'Resultat' => $sardo_labo_data['Resultat'],
-					    'sardo_ca125_exact_value' => $sardo_ca125_exact_value_precision
+					    'Resultat' => $sardo_labo_data['Resultat']
 					);
 				}
 			}
@@ -1239,15 +1266,19 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
     					} else if(sizeof($atim_all_labos_data[$atim_test_title][$sardo_formated_date]) > 1) {
     					    $multiple_daily_results[$atim_test_title][$sardo_formated_date] = 'found';
     					} else if($atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value'] != $sardo_labo_data['Resultat']) {
-    						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']." ".$sardo_labo_data['sardo_ca125_exact_value']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
-    						$event_master_id = $atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['id'];
-    						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'];
-    						$queries = array(	
-    							"UPDATE event_masters SET modified = '$import_date', modified_by = '$import_by' WHERE id = $event_master_id;",
-    							"INSERT INTO event_masters_revs (event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, version_created) (SELECT event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, modified FROM event_masters WHERE modified = '$import_date' AND modified_by = '$import_by' AND id = $event_master_id);",
-    							"UPDATE $detail_tablename SET value = '".$sardo_labo_data['Resultat']."' WHERE event_master_id = $event_master_id;",
-    							"INSERT INTO ".$detail_tablename."_revs (value, event_master_id, version_created) VALUES ('".$sardo_labo_data['Resultat']."', $event_master_id, '$import_date');");	
-    						foreach($queries as $new_query) customQuery($new_query, __LINE__);
+    					    if(!strlen($sardo_labo_data['Resultat'])) {
+    					        $import_summary['Labo']['WARNING']["SARDO value is empty and different than ATiM $atim_test_title value on the same date. Won't update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+    					    } else {
+        						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+        						$event_master_id = $atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['id'];
+        						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'];
+        						$queries = array(	
+        							"UPDATE event_masters SET modified = '$import_date', modified_by = '$import_by' WHERE id = $event_master_id;",
+        							"INSERT INTO event_masters_revs (event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, version_created) (SELECT event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, modified FROM event_masters WHERE modified = '$import_date' AND modified_by = '$import_by' AND id = $event_master_id);",
+        							"UPDATE $detail_tablename SET value = '".$sardo_labo_data['Resultat']."' WHERE event_master_id = $event_master_id;",
+        							"INSERT INTO ".$detail_tablename."_revs (value, event_master_id, version_created) VALUES ('".$sardo_labo_data['Resultat']."', $event_master_id, '$import_date');");	
+        						foreach($queries as $new_query) customQuery($new_query, __LINE__);
+        					}
     					}
     				}
 				}
@@ -1307,7 +1338,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			        $sardo_day_results_strg = implode(' & ', $sardo_day_results);
 			        $sardo_day_results = implode('#', array_keys($sardo_day_results));	        
 			        if($sardo_day_results != $atim_day_results) {
-			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. $sardo_day_results_to_create_strg. Please confirm."][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [$atim_day_results_strg] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. $sardo_day_results_to_create_strg. Please confirm."][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [" . strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value'."] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 			        }
 			    } 
 			}
@@ -1503,6 +1534,7 @@ function linkCollectionToSardoTreatment($db_schema) {
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -1523,7 +1555,7 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
-			WHERE Collection.deleted <> 1);";
+        WHERE Collection.deleted <> 1);";
 		customQuery($query, __LINE__);
 	} else {
 		customQuery("UPDATE versions SET permissions_regenerated = 0;", __LINE__);
