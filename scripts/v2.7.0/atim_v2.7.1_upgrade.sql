@@ -21,6 +21,16 @@ VALUES
 , 'notBlank', '', 'password is required');
 
 -- -------------------------------------------------------------------------------------
+--	The warning for LOG directory
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	(
+'the permission of "log" directory is not correct.', 
+'The permissions on "log" directory are not correct.',
+'Les autorisations sur le répertoire de "log" ne sont pas correctes.');
+-- -------------------------------------------------------------------------------------
 --	The warning for CSV file
 -- -------------------------------------------------------------------------------------
 
@@ -997,6 +1007,12 @@ VALUES
 ('merge participants/collections', 'Merge Participants/Collections', 'Fusion de participants/collections');
 UPDATE structure_fields SET  `language_label`='new group' WHERE model='Group' AND tablename='groups' AND field='id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='group_select');
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/AdminUsers/changeGroup%';
+
+-- -------------------------------------------------------------------------------------
+--	Fix the bug for review_code that can be null.
+-- -------------------------------------------------------------------------------------
+ALTER TABLE `aliquot_review_masters` CHANGE `review_code` `review_code` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+ALTER TABLE `aliquot_review_masters_revs` CHANGE `review_code` `review_code` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
 
 -- ----------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------

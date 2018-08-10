@@ -431,7 +431,6 @@ Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 $uploadDirectory = substr(APP, 0, strlen(APP) - 4);
 
-$uploadDirectory = 'C:\_NicolasLuc\Server/';
 Configure::write('uploadDirectory', $uploadDirectory . 'atimUploadDirectory');
 Configure::write('deleteDirectory', 'deleteDirectory');
 Configure::write('deleteUploadedFilePhysically', false);
@@ -566,7 +565,8 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-Configure::write('atim_user_log_output_path', null);
+$path = ($isTest) ? null : null;
+Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LDAP
