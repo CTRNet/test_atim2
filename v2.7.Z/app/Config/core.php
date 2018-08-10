@@ -565,9 +565,8 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest)?"/ATiM/logs/test/trunk":"/ATiM/logs/prod/trunk";
-//Configure::write('atim_user_log_output_path', $path);
-Configure::write('atim_user_log_output_path', null);
+$path = ($isTest) ? null : null;
+Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LDAP
