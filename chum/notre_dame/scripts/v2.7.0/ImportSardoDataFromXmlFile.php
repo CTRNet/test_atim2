@@ -1024,7 +1024,7 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 		$sardo_treatment_rec_number_to_gleason = array();
 		while($sardo_gleason_data = mysqli_fetch_assoc($query_res)) {
 			$sardo_gleason_data['Resultat'] = str_replace(' ','', $sardo_gleason_data['Resultat']);
-			if(strlen($sardo_gleason_data['Resultat'])) {
+			if(strlen($sardo_gleason_data['Resultat']) && $sardo_gleason_data['Resultat'] != 'Gleason') {
     			if(preg_match('/\[((([0-9]+\+[0-9]+)=){0,1}([0-9]+))\]$/', $sardo_gleason_data['Resultat'], $matches)) {
     				$gleason_sum = $matches[4];
     				$gleason_grade = $matches[3];
@@ -1036,6 +1036,9 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
     				} else {
     					$sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']] = array($gleason_sum, $gleason_grade);
     				}
+    			} elseif(preg_match('/\[N\/S\]$/', $sardo_gleason_data['Resultat'], $matches)) {	
+    			    $gleason_sum = '';
+    			    $gleason_grade = 'N/S';
     			} else {
     				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." gleason [".$sardo_gleason_data['Resultat']."] of NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
     			}
@@ -1304,8 +1307,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			        ksort($sardo_day_results);
 			        // Define new lab to create
 			        $sardo_day_results_to_create = array_diff($sardo_day_results, $atim_day_results);
-			        $sardo_day_results_to_create_strg = ' No new value has been created';
-			        $msgType = 'MESSAGE';
+			        $created_sardo_day_results_strg = null;
 			        if($sardo_day_results_to_create) {
 			            $sardo_day_results_created = array();
     			        foreach($sardo_day_results_to_create as $new_sardo_day_result) {
@@ -1326,19 +1328,20 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
         			        }
     			        }
     			        if($sardo_day_results_created) {
-        			        $sardo_day_results_to_create_strg = implode(' & ', $sardo_day_results_created);
-        			        $sardo_day_results_to_create_strg = ' Created following results : '.$sardo_day_results_to_create_strg;
-                            $msgType = 'WARNING';
+        			        $created_sardo_day_results_strg = implode(' & ', $sardo_day_results_created);
+        			        $created_sardo_day_results_strg = "Created following $atim_test_title results on $sardo_formated_date : ".$created_sardo_day_results_strg;
     			        }
-			        }
-			        //Generate warning	
+			        } 
+			        //Manage message
 			        $atim_day_results_strg = implode(' & ', $atim_day_results);
-			        $atim_day_results = implode('#', array_keys($atim_day_results));	
+			        $atim_day_results = implode('#', array_keys($atim_day_results));
 			        $sardo_day_results_strg = implode(' & ', $sardo_day_results);
-			        $sardo_day_results = implode('#', array_keys($sardo_day_results));	        
-			        if($sardo_day_results != $atim_day_results) {
-			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. Please confirm."][] = "$sardo_day_results_to_create_strg. SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [" . strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value'."] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
-			        }
+			        $sardo_day_results = implode('#', array_keys($sardo_day_results));
+			        if ($created_sardo_day_results_strg) {
+			            $import_summary['Labo']['WARNING']["New Labo has been created but many $atim_test_title values exist either into ATiM or into SARDO on the same date. Please confirm."][] = "$created_sardo_day_results_strg. SARDO results = [$sardo_day_results_strg] / ATiM previous results = [" . (strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value')."]. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+			        } else if($sardo_day_results != $atim_day_results) {
+		                $import_summary['Labo']['WARNING']["Many $atim_test_title values exist either into ATiM or into SARDO on the same date but set of results are different. No new data has been created. Please validate and add correction if required."][] = "SARDO results = [$sardo_day_results_strg] / ATiM results = [" . (strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value')."] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+		            }
 			    } 
 			}
 		}
