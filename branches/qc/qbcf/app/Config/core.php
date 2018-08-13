@@ -507,7 +507,7 @@ Configure::write('different_passwords_number_before_re_use', 2);
  * WARNING: This should be set to a value lower than PHP max_input_vars. See
  * eventum #3333 for details.
  */
-Configure::write('databrowser_and_report_results_display_limit', 1500);
+Configure::write('databrowser_and_report_results_display_limit', 1000);
 
 /**
  * Set the limit of items that could be processed in batch
@@ -565,9 +565,8 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest)?"/ATiM/logs/test/ATiMQBCF":"/ATiM/logs/prod/ATiMQBCF";
-//Configure::write('atim_user_log_output_path', $path);
-Configure::write('atim_user_log_output_path', null);
+$path = ($isTest) ? null : null;
+Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LDAP
