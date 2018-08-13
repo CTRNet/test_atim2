@@ -14,7 +14,7 @@ $import_summary = array();
 // Config
 //==============================================================================================
 
-$is_server = false;
+$is_server = true;
 // Database
 
 $db_user 		= "root";
@@ -511,7 +511,7 @@ foreach($laboToCheck as $typeLabo => $tableLabo) {
         GROUP BY ERES3.participant_identifier, ERES3.participant_id, ERES3.event_date, ERES3.event_control_id;";
     $query_res = customQuery(str_replace('detail_table_name', $tableLabo, $query), __LINE__);
     while($res = mysqli_fetch_assoc($query_res)) {
-        $import_summary['Labo']['WARNING']["More than one $typeLabo on same date. Please validate and clean up data ifrequired."][] = "See $typeLabo test on " . $res['event_date'] . " for 'Participant System Code' #" . $res['participant_identifier'] . " : " . $res['all_day_values'];  
+        $import_summary['Labo']['WARNING']["More than one $typeLabo on same date. Please validate and clean up data if required."][] = "See $typeLabo test on " . $res['event_date'] . " for 'Participant System Code' #" . $res['participant_identifier'] . " : " . $res['all_day_values'];  
     }
 }
 
@@ -1024,19 +1024,21 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 		$sardo_treatment_rec_number_to_gleason = array();
 		while($sardo_gleason_data = mysqli_fetch_assoc($query_res)) {
 			$sardo_gleason_data['Resultat'] = str_replace(' ','', $sardo_gleason_data['Resultat']);
-			if(preg_match('/^((([0-9]+\+[0-9]+)=){0,1}([0-9]+)){0,1}$/', $sardo_gleason_data['Resultat'], $matches)) {
-				$gleason_sum = $matches[4];
-				$gleason_grade = $matches[3];
-				if(array_key_exists($sardo_gleason_data['sardo_traitement_RecNumber'], $sardo_treatment_rec_number_to_gleason)) {
-					list($recorded_gleason_sum, $recorded_gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']];
-					if($recorded_gleason_sum != $gleason_sum || $recorded_gleason_grade != $gleason_grade) {
-						$import_summary['Report']['WARNING']["More than one gleason linked to the same ".$sardo_gleason_data['TypeTX']][] = "See NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
-					}
-				} else {
-					$sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']] = array($gleason_sum, $gleason_grade);
-				}
-			} else {
-				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." gleason [".$sardo_gleason_data['Resultat']."] of NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+			if(strlen($sardo_gleason_data['Resultat'])) {
+    			if(preg_match('/\[((([0-9]+\+[0-9]+)=){0,1}([0-9]+))\]$/', $sardo_gleason_data['Resultat'], $matches)) {
+    				$gleason_sum = $matches[4];
+    				$gleason_grade = $matches[3];
+    				if(array_key_exists($sardo_gleason_data['sardo_traitement_RecNumber'], $sardo_treatment_rec_number_to_gleason)) {
+    					list($recorded_gleason_sum, $recorded_gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']];
+    					if($recorded_gleason_sum != $gleason_sum || $recorded_gleason_grade != $gleason_grade) {
+    						$import_summary['Report']['WARNING']["More than one gleason linked to the same ".$sardo_gleason_data['TypeTX']][] = "See NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+    					}
+    				} else {
+    					$sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']] = array($gleason_sum, $gleason_grade);
+    				}
+    			} else {
+    				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." gleason [".$sardo_gleason_data['Resultat']."] of NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+    			}
 			}
 		}
 		//Work on treatment
@@ -1215,33 +1217,34 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			}
 			$sardo_all_labos_data = array();
 			while($sardo_labo_data = mysqli_fetch_assoc($query_res_sardo_labo)) {
-				$sardo_formated_date = getFormatedDateForATiMDisplay($sardo_labo_data['Date'], $sardo_labo_data['Date_accuracy']);
-				$atim_test_title = '';
-				switch($sardo_labo_data['NomLabo']) {
-					case 'CA-125':
-						$atim_test_title = 'ca125';
-						break;
-					case 'SCC':
-						$atim_test_title = 'scc';
-						break;
-					default:
-						$atim_test_title = 'psa';
-						break;
-				}
-				if(!$sardo_formated_date) {
-					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test_title date is not defined. $atim_test_title has not been studied"][] = "$atim_test_title = ".$sardo_labo_data['Resultat'].". See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
-				} else {
-					if($sardo_labo_data['Resultat'] == '-99') $sardo_labo_data['Resultat'] = '';
-                    $sardo_labo_data['Resultat'] = str_replace(',','.',$sardo_labo_data['Resultat']);
-				    if(preg_match('/^([0-9]+)(\.([0-9]+)){0,1}$/', $sardo_labo_data['Resultat'], $matches)) {
-				        $sardo_labo_data['Resultat'] = $matches[1].'.'.substr((isset($matches[3])? $matches[3].'000' : '000'), 0, (($atim_test_title == 'scc')? '2' : '3'));
-				    }
-					$sardo_all_labos_data[$atim_test_title][$sardo_formated_date][] = array(
-					    'Date' => $sardo_labo_data['Date'],
-					    'Date_accuracy' => $sardo_labo_data['Date_accuracy'],
-					    'Resultat' => $sardo_labo_data['Resultat']
-					);
-				}
+			    if($sardo_labo_data['Resultat'] != '-99' && strlen($sardo_labo_data['Resultat'])) {
+    			    $sardo_formated_date = getFormatedDateForATiMDisplay($sardo_labo_data['Date'], $sardo_labo_data['Date_accuracy']);
+    				$atim_test_title = '';
+    				switch($sardo_labo_data['NomLabo']) {
+    					case 'CA-125':
+    						$atim_test_title = 'ca125';
+    						break;
+    					case 'SCC':
+    						$atim_test_title = 'scc';
+    						break;
+    					default:
+    						$atim_test_title = 'psa';
+    						break;
+    				}
+    				if(!$sardo_formated_date) {
+    					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test_title date is not defined. $atim_test_title has not been studied"][] = "$atim_test_title = ".$sardo_labo_data['Resultat'].". See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+    				} else {
+                        $sardo_labo_data['Resultat'] = str_replace(',','.',$sardo_labo_data['Resultat']);
+    				    if(preg_match('/^([0-9]+)(\.([0-9]+)){0,1}$/', $sardo_labo_data['Resultat'], $matches)) {
+    				        $sardo_labo_data['Resultat'] = $matches[1].'.'.substr((isset($matches[3])? $matches[3].'000' : '000'), 0, (($atim_test_title == 'scc')? '2' : '3'));
+    				    }
+    					$sardo_all_labos_data[$atim_test_title][$sardo_formated_date][] = array(
+    					    'Date' => $sardo_labo_data['Date'],
+    					    'Date_accuracy' => $sardo_labo_data['Date_accuracy'],
+    					    'Resultat' => $sardo_labo_data['Resultat']
+    					);
+    				}
+			    }
 			}
 			$multiple_daily_results = array();
 			foreach($sardo_all_labos_data as $atim_test_title => $sardo_all_labos_data_level1) {
@@ -1266,19 +1269,15 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
     					} else if(sizeof($atim_all_labos_data[$atim_test_title][$sardo_formated_date]) > 1) {
     					    $multiple_daily_results[$atim_test_title][$sardo_formated_date] = 'found';
     					} else if($atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value'] != $sardo_labo_data['Resultat']) {
-    					    if(!strlen($sardo_labo_data['Resultat'])) {
-    					        $import_summary['Labo']['WARNING']["SARDO value is empty and different than ATiM $atim_test_title value on the same date. Won't update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
-    					    } else {
-        						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
-        						$event_master_id = $atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['id'];
-        						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'];
-        						$queries = array(	
-        							"UPDATE event_masters SET modified = '$import_date', modified_by = '$import_by' WHERE id = $event_master_id;",
-        							"INSERT INTO event_masters_revs (event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, version_created) (SELECT event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, modified FROM event_masters WHERE modified = '$import_date' AND modified_by = '$import_by' AND id = $event_master_id);",
-        							"UPDATE $detail_tablename SET value = '".$sardo_labo_data['Resultat']."' WHERE event_master_id = $event_master_id;",
-        							"INSERT INTO ".$detail_tablename."_revs (value, event_master_id, version_created) VALUES ('".$sardo_labo_data['Resultat']."', $event_master_id, '$import_date');");	
-        						foreach($queries as $new_query) customQuery($new_query, __LINE__);
-        					}
+    						$import_summary['Labo']['WARNING']["SARDO $atim_test_title value different than ATiM $atim_test_title value on the same date. Will update ATiM data with the SARDO value"][] = "SARDO $atim_test_title = ".$sardo_labo_data['Resultat']."/ ATiM $atim_test_title = ".$atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['value']." on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+    						$event_master_id = $atim_all_labos_data[$atim_test_title][$sardo_formated_date][0]['id'];
+    						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test_title]['detail_tablename'];
+    						$queries = array(	
+    							"UPDATE event_masters SET modified = '$import_date', modified_by = '$import_by' WHERE id = $event_master_id;",
+    							"INSERT INTO event_masters_revs (event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, version_created) (SELECT event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, modified FROM event_masters WHERE modified = '$import_date' AND modified_by = '$import_by' AND id = $event_master_id);",
+    							"UPDATE $detail_tablename SET value = '".$sardo_labo_data['Resultat']."' WHERE event_master_id = $event_master_id;",
+    							"INSERT INTO ".$detail_tablename."_revs (value, event_master_id, version_created) VALUES ('".$sardo_labo_data['Resultat']."', $event_master_id, '$import_date');");	
+    						foreach($queries as $new_query) customQuery($new_query, __LINE__);
     					}
     				}
 				}
@@ -1338,7 +1337,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			        $sardo_day_results_strg = implode(' & ', $sardo_day_results);
 			        $sardo_day_results = implode('#', array_keys($sardo_day_results));	        
 			        if($sardo_day_results != $atim_day_results) {
-			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. $sardo_day_results_to_create_strg. Please confirm."][] = "SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [" . strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value'."] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
+			            $import_summary['Labo'][$msgType]["Many $atim_test_title values exist either into ATiM or into SARDO on the same date. Please confirm."][] = "$sardo_day_results_to_create_strg. SARDO $atim_test_title = [$sardo_day_results_strg] / ATiM $atim_test_title = [" . strlen($atim_day_results_strg)? $atim_day_results_strg : 'no value'."] on $sardo_formated_date. See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 			        }
 			    } 
 			}

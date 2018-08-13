@@ -10,7 +10,7 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `language_label`='shipping name' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `language_label`='shipping name' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
 ALTER TABLE order_items DROP COLUMN shipping_name;
-ALTER TABLE order_items_revs DROP COLUMN shipping_name_revs;
+ALTER TABLE order_items_revs DROP COLUMN shipping_name;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Raman consent & +
@@ -64,102 +64,16 @@ ALTER TABLE qc_nd_ed_ca125s MODIFY value decimal(12,2) DEFAULT NULL;
 ALTER TABLE qc_nd_ed_ca125s_revs MODIFY value decimal(12,2) DEFAULT NULL;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- sardo_import_summary
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE sardo_import_summary
+   MODIFY data_type varchar(100) DEFAULT NULL;
+ALTER TABLE sardo_import_summary
+   MODIFY details varchar(1000) DEFAULT NULL;
+   		
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Version
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = 'xxxxx' WHERE version_number = '2.7.1';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysqldump -u root chumonco --tables diagnosis_masters qc_nd_dx_primary_sardos qc_nd_dx_progression_sardos event_masters qc_nd_ed_ca125s  qc_nd_ed_estrogen_receptor_reports qc_nd_ed_progestin_receptor_reports qc_nd_ed_her2_neu qc_nd_ed_psas qc_nd_ed_sccs treatment_extend_masters treatment_masters qc_nd_txd_sardos qc_nd_txe_sardos collections cd_icm_sardo_data_import_tries sardo_import_summary > atim_onco_tmp_sardo_data.sql
- 
-
-
-desc qc_nd_ed_estrogen_receptor_reports;
-select distinct result FROM qc_nd_ed_estrogen_receptor_reports WHERE result LIKE '% ----> [%';
-
-desc qc_nd_ed_progestin_receptor_reports;
-select distinct result FROM qc_nd_ed_progestin_receptor_reports WHERE result LIKE '% ----> [%';
-
-desc qc_nd_ed_her2_neu;
-select distinct result FROM qc_nd_ed_her2_neu WHERE result LIKE '% ----> [%';
-
-
-
-
-
-
-
-
-mysql> 
-+---------------------------------+
-| result                          |
-+---------------------------------+
-| Récepteurs aux oestrogènes (RE) |
-+---------------------------------+
-1 row in set (0.03 sec)
-
-mysql> select * from event_controls;
-+----+--------------+-------------+----------------------------------------------------+-------------+------------------------------------
-| id | disease_site | event_group | event_type                                         | flag_active | detail_form_alias
-+----+--------------+-------------+----------------------------------------------------+-------------+------------------------------------
-| 11 |              | lifestyle   | questionnaire                                      |           0 | qc_nd_ed_all_procure_lifestyle
-| 12 |              | lab         | ca125                                              |           1 | qc_nd_ed_ca125s
-| 13 |              | lab         | psa                                                |           1 | qc_nd_ed_psas
-| 14 |              | lab         | estrogen receptor report (RE)                      |           1 | qc_nd_ed_estrogen_receptor_reports
-| 15 |              | lab         | progestin receptor report (RP)                     |           1 | qc_nd_ed_progestin_receptor_reports
-| 16 |              | lab         | her2/neu                                           |           1 | qc_nd_ed_her2_neu
+UPDATE versions SET branch_build_number = '7303' WHERE version_number = '2.7.1';

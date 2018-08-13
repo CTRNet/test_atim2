@@ -1,6 +1,6 @@
 <?php  
 
-$nbr_of_gyneco_identifiers_to_create = 500;
+$nbr_of_identifiers_to_create = 500;
 
 //-------------------------------------------------------------------------------------------------------------------------
 
@@ -25,12 +25,14 @@ mysqli_autocommit ($db_connection , false);
 
 //-------------------------------------------------------------------------------------------------------------------------
 
-if(false) {
+if(true) {
     $key_name = 'ovary bank no lab';
     $misc_identifier_name = 'ovary/gyneco bank no lab';
+    $nbr_of_identifiers_to_create = 50;
 } else {
     $key_name = 'pulmonary bank no lab';
     $misc_identifier_name = $key_name;
+    $nbr_of_identifiers_to_create = 50;
 }
 
 $query = "SELECT key_value FROM key_increments WHERE key_name = '$key_name';";
@@ -52,7 +54,7 @@ $date = $res['creation_date'];
 if(empty($date)) die('err 2');
 
 $insert_queries = array();
-for($identifier_value = $next_identifier_value_before_script; $identifier_value < ($next_identifier_value_before_script + $nbr_of_gyneco_identifiers_to_create); $identifier_value++) {
+for($identifier_value = $next_identifier_value_before_script; $identifier_value < ($next_identifier_value_before_script + $nbr_of_identifiers_to_create); $identifier_value++) {
 	$insert_queries[] = "($identifier_value, $misc_identifier_control_id, null, 1, '$date', '$date', 9, 9, 1, 1)";
 }
 $query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified`, `created`, `created_by`, `modified_by`, tmp_deleted, deleted) VALUES".
@@ -61,12 +63,12 @@ customQuery($query, __LINE__);
 $query = "INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified_by`, `version_created`)
 	(SELECT id, identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified_by`, `modified` FROM misc_identifiers WHERE misc_identifier_control_id = $misc_identifier_control_id AND created = '$date' AND created_by = 9);";
 customQuery($query, __LINE__);
-$query = "UPDATE key_increments SET key_value = ($next_identifier_value_before_script + $nbr_of_gyneco_identifiers_to_create) WHERE key_name = '$key_name';";
+$query = "UPDATE key_increments SET key_value = ($next_identifier_value_before_script + $nbr_of_identifiers_to_create) WHERE key_name = '$key_name';";
 customQuery($query, __LINE__);
 
 mysqli_commit($db_connection);
 
-pr("Created $nbr_of_gyneco_identifiers_to_create identifiers from $next_identifier_value_before_script to ".($next_identifier_value_before_script + $nbr_of_gyneco_identifiers_to_create -1).". Next identifier value will be ".($next_identifier_value_before_script + $nbr_of_gyneco_identifiers_to_create).".");
+pr("Created $nbr_of_identifiers_to_create identifiers '$misc_identifier_name' from $next_identifier_value_before_script to ".($next_identifier_value_before_script + $nbr_of_identifiers_to_create -1).". Next identifier value will be ".($next_identifier_value_before_script + $nbr_of_identifiers_to_create).".");
 
 //-------------------------------------------------------------------------------------------------------------------------
 
