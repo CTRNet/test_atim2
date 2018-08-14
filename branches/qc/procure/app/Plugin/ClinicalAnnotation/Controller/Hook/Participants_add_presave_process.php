@@ -3,4 +3,3 @@ $this->request->data['Participant']['procure_last_modification_by_bank'] = Confi
 $this->Participant->addWritableField(array(
     'procure_last_modification_by_bank'
 ));
-	

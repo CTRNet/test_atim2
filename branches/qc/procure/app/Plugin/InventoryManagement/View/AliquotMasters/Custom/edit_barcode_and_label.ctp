@@ -1,21 +1,21 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/InventoryManagement/AliquotMasters/editBarcodeAndLabel/',
     'bottom' => array(
-        'cancel' => $url_to_cancel
+        'cancel' => $urlToCancel
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'editgrid',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'extras' => $this->Form->input('url_to_cancel', array(
         'type' => 'hidden',
-        'value' => $url_to_cancel
+        'value' => $urlToCancel
     )) . $this->Form->input('aliquot_ids_to_update', array(
         'type' => 'hidden',
-        'value' => $aliquot_ids_to_update
+        'value' => $aliquotIdsToUpdate
     )),
     'settings' => array(
         'pagination' => false,
@@ -24,12 +24,12 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>
 

@@ -7,7 +7,7 @@ class OrderCustom extends Order
 
     var $name = 'Order';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -35,5 +35,3 @@ class OrderCustom extends Order
         return $return;
     }
 }
-
-?>

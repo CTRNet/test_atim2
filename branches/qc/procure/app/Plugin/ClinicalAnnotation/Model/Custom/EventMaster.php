@@ -7,19 +7,19 @@ class EventMasterCustom extends EventMaster
 
     var $name = 'EventMaster';
 
-    private $event_type_for_data_entry_validation = null;
+    private $eventTypeForDataEntryValidation = null;
 
-    function setEventTypeForDataEntryValidation($event_type_for_data_entry_validation)
+    public function setEventTypeForDataEntryValidation($eventTypeForDataEntryValidation)
     {
-        $this->event_type_for_data_entry_validation = $event_type_for_data_entry_validation;
+        $this->eventTypeForDataEntryValidation = $eventTypeForDataEntryValidation;
     }
 
-    function validates($options = Array())
+    public function validates($options = Array())
     {
         $result = parent::validates($options);
         
-        if ($this->event_type_for_data_entry_validation) {
-            switch ($this->event_type_for_data_entry_validation) {
+        if ($this->eventTypeForDataEntryValidation) {
+            switch ($this->eventTypeForDataEntryValidation) {
                 case 'clinical exam':
                     // Rules:
                     // - If progression/comorbidity set, result should be 'suspicious' or 'positive'.
@@ -66,5 +66,3 @@ class EventMasterCustom extends EventMaster
         return $result;
     }
 }
-
-?>

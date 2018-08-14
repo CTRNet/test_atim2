@@ -5,7 +5,7 @@ class ViewAliquotCustom extends ViewAliquot
 
     var $name = 'ViewAliquot';
 
-    static $table_query = 'SELECT
+    static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,

@@ -1,2 +1,2 @@
 <?php
-$this->set('add_link_for_procure_forms', $this->Participant->buildAddProcureFormsButton($participant_id));
+$this->set('addLinkForProcureForms', $this->Participant->buildAddProcureFormsButton($participantId));

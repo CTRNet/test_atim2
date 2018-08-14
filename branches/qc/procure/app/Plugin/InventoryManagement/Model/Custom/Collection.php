@@ -7,40 +7,40 @@ class CollectionCustom extends Collection
 
     var $name = 'Collection';
 
-    function allowLinkDeletion($collection_id)
+    public function allowLinkDeletion($collectionId)
     {
-        $res = parent::allowLinkDeletion($collection_id);
+        $res = parent::allowLinkDeletion($collectionId);
         if ($res['allow_deletion'] == false)
             return $res;
             
             // Check no aliquot linked to the collection
-        $aliquot_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-        $collection_aliquots_count = $aliquot_model->find('count', array(
+        $aliquotModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+        $collectionAliquotsCount = $aliquotModel->find('count', array(
             'conditions' => array(
-                'AliquotMaster.collection_id' => $collection_id
+                'AliquotMaster.collection_id' => $collectionId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
-        if ($collection_aliquots_count) {
+        if ($collectionAliquotsCount) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'the link cannot be deleted - collection contains at least one aliquot'
             );
         }
         
-        $res = parent::allowLinkDeletion($collection_id);
+        $res = parent::allowLinkDeletion($collectionId);
         if ($res['allow_deletion'] == false)
             return $res;
             
             // Check no aliquot linked to the collection
-        $sample_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-        $collection_samples_count = $sample_model->find('count', array(
+        $sampleModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $collectionSamplesCount = $sampleModel->find('count', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id
+                'SampleMaster.collection_id' => $collectionId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
-        if ($collection_samples_count) {
+        if ($collectionSamplesCount) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'the link cannot be deleted - collection contains at least one sample'
@@ -53,12 +53,12 @@ class CollectionCustom extends Collection
         );
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $res = parent::validates($options);
         if (isset($this->data['Collection']) && isset($this->data['Collection']['procure_visit'])) {
-            $procure_visit = trim($this->data['Collection']['procure_visit']);
-            if (preg_match('/^[Vv]{0,1}((0{0,1}[1-9])|([1-9][0-9]))([\.,]([1-9])){0,1}$/', $procure_visit, $matches)) {
+            $procureVisit = trim($this->data['Collection']['procure_visit']);
+            if (preg_match('/^[Vv]{0,1}((0{0,1}[1-9])|([1-9][0-9]))([\.,]([1-9])){0,1}$/', $procureVisit, $matches)) {
                 $this->data['Collection']['procure_visit'] = 'V' . sprintf("%02s", $matches[1]) . ((isset($matches[5]) && $matches[5]) ? '.' . $matches[5] : '');
             } else {
                 $res = false;
@@ -68,7 +68,7 @@ class CollectionCustom extends Collection
         return $res;
     }
 
-    function allowDeletion($collection_id)
+    public function allowDeletion($collectionId)
     {
         if ($this->data['Collection']['procure_visit'] == 'Controls') {
             return array(
@@ -76,8 +76,6 @@ class CollectionCustom extends Collection
                 'msg' => 'control collection - collection can not be deleted'
             );
         }
-        return parent::allowDeletion($collection_id);
+        return parent::allowDeletion($collectionId);
     }
 }
-
-?>
