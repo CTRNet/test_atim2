@@ -3,4 +3,3 @@ $this->request->data['Order']['procure_created_by_bank'] = Configure::read('proc
 $this->Order->addWritableField(array(
     'procure_created_by_bank'
 ));
-	

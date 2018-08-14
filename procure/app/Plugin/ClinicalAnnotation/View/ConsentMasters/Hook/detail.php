@@ -1,12 +1,12 @@
 <?php
-if (isset($add_link_for_procure_forms)) {
-    foreach ($add_link_for_procure_forms as $button_title => $links) {
-        $final_options['links']['bottom'][$button_title] = $links;
-        $structure_links['bottom'][$button_title] = $links;
+if (isset($addLinkForProcureForms)) {
+    foreach ($addLinkForProcureForms as $buttonTitle => $links) {
+        $finalOptions['links']['bottom'][$buttonTitle] = $links;
+        $structureLinks['bottom'][$buttonTitle] = $links;
     }
 }
 
 // To not display Linked Collections
-$is_ajax = true;
-$final_options['settings']['actions'] = true;
-$final_options['settings']['form_bottom'] = true;
+$isAjax = true;
+$finalOptions['settings']['actions'] = true;
+$finalOptions['settings']['form_bottom'] = true;

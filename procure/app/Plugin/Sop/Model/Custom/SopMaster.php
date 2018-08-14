@@ -15,7 +15,7 @@ class SopMasterCustom extends SopMaster
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSampleSopPermissibleValues()
+    public function getSampleSopPermissibleValues()
     {
         $result = array();
         
@@ -29,5 +29,3 @@ class SopMasterCustom extends SopMaster
         return $result;
     }
 }
-
-?>

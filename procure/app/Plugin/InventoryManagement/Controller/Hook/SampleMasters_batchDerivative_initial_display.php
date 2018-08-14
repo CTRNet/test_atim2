@@ -8,25 +8,23 @@ if (isset($this->request->data[0]['parent']['AliquotMaster'])) {
     // All samples are linked to aliquot
 } else {
     // Check
-    $data_set_nbr_in_error = array();
-    $tmp_record_counter = 0;
-    foreach ($this->request->data as $tmp_procure_new_data_set) {
-        $tmp_record_counter ++;
-        if ($tmp_procure_new_data_set['parent']['ViewSample']['procure_created_by_bank'] == 's') {
-            $tmp_aliquots_count = $this->AliquotMaster->find('count', array(
+    $dataSetNbrInError = array();
+    $tmpRecordCounter = 0;
+    foreach ($this->request->data as $tmpProcureNewDataSet) {
+        $tmpRecordCounter ++;
+        if ($tmpProcureNewDataSet['parent']['ViewSample']['procure_created_by_bank'] == 's') {
+            $tmpAliquotsCount = $this->AliquotMaster->find('count', array(
                 'conditions' => array(
-                    'AliquotMaster.sample_master_id' => $tmp_procure_new_data_set['parent']['ViewSample']['sample_master_id']
+                    'AliquotMaster.sample_master_id' => $tmpProcureNewDataSet['parent']['ViewSample']['sample_master_id']
                 )
             ));
-            if (! $tmp_aliquots_count) {
-                $data_set_nbr_in_error[] = $tmp_record_counter;
+            if (! $tmpAliquotsCount) {
+                $dataSetNbrInError[] = $tmpRecordCounter;
             }
         }
     }
-    if ($data_set_nbr_in_error) {
-        $this->flash(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot') . ' ' . str_replace('%s', '[' . implode('] ,[', $data_set_nbr_in_error) . ']', __('see # %s')), $url_to_cancel, 5);
+    if ($dataSetNbrInError) {
+        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot') . ' ' . str_replace('%s', '[' . implode('] ,[', $dataSetNbrInError) . ']', __('see # %s')), $urlToCancel, 5);
         return;
     }
 }
-
-?>

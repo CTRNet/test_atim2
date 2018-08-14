@@ -3,4 +3,3 @@ $this->request->data['StudySummary']['procure_created_by_bank'] = Configure::rea
 $this->StudySummary->addWritableField(array(
     'procure_created_by_bank'
 ));
-	

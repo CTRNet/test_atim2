@@ -1,22 +1,22 @@
 <?php
 switch ($tx['TreatmentControl']['tx_method']) {
     case 'treatment':
-        $treatment_type = $procure_treatment_types_values[$tx['TreatmentDetail']['treatment_type']];
-        $treatment_detail_properties = array(
+        $treatmentType = $procureTreatmentTypesValues[$tx['TreatmentDetail']['treatment_type']];
+        $treatmentDetailProperties = array(
             array(
                 'TreatmentDetail',
                 'treatment_precision',
-                $procure_treatment_precision_values
+                $procureTreatmentPrecisionValues
             ),
             array(
                 'TreatmentDetail',
                 'surgery_type',
-                $procure_surgery_type_values
+                $procureSurgeryTypeValues
             ),
             array(
                 'TreatmentDetail',
                 'treatment_site',
-                $procure_treatment_site_values
+                $procureTreatmentSiteValues
             ),
             array(
                 'Drug',
@@ -24,26 +24,26 @@ switch ($tx['TreatmentControl']['tx_method']) {
                 null
             )
         );
-        $treatment_details = array();
-        foreach ($treatment_detail_properties as $new_detail) {
-            list ($model, $field, $lists) = $new_detail;
+        $treatmentDetails = array();
+        foreach ($treatmentDetailProperties as $newDetail) {
+            list ($model, $field, $lists) = $newDetail;
             if ($lists) {
-                $treatment_details[] = $lists[$tx[$model][$field]];
+                $treatmentDetails[] = $lists[$tx[$model][$field]];
             } else {
-                $treatment_details[] = $tx[$model][$field];
+                $treatmentDetails[] = $tx[$model][$field];
             }
         }
-        $treatment_details = array_filter($treatment_details);
-        $treatment_details = implode(' - ', $treatment_details);
-        $chronolgy_data_treatment_start['event'] = "$treatment_type $start_suffix_msg";
-        $chronolgy_data_treatment_start['chronology_details'] = $treatment_details;
+        $treatmentDetails = array_filter($treatmentDetails);
+        $treatmentDetails = implode(' - ', $treatmentDetails);
+        $chronolgyDataTreatmentStart['event'] = "$treatmentType $startSuffixMsg";
+        $chronolgyDataTreatmentStart['chronology_details'] = $treatmentDetails;
         if (isset($tx['TreatmentDetail']['surgery_type']) && $tx['TreatmentDetail']['surgery_type'] == 'prostatectomy') {
-            $tmp_date = strlen($chronolgy_data_treatment_start['date']) ? substr($chronolgy_data_treatment_start['date'], 0, ($chronolgy_data_treatment_start['date_accuracy'] == 'c' ? 10 : ($chronolgy_data_treatment_start['date_accuracy'] == 'd' ? 7 : 4))) : '?';
-            $procure_chronology_warnings[$tmp_date][] = $tmp_date . ' - ' . __('prostatectomy');
+            $tmpDate = strlen($chronolgyDataTreatmentStart['date']) ? substr($chronolgyDataTreatmentStart['date'], 0, ($chronolgyDataTreatmentStart['date_accuracy'] == 'c' ? 10 : ($chronolgyDataTreatmentStart['date_accuracy'] == 'd' ? 7 : 4))) : '?';
+            $procureChronologyWarnings[$tmpDate][] = $tmpDate . ' - ' . __('prostatectomy');
         }
-        if ($chronolgy_data_treatment_finish) {
-            $chronolgy_data_treatment_finish['event'] = "$treatment_type $finish_suffix_msg";
-            $chronolgy_data_treatment_finish['chronology_details'] = $treatment_details;
+        if ($chronolgyDataTreatmentFinish) {
+            $chronolgyDataTreatmentFinish['event'] = "$treatmentType $finishSuffixMsg";
+            $chronolgyDataTreatmentFinish['chronology_details'] = $treatmentDetails;
         }
         break;
 }

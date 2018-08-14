@@ -3,4 +3,3 @@ $this->request->data['SampleMaster']['procure_created_by_bank'] = Configure::rea
 $this->SampleMaster->addWritableField(array(
     'procure_created_by_bank'
 ));
-	

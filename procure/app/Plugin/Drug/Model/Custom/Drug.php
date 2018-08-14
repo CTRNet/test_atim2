@@ -7,9 +7,9 @@ class DrugCustom extends Drug
 
     var $name = 'Drug';
 
-    private $tested_drugs = array();
+    private $testedDrugs = array();
 
-    function getDrugDataAndCodeForDisplay($drug_data)
+    public function getDrugDataAndCodeForDisplay($drugData)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -23,27 +23,27 @@ class DrugCustom extends Drug
         // check if you need to override these functions.
         //
         // ------------------------------------------------------------------------
-        $formatted_data = '';
-        if ((! empty($drug_data)) && isset($drug_data['Drug']['id']) && (! empty($drug_data['Drug']['id']))) {
-            if (! isset($this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']])) {
-                if (! isset($drug_data['Drug']['generic_name'])) {
-                    $drug_data = $this->find('first', array(
+        $formattedData = '';
+        if ((! empty($drugData)) && isset($drugData['Drug']['id']) && (! empty($drugData['Drug']['id']))) {
+            if (! isset($this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']])) {
+                if (! isset($drugData['Drug']['generic_name'])) {
+                    $drugData = $this->find('first', array(
                         'conditions' => array(
-                            'Drug.id' => ($drug_data['Drug']['id'])
+                            'Drug.id' => ($drugData['Drug']['id'])
                         )
                     ));
                 }
-                if (isset($new_tx['Drug']['procure_study']) && $new_tx['Drug']['procure_study']) {
-                    $new_tx['Drug']['generic_name'] .= ' (' . __('experimental treatment') . ')';
+                if (isset($newTx['Drug']['procure_study']) && $newTx['Drug']['procure_study']) {
+                    $newTx['Drug']['generic_name'] .= ' (' . __('experimental treatment') . ')';
                 }
-                $this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']] = $drug_data['Drug']['generic_name'] . ($drug_data['Drug']['procure_study'] ? ' (' . __('experimental treatment') . ')' : '') . " [" . $drug_data['Drug']['id'] . ']';
+                $this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']] = $drugData['Drug']['generic_name'] . ($drugData['Drug']['procure_study'] ? ' (' . __('experimental treatment') . ')' : '') . " [" . $drugData['Drug']['id'] . ']';
             }
-            $formatted_data = $this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']];
+            $formattedData = $this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']];
         }
-        return $formatted_data;
+        return $formattedData;
     }
 
-    function getDrugIdFromDrugDataAndCode($drug_data_and_code)
+    public function getDrugIdFromDrugDataAndCode($drugDataAndCode)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -57,68 +57,68 @@ class DrugCustom extends Drug
         // check if you need to override these functions.
         //
         // ------------------------------------------------------------------------
-        if (! isset($this->drug_titles_already_checked[$drug_data_and_code])) {
+        if (! isset($this->drugTitlesAlreadyChecked[$drugDataAndCode])) {
             $matches = array();
-            $selected_drugs = array();
-            if (preg_match("/(.+)\[([0-9]+)\]$/", str_replace(' (' . __('experimental treatment') . ')', '', $drug_data_and_code), $matches) > 0) {
+            $selectedDrugs = array();
+            if (preg_match("/(.+)\[([0-9]+)\]$/", str_replace(' (' . __('experimental treatment') . ')', '', $drugDataAndCode), $matches) > 0) {
                 // Auto complete tool has been used
-                $selected_drugs = $this->find('all', array(
+                $selectedDrugs = $this->find('all', array(
                     'conditions' => array(
                         "Drug.generic_name LIKE '%" . str_replace("'", "''", trim($matches[1])) . "%'",
                         'Drug.id' => $matches[2]
                     )
                 ));
             } else {
-                // consider $drug_data_and_code contains just drug title
-                $term = str_replace('_', '\_', str_replace('%', '\%', $drug_data_and_code));
+                // consider $drugDataAndCode contains just drug title
+                $term = str_replace('_', '\_', str_replace('%', '\%', $drugDataAndCode));
                 $terms = array();
-                foreach (explode(' ', $term) as $key_word)
-                    $terms[] = "Drug.generic_name LIKE '%" . str_replace("'", "''", $key_word) . "%'";
+                foreach (explode(' ', $term) as $keyWord)
+                    $terms[] = "Drug.generic_name LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
                 $conditions = array(
                     'AND' => $terms
                 );
-                $selected_drugs = $this->find('all', array(
+                $selectedDrugs = $this->find('all', array(
                     'conditions' => $conditions
                 ));
             }
-            if (sizeof($selected_drugs) == 1) {
-                $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                    'Drug' => $selected_drugs[0]['Drug']
+            if (sizeof($selectedDrugs) == 1) {
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'Drug' => $selectedDrugs[0]['Drug']
                 );
             } else 
-                if (sizeof($selected_drugs) > 1) {
-                    $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                        'error' => str_replace('%s', $drug_data_and_code, __('more than one drug matches the following data [%s]'))
+                if (sizeof($selectedDrugs) > 1) {
+                    $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                        'error' => str_replace('%s', $drugDataAndCode, __('more than one drug matches the following data [%s]'))
                     );
                 } else {
-                    $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                        'error' => str_replace('%s', $drug_data_and_code, __('no drug matches the following data [%s]'))
+                    $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                        'error' => str_replace('%s', $drugDataAndCode, __('no drug matches the following data [%s]'))
                     );
                 }
         }
-        return $this->drug_titles_already_checked[$drug_data_and_code];
+        return $this->drugTitlesAlreadyChecked[$drugDataAndCode];
     }
 
-    function allowDeletion($drug_id)
+    public function allowDeletion($drugId)
     {
         $TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $returned_nbr = $TreatmentMaster->find('count', array(
+        $returnedNbr = $TreatmentMaster->find('count', array(
             'conditions' => array(
-                'TreatmentMaster.procure_drug_id' => $drug_id
+                'TreatmentMaster.procure_drug_id' => $drugId
             ),
-            'recursive' => '1'
+            'recursive' => 1
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'drug is defined as a component of at least one participant treatment'
             );
         }
         
-        return parent::allowDeletion($drug_id);
+        return parent::allowDeletion($drugId);
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (isset($this->data['Drug']['generic_name'])) {
             $this->data['Drug']['generic_name'] = trim($this->data['Drug']['generic_name']);
@@ -127,47 +127,45 @@ class DrugCustom extends Drug
         return parent::validates($options);
     }
 
-    function checkDuplicatedDrug($drug_data)
+    public function checkDuplicatedDrug($drugData)
     {
         
         // check data structure
-        $tmp_arr_to_check = array_values($drug_data);
-        if ((! is_array($drug_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['Drug']))) {
+        $tmpArrToCheck = array_values($drugData);
+        if ((! is_array($drugData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['Drug']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $generic_name = $drug_data['Drug']['generic_name'];
-        $procure_study = $drug_data['Drug']['procure_study'];
-        $key_drug = "$generic_name [$procure_study]";
+        $genericName = $drugData['Drug']['generic_name'];
+        $procureStudy = $drugData['Drug']['procure_study'];
+        $keyDrug = "$genericName [$procureStudy]";
         
         // Check duplicated drug into submited record
-        if (! strlen($generic_name)) {
+        if (! strlen($genericName)) {
             // Not studied
         } else 
-            if (isset($this->tested_drugs[$key_drug])) {
-                $this->validationErrors['generic_name'][] = str_replace('%s', $generic_name . ($procure_study ? ' (' . __('experimental treatment') . ')' : ''), __('you can not record drug [%s] twice'));
+            if (isset($this->testedDrugs[$keyDrug])) {
+                $this->validationErrors['generic_name'][] = str_replace('%s', $genericName . ($procureStudy ? ' (' . __('experimental treatment') . ')' : ''), __('you can not record drug [%s] twice'));
             } else {
-                $this->tested_drugs[$key_drug] = '';
+                $this->testedDrugs[$keyDrug] = '';
             }
         
         // Check duplicated barcode into db
         $criteria = array(
-            'Drug.generic_name' => $generic_name,
-            'Drug.procure_study' => $procure_study
+            'Drug.generic_name' => $genericName,
+            'Drug.procure_study' => $procureStudy
         );
-        $drugs_having_duplicated_name = $this->find('all', array(
+        $drugsHavingDuplicatedName = $this->find('all', array(
             'conditions' => $criteria,
             'recursive' => - 1
         ));
         ;
-        if (! empty($drugs_having_duplicated_name)) {
-            foreach ($drugs_having_duplicated_name as $duplicate) {
-                if ((! array_key_exists('id', $drug_data['Drug'])) || ($duplicate['Drug']['id'] != $drug_data['Drug']['id'])) {
-                    $this->validationErrors['generic_name'][] = str_replace('%s', $generic_name . ($procure_study ? ' (' . __('experimental treatment') . ')' : ''), __('the drug [%s] has already been recorded'));
+        if (! empty($drugsHavingDuplicatedName)) {
+            foreach ($drugsHavingDuplicatedName as $duplicate) {
+                if ((! array_key_exists('id', $drugData['Drug'])) || ($duplicate['Drug']['id'] != $drugData['Drug']['id'])) {
+                    $this->validationErrors['generic_name'][] = str_replace('%s', $genericName . ($procureStudy ? ' (' . __('experimental treatment') . ')' : ''), __('the drug [%s] has already been recorded'));
                 }
             }
         }
     }
 }
-
-?>

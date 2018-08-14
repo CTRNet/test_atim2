@@ -5,7 +5,7 @@ class ViewSampleCustom extends ViewSample
 
     var $name = 'ViewSample';
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -55,4 +55,3 @@ SampleMaster.procure_created_by_bank,
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 }
-

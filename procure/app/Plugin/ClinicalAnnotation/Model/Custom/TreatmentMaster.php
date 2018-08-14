@@ -18,57 +18,55 @@ class TreatmentMasterCustom extends TreatmentMaster
         )
     );
 
-    private $tx_method_for_data_entry_validation = null;
+    private $txMethodForDataEntryValidation = null;
 
-    public static $drug_model = null;
+    public static $drugModel = null;
 
-    function setTxMethodForDataEntryValidation($tx_method_for_data_entry_validation)
+    public function setTxMethodForDataEntryValidation($txMethodForDataEntryValidation)
     {
-        $this->tx_method_for_data_entry_validation = $tx_method_for_data_entry_validation;
+        $this->txMethodForDataEntryValidation = $txMethodForDataEntryValidation;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $result = parent::validates($options);
         
-        $treatment_data = & $this->data;
+        $treatmentData = & $this->data;
         
         // Validate and set procure_drug_id
         
-        $tmp_arr_to_check = array_values($treatment_data);
-        if ((! is_array($treatment_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['TreatmentExtendMaster']))) {
+        $tmpArrToCheck = array_values($treatmentData);
+        if ((! is_array($treatmentData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['TreatmentExtendMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        if (array_key_exists('FunctionManagement', $treatment_data) && array_key_exists('autocomplete_treatment_drug_id', $treatment_data['FunctionManagement'])) {
-            $treatment_data['TreatmentMaster']['procure_drug_id'] = null;
-            $treatment_data['FunctionManagement']['autocomplete_treatment_drug_id'] = trim($treatment_data['FunctionManagement']['autocomplete_treatment_drug_id']);
-            if (strlen($treatment_data['FunctionManagement']['autocomplete_treatment_drug_id'])) {
+        if (array_key_exists('FunctionManagement', $treatmentData) && array_key_exists('autocomplete_treatment_drug_id', $treatmentData['FunctionManagement'])) {
+            $treatmentData['TreatmentMaster']['procure_drug_id'] = null;
+            $treatmentData['FunctionManagement']['autocomplete_treatment_drug_id'] = trim($treatmentData['FunctionManagement']['autocomplete_treatment_drug_id']);
+            if (strlen($treatmentData['FunctionManagement']['autocomplete_treatment_drug_id'])) {
                 // Load model
-                if (self::$drug_model == null)
-                    self::$drug_model = AppModel::getInstance("Drug", "Drug", true);
+                if (self::$drugModel == null)
+                    self::$drugModel = AppModel::getInstance("Drug", "Drug", true);
                     
                     // Check the treatment extend drug definition
-                $arr_drug_selection_results = self::$drug_model->getDrugIdFromDrugDataAndCode($treatment_data['FunctionManagement']['autocomplete_treatment_drug_id']);
-                
-                if (isset($arr_drug_selection_results['Drug'])) {
+                $arrDrugSelectionResults = self::$drugModel->getDrugIdFromDrugDataAndCode($treatmentData['FunctionManagement']['autocomplete_treatment_drug_id']);
+                if (isset($arrDrugSelectionResults['Drug'])) {
                     // Set drug id
-                    $treatment_data['TreatmentMaster']['procure_drug_id'] = $arr_drug_selection_results['Drug']['id'];
+                    $treatmentData['TreatmentMaster']['procure_drug_id'] = $arrDrugSelectionResults['Drug']['id'];
                     $this->addWritableField(array(
                         'procure_drug_id'
                     ));
-                } else 
-                    if (isset($arr_drug_selection_results['error'])) {
-                        // Set error
-                        $this->validationErrors['autocomplete_treatment_drug_id'][] = $arr_drug_selection_results['error'];
-                        $result = false;
-                    } else {
-                        AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
+                } elseif (isset($arrDrugSelectionResults['error'])) {
+                    // Set error
+                    $this->validationErrors['autocomplete_treatment_drug_id'][] = $arrDrugSelectionResults['error'];
+                    $result = false;
+                } else {
+                    AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
             }
         }
         
         if (array_key_exists('TreatmentDetail', $this->data)) {
-            $field_controls = array(
+            $fieldControls = array(
                 // 'treatment_line' => array(
                 // 'line',
                 // array('chemotherapy', 'experimental treatment', 'hormonotherapy'),
@@ -120,13 +118,13 @@ class TreatmentMasterCustom extends TreatmentMaster
                     __('chemotherapy') . ' & ' . __('experimental treatment') . ' & ' . __('hormonotherapy') . ' & ' . __('immunotherapy') . ' & ' . __('medication') . ' & ' . __('other diseases medication') . ' & ' . __('prostate medication')
                 )
             );
-            foreach ($field_controls as $fied => $fied_data) {
+            foreach ($fieldControls as $fied => $fiedData) {
                 ;
-                list ($tmp_model, $field_label, $tx_types, $msg) = $fied_data;
-                if (array_key_exists($fied, $this->data[$tmp_model]) && $this->data[$tmp_model][$fied]) {
-                    if (! in_array($this->data['TreatmentDetail']['treatment_type'], $tx_types)) {
+                list ($tmpModel, $fieldLabel, $txTypes, $msg) = $fiedData;
+                if (array_key_exists($fied, $this->data[$tmpModel]) && $this->data[$tmpModel][$fied]) {
+                    if (! in_array($this->data['TreatmentDetail']['treatment_type'], $txTypes)) {
                         $result = false;
-                        $this->validationErrors[$fied][] = __('field [%s] can only be completed for following treatment(s) : %s', __($field_label), $msg);
+                        $this->validationErrors[$fied][] = __('field [%s] can only be completed for following treatment(s) : %s', __($fieldLabel), $msg);
                     }
                 }
             }
@@ -135,16 +133,14 @@ class TreatmentMasterCustom extends TreatmentMaster
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
-        foreach ($results as &$new_tx) {
-            if (isset($new_tx['Drug']['procure_study']) && $new_tx['Drug']['procure_study']) {
-                $new_tx['Drug']['generic_name'] .= ' (' . __('experimental treatment') . ')';
+        foreach ($results as &$newTx) {
+            if (isset($newTx['Drug']['procure_study']) && $newTx['Drug']['procure_study']) {
+                $newTx['Drug']['generic_name'] .= ' (' . __('experimental treatment') . ')';
             }
         }
         return $results;
     }
 }
-
-?>

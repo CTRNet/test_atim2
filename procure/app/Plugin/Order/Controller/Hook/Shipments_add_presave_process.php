@@ -3,4 +3,3 @@ $this->request->data['Shipment']['procure_created_by_bank'] = Configure::read('p
 $this->Shipment->addWritableField(array(
     'procure_created_by_bank'
 ));
-	

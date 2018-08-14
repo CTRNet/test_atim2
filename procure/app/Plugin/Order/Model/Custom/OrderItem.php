@@ -7,7 +7,7 @@ class OrderItemCustom extends OrderItem
 
     var $name = 'OrderItem';
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if (array_key_exists('OrderItem', $this->data) && ! $this->id && array_key_exists('order_id', $this->data['OrderItem'])) {
             // Initial record
@@ -19,5 +19,3 @@ class OrderItemCustom extends OrderItem
         parent::beforeSave($options);
     }
 }
-
-?>

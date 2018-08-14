@@ -7,7 +7,7 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
 
     var $name = 'AliquotReviewMaster';
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if (array_key_exists('AliquotReviewDetail', $this->data) && array_key_exists('gleason_grade', $this->data['AliquotReviewDetail'])) {
             if (preg_match('/^([0-9]+)\+([0-9]+)$/', $this->data['AliquotReviewDetail']['gleason_grade'], $matches)) {
@@ -22,5 +22,3 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
         parent::beforeSave($options);
     }
 }
-
-?>

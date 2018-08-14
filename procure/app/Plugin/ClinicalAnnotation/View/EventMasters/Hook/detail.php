@@ -1,24 +1,24 @@
 <?php
-if (isset($add_link_for_procure_forms)) {
-    foreach ($add_link_for_procure_forms as $button_title => $links) {
-        $final_options['links']['bottom'][$button_title] = $links;
-        $structure_links['bottom'][$button_title] = $links;
+if (isset($addLinkForProcureForms)) {
+    foreach ($addLinkForProcureForms as $buttonTitle => $links) {
+        $finalOptions['links']['bottom'][$buttonTitle] = $links;
+        $structureLinks['bottom'][$buttonTitle] = $links;
     }
 }
 
-if (isset($linked_events_control_data)) {
+if (isset($linkedEventsControlData)) {
     // Display clinical events and treatments lists of a follow-up worksheet
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // ------------------------------------------------------------------------------
     // Clinical Annotation
     // ------------------------------------------------------------------------------
-    $main_header = 'clinical annotation';
+    $mainHeader = 'clinical annotation';
     // linked clinical events
-    foreach ($linked_events_control_data as $new_event_control) {
-        $final_atim_structure = array();
-        $event_control_id = $new_event_control['EventControl']['id'];
-        $event_type = str_replace(array(
+    foreach ($linkedEventsControlData as $newEventControl) {
+        $finalAtimStructure = array();
+        $eventControlId = $newEventControl['EventControl']['id'];
+        $eventType = str_replace(array(
             'procure follow-up worksheet - ',
             'clinical event',
             'clinical note'
@@ -26,43 +26,42 @@ if (isset($linked_events_control_data)) {
             '',
             'clinical events',
             'clinical notes'
-        ), $new_event_control['EventControl']['event_type']);
-        $final_options = array(
+        ), $newEventControl['EventControl']['event_type']);
+        $finalOptions = array(
             'type' => 'detail',
-            'links' => $structure_links,
+            'links' => $structureLinks,
             'settings' => array(
-                'header' => __($main_header, null),
-                'language_heading' => __($event_type, null),
+                'header' => __($mainHeader, null),
+                'language_heading' => __($eventType, null),
                 'actions' => false
             ),
-            'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/listallBasedOnControlId/' . $atim_menu_variables['Participant.id'] . "/$event_control_id/$interval_start_date/$interval_start_date_accuracy/$interval_finish_date/$interval_finish_date_accuracy")
+            'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/listallBasedOnControlId/' . $atimMenuVariables['Participant.id'] . "/$eventControlId/$intervalStartDate/$intervalStartDateAccuracy/$intervalFinishDate/$intervalFinishDateAccuracy")
         );
-        $this->Structures->build($final_atim_structure, $final_options);
-        $main_header = null;
+        $this->Structures->build($finalAtimStructure, $finalOptions);
+        $mainHeader = null;
     }
     // ------------------------------------------------------------------------------
     // Treatment
     // ------------------------------------------------------------------------------
     // linked treatments
-    $main_header = 'treatment';
-    foreach ($linked_tx_control_data as $new_tx_control) {
-        $treatment_control_id = $new_tx_control['TreatmentControl']['id'];
-        $final_atim_structure = array();
-        $final_options = array(
+    $mainHeader = 'treatment';
+    foreach ($linkedTxControlData as $newTxControl) {
+        $treatmentControlId = $newTxControl['TreatmentControl']['id'];
+        $finalAtimStructure = array();
+        $finalOptions = array(
             'type' => 'detail',
-            'links' => $structure_links,
+            'links' => $structureLinks,
             'settings' => array(
-                'header' => __($main_header, null),
+                'header' => __($mainHeader, null),
                 'language_heading' => __('treatments', null),
                 'actions' => false
             ),
-            'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listallBasedOnControlId/' . $atim_menu_variables['Participant.id'] . "/$treatment_control_id/$interval_start_date/$interval_start_date_accuracy/$interval_finish_date/$interval_finish_date_accuracy")
+            'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listallBasedOnControlId/' . $atimMenuVariables['Participant.id'] . "/$treatmentControlId/$intervalStartDate/$intervalStartDateAccuracy/$intervalFinishDate/$intervalFinishDateAccuracy")
         );
     }
 }
 
 // To not display Related Diagnosis Event and Linked Collections
-$is_ajax = true;
-$final_options['settings']['actions'] = true;
-$final_options['settings']['form_bottom'] = true;
-	
+$isAjax = true;
+$finalOptions['settings']['actions'] = true;
+$finalOptions['settings']['form_bottom'] = true;
