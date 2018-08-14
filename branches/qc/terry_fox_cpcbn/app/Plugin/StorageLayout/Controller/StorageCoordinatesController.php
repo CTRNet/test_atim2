@@ -28,6 +28,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
      * --------------------------------------------------------------------------
      */
     /**
+     *
      * @param $storageMasterId
      */
     public function listAll($storageMasterId)
@@ -71,6 +72,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      */
     public function add($storageMasterId)
@@ -144,6 +146,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $storageMasterId
      * @param $storageCoordinateId
      */

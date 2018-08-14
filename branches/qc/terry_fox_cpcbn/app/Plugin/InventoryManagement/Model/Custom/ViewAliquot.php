@@ -5,22 +5,24 @@ class ViewAliquotCustom extends ViewAliquot
 
     var $name = 'ViewAliquot';
 
-    public static $tableQuery = 'SELECT
+    
+    public static $tableQuery = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id,
+			AliquotMaster.collection_id AS collection_id, 
 --		Collection.bank_id,
 Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
 Participant.qc_tf_bank_id AS bank_id, 
 ParticipantBank.name AS participant_bank_name,
 Collection.qc_tf_collection_type AS qc_tf_collection_type, 
 			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id,
-		
-			Participant.participant_identifier,
-		
-			Collection.acquisition_label,
-		
+			Collection.participant_id, 
+			
+			Participant.participant_identifier, 
+			
+			Collection.acquisition_label, 
+            Collection.collection_protocol_id AS collection_protocol_id,
+			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 			ParentSampleControl.sample_type AS parent_sample_type,
@@ -31,7 +33,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 SampleMaster.qc_tf_is_tma_sample_control,
 SampleMaster.qc_tf_tma_sample_control_code,
 SampleMaster.qc_tf_tma_sample_control_bank_id,
-		
+
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
@@ -40,17 +42,17 @@ SampleMaster.qc_tf_tma_sample_control_bank_id,
 			AliquotMaster.in_stock_detail,
 			StudySummary.title AS study_summary_title,
 			StudySummary.id AS study_summary_id,
-		
+			
 			StorageMaster.code,
 			StorageMaster.selection_label,
 			AliquotMaster.storage_coord_x,
 			AliquotMaster.storage_coord_y,
-		
+			
 			StorageMaster.temperature,
 			StorageMaster.temp_unit,
-		
+			
 			AliquotMaster.created,
-		
+			
 			IF(AliquotMaster.storage_datetime IS NULL, NULL,
 			 IF(Collection.collection_datetime IS NULL, -1,
 			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
@@ -66,9 +68,9 @@ SampleMaster.qc_tf_tma_sample_control_bank_id,
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-    
+			 
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
-		
+			
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
@@ -88,7 +90,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qc_tf_ban
     
     public function beforeFind($queryData)
     {
-        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions'])) {
+        if (isset($_SESSION['Auth']) && ($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions'])) {
             if (AppModel::isFieldUsedAsCondition("ViewAliquot.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
                 AppController::addWarningMsg(__('your search will be limited to your bank'));
                 $GroupModel = AppModel::getInstance("", "Group", true);
@@ -124,7 +126,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qc_tf_ban
         if (isset($results[0]['ViewAliquot'])) {
             // Get user and bank information
             $userBankId = '-1';
-            if ($_SESSION['Auth']['User']['group_id'] == '1') {
+            if (isset($_SESSION['Auth']) && $_SESSION['Auth']['User']['group_id'] == '1') {
                 $userBankId = 'all';
             } else {
                 $GroupModel = AppModel::getInstance("", "Group", true);

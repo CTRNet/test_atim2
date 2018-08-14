@@ -2,6 +2,7 @@
 $structureLinks = array(
     'index' => array(
         'detail' => '/Administrate/Announcements/detail/%%Announcement.id%%/',
+        'edit' => '/Administrate/Announcements/edit/%%Announcement.id%%/',
         'delete' => '/Administrate/Announcements/delete/%%Announcement.id%%/'
     ),
     'bottom' => array(

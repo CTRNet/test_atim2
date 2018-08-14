@@ -7,6 +7,7 @@ class ParticipantContact extends ClinicalAnnotationAppModel
 {
 
     /**
+     *
      * @param array $queryData
      * @return array
      */

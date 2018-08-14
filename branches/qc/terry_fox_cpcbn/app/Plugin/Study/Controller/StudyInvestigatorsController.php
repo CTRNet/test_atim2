@@ -13,12 +13,12 @@ class StudyInvestigatorsController extends StudyAppController
 
     public $paginate = array(
         'StudyInvestigator' => array(
-            'limit' => 5,
             'order' => 'StudyInvestigator.last_name'
         )
     );
 
     /**
+     *
      * @param $studySummaryId
      */
     public function add($studySummaryId)
@@ -74,6 +74,7 @@ class StudyInvestigatorsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function listall($studySummaryId)
@@ -99,6 +100,7 @@ class StudyInvestigatorsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyInvestigatorId
      */
@@ -122,6 +124,7 @@ class StudyInvestigatorsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyInvestigatorId
      */
@@ -175,6 +178,7 @@ class StudyInvestigatorsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyInvestigatorId
      */

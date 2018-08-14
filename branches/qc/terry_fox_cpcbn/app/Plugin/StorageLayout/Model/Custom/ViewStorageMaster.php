@@ -7,7 +7,7 @@ class ViewStorageMasterCustom extends ViewStorageMaster
 
     public function beforeFind($queryData)
     {
-        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
+        if (isset($_SESSION['Auth']) && ($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewStorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
             $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);

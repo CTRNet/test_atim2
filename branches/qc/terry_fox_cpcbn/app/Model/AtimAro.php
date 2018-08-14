@@ -9,8 +9,7 @@ class AtimAro extends Aro
     /**
      * Retrieves the Aro/Aco node for this model
      *
-     * @param mixed $ref
-     *            Array with 'model' and 'foreign_key', model object, or string value
+     * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
      * @return array Node found in database
      * @access public
      */

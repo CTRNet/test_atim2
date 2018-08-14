@@ -16,6 +16,7 @@ class StructureValueDomain extends AppModel
     );
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
@@ -56,6 +57,7 @@ class StructureValueDomain extends AppModel
     }
 
     /**
+     *
      * @param array $structureValueDomain
      * @param $dropdownResult
      */

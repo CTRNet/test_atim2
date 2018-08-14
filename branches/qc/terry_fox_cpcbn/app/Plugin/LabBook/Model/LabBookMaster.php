@@ -14,6 +14,7 @@ class LabBookMaster extends LabBookAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -46,6 +47,7 @@ class LabBookMaster extends LabBookAppModel
     }
 
     /**
+     *
      * @param null $labBookControlId
      * @return array
      */
@@ -73,14 +75,10 @@ class LabBookMaster extends LabBookAppModel
     /**
      * Sync data with a lab book.
      *
-     * @param array $data
-     *            The data to synchronize. Direct data and data array both supported
-     * @param array $models
-     *            The models to go through
-     * @param string $labBookCode
-     *            The lab book code to synch with
-     * @param int|string $expectedCtrlId
-     *            If not null, will validate that the lab book code control id match the expected one.
+     * @param array $data The data to synchronize. Direct data and data array both supported
+     * @param array $models The models to go through
+     * @param string $labBookCode The lab book code to synch with
+     * @param int|string $expectedCtrlId If not null, will validate that the lab book code control id match the expected one.
      * @return mixed|null
      */
     public function syncData(array &$data, array $models, $labBookCode, $expectedCtrlId = '-1')
@@ -135,8 +133,7 @@ class LabBookMaster extends LabBookAppModel
 
     /**
      *
-     * @param string $code
-     *            A lab book code to seek
+     * @param string $code A lab book code to seek
      * @return int the lab book id matching the code if it exists, false otherwise
      */
     public function getIdFromCode($code)
@@ -153,6 +150,7 @@ class LabBookMaster extends LabBookAppModel
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @return array
      */
@@ -191,6 +189,7 @@ class LabBookMaster extends LabBookAppModel
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @return mixed
      */
@@ -226,6 +225,7 @@ class LabBookMaster extends LabBookAppModel
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @return mixed
      */
@@ -283,6 +283,7 @@ class LabBookMaster extends LabBookAppModel
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @param null $labBookDetail
      */

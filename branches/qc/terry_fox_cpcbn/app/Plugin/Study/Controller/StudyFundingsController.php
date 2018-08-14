@@ -13,12 +13,12 @@ class StudyFundingsController extends StudyAppController
 
     public $paginate = array(
         'StudyFunding' => array(
-            'limit' => 5,
             'order' => 'StudyFunding.study_sponsor'
         )
     );
 
     /**
+     *
      * @param $studySummaryId
      */
     public function add($studySummaryId)
@@ -74,6 +74,7 @@ class StudyFundingsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function listall($studySummaryId)
@@ -99,6 +100,7 @@ class StudyFundingsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyFundingId
      */
@@ -122,6 +124,7 @@ class StudyFundingsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyFundingId
      */
@@ -175,6 +178,7 @@ class StudyFundingsController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyFundingId
      */

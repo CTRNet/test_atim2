@@ -11,13 +11,13 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Config
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Config
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+
 /**
  * CakePHP Debug Level:
  *
@@ -31,7 +31,17 @@ $debug = 0;
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
+$debug = 0;
 Configure::write('debug', $debug);
+
+/**
+ * ATiM Prod vs Test.
+ *
+ * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
+ * 0: Install name will be displayed as usual.
+ */
+$isTest = 0;
+Configure::write('IsTest', $isTest);
 
 /**
  * Configure the Error handler used to handle errors for your application.
@@ -90,15 +100,6 @@ Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .
- *
- *
- *
- *
- *
- *
- *
- *
- *
  *
  * htaccess
  * files:
@@ -414,10 +415,26 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', $debug > 0 ? false : true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
-Configure::write('uploadDirectory', './atimUploadDirectory');
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// UPLOAD FILE
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Let user to download a file on the server using a ATiM field with setting set to 'File'.
+ *
+ * By default, the file will be downloaded into the \atimUploadDirectory. Path of the file
+ * could be changed by another one changing the value of the $uploadDirectory variable.
+ */
+
+$uploadDirectory = substr(APP, 0, strlen(APP) - 4);
+
+Configure::write('uploadDirectory', $uploadDirectory . 'atimUploadDirectory');
+Configure::write('deleteDirectory', 'deleteDirectory');
+Configure::write('deleteUploadedFilePhysically', false);
+Configure::write('maxUploadFileSize', 10 * 1024 * 1024);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 // LOGIN & PASSWORD
@@ -535,3 +552,26 @@ Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMaster
 Configure::write('order_item_type_config', 1);
 
 unset($debug);
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// USER LOG FILES
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Record any ATiM user log into a txt file 'user_logs.txt' recorded in a directory of the server.
+ * The 'user_logs.txt' will gather
+ * information about the visited page, the date and the id of the user.
+ *
+ * Keep variable to null if no user log file has to be created or replace null by the path of the directory
+ * where the log file has to be created.
+ */
+$path = ($isTest) ? null : null;
+Configure::write('atim_user_log_output_path', $path);
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// LDAP
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+Configure::write('if_use_ldap_authentication', false);
+Configure::write('ldap_server', 'ldap://ch06chum00001.chum.rtss.qc.ca:389');
+Configure::write('ldap_domain', 'CN=%s,OU=GP_Default,OU=GP_Standard,OU=Users,OU=Prod,OU=CHUM,DC=chum,DC=rtss,DC=qc,DC=ca');

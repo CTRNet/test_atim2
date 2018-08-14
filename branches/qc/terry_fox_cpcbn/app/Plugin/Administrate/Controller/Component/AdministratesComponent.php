@@ -7,6 +7,7 @@ class AdministratesComponent extends Object
 {
 
     /**
+     *
      * @param $controller
      * @param array $settings
      */

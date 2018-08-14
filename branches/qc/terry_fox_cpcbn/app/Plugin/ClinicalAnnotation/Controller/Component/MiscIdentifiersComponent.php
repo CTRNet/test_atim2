@@ -7,6 +7,7 @@ class MiscIdentifiersComponent extends Object
 {
 
     /**
+     *
      * @param $controller
      * @param array $settings
      */
