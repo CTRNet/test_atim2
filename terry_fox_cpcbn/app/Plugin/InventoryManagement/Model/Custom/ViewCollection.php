@@ -23,7 +23,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created 
+Collection.created AS created, 
 Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
 Participant.qc_tf_bank_id AS bank_id, 
 Collection.qc_tf_collection_type AS qc_tf_collection_type
