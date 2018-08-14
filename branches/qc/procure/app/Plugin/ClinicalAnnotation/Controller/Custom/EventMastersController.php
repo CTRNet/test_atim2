@@ -3,13 +3,6 @@
 class EventMastersControllerCustom extends EventMastersController
 {
 
-    var $paginate = array(
-        'EventMaster' => array(
-            'limit' => pagination_amount,
-            'order' => 'EventMaster.event_date DESC'
-        )
-    );
-
     public function listallBasedOnControlId($participantId, $eventControlId, $intervalStartDate = null, $intervalStartDateAccuracy = null, $intervalFinishDate = null, $intervalFinishDateAccuracy = null)
     {
         // *** Specific list display based on control_id

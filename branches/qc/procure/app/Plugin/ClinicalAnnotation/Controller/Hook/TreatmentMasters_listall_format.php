@@ -1,5 +1,5 @@
 <?php
-if (! $treatmentControlId && isset($controlsForSubformDisplay)) {
+if (! $treatmentControlId && isset($controlsForSubformDisplay) && $controlsForSubformDisplay) {
     // Set procure add button
     $this->set('addLinkForProcureForms', $this->Participant->buildAddProcureFormsButton($participantId));
     // Separate treatment and medication

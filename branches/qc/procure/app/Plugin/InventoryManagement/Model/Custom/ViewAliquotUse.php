@@ -33,7 +33,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 procure_created_by_bank char(1) DEFAULT ''
 		)";
 
-    static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -144,7 +144,7 @@ QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
-	
+		
 		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
@@ -178,9 +178,9 @@ OrderItem.procure_created_by_bank
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
-	
+		
 		UNION ALL
-	
+		
 		SELECT CONCAT(OrderItem.id, 7) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'shipped aliquot return' AS use_definition,
@@ -209,7 +209,7 @@ OrderItem.procure_created_by_bank
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
-	
+		
 		UNION ALL
 	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
