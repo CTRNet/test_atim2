@@ -1,8 +1,8 @@
 <?php
 
-class ProtocolAppController extends AppController {
-		
-	
+/**
+ * Class ProtocolAppController
+ */
+class ProtocolAppController extends AppController
+{
 }
-
-?>

@@ -1,5 +1,10 @@
-<?php 
-class UserLog extends AppModel {
-	public $check_writable_fields = false;
+<?php
+
+/**
+ * Class UserLog
+ */
+class UserLog extends AppModel
+{
+
+    public $checkWritableFields = false;
 }
-?>
