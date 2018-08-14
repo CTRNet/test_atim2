@@ -11,6 +11,7 @@ class SopControl extends SopAppModel
     public $masterFormAlias = 'sopmasters';
 
     /**
+     *
      * @return array
      */
     public function getTypePermissibleValues()
@@ -31,6 +32,7 @@ class SopControl extends SopAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getGroupPermissibleValues()
@@ -51,6 +53,7 @@ class SopControl extends SopAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

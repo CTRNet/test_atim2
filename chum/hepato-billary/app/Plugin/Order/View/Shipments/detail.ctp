@@ -19,13 +19,25 @@ $structureLinks = array(
         'edit' => '/Order/Shipments/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
         'copy for new shipment' => array(
             'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
-            'icon' => 'copy'
+            'icon' => 'duplicate'
         ),
         'delete' => '/Order/Shipments/delete/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
         'order items' => array(
             'define order items returned' => array(
                 'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'],
                 'icon' => 'order items returned'
+            ),
+            'edit all items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/',
+                'icon' => 'edit'
+            ),
+            'edit shipped items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped/',
+                'icon' => 'edit'
+            ),
+            'edit returned items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped & returned/',
+                'icon' => 'edit'
             )
         ),
         'shipments' => array(

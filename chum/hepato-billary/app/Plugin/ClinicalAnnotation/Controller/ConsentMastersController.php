@@ -22,6 +22,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -50,6 +51,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */
@@ -91,6 +93,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentControlId
      */
@@ -152,6 +155,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */
@@ -220,6 +224,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */

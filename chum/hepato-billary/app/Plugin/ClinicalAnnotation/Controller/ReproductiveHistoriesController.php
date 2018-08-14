@@ -18,6 +18,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -42,6 +43,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $reproductiveHistoryId
      */
@@ -57,7 +59,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
                 'ReproductiveHistory.id' => $reproductiveHistoryId,
                 'ReproductiveHistory.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($reproductiveData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -83,6 +85,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param null $participantId
      */
     public function add($participantId = null)
@@ -132,6 +135,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $reproductiveHistoryId
      */
@@ -190,6 +194,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $reproductiveHistoryId
      */

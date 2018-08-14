@@ -11,6 +11,7 @@ class Rtbform extends RtbFormAppModel
     public $useTable = 'rtbforms';
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */

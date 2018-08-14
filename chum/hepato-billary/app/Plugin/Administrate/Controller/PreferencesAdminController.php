@@ -14,6 +14,7 @@ class PreferencesAdminController extends AdministrateAppController
     );
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -38,6 +39,7 @@ class PreferencesAdminController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */

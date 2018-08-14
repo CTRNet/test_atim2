@@ -22,6 +22,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     );
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -63,6 +64,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -94,6 +96,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $sampleMasterId
      */
     public function add($sampleMasterId = null)
@@ -486,6 +489,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $qualityCtrlId
@@ -552,6 +556,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $qualityCtrlId
@@ -674,6 +679,7 @@ class QualityCtrlsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $qualityCtrlId

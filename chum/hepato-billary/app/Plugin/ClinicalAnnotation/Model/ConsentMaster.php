@@ -36,6 +36,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -70,8 +71,8 @@ class ConsentMaster extends ClinicalAnnotationAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($consentData['FunctionManagement']['autocomplete_consent_study_summary_id']);
                 
                 // Set study summary id
@@ -90,9 +91,8 @@ class ConsentMaster extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $consentMasterId Id
-     *            of the studied record.
-     *            
+     * @param $consentMasterId Id of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -121,6 +121,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $onField
      * @return array
      */

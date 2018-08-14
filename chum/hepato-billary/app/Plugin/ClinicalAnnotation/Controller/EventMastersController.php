@@ -26,6 +26,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $eventGroup
      * @param $participantId
      * @param null $eventControlId
@@ -46,23 +47,40 @@ class EventMastersController extends ClinicalAnnotationAppController
                     'EventControl.display_order ASC'
                 )
             ));
-            $controlsForSubformDisplay = array(
-                '-1' => array()
-            );
-            foreach ($eventControls as $newCtrl) {
-                if ($newCtrl['EventControl']['use_detail_form_for_index']) {
-                    // Controls that should be listed using detail form
-                    $controlsForSubformDisplay[$newCtrl['EventControl']['id']] = $newCtrl;
-                    $controlsForSubformDisplay[$newCtrl['EventControl']['id']]['EventControl']['ev_header'] = __($newCtrl['EventControl']['event_type']) . (empty($newCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($newCtrl['EventControl']['disease_site']));
-                } else {
-                    $controlsForSubformDisplay['-1']['EventControl'] = array(
-                        'id' => '-1',
-                        'ev_header' => null
-                    );
+            $participantEventControls = $this->EventMaster->find('all', array(
+                'conditions' => array(
+                    'EventMaster.participant_id' => $participantId,
+                    'EventControl.event_group' => $eventGroup,
+                    'EventControl.flag_active' => '1'
+                ),
+                'fields' => array(
+                    "GROUP_CONCAT(DISTINCT EventControl.id SEPARATOR ',') as ids"
+                )
+            ));
+            $participantEventControlIds = explode(',', $participantEventControls['0']['0']['ids']);
+            $controlsForSubformDisplay = array();
+            if ($participantEventControlIds) {
+                foreach ($eventControls as $newCtrl) {
+                    if (in_array($newCtrl['EventControl']['id'], $participantEventControlIds)) {
+                        if ($newCtrl['EventControl']['use_detail_form_for_index']) {
+                            // Controls that should be listed using detail form
+                            $controlsForSubformDisplay[$newCtrl['EventControl']['id']] = $newCtrl;
+                            $controlsForSubformDisplay[$newCtrl['EventControl']['id']]['EventControl']['ev_header'] = __($newCtrl['EventControl']['event_type']) . (empty($newCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($newCtrl['EventControl']['disease_site']));
+                        } else {
+                            $controlsForSubformDisplay['-1']['EventControl'] = array(
+                                'id' => '-1',
+                                'ev_header' => null
+                            );
+                        }
+                    }
                 }
+            } else {
+                $controlsForSubformDisplay['-1']['EventControl'] = array(
+                    'id' => '-1',
+                    'ev_header' => null
+                );
             }
-            if (empty($controlsForSubformDisplay['-1']))
-                unset($controlsForSubformDisplay['-1']);
+            ksort($controlsForSubformDisplay);
             $this->set('controlsForSubformDisplay', $controlsForSubformDisplay);
             // find all EVENTCONTROLS, for ADD form
             $addLinks = $this->EventControl->buildAddLinks($eventControls, $participantId, $eventGroup);
@@ -105,6 +123,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      * @param int $isAjax
@@ -154,6 +173,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventControlId
      * @param null $diagnosisMasterId
@@ -324,6 +344,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      */
@@ -403,6 +424,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $eventMasterId
      */

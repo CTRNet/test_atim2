@@ -19,46 +19,39 @@ class StudySummariesController extends StudyAppController
 
     public $paginate = array(
         'StudySummary' => array(
-            'limit' => 5,
             'order' => 'StudySummary.title'
         ),
         'Participant' => array(
-            'limit' => 5,
             'order' => 'Participant.last_name ASC, Participant.first_name ASC'
         ),
         'MiscIdentifier' => array(
-            'limit' => 5,
             'order' => 'MiscIdentifier.study_summary_id ASC,MiscIdentifierControl.misc_identifier_name ASC'
         ),
         'ConsentMaster' => array(
-            'limit' => 5,
             'order' => 'ConsentMaster.date_first_contact ASC'
         ),
         'AliquotMaster' => array(
-            'limit' => 5,
             'order' => 'AliquotMaster.barcode ASC'
         ),
         'Order' => array(
-            'limit' => 5,
             'order' => 'Order.date_order_placed DESC'
         ),
         'OrderLine' => array(
-            'limit' => 5,
             'order' => 'OrderLine.date_required DESC'
         ),
         'TmaSlide' => array(
-            'limit' => 5,
             'order' => 'TmaSlide.barcode DESC'
         )
     );
 
     /**
+     *
      * @param string $searchId
      */
     public function search($searchId = '')
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hookLink = $this->hook('format');
+        $hookLink = $this->hook('pre_search_handler');
         if ($hookLink) {
             require ($hookLink);
         }
@@ -78,6 +71,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function detail($studySummaryId)
@@ -134,6 +128,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function edit($studySummaryId)
@@ -178,6 +173,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function delete($studySummaryId)
@@ -210,6 +206,7 @@ class StudySummariesController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param null $specificListHeader
      */
@@ -336,12 +333,22 @@ class StudySummariesController extends StudyAppController
         Configure::write('debug', 0);
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']);
         $terms = array();
         foreach (explode(' ', $term) as $keyWord) {
-        	$terms[] = array("StudySummary.title LIKE" => '%'.$keyWord.'%');
+            $terms[] = array(
+                "StudySummary.title LIKE" => '%' . $keyWord . '%'
+            );
         }
-		
+        
         $conditions = array(
             'AND' => $terms
         );
@@ -365,7 +372,13 @@ class StudySummariesController extends StudyAppController
         // build javascript textual array
         $result = "";
         foreach ($data as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit)) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit)) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

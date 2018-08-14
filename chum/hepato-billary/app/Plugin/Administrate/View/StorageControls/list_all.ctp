@@ -1,16 +1,20 @@
 <?php
 $structureLinks = array(
     'index' => array(
+        'detail' => array(
+            'link' => '/Administrate/StorageControls/seeStorageLayout/%%StorageCtrl.id%%/',
+            'icon' => 'detail'
+        ),
         'edit' => '/Administrate/StorageControls/edit/%%StorageCtrl.id%%/',
-        'copy' => '/Administrate/StorageControls/add/0/%%StorageCtrl.id%%/',
+        'copy for new storage control' => array(
+            'link' => '/Administrate/StorageControls/add/0/%%StorageCtrl.id%%/',
+            'icon' => 'duplicate'
+        ),
         'change active status' => array(
             'link' => '/Administrate/StorageControls/changeActiveStatus/%%StorageCtrl.id%%/listAll/',
             'icon' => 'confirm'
         ),
-        'see layout' => array(
-            'link' => '/Administrate/StorageControls/seeStorageLayout/%%StorageCtrl.id%%/',
-            'icon' => 'grid'
-        )
+        'delete' => '/Administrate/StorageControls/delete/%%StorageCtrl.id%%/'
     ),
     'bottom' => array(
         'add' => array(
