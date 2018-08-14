@@ -1,11 +1,11 @@
 <?php
 
-class ViewAliquotCustom extends ViewAliquot {
-	
-	var $name = 'ViewAliquot';
-	
-	static $table_query =
-		'SELECT
+class ViewAliquotCustom extends ViewAliquot
+{
+
+    var $name = 'ViewAliquot';
+
+    static $table_query = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
