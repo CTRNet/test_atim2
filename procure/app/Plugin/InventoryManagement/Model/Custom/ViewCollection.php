@@ -63,10 +63,9 @@ Participant.procure_participant_attribution_number,
             if (! empty($consentStatus)) {
                 if (! $collectionData['ViewCollection']['participant_id']) {
                     AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-                } else 
-                    if ($consentStatus[$variables['Collection.id']] == null) {
-                        AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
-                    }
+                } elseif ($consentStatus[$variables['Collection.id']] == null) {
+                    AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+                }
             }
             // Check Aliquot Barcode
             $aliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);

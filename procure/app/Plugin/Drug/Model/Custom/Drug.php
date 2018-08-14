@@ -93,16 +93,15 @@ class DrugCustom extends Drug
                 $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
                     'Drug' => $selectedDrugs[0]['Drug']
                 );
-            } else 
-                if (sizeof($selectedDrugs) > 1) {
-                    $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
-                        'error' => str_replace('%s', $drugDataAndCode, __('more than one drug matches the following data [%s]'))
-                    );
-                } else {
-                    $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
-                        'error' => str_replace('%s', $drugDataAndCode, __('no drug matches the following data [%s]'))
-                    );
-                }
+            } elseif (sizeof($selectedDrugs) > 1) {
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'error' => str_replace('%s', $drugDataAndCode, __('more than one drug matches the following data [%s]'))
+                );
+            } else {
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'error' => str_replace('%s', $drugDataAndCode, __('no drug matches the following data [%s]'))
+                );
+            }
         }
         return $this->drugTitlesAlreadyChecked[$drugDataAndCode];
     }
@@ -147,16 +146,15 @@ class DrugCustom extends Drug
         $genericName = $drugData['Drug']['generic_name'];
         $procureStudy = $drugData['Drug']['procure_study'];
         $keyDrug = "$genericName [$procureStudy]";
-        
-        // Check duplicated drug into submited record
+            
+            // Check duplicated drug into submited record
         if (! strlen($genericName)) {
             // Not studied
-        } else 
-            if (isset($this->testedDrugs[$keyDrug])) {
-                $this->validationErrors['generic_name'][] = str_replace('%s', $genericName . ($procureStudy ? ' (' . __('experimental treatment') . ')' : ''), __('you can not record drug [%s] twice'));
-            } else {
-                $this->testedDrugs[$keyDrug] = '';
-            }
+        } elseif (isset($this->testedDrugs[$keyDrug])) {
+            $this->validationErrors['generic_name'][] = str_replace('%s', $genericName . ($procureStudy ? ' (' . __('experimental treatment') . ')' : ''), __('you can not record drug [%s] twice'));
+        } else {
+            $this->testedDrugs[$keyDrug] = '';
+        }
         
         // Check duplicated barcode into db
         $criteria = array(

@@ -217,13 +217,12 @@ class ParticipantCustom extends Participant
                     'url' => '/ClinicalAnnotation/' . str_replace('Control', 'Masters', $controlModel) . '/add/' . $participantId . '/' . $nextStepControlData[$controlModel]['id'] . '/clinical_file_update_process_step' . $stepNbr
                 );
             }
-        } else 
-            if ($stepNbr == (sizeof($this->visitDataEntryWorkflowSteps) + 1)) {
-                return array(
-                    'title' => 'profile',
-                    'url' => '/ClinicalAnnotation/Participants/edit/' . $participantId . '/clinical_file_update_process_step' . $stepNbr
-                );
-            }
+        } elseif ($stepNbr == (sizeof($this->visitDataEntryWorkflowSteps) + 1)) {
+            return array(
+                'title' => 'profile',
+                'url' => '/ClinicalAnnotation/Participants/edit/' . $participantId . '/clinical_file_update_process_step' . $stepNbr
+            );
+        }
         return null;
     }
 
