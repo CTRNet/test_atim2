@@ -3,13 +3,6 @@
 class TreatmentMastersControllerCustom extends TreatmentMastersController
 {
 
-    var $paginate = array(
-        'TreatmentMaster' => array(
-            'limit' => pagination_amount,
-            'order' => 'TreatmentMaster.start_date DESC'
-        )
-    );
-
     public function listallBasedOnControlId($participantId, $treatmentControlId, $intervalStartDate = null, $intervalStartDateAccuracy = '', $intervalFinishDate = null, $intervalFinishDateAccuracy = '')
     {
         // *** Specific list display based on control_id
