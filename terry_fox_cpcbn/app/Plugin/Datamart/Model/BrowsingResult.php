@@ -20,6 +20,7 @@ class BrowsingResult extends DatamartAppModel
     );
 
     /**
+     *
      * @param $startId
      * @param $browsingCache
      * @return array|null
@@ -44,7 +45,7 @@ class BrowsingResult extends DatamartAppModel
      *
      * @param $browsingResult
      * @return array
-     * @internal param mixed $node Either a browsing result id or the data array related to it*            Either a browsing result id or the data array related to it
+     * @internal param mixed $node Either a browsing result id or the data array related to it* Either a browsing result id or the data array related to it
      */
     public function getModelAndStructureForNode($browsingResult)
     {
@@ -111,6 +112,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $startingNodeId
      * @return array
      */
@@ -224,6 +226,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $baseNodeId
      * @param $targetNodeId
      * @return array
@@ -267,6 +270,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $baseNodeId
      * @param $targetNodeId
      * @return mixed

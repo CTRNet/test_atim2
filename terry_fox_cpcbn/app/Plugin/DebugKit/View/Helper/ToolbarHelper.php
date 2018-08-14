@@ -225,7 +225,8 @@ class ToolbarHelper extends AppHelper {
 
     /**
      * @param $date
-     */        
+     * @return bool
+     */
     private function isRecente($date){
         $d=strip_tags($date);
         $d= substr($d, -19);
@@ -255,7 +256,7 @@ class ToolbarHelper extends AppHelper {
      * 
      */
     public function showLogFile(){
-        $path = "../../app/tmp/logs";
+        $path = APP."tmp/logs";
         $s="";
         $Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
         foreach($Iterator as $file){
@@ -266,27 +267,30 @@ class ToolbarHelper extends AppHelper {
                 if ($content) {
                     $filename=pathinfo($file, PATHINFO_FILENAME);
                     $log[$filename]="";
+					$currentLog="";
                     while(!feof($content)) {
                         $line = fgets($content);
-                        if (substr($line, 0, 11)===date('Y-m-j ') && $state===0){
+                        if (substr($line, 0, 11)===date('Y-m-d ') && $state===0){
                             $t=strtotime(substr($line, 0, 19));
                             if ((time()-$t<3600)){
                                 $state=1;
-                                $log[$filename].='<div class="cake-debug-output">'.
-                                                '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
-                                                '<span class="debug-kit-log-file-span">'.$line.'</span>';
+                                $currentLog='<div class="cake-debug-output">'.
+                                             '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
+                                             '<span class="debug-kit-log-file-span">'.$line.'</span>';
                             }
-                        }elseif(substr($line, 0, 11)===date('Y-m-j ') && $state===1){
-                            $log[$filename].='</div>'.
-                                            '<div class="cake-debug-output">'.
-                                            '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
-                                            '<span class="debug-kit-log-file-span">'.$line.'</span>';
-                        }elseif(substr($line, 0, 11)!==date('Y-m-j ') && $state===1){
-                            $log[$filename].='<span class="debug-kit-log-file-span">'.$line.'</span>';
+                        }elseif(substr($line, 0, 11)===date('Y-m-d ') && $state===1){
+							$currentLog.='</div>';
+                            $log[$filename]=$currentLog.$log[$filename];
+							$currentLog='<div class="cake-debug-output">'.
+										'   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
+										'<span class="debug-kit-log-file-span">'.$line.'</span>';
+                        }elseif(substr($line, 0, 11)!==date('Y-m-d ') && $state===1){
+                            $currentLog.='<span class="debug-kit-log-file-span">'.$line.'</span>';
                         }
                     }
                     if ($log[$filename]!==""){
-                        $log[$filename].='</div>';
+                        $currentLog.='</div>';
+						$log[$filename]=$currentLog.$log[$filename];
                     }
                     fclose($content);
                     $s.='<div class="cake-debug-output">'.
@@ -297,5 +301,6 @@ class ToolbarHelper extends AppHelper {
         }
         return $s;
     }
+    
     
 }

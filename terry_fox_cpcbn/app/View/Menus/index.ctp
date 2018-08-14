@@ -45,7 +45,7 @@ if (count($menuData)) {
 $dueMsgCond = isset($dueMessagesCount) && $dueMessagesCount > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
 $collCond = isset($unlinkedPartColl) && $unlinkedPartColl > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');
 $completeForgottenPasswordAnswers = isset($missingForgottenPasswordResetAnswers) && $missingForgottenPasswordResetAnswers && AppController::checkLinkPermission('/Customize/Profiles/index/');
-$dueAnnoucementsCond = isset($dueAnnoucementsCount) && $dueAnnoucementsCount > 0 && AppController::checkLinkPermission('/Customize/Announcements/index/');
+$dueAnnoucementsCond = isset($dueAnnoucementsCount) && $dueAnnoucementsCount > 0 && AppController::checkLinkPermission('/Customize/UserAnnouncements/index/');
 
 if ($dueMsgCond || $collCond || $completeForgottenPasswordAnswers || $dueAnnoucementsCond) {
     $atimContent['messages'] = '';
@@ -74,7 +74,7 @@ if ($dueMsgCond || $collCond || $completeForgottenPasswordAnswers || $dueAnnouce
     }
     if ($dueAnnoucementsCond) {
         $atimContent['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('you have %s due annoucements', $dueAnnoucementsCount) . '
-				 <a id="goToNotDue" href="' . $this->request->webroot . 'Customize/Announcements/index/">' . __('click here to see them') . '</a>.
+				 <a id="goToNotDue" href="' . $this->request->webroot . 'Customize/UserAnnouncements/index/">' . __('click here to see them') . '</a>.
 				</li></ul>
 			';
     }

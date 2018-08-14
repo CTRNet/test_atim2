@@ -47,7 +47,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
     public $baseModel = "AliquotInternalUse";
 
     public $basePlugin = 'InventoryManagement';
-
+    
     // Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
     public static $tableCreateQuery = "CREATE TABLE view_aliquot_uses (
 		  id int(20) NOT NULL,
@@ -268,6 +268,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
     /**
+     *
      * @return array
      */
     public function getUseDefinitions()
@@ -292,8 +293,8 @@ class ViewAliquotUse extends InventoryManagementAppModel
         ));
         foreach ($useAndEventTypes as $newType)
             $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang]) ? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
-        
-        // Develop sample derivative creation
+            
+            // Develop sample derivative creation
         $this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
         $sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
         foreach ($sampleControls as $samplControlId => $sampleType) {
@@ -304,7 +305,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
         
         return $result;
     }
-
+    
     // must respect concat(id, #) order
     private $models = array(
         'SourceAliquot',
@@ -317,6 +318,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param $data
      * @return array
      */

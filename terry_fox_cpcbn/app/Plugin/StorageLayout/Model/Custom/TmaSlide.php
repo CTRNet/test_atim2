@@ -16,7 +16,7 @@ class TmaSlideCustom extends TmaSlide
         if (isset($results[0]['TmaSlide'])) {
             // Get user and bank information
             $userBankId = '-1';
-            if ($_SESSION['Auth']['User']['group_id'] == '1') {
+            if (isset($_SESSION['Auth']) && $_SESSION['Auth']['User']['group_id'] == '1') {
                 $userBankId = 'all';
             } else {
                 $GroupModel = AppModel::getInstance("", "Group", true);

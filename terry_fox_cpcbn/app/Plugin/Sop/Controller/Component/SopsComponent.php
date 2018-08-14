@@ -7,6 +7,7 @@ class SopsComponent extends Object
 {
 
     /**
+     *
      * @param $controller
      * @param array $settings
      */

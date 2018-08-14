@@ -1,20 +1,21 @@
 <?php
 
-/** 
- * ACL Caching. 
- * 
- * Yet another take at Caching ACL queries, now using Session. 
- * Adapted from http://www.nabble.com/ACL-Auth-Speed-Issues-td21386047.html 
- * and bits and pieces taken from cached_acl.php 
- * 
- * It also extends ACL with some nifty functions for easier and simpler code. 
- * 
- * Cake's ACL doesn't cache anything. For better performance, we 
- * put results of check into session. Only ::check() is wrapped, 
- * other functions are simply piped to the parent Acl object, 
- * though it can be handy to wrap these too in future. 
- * 
- * @author macduy 
+/**
+ * ACL Caching.
+ *
+ *
+ * Yet another take at Caching ACL queries, now using Session.
+ * Adapted from http://www.nabble.com/ACL-Auth-Speed-Issues-td21386047.html
+ * and bits and pieces taken from cached_acl.php
+ *
+ * It also extends ACL with some nifty functions for easier and simpler code.
+ *
+ * Cake's ACL doesn't cache anything. For better performance, we
+ * put results of check into session. Only ::check() is wrapped,
+ * other functions are simply piped to the parent Acl object,
+ * though it can be handy to wrap these too in future.
+ *
+ * @author macduy
  */
 class SessionAclComponent extends AclComponent
 {
@@ -25,6 +26,7 @@ class SessionAclComponent extends AclComponent
     );
 
     /**
+     *
      * @param Controller $controller
      */
     public function initialize(Controller $controller)
@@ -34,6 +36,7 @@ class SessionAclComponent extends AclComponent
     }
 
     /**
+     *
      * @param array|Model|string $aro
      * @param array|Model|string $aco
      * @param string $action
@@ -57,6 +60,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Allow
+     *
      * @param array|Model|string $aro
      * @param array|Model|string $aco
      * @param string $action
@@ -70,6 +74,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Deny method.
+     *
      * @param array|Model|string $aro
      * @param array|Model|string $aco
      * @param string $action
@@ -88,12 +93,9 @@ class SessionAclComponent extends AclComponent
      * This method overrides and uses the original
      * method. It only adds cache to it.
      *
-     * @param string $aro
-     *            ARO
-     * @param string $aco
-     *            ACO
-     * @param string $action
-     *            Action (defaults to *)
+     * @param string $aro ARO
+     * @param string $aco ACO
+     * @param string $action Action (defaults to *)
      * @access public
      * @return bool|void
      */
@@ -107,13 +109,10 @@ class SessionAclComponent extends AclComponent
      * Returns a unique, dot separated path to use as the cache key.
      * Copied from CachedAcl.
      *
-     * @param string $aro
-     *            ARO
-     * @param string $aco
-     *            ACO
+     * @param string $aro ARO
+     * @param string $aco ACO
      * @param $action
-     * @param boolean $acoPath
-     *            Boolean to return only the path to the ACO or the full path to the permission.
+     * @param boolean $acoPath Boolean to return only the path to the ACO or the full path to the permission.
      * @return string
      * @access private
      */
@@ -143,6 +142,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Deletes the cache reference in Session, if found
+     *
      * @param $aro
      * @param $aco
      * @param $action
@@ -165,6 +165,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Checks that ALL of given pairs of aco-action are satisfied
+     *
      * @param $aro
      * @param $pairs
      * @return bool
@@ -181,6 +182,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Checks that AT LEAST ONE of given pairs of aco-action is satisfied
+     *
      * @param $aro
      * @param $pairs
      * @return bool
@@ -197,6 +199,7 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Returns an array of booleans for each $aco-$aro pair
+     *
      * @param $aro
      * @param $pairs
      * @return array

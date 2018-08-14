@@ -5,7 +5,7 @@ class ViewSampleCustom extends ViewSample
 
     var $name = 'ViewSample';
 
-    public static $tableQuery = '
+        public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -17,6 +17,7 @@ Participant.qc_tf_bank_id AS bank_id,
 Collection.qc_tf_collection_type AS qc_tf_collection_type, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
+		Collection.collection_protocol_id AS collection_protocol_id,
 		
 		Participant.participant_identifier, 
 		
@@ -60,7 +61,7 @@ SampleMaster.qc_tf_tma_sample_control_bank_id,
 
     public function beforeFind($queryData)
     {
-        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("ViewSample.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
+        if (isset($_SESSION['Auth']) && ($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("ViewSample.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
             $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
@@ -75,7 +76,7 @@ SampleMaster.qc_tf_tma_sample_control_bank_id,
     public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
-        if ($_SESSION['Auth']['User']['group_id'] != '1') {
+        if (isset($_SESSION['Auth']) && $_SESSION['Auth']['User']['group_id'] != '1') {
             $GroupModel = AppModel::getInstance("", "Group", true);
             $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
             $userBankId = $groupData['Group']['bank_id'];

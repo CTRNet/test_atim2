@@ -26,6 +26,7 @@ class AliquotInternalUse extends InventoryManagementAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -57,8 +58,8 @@ class AliquotInternalUse extends InventoryManagementAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($aliquotInternalUseData['FunctionManagement']['autocomplete_aliquot_internal_use_study_summary_id']);
                 
                 // Set study summary id

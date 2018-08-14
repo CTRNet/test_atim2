@@ -61,7 +61,7 @@ class StorageMasterCustom extends StorageMaster
 
     public function beforeFind($queryData)
     {
-        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
+        if (isset($_SESSION['Auth']) && ($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions']) && (AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_label_site", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
             AppController::addWarningMsg(__('your search will be limited to your bank'));
             $GroupModel = AppModel::getInstance("", "Group", true);
             $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
@@ -81,7 +81,7 @@ class StorageMasterCustom extends StorageMaster
         if (isset($results[0]['StorageMaster'])) {
             // Get user and bank information
             $userBankId = '-1';
-            if ($_SESSION['Auth']['User']['group_id'] == '1') {
+            if (isset($_SESSION['Auth']) && $_SESSION['Auth']['User']['group_id'] == '1') {
                 $userBankId = 'all';
             } else {
                 $GroupModel = AppModel::getInstance("", "Group", true);
