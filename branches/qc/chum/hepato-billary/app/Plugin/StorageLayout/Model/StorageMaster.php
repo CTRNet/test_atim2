@@ -34,13 +34,13 @@ class StorageMaster extends StorageLayoutAppModel
     public $storageLabelAndCodeForDisplayAlreadySet = array();
 
     const POSITION_FREE = 1;
-
+    
     // the position is free
     const POSITION_OCCUPIED = 2;
-
+    
     // the position is already occupied (in the db)
     const POSITION_DOUBLE_SET = 3;
-
+    
     // the position is being defined more than once
     const CONFLICTS_IGNORE = 0;
 
@@ -49,6 +49,7 @@ class StorageMaster extends StorageLayoutAppModel
     const CONFLICTS_ERR = 2;
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -66,9 +67,8 @@ class StorageMaster extends StorageLayoutAppModel
             if ($result['StorageControl']['is_tma_block']) {
                 $title = __('TMA-blc');
             } else {
-                $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-                $translatedStorageType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $result['StorageControl']['storage_type']);
-                $title = ($translatedStorageType !== false) ? $translatedStorageType : $result['StorageControl']['storage_type'];
+                $lang = ($_SESSION['Config']['language'] == 'eng') ? 'en' : 'fr';
+                $title = (isset($result['StorageControl']['storage_type' . $lang]) && strlen(isset($result['StorageControl']['storage_type' . $lang]))) ? $result['StorageControl']['storage_type' . $lang] : $result['StorageControl']['storage_type'];
             }
             
             $return = array(
@@ -89,6 +89,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @return bool
      */
     private function insideItself()
@@ -110,6 +111,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -186,6 +188,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $storageData
      * @return bool
      */
@@ -214,6 +217,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @return array
      */
     public static function getStoragesDropdown()
@@ -222,6 +226,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $recordedSelectionLabel
      * @param $positionX
      * @param $positionY
@@ -302,13 +307,10 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Validate a value set to define position of an entity into a storage coordinate ('x' or 'y').
      *
-     * @param $storageData Storage
-     *            data including storage master, storage control, etc.
-     * @param $position Position
-     *            value.
-     * @param $coord Studied
-     *            storage coordinate ('x' or 'y').
-     *            
+     * @param $storageData Storage data including storage master, storage control, etc.
+     * @param $position Position value.
+     * @param $coord Studied storage coordinate ('x' or 'y').
+     *       
      * @return Array containing results
      *         ['validated'] => TRUE if validated
      *         ['change_position_to_uppercase'] => TRUE if position value should be changed to uppercase to be validated
@@ -318,6 +320,16 @@ class StorageMaster extends StorageLayoutAppModel
      */
     public function validatePositionValue($storageData, $position, $coord)
     {
+        if (! in_array($coord, array(
+            'x',
+            'y'
+        ))) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        if ($storageData['StorageControl']['permute_x_y']) {
+            $coord = ($coord == 'x') ? 'y' : 'x';
+        }
+        
         $validationResults = array(
             'validated' => true,
             'change_position_to_uppercase' => false
@@ -368,11 +380,9 @@ class StorageMaster extends StorageLayoutAppModel
      * System will search cutom coordinate values set by the user.
      * (This list is uniquely supported for coordinate 'X').
      *
-     * @param $storageData Storage
-     *            data including storage master, storage control, etc.
-     * @param $coord Coordinate
-     *            flag that should be studied ('x', 'y').
-     *            
+     * @param $storageData Storage data including storage master, storage control, etc.
+     * @param $coord Coordinate flag that should be studied ('x', 'y').
+     *       
      * @return Array gathering 2 sub arrays:
      *         [array_to_display] = array($allowedCoordinate => $allowedCoordinate)
      *         // key = value = 'allowed coordinate'
@@ -422,7 +432,7 @@ class StorageMaster extends StorageLayoutAppModel
                             'StorageCoordinate.dimension' => $coord
                         ),
                         'order' => 'StorageCoordinate.order ASC',
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if (! empty($coordinates)) {
                         foreach ($coordinates as $newCoordinate) {
@@ -448,8 +458,7 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Finds the storage id
      *
-     * @param String $storageLabelAndCode
-     *            a single string with the format "label [code]"
+     * @param String $storageLabelAndCode a single string with the format "label [code]"
      * @return storage data (array('StorageMaster' => array(), 'StorageControl' => array()) when found, array('error' => message) otherwise
      */
     public function getStorageDataFromStorageLabelAndCode($storageLabelAndCode)
@@ -469,12 +478,20 @@ class StorageMaster extends StorageLayoutAppModel
         if (! isset($this->storageSelectionLabelsAlreadyChecked[$storageLabelAndCode])) {
             $results = array();
             $selectedStorages = array();
-            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $storageLabelAndCode);
+            $term = str_replace(array(
+                "\\",
+                '%',
+                '_'
+            ), array(
+                "\\\\",
+                '\%',
+                '\_'
+            ), $storageLabelAndCode);
             if (preg_match_all("/([^\b]+)\ \[([^\[]+)\]/", $term, $matches, PREG_SET_ORDER) > 0) {
                 // Auto complete tool has been used
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        "StorageMaster.selection_label LIKE "  => '%' . $matches[0][1] . '%',
+                        "StorageMaster.selection_label LIKE " => '%' . $matches[0][1] . '%',
                         'StorageMaster.code' => $matches[0][2]
                     )
                 ));
@@ -506,6 +523,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $storageData
      * @return mixed|string
      */
@@ -544,9 +562,8 @@ class StorageMaster extends StorageLayoutAppModel
      * Using the id of a storage, the function will return formatted storages path
      * starting from the root to the studied storage.
      *
-     * @param $studiedStorageMasterId ID
-     *            of the studied storage.
-     *            
+     * @param $studiedStorageMasterId ID of the studied storage.
+     *       
      * @return Storage path (string).
      *        
      * @author N. Luc
@@ -574,8 +591,7 @@ class StorageMaster extends StorageLayoutAppModel
 
     /**
      *
-     * @param array $storageMasterIds
-     *            The storage master ids whom child existence will be verified
+     * @param array $storageMasterIds The storage master ids whom child existence will be verified
      * @return array Returns the storage master ids having child
      */
     public function hasChild(array $storageMasterIds)
@@ -620,10 +636,11 @@ class StorageMaster extends StorageLayoutAppModel
      */
     public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
-        return $childrenArray[$typeKey][$labelKey];
+        return isset($childrenArray[$typeKey][$labelKey]) ? $childrenArray[$typeKey][$labelKey] : null;
     }
 
     /**
+     *
      * @param int $storageMasterId
      * @return array
      */
@@ -634,7 +651,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.parent_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -649,7 +666,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'AliquotMaster.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -664,7 +681,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.tma_block_storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrTmaSlides > 0) {
             return array(
@@ -678,7 +695,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -694,6 +711,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $storageData
      * @param $storageControlData
      */
@@ -701,15 +719,15 @@ class StorageMaster extends StorageLayoutAppModel
     {
         if ($storageData['StorageMaster']['storage_control_id'] != $storageControlData['StorageControl']['id'])
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
-        // storage temperature
+            
+            // storage temperature
         if (! $storageControlData['StorageControl']['set_temperature']) {
             if (! empty($storageData['StorageMaster']['parent_id'])) {
                 $parentStorageData = $this->find('first', array(
                     'conditions' => array(
                         'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
                 if (empty($parentStorageData)) {
                     AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -728,9 +746,8 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Get the selection label of a storage.
      *
-     * @param $storageData Storage
-     *            data including storage master, storage control, etc.
-     *            
+     * @param $storageData Storage data including storage master, storage control, etc.
+     *       
      * @return The new storage selection label.
      *        
      * @author N. Luc
@@ -748,7 +765,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($parentStorageData)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -761,11 +778,11 @@ class StorageMaster extends StorageLayoutAppModel
      * Create the selection label of a storage.
      *
      * @param Storage $storageData Parent
-     *            storage data including storage master, storage control, etc.
-     *
+     *        storage data including storage master, storage control, etc.
+     *       
      * @param $parentStorageData
      * @return The created selection label.
-     *
+     *        
      * @author N. Luc
      * @since 2009-09-13
      */
@@ -785,12 +802,10 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Manage the selection label of the children storages of a specific parent storage.
      *
-     * @param $parentStorageId ID
-     *            of the parent storage that should be studied
-     *            to update the selection labels of its children storages.
-     * @param $parentStorageData Parent
-     *            storage data.
-     *            
+     * @param $parentStorageId ID of the parent storage that should be studied
+     *        to update the selection labels of its children storages.
+     * @param $parentStorageData Parent storage data.
+     *       
      * @author N. Luc
      * @since 2008-01-31
      *        @updated A. Suggitt
@@ -808,7 +823,7 @@ class StorageMaster extends StorageLayoutAppModel
             
             $childrenStorageToUpdate = $this->find('all', array(
                 'conditions' => $conditions,
-                'recursive' => -1
+                'recursive' => - 1
             ));
             $newArrStudiedParentsData = array();
             foreach ($childrenStorageToUpdate as $newChildrenToUpdate) {
@@ -840,13 +855,10 @@ class StorageMaster extends StorageLayoutAppModel
      * Create code of a new storage.
      *
      *
-     * @param $storageMasterId Storage
-     *            master id of the studied storage.
-     * @param $storageData Storage
-     *            data including storage master, storage control, etc.
-     * @param $storageControlData Control
-     *            data of the studied storage.
-     *            
+     * @param $storageMasterId Storage master id of the studied storage.
+     * @param $storageData Storage data including storage master, storage control, etc.
+     * @param $storageControlData Control data of the studied storage.
+     *       
      * @return The new code.
      *        
      * @author N. Luc
@@ -869,13 +881,10 @@ class StorageMaster extends StorageLayoutAppModel
      * Note: only children storages having temperature or unit different than the parent will
      * be updated.
      *
-     * @param $parentStorageMasterId Id
-     *            of the parent storage.
-     * @param $parentTemperature Parent
-     *            storage temperature.
-     * @param $parentTempUnit Parent
-     *            storage temperature unit.
-     *            
+     * @param $parentStorageMasterId Id of the parent storage.
+     * @param $parentTemperature Parent storage temperature.
+     * @param $parentTempUnit Parent storage temperature unit.
+     *       
      * @author N. Luc
      * @since 2007-05-22
      *        @updated A. Suggitt
@@ -951,14 +960,14 @@ class StorageMaster extends StorageLayoutAppModel
      * @param array $storageControls
      * @param $updatedRecordCounter
      * @return bool
-     * @internal param $ data_array The data read from the database*            data_array The data read from the database
-     * @internal param $ type The current type we are seeking*            type The current type we are seeking
-     * @internal param $ x_key The name of the key for the x coordinate*            x_key The name of the key for the x coordinate
-     * @internal param $ y_key The name of the key for the y coordinate*            y_key The name of the key for the y coordinate
-     * @internal param $ storage_parent_key The name of the key of the parent storage id*            storage_parent_key The name of the key of the parent storage id
-     * @internal param $ rcv_data The data received from the user*            rcv_data The data received from the user
-     * @internal param $ updater_model The model to use to update the data*            updater_model The model to use to update the data
-     * @internal param $ storage_control*            storage_control
+     * @internal param $ data_array The data read from the database* data_array The data read from the database
+     * @internal param $ type The current type we are seeking* type The current type we are seeking
+     * @internal param $ x_key The name of the key for the x coordinate* x_key The name of the key for the x coordinate
+     * @internal param $ y_key The name of the key for the y coordinate* y_key The name of the key for the y coordinate
+     * @internal param $ storage_parent_key The name of the key of the parent storage id* storage_parent_key The name of the key of the parent storage id
+     * @internal param $ rcv_data The data received from the user* rcv_data The data received from the user
+     * @internal param $ updater_model The model to use to update the data* updater_model The model to use to update the data
+     * @internal param $ storage_control* storage_control
      */
     public function updateAndSaveDataArray($dataArray, $type, $xKey, $yKey, $storageParentKey, $rcvData, $updaterModel, array $storageControls, &$updatedRecordCounter)
     {
@@ -1054,6 +1063,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $childrenArray
      * @param $typeKey
      * @param $xKey
@@ -1081,22 +1091,21 @@ class StorageMaster extends StorageLayoutAppModel
             $childrenArray['DisplayData']['y'] = '';
         
         $childrenArray['DisplayData']['label'] = $this->getLabel($childrenArray, $typeKey, $labelKey);
+        $childrenArray['DisplayData']['barcode'] = (isset($childrenArray['AliquotMaster']['barcode'])) ? $childrenArray['AliquotMaster']['barcode'] : "";
         $childrenArray['DisplayData']['type'] = $typeKey;
         $childrenArray['DisplayData']['link'] = $link;
         $childrenArray['DisplayData']['icon_name'] = $iconName;
     }
 
     /**
-     * Checks wheter a storage position is already occupied or not.
+     * Checks whether a storage position is already occupied or not.
      * This is a
      * quick check up that will not behave properly on bogus positions.
      *
-     * @param int $storageMasterId            
-     * @param array $position
-     *            ("x" => int [, "y" => int])
-     * @param array $exception
-     *            (model name => id). An exception to ommit when
-     *            checking availability. Usefull when editing something.
+     * @param int $storageMasterId
+     * @param array $position ("x" => int [, "y" => int])
+     * @param array $exception (model name => id). An exception to ommit when
+     *        checking availability. Usefull when editing something.
      * @return const POSITION_*
      */
     public function positionStatusQuick($storageMasterId, array $position, array $exception = array())
@@ -1174,6 +1183,7 @@ class StorageMaster extends StorageLayoutAppModel
 
     /**
      * Checks conflicts for batch layout
+     *
      * @param $data
      * @param $modelName
      * @param $labelName
@@ -1220,6 +1230,7 @@ class StorageMaster extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $modelsAndFields
      * @param $contentsToSort
      * @param bool $descOrder

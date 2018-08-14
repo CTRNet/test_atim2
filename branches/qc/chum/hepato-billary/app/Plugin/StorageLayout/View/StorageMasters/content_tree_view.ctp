@@ -18,12 +18,11 @@ if (isset($search)) {
         'search' => '/StorageLayout/StorageMasters/search',
         'add' => $addLinks
     );
-} else 
-    if (! $isAjax && isset($addLinks)) {
-        $bottom = array(
-            'add to storage' => $addLinks
-        );
-    }
+} elseif (! $isAjax && isset($addLinks)) {
+    $bottom = array(
+        'add to storage' => $addLinks
+    );
+}
 
 $structureLinks = array(
     'tree' => array(

@@ -7,6 +7,7 @@ class ParticipantMessage extends ClinicalAnnotationAppModel
 {
 
     /**
+     *
      * @param array $variables
      * @return bool
      */

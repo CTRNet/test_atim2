@@ -24,6 +24,7 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
     public static $drugModel = null;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -52,8 +53,8 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
                 // Load model
                 if (self::$drugModel == null)
                     self::$drugModel = AppModel::getInstance("Drug", "Drug", true);
-                
-                // Check the treatment extend drug definition
+                    
+                    // Check the treatment extend drug definition
                 $arrDrugSelectionResults = self::$drugModel->getDrugIdFromDrugDataAndCode($treatmentExtendData['FunctionManagement']['autocomplete_treatment_drug_id']);
                 
                 // Set drug id

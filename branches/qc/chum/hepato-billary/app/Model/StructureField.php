@@ -36,10 +36,11 @@ class StructureField extends AppModel
             'foreignKey' => 'structure_value_domain'
         )
     );
-
+    
     // when building SUMMARIES, function used to look up, translate, and return translated VALUE
-
+    
     /**
+     *
      * @param null $plugin
      * @param null $model
      * @param array $fieldAndValue

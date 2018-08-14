@@ -16,6 +16,7 @@ class CodingIcd10sController extends CodingIcdAppController
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
     /**
+     *
      * @param $useIcdType
      */
     public function tool($useIcdType)
@@ -25,6 +26,7 @@ class CodingIcd10sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      * @param bool $isTool
      */
@@ -35,14 +37,17 @@ class CodingIcd10sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      */
     public function autocomplete($useIcdType = "who")
     {
+        $_GET['term'] = preg_replace('/([cC][0-9]{2})\.([0-9]){0,1}/', '$1$2', $_GET['term']);
         parent::globalAutocomplete($this->getIcd10Type($useIcdType));
     }
 
     /**
+     *
      * @param $icdTypeName
      * @return mixed|null
      */

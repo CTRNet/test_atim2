@@ -9,6 +9,7 @@ class BrowsingControl extends DatamartAppModel
     public $useTable = 'datamart_browsing_controls';
 
     /**
+     *
      * @param $elem1Id
      * @param null $elemNId
      * @return array|null
@@ -27,6 +28,7 @@ class BrowsingControl extends DatamartAppModel
     }
 
     /**
+     *
      * @param $elemNId
      * @param null $elem1Id
      * @return array|null
@@ -45,6 +47,7 @@ class BrowsingControl extends DatamartAppModel
     }
 
     /**
+     *
      * @param array $data
      */
     public function completeData(array &$data)
@@ -76,8 +79,7 @@ class BrowsingControl extends DatamartAppModel
 
     /**
      *
-     * @param
-     *            String or int $val
+     * @param String or int $val
      * @return If the value is a model name (string), return the id of the associated DatamartStructure. Otherwise return the value itself.
      */
     private static function getBrowsingStructureId($val)
@@ -100,11 +102,9 @@ class BrowsingControl extends DatamartAppModel
 
     /**
      *
-     * @param mixed $a
-     *            Either a DatamartStructure.id or a model name of the left part of the join.
-     * @param mixex $b
-     *            Either a DatamartStructure.id or a model name of the right part of the join.
-     * @param array $idsFilter            
+     * @param mixed $a Either a DatamartStructure.id or a model name of the left part of the join.
+     * @param mixex $b Either a DatamartStructure.id or a model name of the right part of the join.
+     * @param array $idsFilter
      * @return array The join array
      */
     public function getInnerJoinArray($a, $b, array $idsFilter = null)

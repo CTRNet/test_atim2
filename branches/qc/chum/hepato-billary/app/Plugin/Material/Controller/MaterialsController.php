@@ -26,14 +26,20 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param $searchId
      */
     public function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
         
-        $this->searchHandler($searchId, $this->Material, 'materials', '/material/materials/search');
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        $this->searchHandler($searchId, $this->Material, 'materials', '/Material/Materials/search');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -44,7 +50,7 @@ class MaterialsController extends MaterialAppController
 
     public function add()
     {
-        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Material/Materials/index/'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -65,12 +71,13 @@ class MaterialsController extends MaterialAppController
                 if ($hookLink) {
                     require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $this->Material->id);
+                $this->atimFlash(__('your data has been updated'), '/Material/Materials/detail/' . $this->Material->id);
             }
         }
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function edit($materialId = null)
@@ -104,13 +111,14 @@ class MaterialsController extends MaterialAppController
                     if ($hookLink) {
                         require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $materialId);
+                    $this->atimFlash(__('your data has been updated'), '/Material/Materials/detail/' . $materialId);
                 }
             }
         }
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function detail($materialId = null)
@@ -137,6 +145,7 @@ class MaterialsController extends MaterialAppController
     }
 
     /**
+     *
      * @param null $materialId
      */
     public function delete($materialId = null)
@@ -152,9 +161,9 @@ class MaterialsController extends MaterialAppController
         }
         
         if ($this->Material->atimDelete($materialId)) {
-            $this->atimFlash(__('your data has been deleted'), '/material/materials/index/');
+            $this->atimFlash(__('your data has been deleted'), '/Material/Materials/index/');
         } else {
-            $this->atimFlashError(__('error deleting data - contact administrator'), '/material/materials/listall/');
+            $this->atimFlashError(__('error deleting data - contact administrator'), '/Material/Materials/listall/');
         }
     }
 }

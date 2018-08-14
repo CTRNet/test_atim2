@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Class AnnouncementsController
+ * Class UserAnnouncementsController
  */
-class AnnouncementsController extends CustomizeAppController
+App::uses('CustomizeAppController', 'Customize.Controller');
+
+class UserAnnouncementsController extends CustomizeAppController
 {
 
     public $uses = array(
@@ -17,11 +19,14 @@ class AnnouncementsController extends CustomizeAppController
     );
 
     /**
+     *
      * @param string $listType
      */
     public function index($listType = '')
     {
         $this->set('listType', $listType);
+        
+        $this->Structures->set('announcements');
         
         if (! in_array($listType, array(
             'all',
@@ -40,7 +45,7 @@ class AnnouncementsController extends CustomizeAppController
             $conditions = array(
                 'OR' => array(
                     array(
-                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id']? $_SESSION['Auth']['User']['Group']['bank_id'] : '-1'
+                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id'] ? $_SESSION['Auth']['User']['Group']['bank_id'] : '-1'
                     ),
                     array(
                         'Announcement.user_id' => $_SESSION['Auth']['User']['id']
@@ -82,10 +87,13 @@ class AnnouncementsController extends CustomizeAppController
     }
 
     /**
+     *
      * @param null $announcementId
      */
     public function detail($announcementId = null)
     {
+        $this->Structures->set('announcements');
+        
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA

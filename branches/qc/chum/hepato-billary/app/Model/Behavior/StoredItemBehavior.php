@@ -10,6 +10,7 @@ class StoredItemBehavior extends ModelBehavior
     private $previousStorageMasterId = null;
 
     /**
+     *
      * @param Model $model
      * @param array $options
      * @return bool
@@ -28,9 +29,11 @@ class StoredItemBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param bool $created
      * @param array $options
+     * @return bool|void
      */
     public function afterSave(Model $model, $created, $options = array())
     {

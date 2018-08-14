@@ -29,12 +29,9 @@ class AtimAcl extends DbAcl
     /**
      * Checks if the given $aro has access to action $action in $aco
      *
-     * @param string $aro
-     *            ARO
-     * @param string $aco
-     *            ACO
-     * @param string $action
-     *            Action (defaults to *)
+     * @param string $aro ARO
+     * @param string $aco ACO
+     * @param string $action Action (defaults to *)
      * @return boolean Success (true if ARO has access to action in ACO, false otherwise)
      * @access public
      */

@@ -31,6 +31,7 @@ class EventMaster extends ClinicalAnnotationAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -69,8 +70,8 @@ class EventMaster extends ClinicalAnnotationAppModel
      * Compares dx data with a cap report and generates warning when there are
      * mismatches.
      *
-     * @param array $diagnosisData            
-     * @param array $eventData            
+     * @param array $diagnosisData
+     * @param array $eventData
      */
     public static function generateDxCompatWarnings(array $diagnosisData, array $eventData)
     {
@@ -92,6 +93,7 @@ class EventMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param int $eventMasterId
      * @return array
      */
@@ -116,6 +118,7 @@ class EventMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $data
      */
     public function calculatedDetailFields(array &$data)
