@@ -19,4 +19,4 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collectio
 
 
 
-UPDATE versions SET branch_build_number = '7305' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7308' WHERE version_number = '2.7.1';
