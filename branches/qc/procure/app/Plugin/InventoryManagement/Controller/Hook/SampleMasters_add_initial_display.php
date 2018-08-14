@@ -48,13 +48,11 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
         // Collection blood sample already created
         if (! in_array('serum', $collectionBloodTypes)) {
             $this->request->data['SampleDetail']['blood_type'] = 'serum';
-        } else 
-            if (! in_array('paxgene', $collectionBloodTypes)) {
-                $this->request->data['SampleDetail']['blood_type'] = 'paxgene';
-            } else 
-                if (! in_array('k2-EDTA', $collectionBloodTypes)) {
-                    $this->request->data['SampleDetail']['blood_type'] = 'k2-EDTA';
-                }
+        } elseif (! in_array('paxgene', $collectionBloodTypes)) {
+            $this->request->data['SampleDetail']['blood_type'] = 'paxgene';
+        } elseif (! in_array('k2-EDTA', $collectionBloodTypes)) {
+            $this->request->data['SampleDetail']['blood_type'] = 'k2-EDTA';
+        }
         
         $this->request->data['SpecimenDetail']['reception_datetime'] = $lastReceivedBloodSample['SpecimenDetail']['reception_datetime'];
         $this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $lastReceivedBloodSample['SpecimenDetail']['reception_datetime_accuracy'];
@@ -67,7 +65,7 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
             'conditions' => array(
                 'ViewCollection.collection_id' => $collectionId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         
         $this->request->data['SpecimenDetail']['reception_datetime'] = $collection['ViewCollection']['collection_datetime'];
@@ -77,91 +75,88 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
         
         $this->request->data['SampleDetail']['blood_type'] = 'serum';
     }
-} else 
-    if (in_array($sampleControlData['SampleControl']['sample_type'], array(
-        'urine',
-        'tissue'
-    ))) {
-        
-        // --------------------------------------------------------------------------------
-        // URINE
-        // --------------------------------------------------------------------------------
-        
-        $this->ViewCollection = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
-        $collection = $this->ViewCollection->find('first', array(
-            'conditions' => array(
-                'ViewCollection.collection_id' => $collectionId
-            ),
-            'recursive' => -1
-        ));
-        
-        switch ($sampleControlData['SampleControl']['sample_type']) {
-            case 'urine':
-                $this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
-                $this->request->data['SampleDetail']['urine_aspect'] = 'clear';
-                $this->request->data['SampleDetail']['procure_hematuria'] = 'n';
-                $this->request->data['SampleDetail']['procure_collected_via_catheter'] = 'n';
-                $this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
-                break;
-            case 'tissue':
-                $participantIdentifier = empty($collection['ViewCollection']['participant_identifier']) ? '?' : $collection['ViewCollection']['participant_identifier'];
-                $this->request->data['SampleDetail']['procure_tissue_identification'] = $participantIdentifier . ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
-                break;
-        }
-        
-        $this->request->data['SpecimenDetail']['reception_datetime'] = $collection['ViewCollection']['collection_datetime'];
-        $this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = ($collection['ViewCollection']['collection_datetime_accuracy'] == 'c') ? 'h' : $collection['ViewCollection']['collection_datetime_accuracy'];
-    } else 
-        if (in_array($sampleControlData['SampleControl']['sample_type'], array(
-            'plasma',
-            'serum',
-            'pbmc',
-            'buffy coat'
-        ))) {
-            
-            // --------------------------------------------------------------------------------
-            // SERUM, PLASMA, PBMC, Buffy coat
-            // --------------------------------------------------------------------------------
-            
-            $procureSampleTypes = ($sampleControlData['SampleControl']['sample_type'] == 'serum') ? array(
-                'serum'
-            ) : array(
-                'plasma',
-                'buffy coat',
-                'pbmc'
-            );
-            $sampleControlIds = $this->SampleControl->find('list', array(
-                'conditions' => array(
-                    'sample_type' => $procureSampleTypes
-                )
-            ));
-            $collectionBloodDerivatives = $this->SampleMaster->find('first', array(
-                'conditions' => array(
-                    'SampleMaster.collection_id' => $collectionId,
-                    'SampleMaster.sample_control_id' => $sampleControlIds
-                ),
-                'order' => array(
-                    'DerivativeDetail.creation_datetime DESC'
-                ),
-                'recursive' => 0
-            ));
-            if ($collectionBloodDerivatives) {
-                $this->request->data['DerivativeDetail']['creation_datetime'] = $collectionBloodDerivatives['DerivativeDetail']['creation_datetime'];
-                $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $collectionBloodDerivatives['DerivativeDetail']['creation_datetime_accuracy'];
-            } else {
-                $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
-                $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = ($parentSampleData['SpecimenDetail']['reception_datetime_accuracy'] == 'c') ? 'h' : $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
-            }
-        } else 
-            if (in_array($sampleControlData['SampleControl']['sample_type'], array(
-                'centrifuged urine'
-            ))) {
-                
-                // --------------------------------------------------------------------------------
-                // CENT. URINE
-                // --------------------------------------------------------------------------------
-                
-                $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
-                $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = ($parentSampleData['SpecimenDetail']['reception_datetime_accuracy'] == 'c') ? 'h' : $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
-                $this->request->data['DerivativeDetail']['procure_pellet_volume_ml'] = '50';
-            }
+} elseif (in_array($sampleControlData['SampleControl']['sample_type'], array(
+    'urine',
+    'tissue'
+))) {
+    
+    // --------------------------------------------------------------------------------
+    // URINE
+    // --------------------------------------------------------------------------------
+    
+    $this->ViewCollection = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
+    $collection = $this->ViewCollection->find('first', array(
+        'conditions' => array(
+            'ViewCollection.collection_id' => $collectionId
+        ),
+        'recursive' => - 1
+    ));
+    
+    switch ($sampleControlData['SampleControl']['sample_type']) {
+        case 'urine':
+            $this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
+            $this->request->data['SampleDetail']['urine_aspect'] = 'clear';
+            $this->request->data['SampleDetail']['procure_hematuria'] = 'n';
+            $this->request->data['SampleDetail']['procure_collected_via_catheter'] = 'n';
+            $this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
+            break;
+        case 'tissue':
+            $participantIdentifier = empty($collection['ViewCollection']['participant_identifier']) ? '?' : $collection['ViewCollection']['participant_identifier'];
+            $this->request->data['SampleDetail']['procure_tissue_identification'] = $participantIdentifier . ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
+            break;
+    }
+    
+    $this->request->data['SpecimenDetail']['reception_datetime'] = $collection['ViewCollection']['collection_datetime'];
+    $this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = ($collection['ViewCollection']['collection_datetime_accuracy'] == 'c') ? 'h' : $collection['ViewCollection']['collection_datetime_accuracy'];
+} elseif (in_array($sampleControlData['SampleControl']['sample_type'], array(
+    'plasma',
+    'serum',
+    'pbmc',
+    'buffy coat'
+))) {
+    
+    // --------------------------------------------------------------------------------
+    // SERUM, PLASMA, PBMC, Buffy coat
+    // --------------------------------------------------------------------------------
+    
+    $procureSampleTypes = ($sampleControlData['SampleControl']['sample_type'] == 'serum') ? array(
+        'serum'
+    ) : array(
+        'plasma',
+        'buffy coat',
+        'pbmc'
+    );
+    $sampleControlIds = $this->SampleControl->find('list', array(
+        'conditions' => array(
+            'sample_type' => $procureSampleTypes
+        )
+    ));
+    $collectionBloodDerivatives = $this->SampleMaster->find('first', array(
+        'conditions' => array(
+            'SampleMaster.collection_id' => $collectionId,
+            'SampleMaster.sample_control_id' => $sampleControlIds
+        ),
+        'order' => array(
+            'DerivativeDetail.creation_datetime DESC'
+        ),
+        'recursive' => 0
+    ));
+    if ($collectionBloodDerivatives) {
+        $this->request->data['DerivativeDetail']['creation_datetime'] = $collectionBloodDerivatives['DerivativeDetail']['creation_datetime'];
+        $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $collectionBloodDerivatives['DerivativeDetail']['creation_datetime_accuracy'];
+    } else {
+        $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
+        $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = ($parentSampleData['SpecimenDetail']['reception_datetime_accuracy'] == 'c') ? 'h' : $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
+    }
+} elseif (in_array($sampleControlData['SampleControl']['sample_type'], array(
+    'centrifuged urine'
+))) {
+    
+    // --------------------------------------------------------------------------------
+    // CENT. URINE
+    // --------------------------------------------------------------------------------
+    
+    $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
+    $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = ($parentSampleData['SpecimenDetail']['reception_datetime_accuracy'] == 'c') ? 'h' : $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
+    $this->request->data['DerivativeDetail']['procure_pellet_volume_ml'] = '50';
+}

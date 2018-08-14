@@ -27,12 +27,11 @@ class AliquotMastersControllerCustom extends AliquotMastersController
             }
             $aliquotIds = array_filter($this->request->data['ViewAliquot']['aliquot_master_id']);
             $initialDisplay = true;
-        } else 
-            if (isset($this->request->data['aliquot_ids_to_update'])) {
-                // Data submited
-                $aliquotIds = array_filter(explode(',', $this->request->data['aliquot_ids_to_update']));
-                unset($this->request->data['aliquot_ids_to_update']);
-            }
+        } elseif (isset($this->request->data['aliquot_ids_to_update'])) {
+            // Data submited
+            $aliquotIds = array_filter(explode(',', $this->request->data['aliquot_ids_to_update']));
+            unset($this->request->data['aliquot_ids_to_update']);
+        }
         
         $aliquotData = $this->AliquotMaster->find('all', array(
             'conditions' => array(
@@ -43,11 +42,10 @@ class AliquotMastersControllerCustom extends AliquotMastersController
         if (empty($aliquotData)) {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;
-        } else 
-            if (sizeof($aliquotData) > $displayLimit) {
-                $this->atimFlashError(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
-                return;
-            }
+        } elseif (sizeof($aliquotData) > $displayLimit) {
+            $this->atimFlashError(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            return;
+        }
         $this->AliquotMaster->sortForDisplay($aliquotData, $aliquotIds);
         
         $aliquotsUsedBarcode = array();

@@ -18,17 +18,16 @@ if (Configure::read('procure_atim_version') == 'CENTRAL') {
                         unset($treeNode['css'][$newKey]);
                     $treeNode['css'][] = 'disabled_transfered_bank_aliquot';
                 }
-            } else 
-                if (isset($treeNode['Realiquoting']) && $treeNode['Realiquoting']['procure_central_is_transfer'] == '1') {
-                    // Aliquot created by processing site received from a bank
-                    if (! $keysDisabled) {
-                        $treeNode['css'][] = 'transfered_psp_aliquot';
-                    } else {
-                        foreach ($keysDisabled as $newKey)
-                            unset($treeNode['css'][$newKey]);
-                        $treeNode['css'][] = 'disabled_transfered_psp_aliquot';
-                    }
+            } elseif (isset($treeNode['Realiquoting']) && $treeNode['Realiquoting']['procure_central_is_transfer'] == '1') {
+                // Aliquot created by processing site received from a bank
+                if (! $keysDisabled) {
+                    $treeNode['css'][] = 'transfered_psp_aliquot';
+                } else {
+                    foreach ($keysDisabled as $newKey)
+                        unset($treeNode['css'][$newKey]);
+                    $treeNode['css'][] = 'disabled_transfered_psp_aliquot';
                 }
+            }
         }
     }
 }
