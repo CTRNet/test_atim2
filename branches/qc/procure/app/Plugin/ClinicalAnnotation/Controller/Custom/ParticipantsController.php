@@ -1,3 +1,5 @@
 <?php
-class ParticipantsControllerCustom extends ParticipantsController{
+
+class ParticipantsControllerCustom extends ParticipantsController
+{
 }
