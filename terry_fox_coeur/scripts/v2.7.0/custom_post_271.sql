@@ -19,4 +19,4 @@ WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_colle
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
 
 
-UPDATE `versions` SET branch_build_number = '7317' WHERE version_number = '2.7.1';
+UPDATE `versions` SET branch_build_number = '7318' WHERE version_number = '2.7.1';

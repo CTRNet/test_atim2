@@ -15,10 +15,10 @@ class ViewSampleCustom extends ViewSample
 		Collection.sop_master_id, 
 		Collection.participant_id, 
 		Collection.collection_protocol_id AS collection_protocol_id,
+		
+		Participant.participant_identifier, 
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
 Participant.qc_tf_bank_id AS qc_tf_bank_id,	 
-
-		Participant.participant_identifier, 
 		
 		Collection.acquisition_label,
 		
