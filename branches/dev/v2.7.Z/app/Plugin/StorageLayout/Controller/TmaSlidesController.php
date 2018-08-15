@@ -113,7 +113,7 @@ class TmaSlidesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.add() form
             $tmaBlockIds = array_keys($this->request->data);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -138,12 +138,12 @@ class TmaSlidesController extends StorageLayoutAppController
                 $realStorageSelected = true;
         }
         if ($realStorageSelected) {
-            $this->atimFlashWarning(__('at least one selected item is not a tma block'), $urlToCancel, 5);
+            $this->atimFlashWarning(__('at least one selected item is not a tma block'), $urlToCancel);
             return;
         }
         $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tmaBlocksFromId) > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         if (sizeof($tmaBlocksFromId) != sizeof($tmaBlockIds))
@@ -500,7 +500,7 @@ class TmaSlidesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.editInBatch() form
             $tmaSlideIds = explode(',', $this->request->data['tma_slide_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['tma_slide_ids']);
@@ -518,7 +518,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 $this->TmaSlide->sortForDisplay($initialSlideData, $tmaSlideIds);
             $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initialSlideData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                 return;
             }
         }

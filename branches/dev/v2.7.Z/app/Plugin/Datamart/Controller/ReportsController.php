@@ -318,7 +318,7 @@ class ReportsController extends DatamartAppController
         $this->set('atimMenu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
         
         if ($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (! $csvCreation) && ! array_key_exists('sort', $this->passedArgs)) {
-            $this->atimFlashError(__('the selected report can only be launched from a batchset or a databrowser node'), "/Datamart/Reports/index", 5);
+            $this->atimFlashError(__('the selected report can only be launched from a batchset or a databrowser node'), "/Datamart/Reports/index");
         } elseif (empty($this->request->data) && (! empty($report['Report']['form_alias_for_search'])) && (! $csvCreation) && ! array_key_exists('sort', $this->passedArgs)) {
             
             // ** SEARCH FROM DISPLAY **
