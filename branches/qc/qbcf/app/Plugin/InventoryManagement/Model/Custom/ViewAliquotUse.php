@@ -3,10 +3,9 @@
 class ViewAliquotUseCustom extends ViewAliquotUse {
 	
 	var $name = 'ViewAliquotUse';
-	
-	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
-	static $tableQuery =
-		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+
+    //Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
+    public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -203,7 +202,7 @@ CONCAT('QBCF# ',AliquotMasterChild.barcode) AS use_code,
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-	
+        
 	public function getUseDefinitions() {
 		$result = array(
 			'aliquot shipment'	=> __('aliquot shipment'),
