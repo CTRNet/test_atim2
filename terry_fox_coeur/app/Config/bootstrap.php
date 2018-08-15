@@ -15,11 +15,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Config
- * @since         CakePHP(tm) v 0.10.8.2117
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Config
+ * @since CakePHP(tm) v 0.10.8.2117
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 // Setup a 'default' cache configuration for use in the application.
@@ -27,9 +27,8 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-//Load the shared functions and variable between all of the projects Controllers, Model & View
+// Load the shared functions and variable between all of the projects Controllers, Model & View
 require 'basic.php';
-
 
 /**
  * The settings below can be used to set additional paths to models, views and controllers.

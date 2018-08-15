@@ -6,7 +6,7 @@ class ViewCollectionCustom extends ViewCollection
     var $name = 'ViewCollection';
 
     public static $tableQuery = '
-		SELECT
+		SELECT 
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -15,6 +15,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
 Participant.qc_tf_bank_id AS qc_tf_bank_id,	
@@ -24,9 +25,9 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created
-		FROM collections AS Collection
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+		Collection.created AS created 
+		FROM collections AS Collection 
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
     
     public function summary($variables = array())

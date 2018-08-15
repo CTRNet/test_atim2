@@ -36,6 +36,7 @@ class OrderItem extends OrderAppModel
     );
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
@@ -75,9 +76,8 @@ class OrderItem extends OrderAppModel
     /**
      * Check if an item can be deleted.
      *
-     * @param $orderLineData Data
-     *            of the studied order item.
-     *            
+     * @param $orderLineData Data of the studied order item.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -106,14 +106,13 @@ class OrderItem extends OrderAppModel
      * - An order item linked to an aliquot (or tma slide) can have a status equal to 'pending' or 'shipped'
      * - when no other order item linked to the same aliquot (or tma slide) has a status equal to 'pending' or 'shipped'
      *
-     * @param $foreignKeyField (aliquot_master_id
-     *            or tma_slide_id) OrderItem foreign key field to check
+     * @param $foreignKeyField (aliquot_master_id or tma_slide_id) OrderItem foreign key field to check
      * @param $objectId
      * @param Id|string $orderItemId Id
-     *            of the order item
+     *        of the order item
      * @return bool
      * @internal param $id (aliquot_master_id
-     *            or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
+     *           or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
      * @author N. Luc
      * @since 2016-05-16
      */
@@ -128,7 +127,7 @@ class OrderItem extends OrderAppModel
                     'shipped'
                 )
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($res) {
             return false;

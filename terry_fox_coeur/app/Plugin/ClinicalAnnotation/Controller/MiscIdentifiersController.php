@@ -23,11 +23,17 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param string $searchId
      */
     public function search($searchId = '')
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
         
         $this->searchHandler($searchId, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/ClinicalAnnotation/MiscIdentifiers/search');
         
@@ -43,6 +49,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $miscIdentifierControlId
      */
@@ -85,8 +92,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         $displayAddForm = true;
         if ($isIncrementedIdentifier && empty($this->request->data))
             $displayAddForm = false;
-        
-        // CUSTOM CODE: FORMAT DISPLAY DATA
+            
+            // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -163,6 +170,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $miscIdentifierId
      */
@@ -260,6 +268,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $miscIdentifierId
      */
@@ -331,6 +340,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $miscIdentifierCtrlId
      * @param bool $submited
@@ -445,6 +455,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)

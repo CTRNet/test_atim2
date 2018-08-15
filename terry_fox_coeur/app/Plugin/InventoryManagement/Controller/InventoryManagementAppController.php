@@ -7,6 +7,7 @@ class InventoryManagementAppController extends AppController
 {
 
     /**
+     *
      * @param array $data
      */
     public function setBatchMenu(array $data)
@@ -68,6 +69,7 @@ class InventoryManagementAppController extends AppController
     }
 
     /**
+     *
      * @param $data
      * @param bool $isRealiquotedList
      */

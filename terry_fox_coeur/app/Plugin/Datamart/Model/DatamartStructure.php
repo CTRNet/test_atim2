@@ -9,6 +9,7 @@ class DatamartStructure extends DatamartAppModel
     public $useTable = 'datamart_structures';
 
     /**
+     *
      * @param $modelName
      * @return null
      */
@@ -34,6 +35,7 @@ class DatamartStructure extends DatamartAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getDisplayNameFromId()
@@ -54,18 +56,18 @@ class DatamartStructure extends DatamartAppModel
     /**
      * Retrieves the model associated to the id
      *
-     * @param int $id            
-     * @param string $modelName
-     *            If null, the model defined in the db will be used. If not, $modelName will be.
+     * @param int $id
+     * @param string $modelName If null, the model defined in the db will be used. If not, $modelName will be.
      * @return AppModel
      */
     public function getModel($id, $modelName = null)
     {
         $d = $this->findById($id);
-        return AppModel::getInstance($d['DatamartStructure']['plugin'], $modelName ?: $d['DatamartStructure']['model']);
+        return AppModel::getInstance($d['DatamartStructure']['plugin'], $modelName ?  : $d['DatamartStructure']['model']);
     }
 
     /**
+     *
      * @return array
      */
     public function getDisplayNameFromModel()

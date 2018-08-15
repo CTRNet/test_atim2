@@ -26,6 +26,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
 
     /* ----------------------------- TMA SLIDES ANALYSIS ------------------------ */
     /**
+     *
      * @param null $tmaSlideId
      */
     public function add($tmaSlideId = null)
@@ -89,8 +90,8 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
         if (sizeof($tmaSlidesFromId) != sizeof($tmaSlideIds))
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
-        // SET MENU AND STRUCTURE DATA
+            
+            // SET MENU AND STRUCTURE DATA
         
         $this->set('urlToCancel', $urlToCancel);
         $this->set('tmaSlideId', $tmaSlideId);
@@ -236,6 +237,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaBlockStorageMasterId
      * @param $tmaSlideId
      */
@@ -266,6 +268,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaSlideUseId
      */
     public function edit($tmaSlideUseId)
@@ -484,7 +487,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlideUse.id' => $updatedTmaSlideUseIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($updatedTmaSlideUseIds)) {
                 // In case a TMA slide use has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -551,6 +554,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaSlideUseId
      */
     public function delete($tmaSlideUseId)

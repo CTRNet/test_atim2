@@ -4,7 +4,7 @@ class ViewSampleCustom extends ViewSample
 {
 
     var $name = 'ViewSample';
-	
+
     public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
@@ -14,10 +14,11 @@ class ViewSampleCustom extends ViewSample
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
-		
-		Participant.participant_identifier, 
+		Collection.collection_protocol_id AS collection_protocol_id,
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
 Participant.qc_tf_bank_id AS qc_tf_bank_id,	 
+
+		Participant.participant_identifier, 
 		
 		Collection.acquisition_label,
 		
@@ -53,4 +54,5 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
+    
 }

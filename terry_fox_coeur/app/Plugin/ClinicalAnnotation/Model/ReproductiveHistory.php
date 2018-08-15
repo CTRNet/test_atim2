@@ -7,6 +7,7 @@ class ReproductiveHistory extends ClinicalAnnotationAppModel
 {
 
     /**
+     *
      * @param array $variables
      * @return bool
      */

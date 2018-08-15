@@ -98,6 +98,7 @@ class Collection extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return bool
      */
@@ -110,8 +111,7 @@ class Collection extends InventoryManagementAppModel
 
     /**
      *
-     * @param array $collectionIds
-     *            The collection ids whom child existence will be verified
+     * @param array $collectionIds The collection ids whom child existence will be verified
      * @return array The collection ids having a child
      */
     public function hasChild(array $collectionIds)
@@ -131,9 +131,8 @@ class Collection extends InventoryManagementAppModel
     /**
      * Check if a collection can be deleted.
      *
-     * @param $collectionId Id
-     *            of the studied collection.
-     *            
+     * @param $collectionId Id of the studied collection.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -149,7 +148,7 @@ class Collection extends InventoryManagementAppModel
             'conditions' => array(
                 'SampleMaster.collection_id' => $collectionId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -176,7 +175,7 @@ class Collection extends InventoryManagementAppModel
     /**
      * Checks if a collection link (to a participant) can be deleted.
      *
-     * @param int $collectionId            
+     * @param int $collectionId
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -190,6 +189,7 @@ class Collection extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
