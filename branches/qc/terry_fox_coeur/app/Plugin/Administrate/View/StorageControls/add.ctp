@@ -11,9 +11,9 @@ $finalOptions = array(
     'settings' => array(
         'header' => __('storage layout description', null) . ' : ' . __(str_replace(array(
             'no_d',
-            'tma',
+            '1d',
             '2d',
-            '1d'
+            'tma'
         ), array(
             'no coordinate',
             '1 coordinate',

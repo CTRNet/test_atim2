@@ -16,8 +16,9 @@ class ViewAliquotCustom extends ViewAliquot
 			Participant.participant_identifier, 
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
 Participant.qc_tf_bank_id AS qc_tf_bank_id,	
-			
+
 			Collection.acquisition_label, 
+            Collection.collection_protocol_id AS collection_protocol_id,
 			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -78,5 +79,5 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-        
+
 }

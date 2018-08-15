@@ -21,7 +21,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         'ClinicalAnnotation.TreatmentMaster',
         'ClinicalAnnotation.MiscIdentifierControl',
         'Codingicd.CodingIcd10Who',
-        'Codingicd.CodingIcd10Ca'
+        'Codingicd.CodingIcd10Ca',
+        
+        'Tools.CollectionProtocol'
     );
 
     public $paginate = array(
@@ -34,12 +36,21 @@ class ParticipantsController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param string $searchId
      */
     public function search($searchId = '')
     {
+        // CUSTOM CODE: Hook for search_handler
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
+        
         // CUSTOM CODE: FORMAT DISPLAY DATA
+        
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -61,6 +72,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      */
     public function profile($participantId)
@@ -117,6 +129,8 @@ class ParticipantsController extends ClinicalAnnotationAppController
         $this->set('identifierControlsList', $identifierControlsList);
         $this->Structures->set('empty', 'emptyStructure');
         
+        $this->set('collectionProtocols', $this->CollectionProtocol->getProtocolsList('use'));
+        
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -165,6 +179,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      */
     public function edit($participantId)
@@ -209,6 +224,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      */
     public function delete($participantId)
@@ -241,6 +257,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      */
     public function chronology($participantId)
@@ -282,7 +299,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
             '' => 7
         );
         
-        $addToTmpArray = function (array $in) use ($aS, &$tmpArray) {
+        $addToTmpArray = function (array $in) use($aS, &$tmpArray) {
             if ($in['date']) {
                 $tmpArray[$in['date'] . $aS[$in['date_accuracy']]][] = $in;
             } else {
@@ -439,7 +456,10 @@ class ParticipantsController extends ClinicalAnnotationAppController
                     $treatmentExtendConditions = array(
                         'TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']
                     );
-                    foreach ($this->TreatmentExtendMaster->find('all', array('conditions' => $treatmentExtendConditions, 'recursive' => '-1')) as $newDrug) {
+                    foreach ($this->TreatmentExtendMaster->find('all', array(
+                        'conditions' => $treatmentExtendConditions,
+                        'recursive' => - 1
+                    )) as $newDrug) {
                         if (isset($newDrug['TreatmentExtendMaster']['drug_id']) && isset($allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']])) {
                             $drugs[$allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']]] = $allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']];
                         }

@@ -33,3 +33,7 @@ if ($hookLink) {
 }
 
 $this->Structures->build($finalAtimStructure, $finalOptions);
+?>
+<script>
+    var columnLarge = true;
+</script>

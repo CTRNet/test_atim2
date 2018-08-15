@@ -20,6 +20,7 @@ class CodingIcdo3sController extends CodingIcdAppController
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
     /**
+     *
      * @param $useIcdType
      */
     public function tool($useIcdType)
@@ -29,6 +30,7 @@ class CodingIcdo3sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      * @param bool $isTool
      */
@@ -40,14 +42,19 @@ class CodingIcdo3sController extends CodingIcdAppController
     }
 
     /**
+     *
      * @param string $useIcdType
      */
     public function autocomplete($useIcdType = "topo")
     {
+        if ($useIcdType != "topo") {
+            $_GET['term'] = preg_replace('/([0-9]{4})\/([0-9]){0,1}/', '$1$2', $_GET['term']);
+        }
         parent::globalAutocomplete($this->getIcdo3Type($useIcdType));
     }
 
     /**
+     *
      * @param $icdTypeName
      * @return mixed|null
      */

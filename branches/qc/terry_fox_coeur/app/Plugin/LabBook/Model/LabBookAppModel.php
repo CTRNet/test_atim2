@@ -8,7 +8,7 @@ class LabBookAppModel extends AppModel
 
     /**
      *
-     * @param int $labBookCtrlId            
+     * @param int $labBookCtrlId
      * @return array The fields managed by the lab book or false if the process_ctrl_id is invalid
      */
     public function getFields($labBookCtrlId)

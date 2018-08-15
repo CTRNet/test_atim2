@@ -121,8 +121,8 @@ CONCAT(AliquotMasterChild.aliquot_label,' [',AliquotMasterChild.barcode,']') AS 
 		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
---		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
-IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipient), Order.order_number) AS use_code,	
+--		AliquotMasterChild.barcode AS use_code,
+CONCAT(AliquotMasterChild.aliquot_label,' [',AliquotMasterChild.barcode,']') AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
@@ -207,4 +207,5 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
+
 }

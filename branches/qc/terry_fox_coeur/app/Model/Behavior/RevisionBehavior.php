@@ -2,101 +2,101 @@
 
 /**
  * Revision Behavior 2.0.2
- * 
+ *
  * Revision is a solution for adding undo and other versioning functionality
  * to your database models. It is set up to be easy to apply to your project,
  * to be easy to use and not get in the way of your other model activity.
  * It is also intended to work well with it's sibling, LogableBehavior.
- * 
+ *
  * Feature list :
- * 
- *  - Easy to install
- *  - Automagically save revision on model save
- *  - Able to ignore model saves which only contain certain fields
- *  - Limit number of revisions to keep, will delete oldest
- *  - Undo functionality (or update to any revision directly)
- *  - Revert to a datetime (and even do so cascading)
- *  - Get a diff model array to compare two or more revisions
- *  - Inspect any or all revisions of a model
- *  - Work with Tree Behavior
- *  - Includes beforeUndelete and afterUndelete callbacks
- *  - NEW As of 1.2 behavior will revision HABTM relationships (from one way)
+ *
+ * - Easy to install
+ * - Automagically save revision on model save
+ * - Able to ignore model saves which only contain certain fields
+ * - Limit number of revisions to keep, will delete oldest
+ * - Undo functionality (or update to any revision directly)
+ * - Revert to a datetime (and even do so cascading)
+ * - Get a diff model array to compare two or more revisions
+ * - Inspect any or all revisions of a model
+ * - Work with Tree Behavior
+ * - Includes beforeUndelete and afterUndelete callbacks
+ * - NEW As of 1.2 behavior will revision HABTM relationships (from one way)
  *
  * Install instructions :
- * 
- *  - Place the newest version of RevisionBehavior in your app/models/behaviors folder
- *  - Add the behavior to AppModel (or single models if you prefer)
- *  - Create a shadow table for each model that you want revision for.
- *  - Behavior will gracefully do nothing for models that has behavior, without table
- *  - If adding to an existing project, run the initializeRevisions() method once for each model.
- * 
+ *
+ * - Place the newest version of RevisionBehavior in your app/models/behaviors folder
+ * - Add the behavior to AppModel (or single models if you prefer)
+ * - Create a shadow table for each model that you want revision for.
+ * - Behavior will gracefully do nothing for models that has behavior, without table
+ * - If adding to an existing project, run the initializeRevisions() method once for each model.
+ *
  * About shadow tables :
- * 
+ *
  * You should make these AFTER you have baked your ordinary tables as they may interfer. By default
  * the tables should be named "[prefix][model_table_name]_revs" If you wish to change the suffix you may
  * do so in the property called $revisionSuffix found bellow. Also by default the behavior expects
- * the revision tables to be in the same dbconfig as the model, but you may change this on a per 
+ * the revision tables to be in the same dbconfig as the model, but you may change this on a per
  * model basis with the useDbConfig config option.
- * 
- * Add the same fields as in the live table, with 3 important differences. 
- *  - The 'id' field should NOT be the primary key, nor auto increment
- *  - Add the fields 'version_id' (int, primary key, autoincrement) and 
- *    'version_created' (datetime)
- *  - Skipp fields that should not be saved in shadowtable (lft,right,weight for instance)
- * 
+ *
+ * Add the same fields as in the live table, with 3 important differences.
+ * - The 'id' field should NOT be the primary key, nor auto increment
+ * - Add the fields 'version_id' (int, primary key, autoincrement) and
+ * 'version_created' (datetime)
+ * - Skipp fields that should not be saved in shadowtable (lft,right,weight for instance)
+ *
  * Configuration :
- * 
- *  - 'limit' : number of revisions to keep, must be at least 2 
- *  - 'ignore' : array containing the name of fields to ignore
- *  - 'auto' : boolean when false the behavior will NOT generate revisions in afterSave
- *  - 'useDbConfig' : string/null Name of dbConfig to use. Null to use Model's
- * 
- * Limit functionality : 
+ *
+ * - 'limit' : number of revisions to keep, must be at least 2
+ * - 'ignore' : array containing the name of fields to ignore
+ * - 'auto' : boolean when false the behavior will NOT generate revisions in afterSave
+ * - 'useDbConfig' : string/null Name of dbConfig to use. Null to use Model's
+ *
+ * Limit functionality :
  * The shadow table will save a revision copy when it saves live data, so the newest
  * row in the shadow table will (in most cases) be the same as the current live data.
- * The exception is when the ignore field functionality is used and the live data is 
- * updated only in those fields. 
- * 
+ * The exception is when the ignore field functionality is used and the live data is
+ * updated only in those fields.
+ *
  * Ignore field(s) functionality :
  * If you wish to be able to update certain fields without generating new revisions,
- * you can add those fields to the configuration ignore array. Any time the behavior's 
+ * you can add those fields to the configuration ignore array. Any time the behavior's
  * afterSave is called with just primary key and these fields, it will NOT generate
  * a new revision. It WILL however save these fields together with other fields when it
  * does save a revision. You will probably want to set up cron or otherwise call
  * createRevision() to update these fields at some points.
- * 
+ *
  * Auto functionality :
  * By default the behavior will insert itself into the Model's save process by implementing
  * beforeSave and afterSave. In afterSave, the behavior will save a new revision of the dataset
  * that is now the live data. If you do NOT want this automatic behavior, you may set the config
  * option 'auto' to false. Then the shadow table will remain empty unless you call createRevisions
  * manually.
- * 
+ *
  * HABTM revision feature :
  * In order to do revision on HABTM relationship, add a text field to the main model's shadow table
- * with the same name as the association, ie if Article habtm ArticleTag as Tag, add a field 'Tag' 
+ * with the same name as the association, ie if Article habtm ArticleTag as Tag, add a field 'Tag'
  * to articles_revs.
  * NB! In version 1.2 and up to current, Using HABTM revision requires that both models uses this
  * behavior (even if secondary model does not have a shadow table).
- * 
- * 1.1.1 => 1.1.2 changelog
- *   - revisions() got new paramter: $includeCurrent
- *     This now defaults to false, resulting in a change from 1.1.1. See tests
  *
- * 1.1.6 => 1.2 
- *   - includes HABTM revision control (one way)
+ * 1.1.1 => 1.1.2 changelog
+ * - revisions() got new paramter: $includeCurrent
+ * This now defaults to false, resulting in a change from 1.1.1. See tests
+ *
+ * 1.1.6 => 1.2
+ * - includes HABTM revision control (one way)
  *
  * 1.2 => 1.2.1
- *   - api change in revertToDate, added paramter for force delete if reverting to before earliest
- * 
+ * - api change in revertToDate, added paramter for force delete if reverting to before earliest
+ *
  * 1.2.6 => 1.2.7
- * 	 - api change: removed shadow(), changed revertToDate() to only recurse into related models that
- *     are dependent when cascade is true
- * 
+ * - api change: removed shadow(), changed revertToDate() to only recurse into related models that
+ * are dependent when cascade is true
+ *
  * @author Ronny Vindenes
  * @author Alexander 'alkemann' Morland
  * @license MIT
- * @modifed 23. january 2009
+ *          @modifed 23. january 2009
  * @version 2.0.2
  */
 class RevisionBehavior extends ModelBehavior
@@ -162,7 +162,7 @@ class RevisionBehavior extends ModelBehavior
      * Manually create a revision of the current record of Model->id
      *
      * @example $this->Post->id = 5; $this->Post->createRevision();
-     * @param object $Model            
+     * @param object $Model
      * @return boolean success
      */
     public function createRevision(&$Model)
@@ -203,10 +203,10 @@ class RevisionBehavior extends ModelBehavior
      * @example $this->Post->id = 4; $changes = $this->Post->diff();
      * @example $this->Post->id = 4; $myChanges = $this->Post->diff(null,nul,array('conditions'=>array('user_id'=>4)));
      * @example $this->Post->id = 4; $difference = $this->Post->diff(45,192);
-     * @param Object $Model            
-     * @param int $fromVersionId            
-     * @param int $toVersionId            
-     * @param array $options            
+     * @param Object $Model
+     * @param int $fromVersionId
+     * @param int $toVersionId
+     * @param array $options
      * @return array
      */
     public function diff(&$Model, $fromVersionId = null, $toVersionId = null, $options = array())
@@ -290,9 +290,8 @@ class RevisionBehavior extends ModelBehavior
      * number of rows that is run at once.
      *
      * @example $this->Post->initializeRevisions();
-     * @param object $Model            
-     * @param int $limit
-     *            number of rows to initialize in one go
+     * @param object $Model
+     * @param int $limit number of rows to initialize in one go
      * @return boolean
      */
     public function initializeRevisions(&$Model, $limit = 100)
@@ -329,9 +328,9 @@ class RevisionBehavior extends ModelBehavior
     /**
      * saves revisions for rows matching page and limit given
      *
-     * @param object $Model            
-     * @param int $page            
-     * @param int $limit            
+     * @param object $Model
+     * @param int $page
+     * @param int $limit
      */
     private function init(&$Model, $page, $limit)
     {
@@ -361,8 +360,8 @@ class RevisionBehavior extends ModelBehavior
      * of ignore fields.
      *
      * @example $this->Post->id = 6; $newestRevision = $this->Post->newest();
-     * @param object $Model            
-     * @param array $options            
+     * @param object $Model
+     * @param array $options
      * @return array
      */
     public function newest(&$Model, $options = array())
@@ -394,8 +393,8 @@ class RevisionBehavior extends ModelBehavior
      * since start, this call will return the original first record.
      *
      * @example $this->Post->id = 2; $original = $this->Post->oldest();
-     * @param object $Model            
-     * @param array $options            
+     * @param object $Model
+     * @param array $options
      * @return array
      */
     public function oldest(&$Model, $options = array())
@@ -425,8 +424,8 @@ class RevisionBehavior extends ModelBehavior
      * Find the second newest revisions, including the current one.
      *
      * @example $this->Post->id = 6; $undoRevision = $this->Post->previous();
-     * @param object $Model            
-     * @param array $options            
+     * @param object $Model
+     * @param array $options
      * @return array
      */
     public function previous(&$Model, $options = array())
@@ -462,9 +461,8 @@ class RevisionBehavior extends ModelBehavior
      * Model rows outside condition or not edited will not be affected. Edits since date
      * will be reverted and rows created since date deleted.
      *
-     * @param object $Model            
-     * @param array $options
-     *            'conditions','date'
+     * @param object $Model
+     * @param array $options 'conditions','date'
      * @return boolean success
      */
     public function revertAll(&$Model, $options = array())
@@ -536,8 +534,8 @@ class RevisionBehavior extends ModelBehavior
      * Will return false if version id is invalid or save fails
      *
      * @example $this->Post->id = 3; $this->Post->revertTo(12);
-     * @param object $Model            
-     * @param int $versionId            
+     * @param object $Model
+     * @param int $versionId
      * @return boolean
      */
     public function revertTo(&$Model, $versionId)
@@ -573,10 +571,10 @@ class RevisionBehavior extends ModelBehavior
      *
      * @example $this->Post->id = 3; $this->Post->revertToDate(date('Y-m-d H:i:s',strtotime('Yesterday')));
      * @example $this->Post->id = 4; $this->Post->revertToDate('2008-09-01',true);
-     * @param object $Model            
-     * @param string $datetime            
-     * @param boolean $cascade            
-     * @param boolean $forceDelete            
+     * @param object $Model
+     * @param string $datetime
+     * @param boolean $cascade
+     * @param boolean $forceDelete
      * @return boolean
      */
     public function revertToDate(&$Model, $datetime, $cascade = false, $forceDelete = false)
@@ -716,10 +714,9 @@ class RevisionBehavior extends ModelBehavior
      *
      * @example $this->Post->id = 4; $history = $this->Post->revisions();
      * @example $this->Post->id = 4; $today = $this->Post->revisions(array('conditions'=>array('version_create >'=>'2008-12-10')));
-     * @param object $Model            
-     * @param array $options            
-     * @param boolean $includeCurrent
-     *            If true will include last saved (live) data
+     * @param object $Model
+     * @param array $options
+     * @param boolean $includeCurrent If true will include last saved (live) data
      * @return array
      */
     public function revisions(&$Model, $options = array(), $includeCurrent = false)
@@ -759,7 +756,7 @@ class RevisionBehavior extends ModelBehavior
      * Calls Model::beforeUndelete and Model::afterUndelete
      *
      * @example $this->Post->id = 7; $this->Post->undelete();
-     * @param object $Model            
+     * @param object $Model
      * @return boolean
      */
     public function undelete(&$Model)
@@ -819,7 +816,7 @@ class RevisionBehavior extends ModelBehavior
      * Update to previous revision
      *
      * @example $this->Post->id = 2; $this->Post->undo();
-     * @param object $Model            
+     * @param object $Model
      * @return boolean
      */
     public function undo(&$Model)
@@ -1094,7 +1091,7 @@ class RevisionBehavior extends ModelBehavior
     /**
      * Returns a generic model that maps to the current $Model's shadow table.
      *
-     * @param object $Model            
+     * @param object $Model
      * @return boolean
      */
     private function createShadowModel(&$Model)
@@ -1135,6 +1132,7 @@ class RevisionBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param $Model
      * @return bool
      */

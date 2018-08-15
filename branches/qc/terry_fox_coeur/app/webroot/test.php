@@ -9,11 +9,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://book.cakephp.org/2.0/en/development/testing.html
- * @package       app.webroot
- * @since         CakePHP(tm) v 1.2.0.4433
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://book.cakephp.org/2.0/en/development/testing.html
+ * @package app.webroot
+ * @since CakePHP(tm) v 1.2.0.4433
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
 set_time_limit(0);
 ini_set('display_errors', 1);

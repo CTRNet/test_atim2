@@ -94,7 +94,7 @@ class BrowsingStepsController extends DatamartAppController
                         ), false);
                     }
                 }
-                $result .= $stepTitle . "\n" . (empty($stepSearchDetails) ? __('no search criteria') . "\n" : $stepSearchDetails) . "\n";
+                $result .= $stepTitle . "&#013;\n" . (empty($stepSearchDetails) ? __('no search criteria') . "&#013;\n" : $stepSearchDetails) . "&#013;\n";
             }
             $data['Generated']['description'] = "$result";
         }
@@ -102,6 +102,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $nodeId
      */
     public function save($nodeId)
@@ -155,6 +156,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $id
      */
     public function edit($id)
@@ -184,6 +186,7 @@ class BrowsingStepsController extends DatamartAppController
     }
 
     /**
+     *
      * @param $id
      */
     public function delete($id)
