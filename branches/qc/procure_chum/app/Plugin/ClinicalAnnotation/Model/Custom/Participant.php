@@ -59,7 +59,7 @@ class ParticipantCustom extends Participant
                 
             // *** PROCURE CHUM ******************************************************************************************
             $consentModel = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-            $consent_data = $consentModel->find('first', array(
+            $consentData = $consentModel->find('first', array(
                 'fields' => array(),
                 'conditions' => array(
                     'ConsentMaster.participant_id' => $variables['Participant.id']
