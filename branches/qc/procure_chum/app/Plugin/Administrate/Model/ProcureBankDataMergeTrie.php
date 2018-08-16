@@ -1,6 +1,6 @@
 <?php
 
-class ProcureBankDataMergeTrie extends AdministrateAppModel {
-	
+class ProcureBankDataMergeTrie extends AdministrateAppModel
+{
 }	
 	

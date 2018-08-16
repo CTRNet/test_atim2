@@ -1,108 +1,112 @@
-<?php 
-$structure_links = array(
-	'top' => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'.$aliquot_master_id,
-	'bottom' => array('cancel' => $url_to_cancel)
+<?php
+$structureLinks = array(
+    'top' => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/' . $aliquotMasterId,
+    'bottom' => array(
+        'cancel' => $urlToCancel
+    )
 );
 
-$parent_settings = array(
-	'type' => 'edit',
-	'links' => $structure_links,
-	'settings' => array(
-		'actions' => false,
-		'form_top' => false,
-		'form_bottom' => false,
-		'header' => __('aliquot use/event'),
-		'stretch' => false,
-		"language_heading" => __('used aliquot (for update)'),
-		'section_start' => true
-	)
+$parentSettings = array(
+    'type' => 'edit',
+    'links' => $structureLinks,
+    'settings' => array(
+        'actions' => false,
+        'form_top' => false,
+        'form_bottom' => false,
+        'header' => __('aliquot use/event'),
+        'stretch' => false,
+        "language_heading" => __('used aliquot (for update)'),
+        'section_start' => true
+    )
 );
 
-$children_settings = array(
-	'type' => 'addgrid',
-	'links' => $structure_links,
-	'settings' => array(
-		'actions' => false,
-		'form_top' => false,
-		'form_bottom' => false,
-		"add_fields"	=> true, 
-		"del_fields"	=> true,
-		"language_heading" => __('use/event creation'),
-		'section_end' => true
-	)
+$childrenSettings = array(
+    'type' => 'addgrid',
+    'links' => $structureLinks,
+    'settings' => array(
+        'actions' => false,
+        'form_top' => false,
+        'form_bottom' => false,
+        "add_fields" => true,
+        "del_fields" => true,
+        "language_heading" => __('use/event creation'),
+        'section_end' => true
+    )
 );
-	
-$hook_link = $this->Structures->hook();
-if($hook_link){
-	require($hook_link); 
+
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
-	
+
 // Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
-$empty_structure_options = $parent_settings;
-$empty_structure_options['settings']['form_top'] = true;
-$empty_structure_options['settings']['language_heading'] = '';
-$empty_structure_options['settings']['header'] = '';
-$empty_structure_options['data'] = array();
-$empty_structure_options['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
-$this->Structures->build(array(), $empty_structure_options);
+$emptyStructureOptions = $parentSettings;
+$emptyStructureOptions['settings']['form_top'] = true;
+$emptyStructureOptions['settings']['language_heading'] = '';
+$emptyStructureOptions['settings']['header'] = '';
+$emptyStructureOptions['data'] = array();
+$emptyStructureOptions['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>';
+$this->Structures->build(array(), $emptyStructureOptions);
 
-if($display_batch_process_aliq_storage_and_in_stock_details) {
-	// Form to aplly data to all parents
-	$structure_options = $parent_settings;
-	$structure_options['settings']['header'] = array(
-			'title' => __('aliquot use/event').' : '. __('data to apply to all'),
-			'description' => __('fields values of the section below will be applied to all other sections if entered and will replace sections fields values'));
-	$structure_options['settings']['section_start'] = false;
-	$hook_link = $this->Structures->hook('apply_to_all');
-	$this->Structures->build($batch_process_aliq_storage_and_in_stock_details, $structure_options);
+if ($displayBatchProcessAliqStorageAndInStockDetails) {
+    // Form to aplly data to all parents
+    $structureOptions = $parentSettings;
+    $structureOptions['settings']['header'] = array(
+        'title' => __('aliquot use/event') . ' : ' . __('data to apply to all'),
+        'description' => __('fields values of the section below will be applied to all other sections if entered and will replace sections fields values')
+    );
+    $structureOptions['settings']['section_start'] = false;
+    $hookLink = $this->Structures->hook('apply_to_all');
+    $this->Structures->build($batchProcessAliqStorageAndInStockDetails, $structureOptions);
 }
 
-//BUILD FORM
+// BUILD FORM
 
-$hook_link = $this->Structures->hook('loop');
-	
+$hookLink = $this->Structures->hook('loop');
+
 $first = true;
 $creation = 0;
 
-$many_studied_aliquots = (sizeof($this->request->data) == 1)? false : true;
-while($data_unit = array_shift($this->request->data)){
-	$final_options_parent = $parent_settings;
-	$final_options_children = $children_settings;
-	
-	$final_options_parent['settings']['header'] .= $many_studied_aliquots? " #".(++$creation) : '';
-	$final_options_parent['data'] = $data_unit['parent'];
-	$final_options_parent['settings']['name_prefix'] = $data_unit['parent']['AliquotMaster']['id'];
-	$final_options_children['settings']['name_prefix'] = $data_unit['parent']['AliquotMaster']['id'];
-	
-	$final_options_parent['data'] = $data_unit['parent'];
-	$final_options_children['data'] = $data_unit['children'];
-	
-	if($first){
-		$first = false;
-		$final_options_parent['settings']['form_top'] = true;
-	}
-	if(empty($this->request->data)){
-		$final_options_children['settings']['actions'] = true;
-		$final_options_children['settings']['form_bottom'] = true;
-		if($many_studied_aliquots) $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
-	}
-	
-	if(empty($data_unit['parent']['AliquotControl']['volume_unit'])){
-		$final_structure_parent = $aliquots_structure;
-		$final_structure_children = $aliquotinternaluses_structure;
-	}else{
-		$final_structure_parent = $aliquots_volume_structure;
-		$final_structure_children = $aliquotinternaluses_volume_structure;
-		$final_options_children['override']['AliquotControl.volume_unit'] = $data_unit['parent']['AliquotControl']['volume_unit'];
-	}
-		
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-	
-	$this->Structures->build($final_structure_parent, $final_options_parent);
-	$this->Structures->build($final_structure_children, $final_options_children);
-}				
+$manyStudiedAliquots = (sizeof($this->request->data) == 1) ? false : true;
+while ($dataUnit = array_shift($this->request->data)) {
+    $finalOptionsParent = $parentSettings;
+    $finalOptionsChildren = $childrenSettings;
+    
+    $finalOptionsParent['settings']['header'] .= $manyStudiedAliquots ? " #" . (++ $creation) : '';
+    $finalOptionsParent['data'] = $dataUnit['parent'];
+    $finalOptionsParent['settings']['name_prefix'] = $dataUnit['parent']['AliquotMaster']['id'];
+    $finalOptionsChildren['settings']['name_prefix'] = $dataUnit['parent']['AliquotMaster']['id'];
+    
+    $finalOptionsParent['data'] = $dataUnit['parent'];
+    $finalOptionsChildren['data'] = $dataUnit['children'];
+    
+    if ($first) {
+        $first = false;
+        $finalOptionsParent['settings']['form_top'] = true;
+    }
+    if (empty($this->request->data)) {
+        $finalOptionsChildren['settings']['actions'] = true;
+        $finalOptionsChildren['settings']['form_bottom'] = true;
+        if ($manyStudiedAliquots)
+            $finalOptionsChildren['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
+    }
+    
+    if (empty($dataUnit['parent']['AliquotControl']['volume_unit'])) {
+        $finalStructureParent = $aliquotsStructure;
+        $finalStructureChildren = $aliquotinternalusesStructure;
+    } else {
+        $finalStructureParent = $aliquotsVolumeStructure;
+        $finalStructureChildren = $aliquotinternalusesVolumeStructure;
+        $finalOptionsChildren['override']['AliquotControl.volume_unit'] = $dataUnit['parent']['AliquotControl']['volume_unit'];
+    }
+    
+    if ($hookLink) {
+        require ($hookLink);
+    }
+    
+    $this->Structures->build($finalStructureParent, $finalOptionsParent);
+    $this->Structures->build($finalStructureChildren, $finalOptionsChildren);
+}
 ?>
 <script>
 var copyControl = true;

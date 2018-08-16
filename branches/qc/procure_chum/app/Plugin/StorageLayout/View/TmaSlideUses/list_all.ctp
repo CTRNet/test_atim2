@@ -1,18 +1,22 @@
-<?php 
-	
-	$structure_links = array(
-		'index' => array(
-			'edit' => '/StorageLayout/TmaSlideUses/edit/%%TmaSlideUse.id%%',
-			'delete' => '/StorageLayout/TmaSlideUses/delete/%%TmaSlideUse.id%%')
-	);	
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links' => $structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );			
-?>
+<?php
+$structureLinks = array(
+    'index' => array(
+        'edit' => '/StorageLayout/TmaSlideUses/edit/%%TmaSlideUse.id%%',
+        'delete' => '/StorageLayout/TmaSlideUses/delete/%%TmaSlideUse.id%%'
+    )
+);
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

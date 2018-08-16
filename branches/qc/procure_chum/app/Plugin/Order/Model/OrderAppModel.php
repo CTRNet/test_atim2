@@ -1,7 +1,8 @@
 <?php
 
-class OrderAppModel extends AppModel {
-	
+/**
+ * Class OrderAppModel
+ */
+class OrderAppModel extends AppModel
+{
 }
-
-?>

@@ -1,12 +1,14 @@
 <?php
 
+/**
+ * Class StudyContact
+ */
 class StudyContact extends StudyAppModel
 {
-	var $name = 'StudyContact';
-	var $useTable = 'study_contacts';
-	
-	var $validate = array();
-	
-}
 
-?>
+    public $name = 'StudyContact';
+
+    public $useTable = 'study_contacts';
+
+    public $validate = array();
+}
