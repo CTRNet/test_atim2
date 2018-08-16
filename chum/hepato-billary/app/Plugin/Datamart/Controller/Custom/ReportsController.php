@@ -768,13 +768,18 @@ class ReportsControllerCustom extends ReportsController
                 }
             }
             if (isset($parameters['MiscIdentifier']['identifier_value'])) {
-                $miscIdentifierValues = array_filter($parameters['MiscIdentifier']['identifier_value']);
+                $miscIdentifierValues = array_filter($parameters['MiscIdentifier']['identifier_value'], function($var){
+                   return (!($var == ''));
+               });
+                
                 if ($miscIdentifierValues) {
                     $conditions['MiscIdentifier.identifier_value'] = $miscIdentifierValues;
                 }
             }
             if (isset($parameters['StudySummary']['title'])) {
-                $studySummaryTitles = array_filter($parameters['StudySummary']['title']);
+                $studySummaryTitles = array_filter($parameters['StudySummary']['title'], function($var){
+                   return (!($var == ''));
+               });
                 if ($studySummaryTitles) {
                     $conditions['StudySummary.title'] = $studySummaryTitles;
                 }
@@ -1464,6 +1469,7 @@ class ReportsControllerCustom extends ReportsController
                             $data[$key][0]['qc_hb_liver_surg_first_recurrence_date'] = $this->formatDateForDisplay($newFollowUp['EventMaster']['event_date'], $newFollowUp['EventMaster']['event_date_accuracy']);
                             $data[$key][0]['qc_hb_liver_surg_first_recurrence_status'] = $newFollowUp['EventDetail']['recurrence_status'];
                             $data[$key][0]['localization'] = $newFollowUp['EventDetail']['qc_hb_recurrence_localization'];
+                            $data[$key][0]['qc_hb_recurrence_treatment'] = $newFollowUp['EventDetail']['qc_hb_recurrence_treatment'];
                         }
                     }
                     
@@ -1472,7 +1478,6 @@ class ReportsControllerCustom extends ReportsController
                 if (!$data[$key][0]['qc_hb_liver_last_followup_date']) {
                     $data[$key][0]['qc_hb_liver_last_followup_date'] = $this->formatDateForDisplay($newFollowUp['EventMaster']['event_date'], $newFollowUp['EventMaster']['event_date_accuracy']);
                     $data[$key][0]['status'] = $newFollowUp['EventDetail']['disease_status'];
-                    $data[$key][0]['qc_hb_recurrence_treatment'] = $newFollowUp['EventDetail']['qc_hb_recurrence_treatment'];
                 }
             }
         }
