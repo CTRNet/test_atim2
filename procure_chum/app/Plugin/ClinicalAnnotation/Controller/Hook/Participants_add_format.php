@@ -1,13 +1,23 @@
-<?php 
-	
-	// Set default values
-	
-	$bank_identification = $this->Participant->getBankParticipantIdentification();
-	$last_id = $this->Participant->find('first', array('conditions' => array("participant_identifier LIKE '$bank_identification%'"), 'fields' => array(" MAX(CAST(REPLACE(`participant_identifier`, '$bank_identification', '') AS UNSIGNED)) AS max_val"), 'recursive'=>'-1'));
-	$new_id = empty($last_id[0]['max_val'])? '001': $last_id[0]['max_val']+1;
-	$zero_to_add = 3 - strlen($new_id);
-	if($zero_to_add > 0) { for($i =0; $i < $zero_to_add; $i++) $new_id = '0'.$new_id; }
-	$default_participant_identifier = $bank_identification.$new_id;
-	$this->set('default_participant_identifier', $default_participant_identifier);
+<?php
 
-	$this->set('default_procure_transferred_participant', 'n');
+// Set default values
+$bankIdentification = $this->Participant->getBankParticipantIdentification();
+$lastId = $this->Participant->find('first', array(
+    'conditions' => array(
+        "participant_identifier LIKE '$bankIdentification%'"
+    ),
+    'fields' => array(
+        " MAX(CAST(REPLACE(`participant_identifier`, '$bankIdentification', '') AS UNSIGNED)) AS max_val"
+    ),
+    'recursive' => -1
+));
+$newId = empty($lastId[0]['max_val']) ? '001' : $lastId[0]['max_val'] + 1;
+$zeroToAdd = 3 - strlen($newId);
+if ($zeroToAdd > 0) {
+    for ($i = 0; $i < $zeroToAdd; $i ++)
+        $newId = '0' . $newId;
+}
+$defaultParticipantIdentifier = $bankIdentification . $newId;
+$this->set('defaultParticipantIdentifier', $defaultParticipantIdentifier);
+
+$this->set('defaultProcureTransferredParticipant', 'n');
