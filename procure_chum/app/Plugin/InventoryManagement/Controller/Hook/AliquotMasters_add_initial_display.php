@@ -59,7 +59,7 @@ foreach ($this->request->data as &$newSampleRecord) {
         // BLOOD
         // --------------------------------------------------------------------------------
         case 'blood-tube':
-            $sampleData = $this->SampleMaster->find('count', array(
+            $sampleData = $this->SampleMaster->find('first', array(
                 'conditions' => array(
                     'SampleMaster.id' => $newSampleRecord['parent']['ViewSample']['sample_master_id']
                 ),
