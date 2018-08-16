@@ -32,64 +32,10 @@ foreach ($this->request->data as &$newSampleRecord) {
     // Set Default Data
     // ===================================================
     
-    $setDefaultValue = true;
     $tmpDefaultAliquotData = array();
     
-    $sampleData = $this->SampleMaster->find('first', array(
-        'conditions' => array(
-            'SampleMaster.id' => $newSampleRecord['parent']['ViewSample']['sample_master_id']
-        ),
-        'recursive' => 0
-    ));
+    // Storage
     
-    $participantIdentifier = empty($newSampleRecord['parent']['ViewSample']['participant_identifier']) ? '?' : $newSampleRecord['parent']['ViewSample']['participant_identifier'];
-    $visite = $newSampleRecord['parent']['ViewSample']['procure_visit'];
-    
-    $barcodeSuffix = '-?';
-    $defaultInStockValue = 'yes - available';
-    $defaultStorageDatetime = ($sampleData['SampleControl']['sample_category'] == 'specimen') ? $sampleData['SpecimenDetail']['reception_datetime'] : $sampleData['DerivativeDetail']['creation_datetime'];
-    $defaultStorageDatetimeAccuracy = 'h';
-    if (in_array($newSampleRecord['parent']['ViewSample']['sample_type'], array(
-        'serum',
-        'pbmc',
-        'buffy coat',
-        'plasma'
-    ))) {
-        $sampleControlIds = $this->SampleControl->find('list', array(
-            'conditions' => array(
-                'sample_type' => array(
-                    'serum',
-                    'plasma',
-                    'buffy coat',
-                    'pbmc'
-                )
-            )
-        ));
-        $aliquotControlIds = $this->AliquotControl->find('list', array(
-            'conditions' => array(
-                'sample_control_id' => $sampleControlIds
-            )
-        ));
-        $collectionBloodDerivativeAliquots = $this->AliquotMaster->find('first', array(
-            'conditions' => array(
-                'AliquotMaster.collection_id' => $newSampleRecord['parent']['ViewSample']['collection_id'],
-                'AliquotMaster.aliquot_control_id' => $aliquotControlIds
-            ),
-            'order' => array(
-                'AliquotMaster.storage_datetime DESC'
-            ),
-            'recursive' => 1
-        ));
-        if ($collectionBloodDerivativeAliquots) {
-            $defaultStorageDatetime = $collectionBloodDerivativeAliquots['AliquotMaster']['storage_datetime'];
-            $defaultStorageDatetimeAccuracy = $collectionBloodDerivativeAliquots['AliquotMaster']['storage_datetime_accuracy'];
-        }
-    }
-    $defaultVolume = '';
-    $defaultConcentrationUnit = '';
-    $defaultHemolysisSigns = '';
-    
-    $defaultStorage = null;
     $lastStoredAliquot = $this->AliquotMaster->find('first', array(
         'conditions' => array(
             'AliquotMaster.aliquot_control_id' => $aliquotControl['AliquotControl']['id'],
@@ -100,56 +46,37 @@ foreach ($this->request->data as &$newSampleRecord) {
             'AliquotMaster.created DESC'
         )
     ));
-    if ($lastStoredAliquot)
-        $defaultStorage = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array(
+    if ($lastStoredAliquot) {
+        $tmpDefaultAliquotData['FunctionManagement.recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array(
             'StorageMaster' => $lastStoredAliquot['StorageMaster']
         ));
+    }
     
-    switch ($newSampleRecord['parent']['ViewSample']['sample_type'] . '-' . $aliquotControl['AliquotControl']['aliquot_type']) {
+    // barcode & more
+    
+    $barcodeSuffix = null;switch ($newSampleRecord['parent']['ViewSample']['sample_type'] . '-' . $aliquotControl['AliquotControl']['aliquot_type']) {
         // --------------------------------------------------------------------------------
         // BLOOD
         // --------------------------------------------------------------------------------
         case 'blood-tube':
-            switch ($sampleData['SampleDetail']['blood_type']) {
-                case 'paxgene':
-                    $barcodeSuffix = '-RNB';
-                    $defaultVolume = '9';
-                    break;
-                default:
-                    $barcodeSuffix = '-?';
-                    $defaultInStockValue = 'no';
+            $sampleData = $this->SampleMaster->find('count', array(
+                'conditions' => array(
+                    'SampleMaster.id' => $newSampleRecord['parent']['ViewSample']['sample_master_id']
+                ),
+                'recursive' => 0
+            ));
+            if ($sampleData['SampleDetail']['blood_type'] == 'paxgene') {
+                $barcodeSuffix = '-RNB';
             }
             break;
         case 'serum-tube':
-            $defaultHemolysisSigns = 'n';
-            $defaultVolume = '1.8';
             $barcodeSuffix = '-SER';
             break;
         case 'plasma-tube':
-            $defaultHemolysisSigns = 'n';
-            $defaultVolume = '1.8';
             $barcodeSuffix = '-PLA';
             break;
         case 'pbmc-tube':
             $barcodeSuffix = '-PBMC';
-            $defaultVolume = '1';
-            $tmpDefaultAliquotData['AliquotDetail.procure_date_at_minus_80'] = substr($defaultStorageDatetime, 0, 10);
-            $tmpDefaultAliquotData['AliquotDetail.procure_date_at_minus_80_accuracy'] = str_replace(array(
-                '',
-                'i',
-                'h'
-            ), array(
-                'c',
-                'c',
-                'c'
-            ), $defaultStorageDatetimeAccuracy);
-            if ($tmpDefaultAliquotData['AliquotDetail.procure_date_at_minus_80_accuracy'] == 'c') {
-                $defaultStorageDatetime = date('Y-m-d', strtotime($tmpDefaultAliquotData['AliquotDetail.procure_date_at_minus_80'] . "+1 day"));
-                $defaultStorageDatetimeAccuracy = 'h';
-            } else {
-                $defaultStorageDatetime = '';
-                $defaultStorageDatetimeAccuracy = '';
-            }
             break;
         case 'buffy coat-tube':
             $barcodeSuffix = '-BFC';
@@ -157,14 +84,8 @@ foreach ($this->request->data as &$newSampleRecord) {
         // --------------------------------------------------------------------------------
         // URINE
         // --------------------------------------------------------------------------------
-        case 'urine-cup':
-            $barcodeSuffix = '-URI';
-            $defaultInStockValue = 'no';
-            $defaultVolume = $sampleData['SampleDetail']['collected_volume'];
-            break;
         case 'centrifuged urine-tube':
             $barcodeSuffix = '-URN';
-            $defaultVolume = '5';
             break;
         // --------------------------------------------------------------------------------
         // TISSUE
@@ -173,46 +94,22 @@ foreach ($this->request->data as &$newSampleRecord) {
             $barcodeSuffix = '-FRZ';
             break;
         // --------------------------------------------------------------------------------
-        // RNA
+        // RNA/RNA
         // --------------------------------------------------------------------------------
         case 'rna-tube':
-            $barcodeSuffix = '-RNA';
-            $defaultConcentrationUnit = 'ng/ul';
-            if (is_null($templateInitId) && sizeof($newSampleRecord['children']) == 1)
-                $newSampleRecord['children'][1] = $newSampleRecord['children'][0];
-            break;
-        // --------------------------------------------------------------------------------
-        // DNA
-        // --------------------------------------------------------------------------------
         case 'dna-tube':
-            $barcodeSuffix = '-DNA';
-            $defaultConcentrationUnit = 'ng/ul';
+            $barcodeSuffix = '-' . (strtoupper($newSampleRecord['parent']['ViewSample']['sample_type']));
+            $tmpDefaultAliquotData['AliquotDetail.concentration_unit'] = 'ng/ul';
             if (is_null($templateInitId) && sizeof($newSampleRecord['children']) == 1)
                 $newSampleRecord['children'][1] = $newSampleRecord['children'][0];
             break;
-        // --------------------------------------------------------------------------------
-        // Unknown
-        // --------------------------------------------------------------------------------
-        default:
-            $setDefaultValue = false;
     }
     
-    // SET data
-    
-    if ($setDefaultValue) {
+    if ($barcodeSuffix) {
+        $participantIdentifier = empty($newSampleRecord['parent']['ViewSample']['participant_identifier']) ? '?' : $newSampleRecord['parent']['ViewSample']['participant_identifier'];
+        $visite = $newSampleRecord['parent']['ViewSample']['procure_visit'];
         $tmpDefaultAliquotData['AliquotMaster.barcode'] = $participantIdentifier . ' ' . $visite . ' ' . $barcodeSuffix;
-        $tmpDefaultAliquotData['AliquotMaster.in_stock'] = $defaultInStockValue;
-        $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = $defaultStorageDatetime;
-        $tmpDefaultAliquotData['AliquotMaster.storage_datetime_accuracy'] = $defaultStorageDatetimeAccuracy;
-        if (strlen($defaultVolume))
-            $tmpDefaultAliquotData['AliquotMaster.initial_volume'] = $defaultVolume;
-        if ($defaultConcentrationUnit)
-            $tmpDefaultAliquotData['AliquotDetail.concentration_unit'] = $defaultConcentrationUnit;
-        if ($defaultHemolysisSigns)
-            $tmpDefaultAliquotData['AliquotDetail.hemolysis_signs'] = $defaultHemolysisSigns;
-        if ($defaultStorage)
-            $tmpDefaultAliquotData['FunctionManagement.recorded_storage_selection_label'] = $defaultStorage;
-            // Add barcode suffix number
+        // Add barcode suffix number
         $counter = 0;
         foreach ($newSampleRecord['children'] as &$newAliquot) {
             $counter ++;
@@ -222,6 +119,9 @@ foreach ($this->request->data as &$newSampleRecord) {
             }
             $newAliquot['AliquotMaster']['barcode'] = $tmpDefaultAliquotData['AliquotMaster.barcode'] . $counter;
         }
+    }
+    
+    if ($tmpDefaultAliquotData) {
         $defaultAliquotData[$newSampleRecord['parent']['ViewSample']['sample_master_id']] = $tmpDefaultAliquotData;
     }
 }
