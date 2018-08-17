@@ -226,7 +226,7 @@ class ReportsControllerCustom extends ReportsController
 			LEFT JOIN event_masters PathologyEventMaster ON PathologyEventMaster.participant_id = Participant.id AND PathologyEventMaster.event_control_id = $pathologyEventControlId AND PathologyEventMaster.deleted <> 1
 			LEFT JOIN $pathologyEventDetailTablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $miscIdentifierControlId
 -- *** END PROCURE CHUM *****************************************************
 			WHERE Participant.deleted <> 1 AND " . implode(' AND ', $conditions);
         $data = array();
@@ -639,8 +639,8 @@ class ReportsControllerCustom extends ReportsController
 			EventMaster.event_date_accuracy
 			FROM participants Participant
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = ".$misc_identifier_control_ids['prostate bank no lab']."
-			LEFT JOIN misc_identifiers MiscIdentifierRamq ON MiscIdentifierRamq.participant_id = Participant.id AND MiscIdentifierRamq.deleted <> 1 AND MiscIdentifierRamq.misc_identifier_control_id = ".$misc_identifier_control_ids['ramq nbr']."		
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = ".$miscIdentifierControlIds['prostate bank no lab']."
+			LEFT JOIN misc_identifiers MiscIdentifierRamq ON MiscIdentifierRamq.participant_id = Participant.id AND MiscIdentifierRamq.deleted <> 1 AND MiscIdentifierRamq.misc_identifier_control_id = ".$miscIdentifierControlIds['ramq nbr']."		
 -- *** END PROCURE CHUM *****************************************************
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $followupEventControlId AND EventMaster.deleted <> 1
 			LEFT JOIN $followupEventDetailTablename EventDetail ON EventDetail.event_master_id = EventMaster.id
@@ -1000,7 +1000,7 @@ class ReportsControllerCustom extends ReportsController
 			LEFT JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id
 			LEFT JOIN sd_spe_bloods BloodDetail ON BloodDetail.sample_master_id = AliquotMaster.sample_master_id
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $miscIdentifierControlId
 -- *** END PROCURE CHUM *****************************************************
             WHERE Participant.deleted <> 1 AND " . implode(' AND ', $conditions) . " 
 			AND AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id IN (" . implode(',', array_keys($aliquotcontrols)) . ")
@@ -1227,7 +1227,7 @@ class ReportsControllerCustom extends ReportsController
 // *** PROCURE CHUM *****************************************************
         $query = "SELECT id, misc_identifier_name FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name IN ('ramq nbr', 'prostate bank no lab');";
         $miscIdentifierControlIds = null;
-        foreach ($participant_model->query($query) as $res)
+        foreach ($participantModel->query($query) as $res)
             $miscIdentifierControlIds[$res['misc_identifier_controls']['misc_identifier_name']] = $res['misc_identifier_controls']['id'];
 //*** END PROCURE CHUM *****************************************************
         
@@ -1240,7 +1240,7 @@ class ReportsControllerCustom extends ReportsController
 			Participant.participant_identifier
 			FROM participants Participant
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $miscIdentifierControlId
 -- *** END PROCURE CHUM *****************************************************
             WHERE Participant.deleted <> 1 AND " . implode(' AND ', $conditions);
         $data = array();
@@ -1556,7 +1556,7 @@ class ReportsControllerCustom extends ReportsController
 // *** PROCURE CHUM *****************************************************
         $query = "SELECT id, misc_identifier_name FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name IN ('ramq nbr', 'prostate bank no lab');";
         $miscIdentifierControlIds = null;
-        foreach ($participant_model->query($query) as $res)
+        foreach ($participantModel->query($query) as $res)
             $miscIdentifierControlIds[$res['misc_identifier_controls']['misc_identifier_name']] = $res['misc_identifier_controls']['id'];
 //*** END PROCURE CHUM *****************************************************
         
@@ -1593,7 +1593,7 @@ class ReportsControllerCustom extends ReportsController
 		    procure_clinical_file_update_refusal	    
 			FROM participants Participant
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $miscIdentifierControlId
 -- *** END PROCURE CHUM *****************************************************
             WHERE Participant.deleted <> 1 AND " . implode(' AND ', $conditions);
         $participantData = $participantModel->query($query);
