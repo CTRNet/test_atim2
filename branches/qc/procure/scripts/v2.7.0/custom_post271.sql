@@ -139,3 +139,15 @@ UPDATE structure_formats SET `display_column`='2', `display_order`='602' WHERE s
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7336' WHERE version_number = '2.7.1';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 20180817
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_column`='3', `display_order`='602' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_blood_collection_sites') AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Version
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '7339' WHERE version_number = '2.7.1';
