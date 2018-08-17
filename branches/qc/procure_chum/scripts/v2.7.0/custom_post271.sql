@@ -138,4 +138,4 @@ UPDATE structure_formats SET `display_column`='2', `display_order`='602' WHERE s
 -- Version
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7331' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7336' WHERE version_number = '2.7.1';
