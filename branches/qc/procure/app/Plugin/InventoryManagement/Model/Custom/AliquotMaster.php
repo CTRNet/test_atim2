@@ -52,7 +52,7 @@ class AliquotMasterCustom extends AliquotMaster
                         $datetime2 = new DateTime(substr($this->data['AliquotMaster']['storage_datetime'], 0, 10));
                         $interval = $datetime1->diff($datetime2);
                         if ($interval->invert) {
-                            $this->validationErrors['procure_date_at_minus_80'][] = 'error in the date definitions';
+                            $this->validationErrors['procure_date_at_minus_80'][] = __('error in the date definitions') . ' : [' . __('initial storage date') . '] < ['  . __('date at -80') . '].';
                             $valRes = false;
                         } else {
                             $procureTimeAtMinus80Days = $interval->days;
