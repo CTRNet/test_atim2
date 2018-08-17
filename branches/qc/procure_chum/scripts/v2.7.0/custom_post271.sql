@@ -57,7 +57,7 @@ VALUES
 ((@MAX_ID + 1), NULL, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'urine'), 1, '{\"SampleDetail\":{\"urine_aspect\":\"clear\",\"procure_hematuria\":\"n\",\"procure_collected_via_catheter\":\"n\"}}');
 INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`, `default_values`) 
 VALUES
-((@MAX_ID + 2), (@MAX_ID + 1), @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'centrifuged urine'), 1, '{\"SampleDetail\":{\"urine_aspect\":\"clear\",\"procure_hematuria\":\"n\",\"procure_collected_via_catheter\":\"n\"}}');
+((@MAX_ID + 2), (@MAX_ID + 1), @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'centrifuged urine'), 1, NULL);
 INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`, `default_values`) 
 VALUES
 ((@MAX_ID + 3), (@MAX_ID + 2), @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'centrifuged urine' AND aliquot_type = 'tube'), 4, '{\"AliquotMaster\":{\"initial_volume\":\"5\"}}');
@@ -116,12 +116,26 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_blood_collection_sites')  AND `flag_confidential`='0'), '1', '310', '', '0', '1', 'blood collection was done (if applicable)', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
 ((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_date_at_minus_80' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date at -80' AND `language_tag`=''), '3', '501', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
-('serum creation date if applicable', 'Serum Creation Date (if applicable)', 'Date création sérum (si applicable)');
+('serum creation date if applicable', 'Serum : Creation Date', 'Sérum : Date création');
 INSERT INTO i18n (id,en,fr) 
 (SELECT 'blood collection was done (if applicable)', CONCAT(en, " (If Applicable)"), CONCAT(fr, " (si applicable)") FROM i18n WHERE id = 'blood collection was done');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='600', `language_heading`='others (if applicable)' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_serum_creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='601', `flag_override_label`='1', `language_label`='pbmc date at -80' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_date_at_minus_80' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) 
+(SELECT 'pbmc date at -80', CONCAT('PBMC : ', en), CONCAT('PBMC : ', fr) FROM i18n WHERE id = 'date at -80');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('others (if applicable)', 'Others (If Applicable)', 'Autres (Si applicable)');
+
+REPLACE INTO i18n (id,en,fr)
+VALUES 
+('blood collection was done (if applicable)', "Blood : Collection was done", "Sang : Le prélèvement a été effectué");
+UPDATE structure_formats SET `display_column`='2', `display_order`='602' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_blood_collection_sites') AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Version
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '73xx' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7331' WHERE version_number = '2.7.1';

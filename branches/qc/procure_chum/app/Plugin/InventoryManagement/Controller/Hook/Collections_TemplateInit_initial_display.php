@@ -26,7 +26,6 @@ switch ($tmpCollectionDateTimeAccuracy) {
         $strgLength = 7;
         break;
 }
-$this->request->data['0']['procure_serum_creation_datetime'] = substr($tmpCollectionDateTime, 0, $strgLength);
 
 $this->request->data['SampleDetail']['procure_collection_site'] = 'clinic';
 
