@@ -1,20 +1,37 @@
 <div id="me">
-<?php 
-$type = $use_icd_type == "topo" ? "topography" : "morphology";
-$this->Structures->build($atim_structure, array('type' => 'search', 'links' => array('top' => 'foo'), 
-	'settings' => array('header' => __('search for an icdo3 '.$type.' code'), 'actions' => false)));
+<?php
+$type = $useIcdType == "topo" ? "topography" : "morphology";
+$this->Structures->build($atimStructure, array(
+    'type' => 'search',
+    'links' => array(
+        'top' => 'foo'
+    ),
+    'settings' => array(
+        'header' => __('search for an icdo3 ' . $type . ' code'),
+        'actions' => false
+    )
+));
 ?>
-<div id="results">
-
-</div>
-<?php 
-$this->Structures->build($empty, array('type' => 'search', 'settings' => array('form_top' => false)));
+<div id="results"></div>
+<?php
+$this->Structures->build($empty, array(
+    'type' => 'search',
+    'settings' => array(
+        'form_top' => false
+    )
+));
 ?>
 </div>
 
 <script type="text/javascript">
 var popupSearch = function(){
-	$.post(root_url + "CodingIcd/CodingIcdo3s/search/<?php echo($use_icd_type); ?>/1", $("#me form").serialize(), function(data){
+	$.post(root_url + "CodingIcd/CodingIcdo3s/search/<?php echo($useIcdType); ?>/1", $("#me form").serialize(), function(data){
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 	return false;

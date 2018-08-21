@@ -14,7 +14,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('ObjectCollection', 'Utility');
@@ -79,13 +79,13 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener 
  * Callbacks default to on. Disabled component methods work as normal, only callbacks are disabled.
  *
  * You can alias your component as an existing component by setting the 'className' key, i.e.,
- * {{{
+ * ```
  * public $components = array(
  *   'Email' => array(
  *     'className' => 'AliasedEmail'
  *   );
  * );
- * }}}
+ * ```
  * All calls to the `Email` component would use `AliasedEmail` instead.
  *
  * @param string $component Component name to load

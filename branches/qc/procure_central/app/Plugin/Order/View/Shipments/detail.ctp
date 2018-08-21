@@ -1,77 +1,109 @@
-<?php 
-	// 1- SHIPMENT DETAILS
-	$add_items_to_shipment_link = array('link' => '/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'add_to_shipment');
-	if($add_to_shipments_subset_limits) {
-		$add_items_to_shipment_link = array();
-		foreach($add_to_shipments_subset_limits as $key => $sub_set_data) {
-			list($start, $limit) = $sub_set_data;
-			$add_items_to_shipment_link[__('batchset').' #'.$key] = array('link' => '/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id']."/0/$start/$limit", 'icon' => 'add_to_shipment');
-			
-		}
-	}
-	$structure_links = array(
-		'bottom' => array(
-			'edit' => '/Order/Shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-			'copy for new shipment' => array('link' => '/Order/Shipments/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'copy'),
-			'delete' => '/Order/Shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-			'order items' => array(
-				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/0/'.$atim_menu_variables['Shipment.id'], 'icon'=>'order items returned')
-			),
-			'shipments' => array(
-				'add items to shipment' => $add_items_to_shipment_link
-			)
-		)
-	);
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
-	
-	if($is_from_tree_view) {
-		$final_options['settings']['header'] =   __('shipping');
-		$final_options['settings']['actions'] =  true;
-	} else {
-		$final_options['settings']['actions'] =  false;
-	}
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-	
-	// 2- SHIPPED ITEMS
-	if(!$is_from_tree_view) {
-		
-		$structure_links['bottom'] = array_merge(array('new search' => OrderAppController::$search_links), $structure_links['bottom'] );
-		
-		$counter = 0;
-		$all_status = array('shipped', 'shipped & returned');
-		foreach($all_status as $status) {
-			$counter++;
-			$final_atim_structure = array();
-			$final_options = array(
-				'links'	=> $structure_links,
-				'settings' => array(
-					'language_heading' => __($status, null),
-					'actions'	=> false,
-				), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$status.'/0/'.$atim_menu_variables['Shipment.id'].'/Shipment/'))
-			);
-			if($counter == 1) $final_options['settings']['header'] = __('order items', null);
-			if($counter == sizeof($all_status)) $final_options['settings']['actions'] = true;
-		
-			// CUSTOM CODE
-			$hook_link = $this->Structures->hook('items');
-			if( $hook_link ) {
-				require($hook_link);
-			}
-		
-			// BUILD FORM
-			$this->Structures->build( $final_atim_structure, $final_options );
-		}
-				
-	}
-	
-?>
+<?php
+// 1- SHIPMENT DETAILS
+$addItemsToShipmentLink = array(
+    'link' => '/Order/Shipments/addToShipment/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
+    'icon' => 'add_to_shipment'
+);
+if ($addToShipmentsSubsetLimits) {
+    $addItemsToShipmentLink = array();
+    foreach ($addToShipmentsSubsetLimits as $key => $subSetData) {
+        list ($start, $limit) = $subSetData;
+        $addItemsToShipmentLink[__('batchset') . ' #' . $key] = array(
+            'link' => '/Order/Shipments/addToShipment/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . "/0/$start/$limit",
+            'icon' => 'add_to_shipment'
+        );
+    }
+}
+$structureLinks = array(
+    'bottom' => array(
+        'edit' => '/Order/Shipments/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
+        'copy for new shipment' => array(
+            'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
+            'icon' => 'duplicate'
+        ),
+        'delete' => '/Order/Shipments/delete/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
+        'order items' => array(
+            'define order items returned' => array(
+                'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'],
+                'icon' => 'order items returned'
+            ),
+            'edit all items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/',
+                'icon' => 'edit'
+            ),
+            'edit shipped items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped/',
+                'icon' => 'edit'
+            ),
+            'edit returned items' => array(
+                'link' => '/Order/OrderItems/editInBatch/' . $atimMenuVariables['Order.id'] . '/0/' . $atimMenuVariables['Shipment.id'] . '/0/shipped & returned/',
+                'icon' => 'edit'
+            )
+        ),
+        'shipments' => array(
+            'add items to shipment' => $addItemsToShipmentLink
+        )
+    )
+);
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
+);
+
+if ($isFromTreeView) {
+    $finalOptions['settings']['header'] = __('shipping');
+    $finalOptions['settings']['actions'] = true;
+} else {
+    $finalOptions['settings']['actions'] = false;
+}
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
+// 2- SHIPPED ITEMS
+if (! $isFromTreeView) {
+    
+    $structureLinks['bottom'] = array_merge(array(
+        'new search' => OrderAppController::$searchLinks
+    ), $structureLinks['bottom']);
+    
+    $counter = 0;
+    $allStatus = array(
+        'shipped',
+        'shipped & returned'
+    );
+    foreach ($allStatus as $status) {
+        $counter ++;
+        $finalAtimStructure = array();
+        $finalOptions = array(
+            'links' => $structureLinks,
+            'settings' => array(
+                'language_heading' => __($status, null),
+                'actions' => false
+            ),
+            'extras' => array(
+                'end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/' . $atimMenuVariables['Order.id'] . '/' . $status . '/0/' . $atimMenuVariables['Shipment.id'] . '/Shipment/')
+            )
+        );
+        if ($counter == 1)
+            $finalOptions['settings']['header'] = __('order items', null);
+        if ($counter == sizeof($allStatus))
+            $finalOptions['settings']['actions'] = true;
+            
+            // CUSTOM CODE
+        $hookLink = $this->Structures->hook('items');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        // BUILD FORM
+        $this->Structures->build($finalAtimStructure, $finalOptions);
+    }
+}

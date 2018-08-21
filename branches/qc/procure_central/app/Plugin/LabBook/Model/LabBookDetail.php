@@ -1,8 +1,10 @@
 <?php
 
-class LabBookDetail extends LabBookAppModel {
+/**
+ * Class LabBookDetail
+ */
+class LabBookDetail extends LabBookAppModel
+{
 
-	var $useTable = false;
+    public $useTable = false;
 }
-
-?>
