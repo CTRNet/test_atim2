@@ -1,39 +1,43 @@
 <?php
+$structureLinks = array(
+    'top' => '/Order/Shipments/addToShipment/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . "/$orderLineId",
+    'bottom' => array(
+        'cancel' => '/Order/Shipments/detail/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/'
+    ),
+    'checklist' => array(
+        'OrderItem.id][' => '%%OrderItem.id%%'
+    )
+);
 
-	$structure_links = array(
-		'top'	=>'/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id']."/$order_line_id/$offset/$limit",
-		'bottom'=>array('cancel' => '/Order/Shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'),
-		'checklist' => array('OrderItem.id][' => '%%OrderItem.id%%')
-	);
-	
-	$structure_settings = array('pagination' => false, 'header' => __('add items to shipment', null), 'actions' => false, 'form_inputs' => false, 'form_bottom' => false);
-	
-	$final_atim_structure = $atim_structure; 
-	$final_atim_structure_with_order_lines =  $atim_structure_with_order_lines;
-	$final_options = array(
-		'type'		=> 'index', 
-		'links'		=> $structure_links, 
-		'settings'	=> $structure_settings, 
-	);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	
-	// BUILD FORM
-	while($data = array_shift($this->request->data)){
-		$linked_to_order_line = $data['order_line_id']? true : false;
-		if(empty($this->request->data)){
-			$final_options['settings']['actions'] = true;
-			$final_options['settings']['form_bottom'] = true;
-		}
-		$final_options['settings']['language_heading'] = $linked_to_order_line? __('line').': '.$data['name'] : null;
-		$final_options['data'] = $data['data'];
-		if( $hook_link ) {
-			require($hook_link);
-		}
-		$this->Structures->build( ($linked_to_order_line? $final_atim_structure_with_order_lines : $final_atim_structure), $final_options );
-		
-		$final_options['settings']['header'] = array();
-	}
-	
+$structureSettings = array(
+    'pagination' => true,
+    'header' => __('add items to shipment', null),
+    'form_inputs' => false
+);
+
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks,
+    'settings' => $structureSettings
+);
+
+if (isset($languageHeading)) {
+    $finalOptions['settings']['language_heading'] = $languageHeading;
+}
+
+$finalAtimStructure = $atimStructure;
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+
+// BUILD FORM
+
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
 ?>
+<script>
+    var dataLimit=<?php echo $dataLimit;?>;
+    var dataIndex="<?php echo "OrderItem";?>";
+    var controller="<?php echo "Shipments";?>"; //Until now not used in Javascript's code
+    var action="<?php echo "addToShipment";?>"; //Until now not used in Javascript's code
+</script>

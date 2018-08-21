@@ -1,80 +1,82 @@
-<?php 
+<?php
+$structureLinks = array(
+    'top' => '/InventoryManagement/SpecimenReviews/edit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['SpecimenReviewMaster.id'] . '/',
+    'bottom' => array(
+        'undo' => '/InventoryManagement/SpecimenReviews/edit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['SpecimenReviewMaster.id'] . '/' . true,
+        'cancel' => '/InventoryManagement/SpecimenReviews/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['SpecimenReviewMaster.id'] . '/'
+    )
+);
 
-	$structure_links = array(
-		'top'=>'/InventoryManagement/SpecimenReviews/edit/'
-			.$atim_menu_variables['Collection.id'].'/'
-			.$atim_menu_variables['SampleMaster.id'].'/'
-			.$atim_menu_variables['SpecimenReviewMaster.id'].'/',
-		'bottom'=>array(
-			'undo' =>'/InventoryManagement/SpecimenReviews/edit/'
-				.$atim_menu_variables['Collection.id'].'/'
-				.$atim_menu_variables['SampleMaster.id'].'/'
-				.$atim_menu_variables['SpecimenReviewMaster.id'].'/'.
-			true, 
-			'cancel'=>'/InventoryManagement/SpecimenReviews/detail/'
-				.$atim_menu_variables['Collection.id'].'/'
-				.$atim_menu_variables['SampleMaster.id'].'/'
-				.$atim_menu_variables['SpecimenReviewMaster.id'].'/',
-		)
-	);
-	
-	// 1- SPECIMEN REVIEW
-	
-	$structure_settings = array(
-		'actions'=> ($is_aliquot_review_defined? false : true), 
-		'tabindex' => '1000',
-		'header' => __($review_control_data['SpecimenReviewControl']['SampleControl']['sample_type'], null) . ' - ' . __($review_control_data['SpecimenReviewControl']['review_type'], null),
-		'form_bottom'=> ($is_aliquot_review_defined? false : true));
-	
-	$final_atim_structure = $specimen_review_structure;
-	if(!$is_aliquot_review_defined) { 
-		unset($structure_links['bottom']['undo']); 
-	}
-	$final_options = array( 'settings'=>$structure_settings, 'links'=>$structure_links, 'data' => $specimen_review_data);
-	
-	$hook_link = $this->Structures->hook('specimen_review');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-	
-	$this->Structures->build( $final_atim_structure,  $final_options);
+// 1- SPECIMEN REVIEW
 
-	if($is_aliquot_review_defined) {
-		// 2- SEPARATOR & HEADER
-		
-		$structure_settings = array(
-			'actions'=>false, 
-			'tabindex' => '2000',
-			'header' => __('aliquot review', null),
-			'form_top' => false,
-			'form_bottom'=>false
-		);	
-	
-		$this->Structures->build($empty_structure, array('settings'=>$structure_settings));
-	
-		// 3- ALIQUOT REVIEW
-				
-		$structure_settings = array(
-			'tabindex' => '3000',
-			'pagination' => false, 
-			'add_fields' => true, 
-			'del_fields' => true,
-			'form_top' => false
-		);
-		
-		$dropdown_options['AliquotReviewMaster.aliquot_master_id'] = $aliquot_list;	
-		
-		$final_atim_structure = $aliquot_review_structure;
-		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'editgrid', 'settings'=> $structure_settings, 'dropdown_options' => $dropdown_options);
-		
-		$hook_link = $this->Structures->hook('aliquot_review');
-		if( $hook_link ) { 
-			require($hook_link); 
-		} 
-		
-		$this->Structures->build( $final_atim_structure,  $final_options);	
-	}
-		
+$structureSettings = array(
+    'actions' => ($isAliquotReviewDefined ? false : true),
+    'tabindex' => '1000',
+    'header' => __($reviewControlData['SpecimenReviewControl']['SampleControl']['sample_type'], null) . ' - ' . __($reviewControlData['SpecimenReviewControl']['review_type'], null),
+    'form_bottom' => ($isAliquotReviewDefined ? false : true)
+);
+
+$finalAtimStructure = $specimenReviewStructure;
+if (! $isAliquotReviewDefined) {
+    unset($structureLinks['bottom']['undo']);
+}
+$finalOptions = array(
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'data' => $specimenReviewData
+);
+
+$hookLink = $this->Structures->hook('specimen_review');
+if ($hookLink) {
+    require ($hookLink);
+}
+
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
+if ($isAliquotReviewDefined) {
+    // 2- SEPARATOR & HEADER
+    
+    $structureSettings = array(
+        'actions' => false,
+        'tabindex' => '2000',
+        'header' => __('aliquot review', null),
+        'form_top' => false,
+        'form_bottom' => false
+    );
+    
+    $this->Structures->build($emptyStructure, array(
+        'settings' => $structureSettings
+    ));
+    
+    // 3- ALIQUOT REVIEW
+    
+    $structureSettings = array(
+        'tabindex' => '3000',
+        'pagination' => false,
+        'add_fields' => true,
+        'del_fields' => true,
+        'form_top' => false
+    );
+    
+    $dropdownOptions['AliquotReviewMaster.aliquot_master_id'] = $aliquotList;
+    
+    $finalAtimStructure = $aliquotReviewStructure;
+    $finalOptions = array(
+        'links' => $structureLinks,
+        'data' => $aliquotReviewData,
+        'type' => 'editgrid',
+        'settings' => $structureSettings,
+        'dropdown_options' => $dropdownOptions
+    );
+    
+    $hookLink = $this->Structures->hook('aliquot_review');
+    if ($hookLink) {
+        require ($hookLink);
+    }
+    
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+}
+
 ?>
 
 <div id="debug"></div>

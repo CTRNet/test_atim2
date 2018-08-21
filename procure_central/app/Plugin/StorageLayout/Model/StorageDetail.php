@@ -1,8 +1,10 @@
 <?php
 
-class StorageDetail extends StorageLayoutAppModel {
+/**
+ * Class StorageDetail
+ */
+class StorageDetail extends StorageLayoutAppModel
+{
 
-	var $useTable = false;
+    public $useTable = false;
 }
-
-?>

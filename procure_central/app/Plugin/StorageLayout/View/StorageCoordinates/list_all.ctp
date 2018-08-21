@@ -1,21 +1,28 @@
-<?php 
-	
-	$structure_links = array(
-		'index' => array('delete' => '/StorageLayout/StorageCoordinates/delete/' . $atim_menu_variables['StorageMaster.id'] . '/%%StorageCoordinate.id%%'),
-		'bottom' => array('add' => '/StorageLayout/StorageCoordinates/add/' . $atim_menu_variables['StorageMaster.id'] . '/')
-	);	
-	
-	if(isset($add_links)) {
-		$structure_links['bottom']['add to storage'] = $add_links;
-	}
+<?php
+$structureLinks = array(
+    'index' => array(
+        'delete' => '/StorageLayout/StorageCoordinates/delete/' . $atimMenuVariables['StorageMaster.id'] . '/%%StorageCoordinate.id%%'
+    ),
+    'bottom' => array(
+        'add' => '/StorageLayout/StorageCoordinates/add/' . $atimMenuVariables['StorageMaster.id'] . '/'
+    )
+);
 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links' => $structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );		
-?>
+if (isset($addLinks)) {
+    $structureLinks['bottom']['add to storage'] = $addLinks;
+}
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
