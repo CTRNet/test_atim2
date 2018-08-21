@@ -30,7 +30,6 @@ TreatmentMaster.start_date_accuracy AS collection_datetime_accuracy,
 --		Collection.created AS created 
 Collection.created AS created,
 Collection.qbcf_pathology_id
-
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
