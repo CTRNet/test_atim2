@@ -1,10 +1,11 @@
 <?php
 
-class ViewAliquotUseCustom extends ViewAliquotUse {
-	
-	var $name = 'ViewAliquotUse';
+class ViewAliquotUseCustom extends ViewAliquotUse
+{
 
-    //Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
+    var $name = 'ViewAliquotUse';
+    
+    // Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
     public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
@@ -202,32 +203,39 @@ CONCAT('QBCF# ',AliquotMasterChild.barcode) AS use_code,
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
+
+    public function getUseDefinitions()
+    {
+        $result = array(
+            'aliquot shipment' => __('aliquot shipment'),
+            'shipped aliquot return' => __('shipped aliquot return'),
+            'order preparation' => __('order preparation'),
+            // 'quality control' => __('quality control'),
+            'internal use' => __('internal use'),
+            'realiquoted to' => __('realiquoted to'),
+            'specimen review' => __('specimen review')
+        );
         
-	public function getUseDefinitions() {
-		$result = array(
-			'aliquot shipment'	=> __('aliquot shipment'),
-			'shipped aliquot return'	=> __('shipped aliquot return'),
-			'order preparation'	=> __('order preparation'),
-//			'quality control'	=> __('quality control'),
-			'internal use'	=> __('internal use'),
-			'realiquoted to'	=> __('realiquoted to'),
-			'specimen review'	=> __('specimen review'));
-
-		// Add custom uses
-		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-		$useAndEventTypes = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-		foreach($useAndEventTypes as $newType) $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang])? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
-		
-		// Develop sample derivative creation
-		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
-		$sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
-		foreach($sampleControls as $samplControlId => $sampleType) {
-			$result['sample derivative creation#'.$samplControlId] = __('sample derivative creation#').$sampleType;
-		}
-		
-		natcasesort($result);
-
-		return $result;
-	}
+        // Add custom uses
+        $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+        $StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+        $useAndEventTypes = $StructurePermissibleValuesCustom->find('all', array(
+            'conditions' => array(
+                'StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types'
+            )
+        ));
+        foreach ($useAndEventTypes as $newType)
+            $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang]) ? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
+            
+            // Develop sample derivative creation
+        $this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+        $sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+        foreach ($sampleControls as $samplControlId => $sampleType) {
+            $result['sample derivative creation#' . $samplControlId] = __('sample derivative creation#') . $sampleType;
+        }
+        
+        natcasesort($result);
+        
+        return $result;
+    }
 }

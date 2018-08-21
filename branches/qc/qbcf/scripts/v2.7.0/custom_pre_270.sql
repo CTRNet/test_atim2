@@ -1,5 +1,14 @@
-REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', 'Précisez le pourcentage');
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- QBCF migration to v271 read me
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--
+-- End of atim_v2.6.8_upgrade.sql that has to be loaded before to continue the migration to v271with following scripts:
+--     - atim_v2.7.0_upgrade.sql
+--     - atim_v2.7.1_upgrade.sql
+--     - custom_post_271.sql
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', 'Précisez le pourcentage');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3277: Impossible to set user password
@@ -73,20 +82,20 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='users'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='force_password_reset' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='force_password_reset_help' AND `language_label`='force password reset' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('force_password_reset_help', 'Force user to reset his password at next login', 'Forcer l''utilisateur Ã  rÃ©initialiser son mot de passe Ã  la prochaine connexion'),
-('force password reset', 'Password Reset Required', 'RÃ©initialisation mot de passe requis');
+('force_password_reset_help', 'Force user to reset his password at next login', 'Forcer l''utilisateur à réinitialiser son mot de passe à la prochaine connexion'),
+('force password reset', 'Password Reset Required', 'Réinitialisation mot de passe requis');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='password_update_by_administartor'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='force_password_reset' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='force_password_reset_help' AND `language_label`='force password reset' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 UPDATE i18n SET id = 'login failed - invalid username or password or disabled user' WHERE id = 'Login failed. Invalid username or password or disabled user.';
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('too many failed login attempts - connection to atim disabled temporarily', 'Too many failed login attempts. Your connection to ATiM has been disabled temporarily.', 'Trop de tentatives de connexion. Votre connexion Ã  ATiM a Ã©tÃ© dÃ©sactivÃ©e temporairement.'),
-('your username has been disabled - contact your administartor', 'Your username to ATiM has been disabled. Please contact your ATiM administartor to activate it.', 'Votre compte utilisateurM a Ã©tÃ© dÃ©sactivÃ©. Contcatez l''administartor d''ATiM pour le rÃ©activer.');
+('too many failed login attempts - connection to atim disabled temporarily', 'Too many failed login attempts. Your connection to ATiM has been disabled temporarily.', 'Trop de tentatives de connexion. Votre connexion à ATiM a été désactivée temporairement.'),
+('your username has been disabled - contact your administartor', 'Your username to ATiM has been disabled. Please contact your ATiM administartor to activate it.', 'Votre compte utilisateurM a été désactivé. Contcatez l''administartor d''ATiM pour le réactiver.');
 REPLACE INTO i18n (id,en,fr) VALUES (
 'your password has expired. please change your password for security reason.',
 'Your password has expired. Please change your password for security reasons.', 
-'Votre mot de passe a expirÃ©. Veuillez changer votre mot de passe pour des raisons de sÃ©curitÃ©.');
+'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
 UPDATE structure_formats SET `display_order`= (`display_order` - 1) WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('username', 'password'));
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -129,10 +138,10 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Password Reset Questions');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-("which phone number do you remember most from your childhood?", "Which phone number do you remember most from your childhood?", "Quel numÃ©ro de tÃ©lÃ©phone vous souvenez-vous le plus de votre enfance?", '1', @control_id, NOW(), NOW(), 1, 1), 
-("what primary school did you attend?", "What primary school did you attend?", "Ã€ quel Ã©cole primaire Ãªtes-vous allÃ©?", '1', @control_id, NOW(), NOW(), 1, 1), 
-("what is your mother's first name and maiden name?", "What is your mother's first name and maiden name?", "Quel est le prÃ©nom et le nom de jeune fille de votre mÃ¨re?", '1', @control_id, NOW(), NOW(), 1, 1), 
-("what is your health card number?", "What is your health card number?", "Quel est votre numÃ©ro de carte d'assurance santÃ©?", '1', @control_id, NOW(), NOW(), 1, 1);
+("which phone number do you remember most from your childhood?", "Which phone number do you remember most from your childhood?", "Quel numéro de téléphone vous souvenez-vous le plus de votre enfance?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what primary school did you attend?", "What primary school did you attend?", "À quel école primaire êtes-vous allé?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what is your mother's first name and maiden name?", "What is your mother's first name and maiden name?", "Quel est le prénom et le nom de jeune fille de votre mère?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what is your health card number?", "What is your health card number?", "Quel est votre numéro de carte d'assurance santé?", '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Administrate', 'User', 'users', 'forgotten_password_reset_question_1', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', 'question 1', ''), 
 ('Administrate', 'User', 'users', 'forgotten_password_reset_answer_1', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', '', ''),
@@ -151,19 +160,19 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message)
 (SELECT structure_field_id, 'notEmpty', '' FROM structure_formats WHERE `structure_id`=(SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'));
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
-('reset password', 'Reset Password', 'RÃ©initialiser mot de passe'),
-('forgotten password reset questions', 'Password Reset Questions', 'Questions - RÃ©initialisation mot de passe'),
+('reset password', 'Reset Password', 'Réinitialiser mot de passe'),
+('forgotten password reset questions', 'Password Reset Questions', 'Questions - Réinitialisation mot de passe'),
 ('question 1', 'Question #1', 'Question #1'),
 ('question 2', 'Question #2', 'Question #2'),
 ('question 3', 'Question #3', 'Question #3'),
-('invalid username or disabled user', "Invalid username or disabled user.","Nom d'utilisateur invalide ou ustilisateur dÃ©sactivÃ©."),
-('the question has been modified. please enter a new answer.', 'The question has been modified. Please enter a new answer.', "La question a Ã©tÃ© modifiÃ©e. Veuillez saisir une nouvelle rÃ©ponse."),
-('a question can not be used twice.', 'Same question can not be used twice.', "La mÃªme question ne peut Ãªtre ustilisÃ©e deux fois."),
-('a same answer can not be written twice.', 'An answer can not be written twice.', "La rÃ©ponse ne peut Ãªtre saisie deux fois."),
-('the length of the answer should be bigger than 10.', 'The length of the answer should be bigger than 10.', "La longueur de la rÃ©ponse doit Ãªtre superieure Ã  10."),
+('invalid username or disabled user', "Invalid username or disabled user.","Nom d'utilisateur invalide ou ustilisateur désactivé."),
+('the question has been modified. please enter a new answer.', 'The question has been modified. Please enter a new answer.', "La question a été modifiée. Veuillez saisir une nouvelle réponse."),
+('a question can not be used twice.', 'Same question can not be used twice.', "La même question ne peut être ustilisée deux fois."),
+('a same answer can not be written twice.', 'An answer can not be written twice.', "La réponse ne peut être saisie deux fois."),
+('the length of the answer should be bigger than 10.', 'The length of the answer should be bigger than 10.', "La longueur de la réponse doit être superieure à 10."),
 ('user questions to reset forgotten password are not completed - update your profile with the customize tool', 
 "The questions to reset password (in case of forgetfulness) are not completed. Please complete questions in your profile (see 'Customize' icon).", 
-"Les questions pour la rÃ©-initialisation du mot de passe (en cas d'oubli) ne sont pas complÃ©tÃ©es. Veuillez remplir les questions dans votre profil (voir icÃ´ne 'Personnaliser').");
+"Les questions pour la ré-initialisation du mot de passe (en cas d'oubli) ne sont pas complétées. Veuillez remplir les questions dans votre profil (voir icône 'Personnaliser').");
 UPDATE structure_fields SET `language_label`='forgotten_password_reset answer', language_help = 'forgotten_password_reset_answer_help', setting = 'size=50' WHERE `model`='User' AND `tablename`='users' AND `field` LIKE 'forgotten_password_reset_answer_%';
 
 INSERT INTO structures(`alias`) VALUES ('forgotten_password_reset');
@@ -178,13 +187,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUE
-('forgotten_password_reset_answer_help', 'Answers will be encrypted in database.', 'Les rÃ©ponses seront encryptÃ©es en base de donnÃ©es.'),
-('forgotten_password_reset answer', 'Answer', 'RÃ©ponse'),
+('forgotten_password_reset_answer_help', 'Answers will be encrypted in database.', 'Les réponses seront encryptées en base de données.'),
+('forgotten_password_reset answer', 'Answer', 'Réponse'),
 ('click here to see them', 'Click here to see them', 'Cliquez ici pour les afficher'),
 ('at least one error exists in the questions you answered - password can not be reset', 
 'At least one error exists in the questions you answered. Password can not be reset.', 
-"Il y a au moins une erreur dans les questions auxquelles vous avez rÃ©pondu. Le mot de passe ne peut pas Ãªtre rÃ©initialisÃ©."),
-('click here to update','Click here to update','Cliquez ici pour mettre les donnÃ©es Ã  jour');
+"Il y a au moins une erreur dans les questions auxquelles vous avez répondu. Le mot de passe ne peut pas être réinitialisé."),
+('click here to update','Click here to update','Cliquez ici pour mettre les données à jour');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='new_password' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_newpassword' AND `language_tag`=''), '2', '150', 'reset password', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
@@ -202,11 +211,11 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message)
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUE
-('step %s', 'Step %s', 'Ã‰tape %s'),
-('password should be different than the %s previous one', 'Password should be different than the %s previous one', 'Le mot de passe doit Ãªtre diffÃ©rent des %s prÃ©cÃ©dents mots de passe'),
+('step %s', 'Step %s', 'Étape %s'),
+('password should be different than the %s previous one', 'Password should be different than the %s previous one', 'Le mot de passe doit être différent des %s précédents mots de passe'),
 ('please enter you username', 'Please enter you username', 'Veuillez saisir votre nom d''utilisateur'),
-('please conplete the security questions', 'Please conplete the security questions', 'Veuillez complÃ©ter les questions de sÃ©curitÃ©s'),
-('other user control', 'Other User Control', 'ContrÃ´le autre utilisateur');
+('please conplete the security questions', 'Please conplete the security questions', 'Veuillez compléter les questions de sécurités'),
+('other user control', 'Other User Control', 'Contrôle autre utilisateur');
 
 INSERT INTO structures(`alias`) VALUES ('username');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -277,9 +286,9 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="storage_check_conflicts_error"), "3", "1");
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('storage_check_conflicts_none', 'No control for items stored in the same position', 'Aucun contrÃ´le sur les items entreposÃ©s Ã  la mÃªme position'),
-('storage_check_conflicts_warning', 'Items stored in the same position generate warning', 'Items entreposÃ©s Ã  la mÃªme position gÃ©nÃ¨rent un avertissement'),
-('storage_check_conflicts_error', 'Items stored in the same position generate error', 'Items entreposÃ©s Ã  la mÃªme position gÃ©nÃ¨rent une erreur');
+('storage_check_conflicts_none', 'No control for items stored in the same position', 'Aucun contrôle sur les items entreposés à la même position'),
+('storage_check_conflicts_warning', 'Items stored in the same position generate warning', 'Items entreposés à la même position génèrent un avertissement'),
+('storage_check_conflicts_error', 'Items stored in the same position generate error', 'Items entreposés à la même position génèrent une erreur');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Added mail code to study investigator address
@@ -316,5 +325,13 @@ INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_d
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
-('news', 'News', 'ActualitÃ©s'),
+('news', 'News', 'Actualités'),
 ('minute', 'Minute', 'Minute');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+VALUES
+('2.6.8', NOW(),'6645','n/a');

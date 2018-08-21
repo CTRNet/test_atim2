@@ -1,2 +1,2 @@
-<?php 
-	$displayNextSubForm=false;
+<?php
+$displayNextSubForm = false;

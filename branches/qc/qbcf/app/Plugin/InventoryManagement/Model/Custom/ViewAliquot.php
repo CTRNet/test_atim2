@@ -1,9 +1,9 @@
 <?php
 
-class ViewAliquotCustom extends ViewAliquot {
-	
-	var $name = 'ViewAliquot';
-	
+class ViewAliquotCustom extends ViewAliquot
+{
+
+    var $name = 'ViewAliquot';
 
     public static $tableQuery = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
@@ -88,86 +88,85 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
-	public function beforeFind($queryData){
-		if(($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions'])) {
-			if(AppModel::isFieldUsedAsCondition("ViewAliquot.qbcf_bank_participant_identifier", $queryData['conditions'])
-			|| AppModel::isFieldUsedAsCondition("ViewAliquot.aliquot_label", $queryData['conditions'])
-			|| AppModel::isFieldUsedAsCondition("ViewAliquot.qbcf_pathology_id", $queryData['conditions'])
-			|| AppModel::isFieldUsedAsCondition("ViewAliquot.bank_id", $queryData['conditions'])) {
-				AppController::addWarningMsg(__('your search will be limited to your bank'));
-				$GroupModel = AppModel::getInstance("", "Group", true);
-				$groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-				$userBankId = $groupData['Group']['bank_id'];
-				$queryData['conditions'][] = array("ViewAliquot.bank_id" => $userBankId);
-			}
-		}
-		return $queryData;
-	}
-	
-	public function afterFind($results, $primary = false){
-		$results = parent::afterFind($results);
-		
-		//Manage confidential information and build an aliquot information label gathering many data like bank, etc
-		if(isset($results[0]['ViewAliquot'])) {
-			//Get user and bank information
-			$userBankId = '-1';
-			if($_SESSION['Auth']['User']['group_id'] == '1') {
-				$userBankId = 'all';
-			} else {
-				$GroupModel = AppModel::getInstance("", "Group", true);
-				$groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-				if($groupData) $userBankId = $groupData['Group']['bank_id'];
-			}
-			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
-			$bankList = $BankModel->getBankPermissibleValuesForControls();
-			$StructurePermissibleValuesCustomModel = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-			$tissueSources = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('Tissue Sources'));
-			$tissueSources = array_merge($tissueSources['defined'], $tissueSources['previously_defined']);
-			//Process data
-			foreach($results as &$result){
-				//Manage confidential information
-				$setToConfidential = ($userBankId != 'all' && (!isset($result['ViewAliquot']['bank_id']) || $result['ViewAliquot']['bank_id'] != $userBankId))? true : false;
-				if($setToConfidential) {
-					if(isset($result['ViewAliquot']['bank_id'])) $result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
-					if(isset($result['ViewAliquot']['qbcf_bank_participant_identifier'])) $result['ViewAliquot']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-					if(isset($result['ViewAliquot']['participant_bank_name'])) $result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
-					if(isset($result['ViewAliquot']['qbcf_pathology_id'])) $result['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER; 
-					if(isset($result['ViewAliquot']['aliquot_label'])) $result['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER; 
-				}
-				//Create the aliquot information label to display
-				if(array_key_exists('aliquot_label', $result['ViewAliquot'])) {
-					if($result['ViewAliquot']['qbcf_is_tma_sample_control'] == 'y') {
-						//Tissue Control
-						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - QBCF# ".$result['ViewAliquot']['barcode'].
-							" (".__('control').' - '.$tissueSources[$result['ViewAliquot']['tissue_source']].')';
-					} else {
-						//Particiapnt Tissue
-						$aliquotParticipantIdAndBarcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - QBCF# '.$result['ViewAliquot']['barcode'];
-						if($userBankId == 'all') {
-							$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-								(strlen($result['ViewAliquot']['participant_bank_name'])? $result['ViewAliquot']['participant_bank_name'] : '?').' - '.
-								(strlen($result['ViewAliquot']['qbcf_bank_participant_identifier'])? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?').' - '.
-								(strlen($result['ViewAliquot']['aliquot_label'])? $result['ViewAliquot']['aliquot_label'] : '?').
-								" ($aliquotParticipantIdAndBarcode)";
-						} elseif($result['ViewAliquot']['bank_id'] == $userBankId) {
-							$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-								(strlen($result['ViewAliquot']['qbcf_bank_participant_identifier'])? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?').' - '.
-								(strlen($result['ViewAliquot']['aliquot_label'])? $result['ViewAliquot']['aliquot_label'] : '?').
-								" ($aliquotParticipantIdAndBarcode)";
-						} else {
-							$result['ViewAliquot']['qbcf_generated_label_for_display'] = $aliquotParticipantIdAndBarcode;
-						}
-					}				
-				}
-			}			
-		} elseif(isset($results['ViewAliquot'])){
-			pr('TODO #2 afterFind ViewAliquot');
-			pr($results);
-			exit;
-		}
-	
-		return $results;
-	}
-	
+    public function beforeFind($queryData)
+    {
+        if (($_SESSION['Auth']['User']['group_id'] != '1') && is_array($queryData['conditions'])) {
+            if (AppModel::isFieldUsedAsCondition("ViewAliquot.qbcf_bank_participant_identifier", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewAliquot.aliquot_label", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewAliquot.qbcf_pathology_id", $queryData['conditions']) || AppModel::isFieldUsedAsCondition("ViewAliquot.bank_id", $queryData['conditions'])) {
+                AppController::addWarningMsg(__('your search will be limited to your bank'));
+                $GroupModel = AppModel::getInstance("", "Group", true);
+                $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+                $userBankId = $groupData['Group']['bank_id'];
+                $queryData['conditions'][] = array(
+                    "ViewAliquot.bank_id" => $userBankId
+                );
+            }
+        }
+        return $queryData;
+    }
+
+    public function afterFind($results, $primary = false)
+    {
+        $results = parent::afterFind($results);
+        
+        // Manage confidential information and build an aliquot information label gathering many data like bank, etc
+        if (isset($results[0]['ViewAliquot'])) {
+            // Get user and bank information
+            $userBankId = '-1';
+            if ($_SESSION['Auth']['User']['group_id'] == '1') {
+                $userBankId = 'all';
+            } else {
+                $GroupModel = AppModel::getInstance("", "Group", true);
+                $groupData = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+                if ($groupData)
+                    $userBankId = $groupData['Group']['bank_id'];
+            }
+            $BankModel = AppModel::getInstance("Administrate", "Bank", true);
+            $bankList = $BankModel->getBankPermissibleValuesForControls();
+            $StructurePermissibleValuesCustomModel = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+            $tissueSources = $StructurePermissibleValuesCustomModel->getCustomDropdown(array(
+                'Tissue Sources'
+            ));
+            $tissueSources = array_merge($tissueSources['defined'], $tissueSources['previously_defined']);
+            // Process data
+            foreach ($results as &$result) {
+                // Manage confidential information
+                $setToConfidential = ($userBankId != 'all' && (! isset($result['ViewAliquot']['bank_id']) || $result['ViewAliquot']['bank_id'] != $userBankId)) ? true : false;
+                if ($setToConfidential) {
+                    if (isset($result['ViewAliquot']['bank_id']))
+                        $result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
+                    if (isset($result['ViewAliquot']['qbcf_bank_participant_identifier']))
+                        $result['ViewAliquot']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+                    if (isset($result['ViewAliquot']['participant_bank_name']))
+                        $result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
+                    if (isset($result['ViewAliquot']['qbcf_pathology_id']))
+                        $result['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
+                    if (isset($result['ViewAliquot']['aliquot_label']))
+                        $result['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER;
+                }
+                // Create the aliquot information label to display
+                if (array_key_exists('aliquot_label', $result['ViewAliquot'])) {
+                    if ($result['ViewAliquot']['qbcf_is_tma_sample_control'] == 'y') {
+                        // Tissue Control
+                        $result['ViewAliquot']['qbcf_generated_label_for_display'] = $result['ViewAliquot']['qbcf_tma_sample_control_code'] . " - QBCF# " . $result['ViewAliquot']['barcode'] . " (" . __('control') . ' - ' . $tissueSources[$result['ViewAliquot']['tissue_source']] . ')';
+                    } else {
+                        // Particiapnt Tissue
+                        $aliquotParticipantIdAndBarcode = 'P#' . (empty($result['ViewAliquot']['participant_identifier']) ? '?' : $result['ViewAliquot']['participant_identifier']) . ' - QBCF# ' . $result['ViewAliquot']['barcode'];
+                        if ($userBankId == 'all') {
+                            $result['ViewAliquot']['qbcf_generated_label_for_display'] = (strlen($result['ViewAliquot']['participant_bank_name']) ? $result['ViewAliquot']['participant_bank_name'] : '?') . ' - ' . (strlen($result['ViewAliquot']['qbcf_bank_participant_identifier']) ? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?') . ' - ' . (strlen($result['ViewAliquot']['aliquot_label']) ? $result['ViewAliquot']['aliquot_label'] : '?') . " ($aliquotParticipantIdAndBarcode)";
+                        } elseif ($result['ViewAliquot']['bank_id'] == $userBankId) {
+                            $result['ViewAliquot']['qbcf_generated_label_for_display'] = (strlen($result['ViewAliquot']['qbcf_bank_participant_identifier']) ? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?') . ' - ' . (strlen($result['ViewAliquot']['aliquot_label']) ? $result['ViewAliquot']['aliquot_label'] : '?') . " ($aliquotParticipantIdAndBarcode)";
+                        } else {
+                            $result['ViewAliquot']['qbcf_generated_label_for_display'] = $aliquotParticipantIdAndBarcode;
+                        }
+                    }
+                }
+            }
+        } elseif (isset($results['ViewAliquot'])) {
+            pr('TODO #2 afterFind ViewAliquot');
+            pr($results);
+            exit();
+        }
+        
+        return $results;
+    }
 }
