@@ -120,8 +120,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             'joins' => $joins,
             'fields' => array(
                 '*'
-            ),
-            'recursive' =>0
+            )
         ));
         
         // Check permission and data to display
