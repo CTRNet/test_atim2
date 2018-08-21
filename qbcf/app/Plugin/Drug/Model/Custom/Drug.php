@@ -80,10 +80,12 @@ class DrugCustom extends Drug
                 ));
             } else {
                 // consider $drugDataAndCode contains just drug title
-                $term = str_replace('_', '\_', str_replace('%', '\%', $drugDataAndCode));
+                $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $drugDataAndCode);
                 $terms = array();
                 foreach (explode(' ', $term) as $keyWord)
-                    $terms[] = "Drug.generic_name LIKE '%" . $keyWord . "%'";
+                    $terms[] = array(
+                        "Drug.generic_name LIKE" => '%' . $keyWord . '%'
+                    );
                 $conditions = array(
                     'AND' => $terms
                 );

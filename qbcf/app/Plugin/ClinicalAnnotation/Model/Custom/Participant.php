@@ -32,11 +32,11 @@ class ParticipantCustom extends Participant
             $label = $bankIdentfiers . ' [' . $result['Participant']['participant_identifier'] . ']';
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $label
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $label
                 ),
                 'structure alias' => 'participants',

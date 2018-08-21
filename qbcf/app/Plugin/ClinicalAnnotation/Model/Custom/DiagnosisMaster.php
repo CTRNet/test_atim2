@@ -31,11 +31,11 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             $result['Generated']['qbcf_dx_detail_for_tree_view'] = '';
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     __($result['DiagnosisControl']['category'], true) . ' - ' . __($result['DiagnosisControl']['controls_type'], true)
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     __($result['DiagnosisControl']['category'], true)
                 ),
                 'data' => $result,
