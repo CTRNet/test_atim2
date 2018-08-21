@@ -8,7 +8,7 @@ class TmaSlideCustom extends TmaSlide
     var $name = 'TmaSlide';
 
     private $sectionIdsCheck = array();
- // used for validations
+    // used for validations
     public function validates($options = array())
     {
         // Check tma slide section id (id unique per block)

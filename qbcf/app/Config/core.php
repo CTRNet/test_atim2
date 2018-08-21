@@ -541,7 +541,7 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50); // TmaSlides.add
  * 2 => link OrderItem to OrderLine only (order line submodule available)
  * 3 => link OrderItem to Order only (order line submodule not available)
  */
-Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMasters.batchDerivative()
+Configure::write('order_item_to_order_objetcs_link_setting', 3); // SampleMasters.batchDerivative()
 
 /**
  * Set the type(s) of item that could be added to order:
@@ -565,7 +565,7 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest) ? null : null;
+$path = ($isTest) ? null : '/ATiM/logs/prod/ATiMQBCF';
 Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
