@@ -10,7 +10,6 @@ INSERT INTO ad_blocks (
     aliquot_master_id,
     block_type,
     procure_freezing_type,
-    patho_dpt_block_code,
     procure_freezing_ending_time,
     procure_origin_of_slice,
     procure_dimensions,
@@ -22,7 +21,6 @@ INSERT INTO ad_blocks (
     aliquot_master_id,
     block_type,
     procure_freezing_type,
-    patho_dpt_block_code,
     procure_freezing_ending_time,
     procure_origin_of_slice,
     procure_dimensions,
@@ -40,13 +38,11 @@ INSERT INTO ad_blocks (
 TRUNCATE TABLE ad_tissue_slides;
 INSERT INTO ad_tissue_slides (
     aliquot_master_id,
-    immunochemistry,
     procure_stain
 )
 (
   SELECT
     aliquot_master_id,
-    immunochemistry,
     procure_stain
   FROM 
     %%local_procure_prod_database%%.ad_tissue_slides
@@ -60,14 +56,11 @@ INSERT INTO ad_tissue_slides (
 TRUNCATE TABLE ad_tubes;
 INSERT INTO ad_tubes (
     aliquot_master_id,
-    lot_number,
     concentration,
     concentration_unit,
     cell_count,
     cell_count_unit,
-    cell_viability,
     hemolysis_signs,
-    procure_deprecated_field_expiration_date,
     procure_tube_weight_gr,
     procure_total_quantity_ug,
     procure_concentration_nanodrop,
@@ -80,14 +73,11 @@ INSERT INTO ad_tubes (
 (
   SELECT
     aliquot_master_id,
-    lot_number,
     concentration,
     concentration_unit,
     cell_count,
     cell_count_unit,
-    cell_viability,
     hemolysis_signs,
-    procure_deprecated_field_expiration_date,
     procure_tube_weight_gr,
     procure_total_quantity_ug,
     procure_concentration_nanodrop,
@@ -124,8 +114,6 @@ INSERT INTO ad_tissue_cores (
 TRUNCATE TABLE ad_whatman_papers;
 INSERT INTO ad_whatman_papers (
     aliquot_master_id,
-    used_blood_volume,
-    used_blood_volume_unit,
     procure_card_sealed_date,
     procure_card_sealed_date_accuracy,
     procure_card_completed_datetime,
@@ -134,8 +122,6 @@ INSERT INTO ad_whatman_papers (
 (
   SELECT
     aliquot_master_id,
-    used_blood_volume,
-    used_blood_volume_unit,
     procure_card_sealed_date,
     procure_card_sealed_date_accuracy,
     procure_card_completed_datetime,
@@ -180,6 +166,11 @@ INSERT INTO aliquot_controls (
     %%local_procure_prod_database%%.aliquot_controls
 );
 
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table aliquot_internal_uses
@@ -197,7 +188,6 @@ INSERT INTO aliquot_internal_uses (
     use_datetime_accuracy,
     duration,
     duration_unit,
-    used_by,
     study_summary_id,
     created,
     created_by,
@@ -218,7 +208,6 @@ INSERT INTO aliquot_internal_uses (
     use_datetime_accuracy,
     duration,
     duration_unit,
-    used_by,
     study_summary_id,
     created,
     created_by,
@@ -239,23 +228,18 @@ TRUNCATE TABLE aliquot_masters;
 INSERT INTO aliquot_masters (
     id,
     barcode,
-    aliquot_label,
     aliquot_control_id,
     collection_id,
     sample_master_id,
-    sop_master_id,
     initial_volume,
     current_volume,
     in_stock,
     in_stock_detail,
-    use_counter,
-    study_summary_id,
     storage_datetime,
     storage_datetime_accuracy,
     storage_master_id,
     storage_coord_x,
     storage_coord_y,
-    product_code,
     notes,
     created,
     created_by,
@@ -268,23 +252,18 @@ INSERT INTO aliquot_masters (
   SELECT
     id,
     barcode,
-    aliquot_label,
     aliquot_control_id,
     collection_id,
     sample_master_id,
-    sop_master_id,
     initial_volume,
     current_volume,
     in_stock,
     in_stock_detail,
-    use_counter,
-    study_summary_id,
     storage_datetime,
     storage_datetime_accuracy,
     storage_master_id,
     storage_coord_x,
     storage_coord_y,
-    product_code,
     notes,
     created,
     created_by,
@@ -296,6 +275,17 @@ INSERT INTO aliquot_masters (
     %%local_procure_prod_database%%.aliquot_masters
 );
 
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'CHUM', 'ps1');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE aliquot_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table aliquot_masters_revs
@@ -305,23 +295,19 @@ TRUNCATE TABLE aliquot_masters_revs;
 INSERT INTO aliquot_masters_revs (
     id,
     barcode,
-    aliquot_label,
     aliquot_control_id,
     collection_id,
     sample_master_id,
-    sop_master_id,
     initial_volume,
     current_volume,
     in_stock,
     in_stock_detail,
-    use_counter,
     study_summary_id,
     storage_datetime,
     storage_datetime_accuracy,
     storage_master_id,
     storage_coord_x,
     storage_coord_y,
-    product_code,
     notes,
     modified_by,
     version_id,
@@ -332,23 +318,19 @@ INSERT INTO aliquot_masters_revs (
   SELECT
     id,
     barcode,
-    aliquot_label,
     aliquot_control_id,
     collection_id,
     sample_master_id,
-    sop_master_id,
     initial_volume,
     current_volume,
     in_stock,
     in_stock_detail,
-    use_counter,
     study_summary_id,
     storage_datetime,
     storage_datetime_accuracy,
     storage_master_id,
     storage_coord_x,
     storage_coord_y,
-    product_code,
     notes,
     modified_by,
     version_id,
@@ -357,6 +339,17 @@ INSERT INTO aliquot_masters_revs (
   FROM 
     %%local_procure_prod_database%%.aliquot_masters_revs
 );
+
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'CHUM', 'ps1');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE aliquot_masters_revs SET notes = REPLACE(notes, 'CHUS', 'ps4');
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -384,7 +377,13 @@ INSERT INTO aliquot_review_controls (
     databrowser_label
   FROM 
     %%local_procure_prod_database%%.aliquot_review_controls
+  WHERE flag_active = 1 AND review_type = 'procure tissue slide review'
 );
+
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -432,12 +431,8 @@ INSERT INTO aliquot_review_masters (
 TRUNCATE TABLE collections;
 INSERT INTO collections (
     id,
-    acquisition_label,
-    bank_id,
-    collection_site,
     collection_datetime,
     collection_datetime_accuracy,
-    sop_master_id,
     collection_property,
     collection_notes,
     participant_id,
@@ -450,21 +445,14 @@ INSERT INTO collections (
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_patient_identity_verified,
     procure_visit,
-    procure_collected_by_bank,
-    collection_protocol_id,
-    template_id
+    procure_collected_by_bank
 )
 (
   SELECT
     id,
-    acquisition_label,
-    bank_id,
-    collection_site,
     collection_datetime,
     collection_datetime_accuracy,
-    sop_master_id,
     collection_property,
     collection_notes,
     participant_id,
@@ -477,14 +465,22 @@ INSERT INTO collections (
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_patient_identity_verified,
     procure_visit,
-    procure_collected_by_bank,
-    collection_protocol_id,
-    template_id
+    procure_collected_by_bank
   FROM 
     %%local_procure_prod_database%%.collections
 );
+
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'chum', 'ps1');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CHUM', 'ps1');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'chuq', 'ps2');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CHUQ', 'ps2');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'muhc', 'ps3');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'MUHC', 'ps3');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'cusm', 'ps3');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CUSM', 'ps3');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'chus', 'ps4');
+UPDATE collections SET collection_notes = REPLACE(collection_notes, 'CHUS', 'ps4');
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -512,7 +508,14 @@ INSERT INTO consent_controls (
     databrowser_label
   FROM 
     %%local_procure_prod_database%%.consent_controls
+  WHERE 
+    controls_type = 'procure consent form signature' AND flag_active = '1'
 );
+
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -522,80 +525,34 @@ INSERT INTO consent_controls (
 TRUNCATE TABLE consent_masters;
 INSERT INTO consent_masters (
     id,
-    date_of_referral,
-    date_of_referral_accuracy,
-    route_of_referral,
-    date_first_contact,
-    date_first_contact_accuracy,
     consent_signed_date,
     consent_signed_date_accuracy,
     form_version,
-    reason_denied,
-    consent_status,
-    process_status,
-    status_date,
-    status_date_accuracy,
-    surgeon,
-    operation_date,
-    operation_date_accuracy,
-    facility,
-    notes,
-    consent_method,
-    translator_indicator,
-    translator_signature,
-    consent_person,
-    facility_other,
-    acquisition_id,
+    procure_language,
     participant_id,
     consent_control_id,
-    type,
     created,
     created_by,
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_form_identification,
-    procure_language,
     study_summary_id,
     procure_created_by_bank
 )
 (
   SELECT
     id,
-    date_of_referral,
-    date_of_referral_accuracy,
-    route_of_referral,
-    date_first_contact,
-    date_first_contact_accuracy,
     consent_signed_date,
     consent_signed_date_accuracy,
     form_version,
-    reason_denied,
-    consent_status,
-    process_status,
-    status_date,
-    status_date_accuracy,
-    surgeon,
-    operation_date,
-    operation_date_accuracy,
-    facility,
-    notes,
-    consent_method,
-    translator_indicator,
-    translator_signature,
-    consent_person,
-    facility_other,
-    acquisition_id,
+    procure_language,
     participant_id,
     consent_control_id,
-    type,
     created,
     created_by,
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_form_identification,
-    procure_language,
     study_summary_id,
     procure_created_by_bank
   FROM 
@@ -610,56 +567,16 @@ INSERT INTO consent_masters (
 TRUNCATE TABLE derivative_details;
 INSERT INTO derivative_details (
     sample_master_id,
-    creation_site,
-    creation_by,
     creation_datetime,
-    lab_book_master_id,
-    sync_with_lab_book,
     creation_datetime_accuracy
 )
 (
   SELECT
     sample_master_id,
-    creation_site,
-    creation_by,
     creation_datetime,
-    lab_book_master_id,
-    sync_with_lab_book,
     creation_datetime_accuracy
   FROM 
     %%local_procure_prod_database%%.derivative_details
-);
-
-
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
--- Table diagnosis_controls
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
-
-TRUNCATE TABLE diagnosis_controls;
-INSERT INTO diagnosis_controls (
-    id,
-    category,
-    controls_type,
-    flag_active,
-    detail_form_alias,
-    detail_tablename,
-    display_order,
-    databrowser_label,
-    flag_compare_with_cap
-)
-(
-  SELECT
-    id,
-    category,
-    controls_type,
-    flag_active,
-    detail_form_alias,
-    detail_tablename,
-    display_order,
-    databrowser_label,
-    flag_compare_with_cap
-  FROM 
-    %%local_procure_prod_database%%.diagnosis_controls
 );
 
 
@@ -671,8 +588,6 @@ TRUNCATE TABLE drugs;
 INSERT INTO drugs (
     id,
     generic_name,
-    trade_name,
-    type,
     description,
     created,
     created_by,
@@ -685,8 +600,6 @@ INSERT INTO drugs (
   SELECT
     id,
     generic_name,
-    trade_name,
-    type,
     description,
     created,
     created_by,
@@ -734,7 +647,15 @@ INSERT INTO event_controls (
     use_detail_form_for_index
   FROM 
     %%local_procure_prod_database%%.event_controls
+  WHERE 
+    event_type IN ('procure pathology report', 'prostate cancer - diagnosis', 'visit/contact', 'laboratory', 'clinical exam', 'questionnaire',
+    'clinical note', 'other tumor diagnosis') AND flag_active = '1'
 );
+
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -745,17 +666,9 @@ TRUNCATE TABLE event_masters;
 INSERT INTO event_masters (
     id,
     event_control_id,
-    event_status,
     event_summary,
     event_date,
     event_date_accuracy,
-    information_source,
-    urgency,
-    date_required,
-    date_required_accuracy,
-    date_requested,
-    date_requested_accuracy,
-    reference_number,
     created,
     created_by,
     modified,
@@ -763,24 +676,15 @@ INSERT INTO event_masters (
     participant_id,
     diagnosis_master_id,
     deleted,
-    procure_deprecated_field_procure_form_identification,
     procure_created_by_bank
 )
 (
   SELECT
     id,
     event_control_id,
-    event_status,
     event_summary,
     event_date,
     event_date_accuracy,
-    information_source,
-    urgency,
-    date_required,
-    date_required_accuracy,
-    date_requested,
-    date_requested_accuracy,
-    reference_number,
     created,
     created_by,
     modified,
@@ -788,11 +692,21 @@ INSERT INTO event_masters (
     participant_id,
     diagnosis_master_id,
     deleted,
-    procure_deprecated_field_procure_form_identification,
     procure_created_by_bank
   FROM 
     %%local_procure_prod_database%%.event_masters
 );
+
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'chum', 'ps1');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'CHUM', 'ps1');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'chuq', 'ps2');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'CHUQ', 'ps2');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'muhc', 'ps3');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'MUHC', 'ps3');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'cusm', 'ps3');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'CUSM', 'ps3');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'chus', 'ps4');
+UPDATE event_masters SET event_summary = REPLACE(event_summary, 'CHUS', 'ps4');
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -832,6 +746,8 @@ INSERT INTO misc_identifier_controls (
     flag_link_to_study
   FROM 
     %%local_procure_prod_database%%.misc_identifier_controls
+  WHERE
+    misc_identifier_name = 'participant study number'
 );
 
 
@@ -844,11 +760,6 @@ INSERT INTO misc_identifiers (
     id,
     identifier_value,
     misc_identifier_control_id,
-    effective_date,
-    effective_date_accuracy,
-    expiry_date,
-    expiry_date_accuracy,
-    notes,
     participant_id,
     created,
     created_by,
@@ -864,11 +775,6 @@ INSERT INTO misc_identifiers (
     id,
     identifier_value,
     misc_identifier_control_id,
-    effective_date,
-    effective_date_accuracy,
-    expiry_date,
-    expiry_date_accuracy,
-    notes,
     participant_id,
     created,
     created_by,
@@ -880,8 +786,9 @@ INSERT INTO misc_identifiers (
     study_summary_id
   FROM 
     %%local_procure_prod_database%%.misc_identifiers
+  WHERE 
+    misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'participant study number')
 );
-
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table orders
@@ -891,21 +798,16 @@ TRUNCATE TABLE orders;
 INSERT INTO orders (
     id,
     order_number,
-    short_title,
-    description,
     date_order_placed,
     date_order_placed_accuracy,
     date_order_completed,
     date_order_completed_accuracy,
     processing_status,
-    comments,
     created,
     created_by,
     modified,
     modified_by,
     default_study_summary_id,
-    institution,
-    contact,
     default_required_date,
     deleted,
     default_required_date_accuracy,
@@ -915,21 +817,16 @@ INSERT INTO orders (
   SELECT
     id,
     order_number,
-    short_title,
-    description,
     date_order_placed,
     date_order_placed_accuracy,
     date_order_completed,
     date_order_completed_accuracy,
     processing_status,
-    comments,
     created,
     created_by,
     modified,
     modified_by,
     default_study_summary_id,
-    institution,
-    contact,
     default_required_date,
     deleted,
     default_required_date_accuracy,
@@ -946,9 +843,6 @@ INSERT INTO orders (
 TRUNCATE TABLE order_items;
 INSERT INTO order_items (
     id,
-    date_added,
-    date_added_accuracy,
-    added_by,
     status,
     created,
     created_by,
@@ -963,7 +857,6 @@ INSERT INTO order_items (
     date_returned,
     date_returned_accuracy,
     reason_returned,
-    reception_by,
     tma_slide_id,
     procure_created_by_bank,
     order_item_shipping_label
@@ -971,9 +864,6 @@ INSERT INTO order_items (
 (
   SELECT
     id,
-    date_added,
-    date_added_accuracy,
-    added_by,
     status,
     created,
     created_by,
@@ -988,62 +878,11 @@ INSERT INTO order_items (
     date_returned,
     date_returned_accuracy,
     reason_returned,
-    reception_by,
     tma_slide_id,
     procure_created_by_bank,
     order_item_shipping_label
   FROM 
     %%local_procure_prod_database%%.order_items
-);
-
-
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
--- Table order_lines
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
-
-TRUNCATE TABLE order_lines;
-INSERT INTO order_lines (
-    id,
-    quantity_ordered,
-    min_quantity_ordered,
-    quantity_unit,
-    date_required,
-    date_required_accuracy,
-    status,
-    created,
-    created_by,
-    modified,
-    modified_by,
-    sample_control_id,
-    aliquot_control_id,
-    product_type_precision,
-    order_id,
-    study_summary_id,
-    deleted,
-    is_tma_slide
-)
-(
-  SELECT
-    id,
-    quantity_ordered,
-    min_quantity_ordered,
-    quantity_unit,
-    date_required,
-    date_required_accuracy,
-    status,
-    created,
-    created_by,
-    modified,
-    modified_by,
-    sample_control_id,
-    aliquot_control_id,
-    product_type_precision,
-    order_id,
-    study_summary_id,
-    deleted,
-    is_tma_slide
-  FROM 
-    %%local_procure_prod_database%%.order_lines
 );
 
 
@@ -1054,24 +893,12 @@ INSERT INTO order_lines (
 TRUNCATE TABLE participants;
 INSERT INTO participants (
     id,
-    title,
-    first_name,
-    middle_name,
-    last_name,
     date_of_birth,
     date_of_birth_accuracy,
-    marital_status,
-    language_preferred,
-    sex,
-    race,
     vital_status,
-    notes,
     date_of_death,
     date_of_death_accuracy,
     procure_cause_of_death,
-    cod_icd10_code,
-    secondary_cod_icd10_code,
-    cod_confirmation_source,
     participant_identifier,
     last_chart_checked_date,
     last_chart_checked_date_accuracy,
@@ -1087,7 +914,6 @@ INSERT INTO participants (
     procure_patient_refusal_withdrawal_date_accuracy,
     procure_patient_refusal_withdrawal_reason,
     procure_transferred_participant,
-    procure_participant_attribution_number,
     procure_last_modification_by_bank,
     procure_last_contact,
     procure_last_contact_accuracy,
@@ -1101,24 +927,12 @@ INSERT INTO participants (
 (
   SELECT
     id,
-    title,
-    first_name,
-    middle_name,
-    last_name,
-    date_of_birth,
+    CONCAT(SUBSTR(date_of_birth, 1, 4),'-01-01'),
     date_of_birth_accuracy,
-    marital_status,
-    language_preferred,
-    sex,
-    race,
     vital_status,
-    notes,
     date_of_death,
     date_of_death_accuracy,
     procure_cause_of_death,
-    cod_icd10_code,
-    secondary_cod_icd10_code,
-    cod_confirmation_source,
     participant_identifier,
     last_chart_checked_date,
     last_chart_checked_date_accuracy,
@@ -1134,7 +948,6 @@ INSERT INTO participants (
     procure_patient_refusal_withdrawal_date_accuracy,
     procure_patient_refusal_withdrawal_reason,
     procure_transferred_participant,
-    procure_participant_attribution_number,
     procure_last_modification_by_bank,
     procure_last_contact,
     procure_last_contact_accuracy,
@@ -1147,6 +960,19 @@ INSERT INTO participants (
   FROM 
     %%local_procure_prod_database%%.participants
 );
+
+UPDATE participants SET date_of_birth_accuracy = 'm' WHERE date_of_birth_accuracy IN ('c','d');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chum', 'ps1');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUM', 'ps1');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chuq', 'ps2');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUQ', 'ps2');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'muhc', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'MUHC', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'cusm', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CUSM', 'ps3');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'chus', 'ps4');
+UPDATE participants SET procure_patient_refusal_withdrawal_reason = REPLACE(procure_patient_refusal_withdrawal_reason, 'CHUS', 'ps4');
+
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1182,7 +1008,6 @@ INSERT INTO procure_cd_sigantures (
     consent_master_id,
     revised_date,
     revised_date_accuracy,
-    procure_deprecated_field_patient_identity_verified,
     ps1_biological_material_use,
     ps1_use_of_urine,
     ps1_use_of_blood,
@@ -1217,7 +1042,6 @@ INSERT INTO procure_cd_sigantures (
     consent_master_id,
     revised_date,
     revised_date_accuracy,
-    procure_deprecated_field_patient_identity_verified,
     ps1_biological_material_use,
     ps1_use_of_urine,
     ps1_use_of_blood,
@@ -1333,7 +1157,6 @@ INSERT INTO procure_ed_laboratories (
     event_master_id,
     biochemical_relapse,
     testosterone_nmoll,
-    procure_deprecated_field_psa_free_ngml,
     bcr_definition_precision,
     system_biochemical_relapse
 )
@@ -1343,7 +1166,6 @@ INSERT INTO procure_ed_laboratories (
     event_master_id,
     biochemical_relapse,
     testosterone_nmoll,
-    procure_deprecated_field_psa_free_ngml,
     bcr_definition_precision,
     system_biochemical_relapse
   FROM 
@@ -1357,8 +1179,6 @@ INSERT INTO procure_ed_laboratories (
 
 TRUNCATE TABLE procure_ed_lab_pathologies;
 INSERT INTO procure_ed_lab_pathologies (
-    path_number,
-    pathologist_name,
     prostate_weight_gr,
     prostate_length_cm,
     prostate_width_cm,
@@ -1417,8 +1237,6 @@ INSERT INTO procure_ed_lab_pathologies (
 )
 (
   SELECT
-    path_number,
-    pathologist_name,
     prostate_weight_gr,
     prostate_length_cm,
     prostate_width_cm,
@@ -1503,23 +1321,13 @@ INSERT INTO procure_ed_other_tumor_diagnosis (
 
 TRUNCATE TABLE procure_ed_prostate_cancer_diagnosis;
 INSERT INTO procure_ed_prostate_cancer_diagnosis (
-    procure_deprecated_field_data_collection_date,
-    procure_deprecated_field_data_collection_date_accuracy,
-    procure_deprecated_field_patient_identity_verified,
     biopsy_pre_surgery_date,
     biopsy_pre_surgery_date_accuracy,
-    procure_deprecated_aps_pre_surgery_total_ng_ml,
-    procure_deprecated_aps_pre_surgery_free_ng_ml,
-    procure_deprecated_field_aps_pre_surgery_date,
-    procure_deprecated_field_aps_pre_surgery_date_accuracy,
     collected_cores_nbr,
     nbr_of_cores_with_cancer,
     histologic_grade_primary_pattern,
     histologic_grade_secondary_pattern,
     histologic_grade_gleason_total,
-    procure_deprecated_field_biopsies_before,
-    procure_deprecated_field_biopsy_date,
-    procure_deprecated_field_biopsy_date_accuracy,
     event_master_id,
     affected_core_localisation,
     affected_core_total_percentage,
@@ -1528,23 +1336,13 @@ INSERT INTO procure_ed_prostate_cancer_diagnosis (
 )
 (
   SELECT
-    procure_deprecated_field_data_collection_date,
-    procure_deprecated_field_data_collection_date_accuracy,
-    procure_deprecated_field_patient_identity_verified,
     biopsy_pre_surgery_date,
     biopsy_pre_surgery_date_accuracy,
-    procure_deprecated_aps_pre_surgery_total_ng_ml,
-    procure_deprecated_aps_pre_surgery_free_ng_ml,
-    procure_deprecated_field_aps_pre_surgery_date,
-    procure_deprecated_field_aps_pre_surgery_date_accuracy,
     collected_cores_nbr,
     nbr_of_cores_with_cancer,
     histologic_grade_primary_pattern,
     histologic_grade_secondary_pattern,
     histologic_grade_gleason_total,
-    procure_deprecated_field_biopsies_before,
-    procure_deprecated_field_biopsy_date,
-    procure_deprecated_field_biopsy_date_accuracy,
     event_master_id,
     affected_core_localisation,
     affected_core_total_percentage,
@@ -1561,7 +1359,6 @@ INSERT INTO procure_ed_prostate_cancer_diagnosis (
 
 TRUNCATE TABLE procure_ed_questionnaires;
 INSERT INTO procure_ed_questionnaires (
-    procure_deprecated_field_patient_identity_verified,
     delivery_date,
     delivery_date_accuracy,
     delivery_site_method,
@@ -1582,7 +1379,6 @@ INSERT INTO procure_ed_questionnaires (
 )
 (
   SELECT
-    procure_deprecated_field_patient_identity_verified,
     delivery_date,
     delivery_date_accuracy,
     delivery_site_method,
@@ -1611,19 +1407,8 @@ INSERT INTO procure_ed_questionnaires (
 
 TRUNCATE TABLE procure_ed_visits;
 INSERT INTO procure_ed_visits (
-    procure_deprecated_field_patient_identity_verified,
-    procure_deprecated_field_biochemical_recurrence,
-    procure_deprecated_field_clinical_recurrence,
-    procure_deprecated_field_clinical_recurrence_type,
-    procure_deprecated_field_surgery_for_metastases,
-    procure_deprecated_field_surgery_site,
-    procure_deprecated_field_surgery_date,
     surgery_date_accuracy,
     event_master_id,
-    procure_deprecated_field_clinical_recurrence_site_bones,
-    procure_deprecated_field_clinical_recurrence_site_liver,
-    procure_deprecated_field_clinical_recurrence_site_lungs,
-    procure_deprecated_field_clinical_recurrence_site_others,
     refusing_treatments,
     method,
     medication_for_prostate_cancer,
@@ -1637,19 +1422,8 @@ INSERT INTO procure_ed_visits (
 )
 (
   SELECT
-    procure_deprecated_field_patient_identity_verified,
-    procure_deprecated_field_biochemical_recurrence,
-    procure_deprecated_field_clinical_recurrence,
-    procure_deprecated_field_clinical_recurrence_type,
-    procure_deprecated_field_surgery_for_metastases,
-    procure_deprecated_field_surgery_site,
-    procure_deprecated_field_surgery_date,
     surgery_date_accuracy,
     event_master_id,
-    procure_deprecated_field_clinical_recurrence_site_bones,
-    procure_deprecated_field_clinical_recurrence_site_liver,
-    procure_deprecated_field_clinical_recurrence_site_lungs,
-    procure_deprecated_field_clinical_recurrence_site_others,
     refusing_treatments,
     method,
     medication_for_prostate_cancer,
@@ -1690,11 +1464,9 @@ INSERT INTO procure_txd_treatments (
     treatment_type,
     dosage,
     treatment_master_id,
-    procure_deprecated_field_drug_id,
     treatment_site,
     treatment_precision,
     treatment_combination,
-    procure_deprecated_field_treatment_line,
     duration,
     surgery_type
 )
@@ -1703,17 +1475,14 @@ INSERT INTO procure_txd_treatments (
     treatment_type,
     dosage,
     treatment_master_id,
-    procure_deprecated_field_drug_id,
     treatment_site,
     treatment_precision,
     treatment_combination,
-    procure_deprecated_field_treatment_line,
     duration,
     surgery_type
   FROM 
     %%local_procure_prod_database%%.procure_txd_treatments
 );
-
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table quality_ctrls
@@ -1728,7 +1497,6 @@ INSERT INTO quality_ctrls (
     qc_type_precision,
     tool,
     run_id,
-    run_by,
     date,
     date_accuracy,
     score,
@@ -1743,7 +1511,6 @@ INSERT INTO quality_ctrls (
     modified_by,
     deleted,
     procure_appended_spectras,
-    procure_analysis_by,
     procure_created_by_bank,
     procure_concentration,
     procure_concentration_unit
@@ -1757,7 +1524,6 @@ INSERT INTO quality_ctrls (
     qc_type_precision,
     tool,
     run_id,
-    run_by,
     date,
     date_accuracy,
     score,
@@ -1772,7 +1538,6 @@ INSERT INTO quality_ctrls (
     modified_by,
     deleted,
     procure_appended_spectras,
-    procure_analysis_by,
     procure_created_by_bank,
     procure_concentration,
     procure_concentration_unit
@@ -1793,9 +1558,6 @@ INSERT INTO realiquotings (
     parent_used_volume,
     realiquoting_datetime,
     realiquoting_datetime_accuracy,
-    realiquoted_by,
-    lab_book_master_id,
-    sync_with_lab_book,
     created,
     created_by,
     modified,
@@ -1811,9 +1573,6 @@ INSERT INTO realiquotings (
     parent_used_volume,
     realiquoting_datetime,
     realiquoting_datetime_accuracy,
-    realiquoted_by,
-    lab_book_master_id,
-    sync_with_lab_book,
     created,
     created_by,
     modified,
@@ -1852,6 +1611,11 @@ INSERT INTO sample_controls (
     %%local_procure_prod_database%%.sample_controls
 );
 
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table sample_masters
@@ -1868,8 +1632,6 @@ INSERT INTO sample_masters (
     parent_id,
     parent_sample_type,
     sop_master_id,
-    product_code,
-    is_problematic,
     notes,
     created,
     created_by,
@@ -1889,8 +1651,6 @@ INSERT INTO sample_masters (
     parent_id,
     parent_sample_type,
     sop_master_id,
-    product_code,
-    is_problematic,
     notes,
     created,
     created_by,
@@ -1901,6 +1661,17 @@ INSERT INTO sample_masters (
   FROM 
     %%local_procure_prod_database%%.sample_masters
 );
+
+UPDATE sample_masters SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE sample_masters SET notes = REPLACE(notes, 'CHUM', 'ps1');
+UPDATE sample_masters SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE sample_masters SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE sample_masters SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE sample_masters SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE sample_masters SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE sample_masters SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE sample_masters SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE sample_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2040,33 +1811,17 @@ INSERT INTO sd_der_serums (
 TRUNCATE TABLE sd_der_urine_cents;
 INSERT INTO sd_der_urine_cents (
     sample_master_id,
-    procure_deprecated_field_processed_at_reception,
-    procure_deprecated_field_conserved_at_4,
-    procure_deprecated_field_time_at_4,
-    procure_deprecated_field_aspect_after_refrigeration,
-    procure_deprecated_field_other_aspect_after_refrigeration,
-    procure_deprecated_field_aspect_after_centrifugation,
-    procure_deprecated_field_other_aspect_after_centrifugation,
     procure_pellet_aspect_after_centrifugation,
     procure_other_pellet_aspect_after_centrifugation,
     procure_approximatif_pellet_volume_ml,
-    procure_deprecated_field_procure_pellet_volume_ml,
     procure_concentrated
 )
 (
   SELECT
     sample_master_id,
-    procure_deprecated_field_processed_at_reception,
-    procure_deprecated_field_conserved_at_4,
-    procure_deprecated_field_time_at_4,
-    procure_deprecated_field_aspect_after_refrigeration,
-    procure_deprecated_field_other_aspect_after_refrigeration,
-    procure_deprecated_field_aspect_after_centrifugation,
-    procure_deprecated_field_other_aspect_after_centrifugation,
     procure_pellet_aspect_after_centrifugation,
     procure_other_pellet_aspect_after_centrifugation,
     procure_approximatif_pellet_volume_ml,
-    procure_deprecated_field_procure_pellet_volume_ml,
     procure_concentrated
   FROM 
     %%local_procure_prod_database%%.sd_der_urine_cents
@@ -2080,26 +1835,12 @@ INSERT INTO sd_der_urine_cents (
 TRUNCATE TABLE sd_spe_bloods;
 INSERT INTO sd_spe_bloods (
     sample_master_id,
-    blood_type,
-    collected_tube_nbr,
-    collected_volume,
-    collected_volume_unit,
-    procure_collection_site,
-    procure_deprecated_field_collection_without_incident,
-    procure_deprecated_field_tubes_inverted_8_10_times,
-    procure_deprecated_field_tubes_correclty_stored
+    blood_type
 )
 (
   SELECT
     sample_master_id,
-    blood_type,
-    collected_tube_nbr,
-    collected_volume,
-    collected_volume_unit,
-    procure_collection_site,
-    procure_deprecated_field_collection_without_incident,
-    procure_deprecated_field_tubes_inverted_8_10_times,
-    procure_deprecated_field_tubes_correclty_stored
+    blood_type
   FROM 
     %%local_procure_prod_database%%.sd_spe_bloods
 );
@@ -2125,13 +1866,10 @@ INSERT INTO sd_spe_tissues (
     procure_prostatectomy_type,
     procure_prostatectomy_beginning_time,
     procure_prostatectomy_resection_time,
-    procure_surgeon_name,
     procure_sample_number,
     procure_transfer_to_pathology_on_ice,
     procure_transfer_to_pathology_time,
     procure_arrival_in_pathology_time,
-    procure_pathologist_name,
-    procure_report_number,
     procure_reference_to_biopsy_report,
     procure_ink_external_color,
     procure_prostate_slicing_beginning_time,
@@ -2158,13 +1896,10 @@ INSERT INTO sd_spe_tissues (
     procure_prostatectomy_type,
     procure_prostatectomy_beginning_time,
     procure_prostatectomy_resection_time,
-    procure_surgeon_name,
     procure_sample_number,
     procure_transfer_to_pathology_on_ice,
     procure_transfer_to_pathology_time,
     procure_arrival_in_pathology_time,
-    procure_pathologist_name,
-    procure_report_number,
     procure_reference_to_biopsy_report,
     procure_ink_external_color,
     procure_prostate_slicing_beginning_time,
@@ -2189,9 +1924,6 @@ INSERT INTO sd_spe_urines (
     urine_aspect,
     collected_volume,
     collected_volume_unit,
-    pellet_signs,
-    pellet_volume,
-    pellet_volume_unit,
     procure_other_urine_aspect,
     procure_hematuria,
     procure_collected_via_catheter
@@ -2202,9 +1934,6 @@ INSERT INTO sd_spe_urines (
     urine_aspect,
     collected_volume,
     collected_volume_unit,
-    pellet_signs,
-    pellet_volume,
-    pellet_volume_unit,
     procure_other_urine_aspect,
     procure_hematuria,
     procure_collected_via_catheter
@@ -2221,24 +1950,10 @@ TRUNCATE TABLE shipments;
 INSERT INTO shipments (
     id,
     shipment_code,
-    recipient,
-    facility,
-    delivery_street_address,
-    delivery_city,
-    delivery_province,
-    delivery_postal_code,
-    delivery_country,
-    delivery_phone_number,
-    delivery_department_or_door,
-    delivery_notes,
-    shipping_company,
-    shipping_account_nbr,
-    tracking,
     datetime_shipped,
     datetime_shipped_accuracy,
     datetime_received,
     datetime_received_accuracy,
-    shipped_by,
     created,
     created_by,
     modified,
@@ -2252,24 +1967,10 @@ INSERT INTO shipments (
   SELECT
     id,
     shipment_code,
-    recipient,
-    facility,
-    delivery_street_address,
-    delivery_city,
-    delivery_province,
-    delivery_postal_code,
-    delivery_country,
-    delivery_phone_number,
-    delivery_department_or_door,
-    delivery_notes,
-    shipping_company,
-    shipping_account_nbr,
-    tracking,
     datetime_shipped,
     datetime_shipped_accuracy,
     datetime_received,
     datetime_received_accuracy,
-    shipped_by,
     created,
     created_by,
     modified,
@@ -2322,9 +2023,6 @@ INSERT INTO source_aliquots (
 TRUNCATE TABLE specimen_details;
 INSERT INTO specimen_details (
     sample_master_id,
-    supplier_dept,
-    time_at_room_temp_mn,
-    reception_by,
     reception_datetime,
     reception_datetime_accuracy,
     procure_refrigeration_time
@@ -2332,9 +2030,6 @@ INSERT INTO specimen_details (
 (
   SELECT
     sample_master_id,
-    supplier_dept,
-    time_at_room_temp_mn,
-    reception_by,
     reception_datetime,
     reception_datetime_accuracy,
     procure_refrigeration_time
@@ -2370,7 +2065,13 @@ INSERT INTO specimen_review_controls (
     databrowser_label
   FROM 
     %%local_procure_prod_database%%.specimen_review_controls
+  WHERE flag_active = 1 AND review_type = 'prostate review'
 );
+
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2387,7 +2088,6 @@ INSERT INTO specimen_review_masters (
     review_date,
     review_date_accuracy,
     review_status,
-    pathologist,
     notes,
     created,
     created_by,
@@ -2406,7 +2106,6 @@ INSERT INTO specimen_review_masters (
     review_date,
     review_date_accuracy,
     review_status,
-    pathologist,
     notes,
     created,
     created_by,
@@ -2557,15 +2256,11 @@ INSERT INTO std_racks (
 
 TRUNCATE TABLE std_rooms;
 INSERT INTO std_rooms (
-    storage_master_id,
-    laboratory,
-    floor
+    storage_master_id
 )
 (
   SELECT
-    storage_master_id,
-    laboratory,
-    floor
+    storage_master_id
   FROM 
     %%local_procure_prod_database%%.std_rooms
 );
@@ -2672,7 +2367,13 @@ INSERT INTO storage_controls (
     storage_type_fr
   FROM 
     %%local_procure_prod_database%%.storage_controls
+  WHERE flag_active = 1  
 );
+
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2728,6 +2429,39 @@ INSERT INTO storage_masters (
     %%local_procure_prod_database%%.storage_masters
 );
 
+UPDATE storage_masters SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE storage_masters SET notes = REPLACE(notes, 'CHUM', 'ps1');
+UPDATE storage_masters SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE storage_masters SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE storage_masters SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE storage_masters SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE storage_masters SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE storage_masters SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE storage_masters SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE storage_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
+
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'chum', 'ps1');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'CHUM', 'ps1');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'chuq', 'ps2');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'CHUQ', 'ps2');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'muhc', 'ps3');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'MUHC', 'ps3');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'cusm', 'ps3');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'CUSM', 'ps3');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'chus', 'ps4');
+UPDATE storage_masters SET selection_label = REPLACE(selection_label, 'CHUS', 'ps4');
+
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'chum', 'ps1');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'CHUM', 'ps1');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'chuq', 'ps2');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'CHUQ', 'ps2');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'muhc', 'ps3');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'MUHC', 'ps3');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'cusm', 'ps3');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'CUSM', 'ps3');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'chus', 'ps4');
+UPDATE storage_masters SET short_label = REPLACE(short_label, 'CHUS', 'ps4');
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table storage_masters_revs
@@ -2778,6 +2512,39 @@ INSERT INTO storage_masters_revs (
     %%local_procure_prod_database%%.storage_masters_revs
 );
 
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CHUM', 'ps1'); 
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE storage_masters_revs SET notes = REPLACE(notes, 'CHUS', 'ps4'); 
+
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'chum', 'ps1');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'CHUM', 'ps1');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'chuq', 'ps2');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'CHUQ', 'ps2');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'muhc', 'ps3');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'MUHC', 'ps3');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'cusm', 'ps3');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'CUSM', 'ps3');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'chus', 'ps4');
+UPDATE storage_masters_revs SET selection_label = REPLACE(selection_label, 'CHUS', 'ps4');
+
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'chum', 'ps1');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'CHUM', 'ps1');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'chuq', 'ps2');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'CHUQ', 'ps2');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'muhc', 'ps3');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'MUHC', 'ps3');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'cusm', 'ps3');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'CUSM', 'ps3');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'chus', 'ps4');
+UPDATE storage_masters_revs SET short_label = REPLACE(short_label, 'CHUS', 'ps4');
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table structure_permissible_values
@@ -2796,7 +2563,89 @@ INSERT INTO structure_permissible_values (
     language_alias
   FROM 
     %%local_procure_prod_database%%.structure_permissible_values
-);
+  WHERE
+    id IN (
+      SELECT 
+        structure_value_domain_id
+      FROM  
+          %%local_procure_prod_database%%.structure_value_domains svd
+          INNER JOIN %%local_procure_prod_database%%.structure_value_domains_permissible_values lnk ON lnk.structure_value_domain_id = svd.id
+      WHERE 
+        domain_name IN (
+          'aliquot_type',
+          'aliquot_volume_unit',
+          'aliquots_list_for_review',
+          'block_type',
+          'blood_type',
+          'cell_concentration_unit',
+          'cell_count_unit',
+          'concentration_unit',
+          'duration_unit',
+          'health_status',
+          'order_item_status',
+          'processing_status',
+          'procure_banks',
+          'procure_block_classification',
+          'procure_blood_collection_sites',
+          'procure_cause_of_death',
+          'procure_extra_prostatic_extension',
+          'procure_extra_prostatic_extension_precision',
+          'procure_followup_clinical_methods',
+          'procure_freezing_type',
+          'procure_gleason_grades',
+          'procure_grade_1to5',
+          'procure_grade_2to5',
+          'procure_grade_2to5_and_none',
+          'procure_grade_6to10',
+          'procure_histology',
+          'procure_margins',
+          'procure_margins_positive_precision',
+          'procure_method_to_complete_questionnaire',
+          'procure_other_tumor_sites',
+          'procure_pathologic_staging_pm',
+          'procure_pathologic_staging_pn',
+          'procure_pathologic_staging_pt',
+          'procure_pellet_aspect_after_centrifugation',
+          'procure_prostatectomy_types',
+          'procure_questionnaire_delivery_site_and_method',
+          'procure_questionnaire_recovery_method',
+          'procure_questionnaire_revision_method',
+          'procure_questionnaire_version',
+          'procure_seminal_vesicles',
+          'procure_slice_origins',
+          'procure_tumour_volume',
+          'ps1_stop_followup',
+          'quality_control_type',
+          'quality_control_unit',
+          'sample_master_parent_id',
+          'sample_sop_list',
+          'sample_type',
+          'sample_volume_unit',
+          'specimen_review_status',
+          'specimen_review_type',
+          'specimen_type_for_review',
+          'storage_types_from_control_id',
+          'temperature_unit_code',
+          'urine_aspect',
+          'yes_no_checkbox',
+          
+          'procure_clinical_exam_types',
+          'procure_clinical_exam_results',
+          'procure_clinical_exam_sites',
+          'procure_progressions_comorbidities',
+          'procure_event_note_types',
+          'procure_questionnaire_version_date',
+          'custom_consent_from_verisons',
+          'procure_treatment_types',
+          'procure_treatment_precision',
+          'procure_treatment_site',
+          'procure_surgery_type',
+          'aliquot_internal_use_type',
+          'procure_slide_tissue_type',
+          'procure_shipping_conditions'
+       )  
+    ) 
+);    
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2824,6 +2673,26 @@ INSERT INTO structure_permissible_values_custom_controls (
     values_counter
   FROM 
     %%local_procure_prod_database%%.structure_permissible_values_custom_controls
+  WHERE name IN (
+    'Aliquot Use and Event Types',
+    'Clinical Exam - Results (PROCURE values only)',
+    'Clinical Exam - Sites (PROCURE values only)',
+    'Clinical Exam - Types (PROCURE values only)',
+    'Clinical Note Types',
+    'Consent Form Versions',
+    'Progressions & Comorbidities (PROCURE values only)',
+    'Questionnaire version date',
+    'Slide Review : Tissue Type',
+    'Storage Coordinate Titles',
+    'Storage Types',
+    'Surgery Types (PROCURE values only)',
+    'Tissue Slide Stains',
+    'TMA Slide Stains',
+    'Treatment Precisions (PROCURE values only)',
+    'Treatment Sites (PROCURE values only)',
+    'Treatment Types (PROCURE values only)',
+    'Shipping Conditions'
+  )
 );
 
 
@@ -2862,6 +2731,30 @@ INSERT INTO structure_permissible_values_customs (
     deleted
   FROM 
     %%local_procure_prod_database%%.structure_permissible_values_customs
+  WHERE 
+	control_id IN (
+	  SELECT id FROM structure_permissible_values_custom_controls
+	  WHERE name IN (
+		'Aliquot Use and Event Types',
+		'Clinical Exam - Results (PROCURE values only)',
+		'Clinical Exam - Sites (PROCURE values only)',
+		'Clinical Exam - Types (PROCURE values only)',
+		'Clinical Note Types',
+		'Consent Form Versions',
+		'Progressions & Comorbidities (PROCURE values only)',
+		'Questionnaire version date',
+		'Slide Review : Tissue Type',
+		'Storage Coordinate Titles',
+		'Storage Types',
+		'Surgery Types (PROCURE values only)',
+		'Tissue Slide Stains',
+		'TMA Slide Stains',
+		'Treatment Precisions (PROCURE values only)',
+		'Treatment Sites (PROCURE values only)',
+		'Treatment Types (PROCURE values only)',
+		'Shipping Conditions'
+	  )
+  )
 );
 
 
@@ -2886,6 +2779,80 @@ INSERT INTO structure_value_domains (
     source
   FROM 
     %%local_procure_prod_database%%.structure_value_domains
+  WHERE 
+    domain_name IN (
+      'aliquot_type',
+      'aliquot_volume_unit',
+      'aliquots_list_for_review',
+      'block_type',
+      'blood_type',
+      'cell_concentration_unit',
+      'cell_count_unit',
+      'concentration_unit',
+      'duration_unit',
+      'health_status',
+      'order_item_status',
+      'processing_status',
+      'procure_banks',
+      'procure_block_classification',
+      'procure_blood_collection_sites',
+      'procure_cause_of_death',
+      'procure_extra_prostatic_extension',
+      'procure_extra_prostatic_extension_precision',
+      'procure_followup_clinical_methods',
+      'procure_freezing_type',
+      'procure_gleason_grades',
+      'procure_grade_1to5',
+      'procure_grade_2to5',
+      'procure_grade_2to5_and_none',
+      'procure_grade_6to10',
+      'procure_histology',
+      'procure_margins',
+      'procure_margins_positive_precision',
+      'procure_method_to_complete_questionnaire',
+      'procure_other_tumor_sites',
+      'procure_pathologic_staging_pm',
+      'procure_pathologic_staging_pn',
+      'procure_pathologic_staging_pt',
+      'procure_pellet_aspect_after_centrifugation',
+      'procure_prostatectomy_types',
+      'procure_questionnaire_delivery_site_and_method',
+      'procure_questionnaire_recovery_method',
+      'procure_questionnaire_revision_method',
+      'procure_questionnaire_version',
+      'procure_seminal_vesicles',
+      'procure_slice_origins',
+      'procure_tumour_volume',
+      'ps1_stop_followup',
+      'quality_control_type',
+      'quality_control_unit',
+      'sample_master_parent_id',
+      'sample_sop_list',
+      'sample_type',
+      'sample_volume_unit',
+      'specimen_review_status',
+      'specimen_review_type',
+      'specimen_type_for_review',
+      'storage_types_from_control_id',
+      'temperature_unit_code',
+      'urine_aspect',
+      'yes_no_checkbox',
+          
+      'procure_clinical_exam_types',
+      'procure_clinical_exam_results',
+      'procure_clinical_exam_sites',
+      'procure_progressions_comorbidities',
+      'procure_event_note_types',
+      'procure_questionnaire_version_date',
+      'custom_consent_from_verisons',
+      'procure_treatment_types',
+      'procure_treatment_precision',
+      'procure_treatment_site',
+      'procure_surgery_type',
+      'aliquot_internal_use_type',
+      'procure_slide_tissue_type',
+      'procure_shipping_conditions'
+    ) 
 );
 
 
@@ -2912,6 +2879,87 @@ INSERT INTO structure_value_domains_permissible_values (
     use_as_input
   FROM 
     %%local_procure_prod_database%%.structure_value_domains_permissible_values
+  WHERE
+    structure_value_domain_id IN (
+      SELECT 
+        id
+      FROM  
+          %%local_procure_prod_database%%.structure_value_domains
+      WHERE 
+        domain_name IN (
+          'aliquot_type',
+          'aliquot_volume_unit',
+          'aliquots_list_for_review',
+          'block_type',
+          'blood_type',
+          'cell_concentration_unit',
+          'cell_count_unit',
+          'concentration_unit',
+          'duration_unit',
+          'health_status',
+          'order_item_status',
+          'processing_status',
+          'procure_banks',
+          'procure_block_classification',
+          'procure_blood_collection_sites',
+          'procure_cause_of_death',
+          'procure_extra_prostatic_extension',
+          'procure_extra_prostatic_extension_precision',
+          'procure_followup_clinical_methods',
+          'procure_freezing_type',
+          'procure_gleason_grades',
+          'procure_grade_1to5',
+          'procure_grade_2to5',
+          'procure_grade_2to5_and_none',
+          'procure_grade_6to10',
+          'procure_histology',
+          'procure_margins',
+          'procure_margins_positive_precision',
+          'procure_method_to_complete_questionnaire',
+          'procure_other_tumor_sites',
+          'procure_pathologic_staging_pm',
+          'procure_pathologic_staging_pn',
+          'procure_pathologic_staging_pt',
+          'procure_pellet_aspect_after_centrifugation',
+          'procure_prostatectomy_types',
+          'procure_questionnaire_delivery_site_and_method',
+          'procure_questionnaire_recovery_method',
+          'procure_questionnaire_revision_method',
+          'procure_questionnaire_version',
+          'procure_seminal_vesicles',
+          'procure_slice_origins',
+          'procure_tumour_volume',
+          'ps1_stop_followup',
+          'quality_control_type',
+          'quality_control_unit',
+          'sample_master_parent_id',
+          'sample_sop_list',
+          'sample_type',
+          'sample_volume_unit',
+          'specimen_review_status',
+          'specimen_review_type',
+          'specimen_type_for_review',
+          'storage_types_from_control_id',
+          'temperature_unit_code',
+          'urine_aspect',
+          'yes_no_checkbox',
+          
+          'procure_clinical_exam_types',
+          'procure_clinical_exam_results',
+          'procure_clinical_exam_sites',
+          'procure_progressions_comorbidities',
+          'procure_event_note_types',
+          'procure_questionnaire_version_date',
+          'custom_consent_from_verisons',
+          'procure_treatment_types',
+          'procure_treatment_precision',
+          'procure_treatment_site',
+          'procure_surgery_type',
+          'aliquot_internal_use_type',
+          'procure_slide_tissue_type',
+          'procure_shipping_conditions'
+       )  
+    ) 
 );
 
 
@@ -2922,38 +2970,17 @@ INSERT INTO structure_value_domains_permissible_values (
 TRUNCATE TABLE study_summaries;
 INSERT INTO study_summaries (
     id,
-    disease_site,
-    study_type,
-    study_science,
-    study_use,
     title,
     start_date,
     start_date_accuracy,
     end_date,
     end_date_accuracy,
-    summary,
-    abstract,
-    hypothesis,
-    approach,
-    analysis,
-    significance,
-    additional_clinical,
     created,
     created_by,
     modified,
     modified_by,
     path_to_file,
     deleted,
-    procure_principal_investigator,
-    procure_organization,
-    procure_address_street,
-    procure_address_city,
-    procure_address_province,
-    procure_address_country,
-    procure_address_postal,
-    procure_phone_number,
-    procure_fax_number,
-    procure_email,
     procure_award_committee_approval,
     procure_reference_ethics_committee_approval,
     procure_site_ethics_committee_convenience_ps1,
@@ -2965,38 +2992,17 @@ INSERT INTO study_summaries (
 (
   SELECT
     id,
-    disease_site,
-    study_type,
-    study_science,
-    study_use,
     title,
     start_date,
     start_date_accuracy,
     end_date,
     end_date_accuracy,
-    summary,
-    abstract,
-    hypothesis,
-    approach,
-    analysis,
-    significance,
-    additional_clinical,
     created,
     created_by,
     modified,
     modified_by,
     path_to_file,
     deleted,
-    procure_principal_investigator,
-    procure_organization,
-    procure_address_street,
-    procure_address_city,
-    procure_address_province,
-    procure_address_country,
-    procure_address_postal,
-    procure_phone_number,
-    procure_fax_number,
-    procure_email,
     procure_award_committee_approval,
     procure_reference_ethics_committee_approval,
     procure_site_ethics_committee_convenience_ps1,
@@ -3106,33 +3112,13 @@ INSERT INTO treatment_controls (
     use_detail_form_for_index
   FROM 
     %%local_procure_prod_database%%.treatment_controls
+  WHERE flag_active = 1 AND tx_method = 'treatment' 
 );
 
-
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
--- Table treatment_extend_controls
--- -----------------------------------------------------------------------------------------------------------------------------------------------------
-
-TRUNCATE TABLE treatment_extend_controls;
-INSERT INTO treatment_extend_controls (
-    id,
-    detail_tablename,
-    detail_form_alias,
-    flag_active,
-    type,
-    databrowser_label
-)
-(
-  SELECT
-    id,
-    detail_tablename,
-    detail_form_alias,
-    flag_active,
-    type,
-    databrowser_label
-  FROM 
-    %%local_procure_prod_database%%.treatment_extend_controls
-);
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3143,16 +3129,11 @@ TRUNCATE TABLE treatment_masters;
 INSERT INTO treatment_masters (
     id,
     treatment_control_id,
-    tx_intent,
-    target_site_icdo,
     start_date,
     start_date_accuracy,
     finish_date,
     finish_date_accuracy,
-    information_source,
-    facility,
     notes,
-    protocol_master_id,
     participant_id,
     diagnosis_master_id,
     created,
@@ -3160,7 +3141,6 @@ INSERT INTO treatment_masters (
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_form_identification,
     procure_created_by_bank,
     procure_drug_id
 )
@@ -3168,16 +3148,11 @@ INSERT INTO treatment_masters (
   SELECT
     id,
     treatment_control_id,
-    tx_intent,
-    target_site_icdo,
     start_date,
     start_date_accuracy,
     finish_date,
     finish_date_accuracy,
-    information_source,
-    facility,
     notes,
-    protocol_master_id,
     participant_id,
     diagnosis_master_id,
     created,
@@ -3185,12 +3160,22 @@ INSERT INTO treatment_masters (
     modified,
     modified_by,
     deleted,
-    procure_deprecated_field_procure_form_identification,
     procure_created_by_bank,
     procure_drug_id
   FROM 
     %%local_procure_prod_database%%.treatment_masters
 );
+
+UPDATE treatment_masters SET notes = REPLACE(notes, 'chum', 'ps1');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'CHUM', 'ps1');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'chuq', 'ps2');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'CHUQ', 'ps2');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'muhc', 'ps3');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'MUHC', 'ps3');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'cusm', 'ps3');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'CUSM', 'ps3');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'chus', 'ps4');
+UPDATE treatment_masters SET notes = REPLACE(notes, 'CHUS', 'ps4');
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3222,5 +3207,13 @@ INSERT INTO versions (
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Table atim_procure_dump_information
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-SET FOREIGN_KEY_CHECKS = 0;		
+TRUNCATE TABLE atim_procure_dump_information;
+INSERT INTO atim_procure_dump_information (created) (SELECT NOW() FROM aliquot_controls LIMIT 0 ,1);
+  
+  
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET FOREIGN_KEY_CHECKS = 1;		

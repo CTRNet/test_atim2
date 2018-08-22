@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.14, for Win64 (x86_64)
+-- ------------------------------------------------------
+-- PROCURE Script used to ...
 --
--- Host: localhost    Database: procurecentral
 -- ------------------------------------------------------
 -- Server version	5.7.14
 
@@ -2850,6 +2850,13 @@ CREATE TABLE `versions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `atim_procure_dump_information`
+--
+
+DROP TABLE IF EXISTS `atim_procure_dump_information`;
+CREATE TABLE atim_procure_dump_information (created datetime NOT NULL);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
