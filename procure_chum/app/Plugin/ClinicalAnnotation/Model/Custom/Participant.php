@@ -70,13 +70,13 @@ class ParticipantCustom extends Participant
                 'recursive' => 0
             ));
             if ($consentData) {
-                if ($consentData['ConsentDetail']['qc_nd_urine_blood_use_for_followup'] != 'y') {
+                if ($consentData['ConsentDetail']['ps1_urine_blood_use_for_followup'] != 'y') {
                     AppController::addWarningMsg(__('participant does not allow followup'));
                 } else 
-                    if ($consentData['ConsentDetail']['qc_nd_stop_followup'] == 'y') {
+                    if ($consentData['ConsentDetail']['ps1_stop_followup'] == 'y') {
                         AppController::addWarningMsg(__('participant stopped the followup'));
                     } else 
-                        if ($consentData['ConsentDetail']['qc_nd_stop_followup'] == 'y-pho.acc.') {
+                        if ($consentData['ConsentDetail']['ps1_stop_followup'] == 'y-pho.acc.') {
                             AppController::addWarningMsg(__('participant stopped the followup but accept to be contacted'));
                         }
             } else {
