@@ -13,7 +13,7 @@ class TemplateInit extends InventoryManagementAppModel
      * @param array $options
      * @return bool
      */
-    public function validates($options = array())
+    public function validates($options = array(), $models)
     {
         $this->_schema = array();
         $result = parent::validates($options);
@@ -23,19 +23,26 @@ class TemplateInit extends InventoryManagementAppModel
         // Otherwise, on has to add it before setting the structures (which in turn sets the validation).
         // eg.: AppController::getInstance()->AliquotMaster = AppModel::getInstance('InventoryManagement', 'AliquotMaster'); would make AliquotMaster ready to recieve validation rules
         $modelsNames = array(
-            'SpecimenDetail',
-            'DerivativeDetail',
-            'SampleMaster',
-            'SampleDetail',
-            'AliquotMaster',
-            'AliquotDetail'
+            'SpecimenDetail' =>'',
+            'DerivativeDetail' =>'',
+            'SampleMaster' =>'',
+            'SampleDetail' =>'',
+            'AliquotMaster' =>'',
+            'AliquotDetail' =>''
         );
         // Set a default control id to fix bug #3226 : Unable to use field with MasterModel in template_init_structure
         $this->data['TemplateInit']['SampleMaster']['sample_control_id'] = 1;
         $this->data['TemplateInit']['AliquotMaster']['aliquot_control_id'] = 1;
-        foreach ($modelsNames as $modelName) {
+        foreach ($modelsNames as $modelName => &$m) {
+            if (empty($models[$m])){
+                $m = AppModel::getInstance('InventoryManagement', $modelName);
+            }else{
+                $m = $models[$m];
+            }
+        }
+        foreach ($modelsNames as $modelName => $model) {
             if (array_key_exists($modelName, $this->data['TemplateInit'])) {
-                $model = AppModel::getInstance('InventoryManagement', $modelName);
+                //$model = AppModel::getInstance('InventoryManagement', $modelName);
                 $model->set(array(
                     $modelName => $this->data['TemplateInit'][$modelName]
                 ));
