@@ -13,9 +13,7 @@ class CollectionsController extends InventoryManagementAppController
         'InventoryManagement.ViewCollection',
         'InventoryManagement.SampleMaster',
         'InventoryManagement.SampleControl',
-        'InventoryManagement.SampleDetail',
         'InventoryManagement.AliquotMaster',
-        'InventoryManagement.AliquotDetail',
         'InventoryManagement.SpecimenReviewMaster',
         'InventoryManagement.ParentToDerivativeSampleControl',
         'InventoryManagement.SpecimenDetail', // here for collection template validation
@@ -661,15 +659,7 @@ class CollectionsController extends InventoryManagementAppController
             }
             
             $this->TemplateInit->set($this->request->data);
-            $models = array(
-                'SpecimenDetail' => $this ->SpecimenDetail,
-                'DerivativeDetail' => $this ->DerivativeDetail,
-                'SampleMaster' => $this ->SampleMaster,
-                'SampleDetail' => $this ->SampleDetail,
-                'AliquotMaster' => $this ->AliquotMaster,
-                'AliquotDetail' => $this ->AliquotDetail
-            );
-            if (! $this->TemplateInit->validates(array(), $models)) {
+            if (! $this->TemplateInit->validates()) {
                 $dataValidates = false;
             } else {
                 $this->request->data = $this->TemplateInit->data['TemplateInit'];

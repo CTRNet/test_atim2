@@ -128,9 +128,7 @@ $parameters);
         foreach ($allStructures as &$structUnit) {
             foreach ($structUnit['rules'] as $model => $rules) {
                 // rules are formatted, apply them
-
                 $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
-                
             }
         }
         
@@ -160,7 +158,6 @@ $parameters);
                 if ($model === false) {
                     continue;
                 }
-
                 if (empty($model->_schema)) {
                     $model->schema();
                 }
@@ -168,15 +165,11 @@ $parameters);
                 if ($model !== false && ! empty($schema) && ($field['tablename'] == $model->table || empty($field['tablename']))) {
                     $tablename = $model->table;
                 } elseif (! empty($field['tablename'])) {
-//                    $model = new AppModel(array(
-//                        'table' => $field['tablename'],
-//                        'name' => $field['model'],
-//                        'alias' => $field['model']
-//                    ));
-                    $model->useTable = $field['tablename'];
-                    $model->table = $field['tablename'];
-                    $model->name = $field['model'];
-                    $model->alias = $field['model'];
+                    $model = new AppModel(array(
+                        'table' => $field['tablename'],
+                        'name' => $field['model'],
+                        'alias' => $field['model']
+                    ));
                     $tablename = $field['tablename'];
                 }
                 
