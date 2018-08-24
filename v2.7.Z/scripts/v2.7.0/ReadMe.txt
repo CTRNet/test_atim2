@@ -372,6 +372,14 @@
    TODO: 
    
    Rename any variable '$override' to '$structureOverride' in custom code or hooks if exist.
+   Rename any variable '$overrideData' to '$structureOverride' in custom code or hooks if exist.
+   Rename any variable '$createdSampleOverride' to '$createdSampleStructureOverride' in custom code or hooks if exist.
+   Rename any variable '$createdAliquotOverrideData' to '$createdAliquotStructureOverride' in custom code or hooks if exist.
+   
+   Replace any code "$this->set('override'" by "$this->set('structureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('overrideData'" by "$this->set('structureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('createdSampleOverride'" by "$this->set('createdSampleStructureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('createdAliquotOverrideData'" by "$this->set('createdAliquotStructureOverride'" in custom code or hooks if exist.
    
    
    ### 13 # Material tool clean up

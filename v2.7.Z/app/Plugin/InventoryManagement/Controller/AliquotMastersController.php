@@ -339,11 +339,11 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->Structures->set('empty', 'emptyStructure');
         
         // set data for initial data to allow bank to override data
-        $overrideData = array(
+        $structureOverride = array(
             'AliquotControl.aliquot_type' => $aliquotControl['AliquotControl']['aliquot_type'],
             'AliquotMaster.in_stock' => 'yes - available'
         );
-        list ($overrideData['AliquotMaster.storage_datetime'], $overrideData['AliquotMaster.storage_datetime_accuracy']) = $isBatchProcess ? array(
+        list ($structureOverride['AliquotMaster.storage_datetime'], $structureOverride['AliquotMaster.storage_datetime_accuracy']) = $isBatchProcess ? array(
             date('Y-m-d G:i'),
             'c'
         ) : $this->AliquotMaster->getDefaultStorageDateAndAccuracy($this->SampleMaster->find('first', array(
@@ -352,9 +352,9 @@ class AliquotMastersController extends InventoryManagementAppController
             )
         )));
         if (! empty($aliquotControl['AliquotControl']['volume_unit'])) {
-            $overrideData['AliquotControl.volume_unit'] = $aliquotControl['AliquotControl']['volume_unit'];
+            $structureOverride['AliquotControl.volume_unit'] = $aliquotControl['AliquotControl']['volume_unit'];
         }
-        $this->set('overrideData', $overrideData);
+        $this->set('structureOverride', $structureOverride);
         
         // Set url to cancel
         if (! empty($aliquotControlId)) {
@@ -2320,7 +2320,7 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->Structures->set('empty', 'emptyStructure');
         
         // set data for initial data to allow bank to override data
-        $createdAliquotOverrideData = array(
+        $createdAliquotStructureOverride = array(
             'AliquotControl.aliquot_type' => $childAliquotCtrl['AliquotControl']['aliquot_type'],
             'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),
             'AliquotMaster.in_stock' => 'yes - available',
@@ -2328,12 +2328,12 @@ class AliquotMastersController extends InventoryManagementAppController
             'Realiquoting.realiquoting_datetime' => date('Y-m-d G:i')
         );
         if (! empty($childAliquotCtrl['AliquotControl']['volume_unit'])) {
-            $createdAliquotOverrideData['AliquotControl.volume_unit'] = $childAliquotCtrl['AliquotControl']['volume_unit'];
+            $createdAliquotStructureOverride['AliquotControl.volume_unit'] = $childAliquotCtrl['AliquotControl']['volume_unit'];
         }
         if (! empty($parentAliquotCtrl['AliquotControl']['volume_unit'])) {
-            $createdAliquotOverrideData['GeneratedParentAliquot.aliquot_volume_unit'] = $parentAliquotCtrl['AliquotControl']['volume_unit'];
+            $createdAliquotStructureOverride['GeneratedParentAliquot.aliquot_volume_unit'] = $parentAliquotCtrl['AliquotControl']['volume_unit'];
         }
-        $this->set('createdAliquotOverrideData', $createdAliquotOverrideData);
+        $this->set('createdAliquotStructureOverride', $createdAliquotStructureOverride);
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
