@@ -13,7 +13,7 @@ class TemplateInit extends InventoryManagementAppModel
      * @param array $options
      * @return bool
      */
-    public function validates($options = array(), $models)
+    public function validates($options = array(), $models = null)
     {
         $this->_schema = array();
         $result = parent::validates($options);
