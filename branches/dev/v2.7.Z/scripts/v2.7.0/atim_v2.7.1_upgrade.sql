@@ -3,7 +3,7 @@
 -- Version: 2.7.1
 --
 -- For more information:
---    ./app/scripts£v2.7.0/ReadMe.txt
+--    ./app/scripts/v2.7.1/ReadMe.txt
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
 -- -------------------------------------------------------------------------------------
 
@@ -1024,4 +1024,4 @@ VALUES
 
 -- -------------------------------------------------------------------------------------
 
-UPDATE versions SET trunk_build_number = '7351' WHERE versions = '2.7.1';
+UPDATE versions SET trunk_build_number = '7353' WHERE versions = '2.7.1';
