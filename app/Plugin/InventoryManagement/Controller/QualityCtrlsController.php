@@ -185,7 +185,7 @@ class QualityCtrlsController extends InventoryManagementAppController
                 }
             }
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $cancelButton, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $cancelButton);
             return;
         }
         $this->setBatchMenu(array(
@@ -258,7 +258,7 @@ class QualityCtrlsController extends InventoryManagementAppController
             
             $displayLimit = Configure::read('QualityCtrlsCreation_processed_items_limit');
             if (sizeof($data) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $cancelButton, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $cancelButton);
                 return;
             }
             
@@ -480,7 +480,7 @@ class QualityCtrlsController extends InventoryManagementAppController
                 $this->request->data = $displayData;
             }
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();");
             return;
         }
         
