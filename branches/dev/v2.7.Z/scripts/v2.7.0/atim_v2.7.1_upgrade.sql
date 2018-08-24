@@ -1021,3 +1021,7 @@ UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
 ('2.7.1', NOW(),'7297','n/a');
+
+-- -------------------------------------------------------------------------------------
+
+UPDATE versions SET trunk_build_number = '7351' WHERE versions = '2.7.1';
