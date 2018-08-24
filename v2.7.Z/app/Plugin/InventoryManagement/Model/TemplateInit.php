@@ -82,7 +82,7 @@ class TemplateInit extends InventoryManagementAppModel
                     $result = $model->validates() ? $result : false;
                     $this->validationErrors = array_merge($model->validationErrors, $this->validationErrors);
                     $this->data['TemplateInit'][$detailModelName][$fieldName] = $model->data[$detailModelName][$fieldName];
-                    if(isset($model->data[$detailModelName][$fieldName . '_accuracy'])) {
+                    if (isset($model->data[$detailModelName][$fieldName . '_accuracy'])) {
                         $this->data['TemplateInit'][$detailModelName][$fieldName . '_accuracy'] = $model->data[$detailModelName][$fieldName . '_accuracy'];
                     }
                 }

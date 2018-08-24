@@ -321,7 +321,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
                 'event' => __('date of birth'),
                 'chronology_details' => '',
                 'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId . '/'
-                    ) : null;
+            ) : null;
             $chronolgyDataParticipantDeath = false;
             if (strlen($participant['Participant']['date_of_death']) > 0) {
                 $chronolgyDataParticipantDeath = array(
