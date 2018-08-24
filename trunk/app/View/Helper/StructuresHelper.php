@@ -2411,7 +2411,7 @@ class StructuresHelper extends AppHelper
                         "help" => strlen($sfs['language_help']) > 0 ? sprintf($helpBullet, __($sfs['language_help'])) : $emptyHelpBullet,
                         "setting" => $sfs['setting'], // required for icd10 magic
                         "default" => $sfs['default'],
-                        "sortable" => $sfs['sortable'],
+                        "sortable" => array_key_exists('sortable', $sfs)? $sfs['sortable'] : 0,
                         "flag_confidential" => $sfs['flag_confidential'],
                         "flag_float" => $sfs['flag_float'],
                         "readonly" => isset($sfs["flag_" . $options['type'] . "_readonly"]) && $sfs["flag_" . $options['type'] . "_readonly"],
@@ -2482,7 +2482,7 @@ class StructuresHelper extends AppHelper
                         }
                         
                         // validation CSS classes
-                        if (count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
+                        if (isset($sfs['StructureValidation']) && count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
                             
                             foreach ($sfs['StructureValidation'] as $validation) {
                                 if ($validation['rule'] == 'notBlank') {

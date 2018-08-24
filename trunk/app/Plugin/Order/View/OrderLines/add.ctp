@@ -6,8 +6,6 @@ $structureLinks = array(
     )
 );
 
-$structureOverride = $overrideData;
-
 $finalAtimStructure = $atimStructure;
 $finalOptions = array(
     'links' => $structureLinks,
