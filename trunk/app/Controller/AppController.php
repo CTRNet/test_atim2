@@ -119,10 +119,10 @@ class AppController extends Controller
     
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
-    
+
     private function addUrl($type = "nonAjax")
     {
-        if (!empty(Router::getPaths($this->here)->url)) {
+        if (! empty(Router::getPaths($this->here)->url)) {
             $_SESSION['url'][$type][] = "/" . Router::getPaths($this->here)->url;
         }
     }
@@ -136,19 +136,19 @@ class AppController extends Controller
             $_SESSION['url'] = array(
                 'nonAjax' => array(),
                 'ajax' => array(),
-                'all' => array(),
+                'all' => array()
             );
         }
-
-        if (!$this->request->is('ajax')) {
+        
+        if (! $this->request->is('ajax')) {
             $this->addUrl('nonAjax');
         } else {
             $this->addUrl('ajax');
         }
         $this->addUrl('all');
     }
-    
-    private function getBackHistoryUrl($type = "nonAjax", $num = 1) 
+
+    private function getBackHistoryUrl($type = "nonAjax", $num = 1)
     {
         $url = "/Menus";
         if (isset($_SERVER["HTTP_REFERER"])) {
@@ -165,7 +165,7 @@ class AppController extends Controller
                     $index --;
                     $url = $_SESSION['url'][$type][$index];
                 }
-                if ($index == -1) {
+                if ($index == - 1) {
                     $url = "/Menus";
                 }
                 array_splice($_SESSION['url'][$type], $index + 1);
@@ -237,7 +237,7 @@ class AppController extends Controller
                 $logDirectory = Configure::read('atim_user_log_output_path');
                 $permission = substr(sprintf('%o', fileperms($logDirectory)), - 4);
                 $debug = Configure::read("debug");
-                if ($debug>0){
+                if ($debug > 0) {
                     if ($permission != '0777') {
                         AppController::addWarningMsg(__('the permission of "log" directory is not correct.'));
                     } else {
