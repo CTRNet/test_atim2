@@ -40,7 +40,7 @@ Configure::write('debug', $debug);
  * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
  * 0: Install name will be displayed as usual.
  */
-$isTest = 0;
+$isTest = 1;
 Configure::write('IsTest', $isTest);
 
 /**
@@ -541,7 +541,7 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50); // TmaSlides.add
  * 2 => link OrderItem to OrderLine only (order line submodule available)
  * 3 => link OrderItem to Order only (order line submodule not available)
  */
-Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMasters.batchDerivative()
+Configure::write('order_item_to_order_objetcs_link_setting', 3); // SampleMasters.batchDerivative()
 
 /**
  * Set the type(s) of item that could be added to order:
@@ -549,7 +549,7 @@ Configure::write('order_item_to_order_objetcs_link_setting', 1); // SampleMaster
  * 2 => aliquot only
  * 3 => tma slide only
  */
-Configure::write('order_item_type_config', 1);
+Configure::write('order_item_type_config', 3);
 
 unset($debug);
 
