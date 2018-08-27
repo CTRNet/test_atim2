@@ -76,4 +76,4 @@ ALTER TABLE sardo_import_summary
 -- Version
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7366' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7369' WHERE version_number = '2.7.1';
