@@ -264,13 +264,22 @@ if (isset($isAjax)) {
                                                     $selector.val(value);
                                                 }else if ($selector.length>1){
                                                     tempValue = value.replace(/(-)|( )|(:)/g, ", ").split(", ");
-                                                    for (var i=0; i<$selector.length; i++){
-                                                        j=i;
-                                                        if (i<3){
-                                                            j=(i+1)%3;
+                                                    if (tempValue.length==1 && (tempValue[0]=='n' || tempValue[0]=='y') && $selector.length === 3){
+                                                        if (tempValue[0]=='n'){
+                                                            $selector.eq(2).attr("checked", "checked");
+                                                        }else if(tempValue[0]=='y'){
+                                                            $selector.eq(1).attr("checked", "checked");
                                                         }
-                                                        $selector.eq(i).val((typeof tempValue[i] !=='undefined')?tempValue[j]:"0");
-                                                        
+                                                    }
+                                                    else{
+                                                        for (var i=0; i<$selector.length; i++){
+                                                            j=i;
+                                                            if (i<3){
+                                                                j=(i+1)%3;
+                                                            }
+                                                            $selector.eq(i).val((typeof tempValue[i] !=='undefined')?tempValue[j]:"0");
+
+                                                        }
                                                     }
                                                 }
                                             }

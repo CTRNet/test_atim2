@@ -317,13 +317,13 @@ class ParticipantsController extends ClinicalAnnotationAppController
                     'Participant.id' => $participantId
                 )
             ));
-            $chronolgyDataParticipantBirth = array(
+            $chronolgyDataParticipantBirth = ($this->Session->read('flag_show_confidential')) ? array(
                 'date' => $participant['Participant']['date_of_birth'],
                 'date_accuracy' => $participant['Participant']['date_of_birth_accuracy'],
                 'event' => __('date of birth'),
                 'chronology_details' => '',
                 'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId . '/'
-            );
+            ) : null;
             $chronolgyDataParticipantDeath = false;
             if (strlen($participant['Participant']['date_of_death']) > 0) {
                 $chronolgyDataParticipantDeath = array(
