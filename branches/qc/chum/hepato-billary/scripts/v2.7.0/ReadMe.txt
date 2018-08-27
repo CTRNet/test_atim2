@@ -372,6 +372,14 @@
    TODO: 
    
    Rename any variable '$override' to '$structureOverride' in custom code or hooks if exist.
+   Rename any variable '$overrideData' to '$structureOverride' in custom code or hooks if exist.
+   Rename any variable '$createdSampleOverrideData' to '$createdSampleStructureOverride' in custom code or hooks if exist.
+   Rename any variable '$createdAliquotOverrideData' to '$createdAliquotStructureOverride' in custom code or hooks if exist.
+   
+   Replace any code "$this->set('override'" by "$this->set('structureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('overrideData'" by "$this->set('structureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('createdSampleOverrideData'" by "$this->set('createdSampleStructureOverride'" in custom code or hooks if exist.
+   Replace any code "$this->set('createdAliquotOverrideData'" by "$this->set('createdAliquotStructureOverride'" in custom code or hooks if exist.
    
    
    ### 13 # Material tool clean up
@@ -392,3 +400,18 @@
    TODO: 
    
    Set core variable 'isTest' to 1 to display ATiM as a test version.
+   
+      
+    ### 15 # Collection Template Default Values
+   -----------------------------------------------------------
+   
+   Added a new feature to set default values for each node of a Collection Template. 
+   
+   TODO: 
+   
+   Review any following custom code files (if exist) to check if these one manage default values. Replace custom code (if possible) to use 
+   Collection Template default values feature instead of custom code. Remove unnecessary custom code used to manage default values.
+	
+   See files:
+	   - \app\Plugin\InventoryManagement\Controller\Hook\AliquotMasters_add_initial_display.php
+	   - \app\Plugin\InventoryManagement\Controller\Hook\SampleMasters_add_initial_display.php
