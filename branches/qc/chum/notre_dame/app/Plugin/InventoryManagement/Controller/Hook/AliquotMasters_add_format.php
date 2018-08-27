@@ -18,5 +18,5 @@ $this->set('defaultAliquotLabels', $defaultAliquotLabels);
 $this->set('defaultInStocks', $defaultInStocks);
 
 // remove default storage date
-unset($overrideData['AliquotMaster.storage_datetime']);
-$this->set('overrideData', $overrideData);
+unset($structureOverride['AliquotMaster.storage_datetime']);
+$this->set('structureOverride', $structureOverride);

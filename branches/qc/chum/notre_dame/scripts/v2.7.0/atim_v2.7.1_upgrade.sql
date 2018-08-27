@@ -3,7 +3,7 @@
 -- Version: 2.7.1
 --
 -- For more information:
---    ./app/scripts£v2.7.0/ReadMe.txt
+--    ./app/scripts/v2.7.1/ReadMe.txt
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
 -- -------------------------------------------------------------------------------------
 
@@ -1022,4 +1022,12 @@ ALTER TABLE `aliquot_review_masters_revs` CHANGE `review_code` `review_code` VAR
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.7.1', NOW(),'7299','n/a');
+('2.7.1', NOW(),'7297','n/a');
+
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('template init error please contact your administrator', 'An error exists in the field definition. Please contact your administrator.', "Une erreur existe dans la définition du champ. Veuillez contacter votre administrateur.");
+
+UPDATE versions SET trunk_build_number = '7363' WHERE versions = '2.7.1';

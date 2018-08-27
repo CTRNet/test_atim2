@@ -1,5 +1,5 @@
 <?php
-if (in_array($createdSampleOverrideData['SampleControl.sample_type'], array(
+if (in_array($createdSampleStructureOverride['SampleControl.sample_type'], array(
     'dna',
     'rna'
 ))) {
