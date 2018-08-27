@@ -316,7 +316,7 @@ class ShipmentsController extends OrderAppController
             $data = array_filter($this->request->data['OrderItem']['id']);
         }
         if (! empty($this->request->data) && count($data) > $orderItemsLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
             return;
         }
         // MANAGE DATA
