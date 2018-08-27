@@ -2,11 +2,15 @@
 $structureLinks = array(
     'bottom' => array(
         'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'copy' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+        'copy for new storage control' => array(
+            'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+            'icon' => 'duplicate'
+        ),
         'change active status' => array(
             'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
             'icon' => 'confirm'
-        )
+        ),
+        'delete' => '/Administrate/StorageControls/delete/' . $atimMenuVariables['StorageCtrl.id'] . '/'
     )
 );
 
@@ -35,12 +39,9 @@ $this->Structures->build($finalAtimStructure, $finalOptions);
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
  *
- * @param unknown_type $var
- *            The variable to loop on, must be null on the first iteration
- * @param unknown_type $reverseOrder
- *            True to reverse the order
- * @param unknown_type $limit
- *            The limit of the axis
+ * @param unknown_type $var The variable to loop on, must be null on the first iteration
+ * @param unknown_type $reverseOrder True to reverse the order
+ * @param unknown_type $limit The limit of the axis
  * @return true if you must continue to loop, false otherwise
  *         @alter Increments/decrements the value of var
  */
@@ -74,7 +75,7 @@ ob_start();
 			<span class='help storage'>
 				<div><?php echo __('help_storage_layout_storage') ?></div>
 			</span> <span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __('storage layout'). ' : '. $storageControlData['StorageCtrl']['translated_storage_type']?>
+			<?php echo __('storage layout'). ' : '. $translatedStorageType?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 		
@@ -108,6 +109,7 @@ if ((strlen($xSize) == 0 || strlen($ySize) == 0) && ($storageControlData['Storag
 }
 $xAlpha = $storageControlData['StorageCtrl']['coord_x_type'] == "alphabetical";
 $yAlpha = $storageControlData['StorageCtrl']['coord_y_type'] == "alphabetical";
+$permuteXY = (isset($storageControlData['StorageCtrl']['permute_x_y']) && $storageControlData['StorageCtrl']['permute_x_y'] == 1) ? true : false;
 $horizontalIncrement = $storageControlData['StorageCtrl']['horizontal_increment'];
 // table display loop and inner loop
 $j = null;
@@ -125,17 +127,13 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
                 $displayValue = ($i - 1) * $xSize + $j;
             }
             $displayValue = $xAlpha ? chr($displayValue + 64) : $displayValue;
-            $useValue = $displayValue . "_1"; // static y = 1
         } else {
             $xVal = $xAlpha ? chr($i + 64) : $i;
-            $useValue = $xVal . "_" . $yVal;
-            if ($useHeight == 1) {
-                $displayValue = $xVal;
-            } elseif ($useWidth == 1) {
-                    $displayValue = $yVal;
-                } else {
-                    $displayValue = $xVal . "-" . $yVal;
-                }
+            if (! $permuteXY) {
+                $displayValue = $xVal . "-" . $yVal;
+            } else {
+                $displayValue = $yVal . "-" . $xVal;
+            }
         }
         echo ("<td style='display: table-cell;'><b>" . $displayValue . "</b></td>");
     }
@@ -151,17 +149,6 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
 <?php
 
 $content = ob_get_clean();
-
-$structureLinks = array(
-    'bottom' => array(
-        'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'copy' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'change active status' => array(
-            'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
-            'icon' => 'confirm'
-        )
-    )
-);
 
 $settings = array(
     'header' => __('storage layout', null),

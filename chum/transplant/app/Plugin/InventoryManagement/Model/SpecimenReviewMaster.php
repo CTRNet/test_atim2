@@ -21,6 +21,7 @@ class SpecimenReviewMaster extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param $specimenReviewId
      * @return array
      */

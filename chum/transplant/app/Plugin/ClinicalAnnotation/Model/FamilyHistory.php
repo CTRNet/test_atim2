@@ -7,6 +7,7 @@ class FamilyHistory extends ClinicalAnnotationAppModel
 {
 
     /**
+     *
      * @param array $variables
      * @return bool
      */
@@ -30,8 +31,7 @@ class FamilyHistory extends ClinicalAnnotationAppModel
     /**
      * Replaces icd10 empty string to null values to respect foreign keys constraints
      *
-     * @param
-     *            $participantArray
+     * @param $participantArray
      */
     public function patchIcd10NullValues(&$participantArray)
     {

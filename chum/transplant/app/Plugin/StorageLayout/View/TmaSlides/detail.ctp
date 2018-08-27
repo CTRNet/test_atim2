@@ -20,10 +20,10 @@ $structureLinks = array(
 if ($isFromTreeViewOrLayout == 1) {
     // Tree view
 } elseif ($isFromTreeViewOrLayout == 2) {
-        // Storage Layout
-        $structureLinks = array();
-        $structureLinks['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'];
-    }
+    // Storage Layout
+    $structureLinks = array();
+    $structureLinks['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'];
+}
 
 $formOverride = array();
 $structureOverride = array();

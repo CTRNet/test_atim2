@@ -16,7 +16,7 @@ $bottomLinks = array(
     'delete' => '/InventoryManagement/Collections/delete/' . $atimMenuVariables['Collection.id'],
     'copy for new collection' => array(
         'link' => '/InventoryManagement/Collections/add/0/' . $atimMenuVariables['Collection.id'],
-        'icon' => 'copy'
+        'icon' => 'duplicate'
     ),
     'print barcodes' => array(
         'link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:Collection/id:' . $atimMenuVariables['Collection.id'],
@@ -34,6 +34,10 @@ if (empty($participantId)) {
             'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId
         ),
         'participant inventory' => array(
+            'icon' => 'participant',
+            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $participantId
+        ),
+        'participant collection link' => array(
             'icon' => 'participant',
             'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $atimMenuVariables['Collection.id']
         )

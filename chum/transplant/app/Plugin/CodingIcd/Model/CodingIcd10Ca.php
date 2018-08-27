@@ -5,7 +5,7 @@
  */
 class CodingIcd10Ca extends CodingIcdAppModel
 {
-
+    
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-10-CA
     // From: CIHI publications department (ICD10CA_Code_Eng_Desc2010_V2_0 & ICD10CA_Code_Fra_Desc2010_V2_0)
@@ -40,6 +40,7 @@ class CodingIcd10Ca extends CodingIcdAppModel
     }
 
     /**
+     *
      * @param $id
      * @return bool
      */
@@ -49,10 +50,27 @@ class CodingIcd10Ca extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return CodingIcd10Ca|null
      */
     public static function getSingleton()
     {
         return self::$singleton;
+    }
+
+    /**
+     *
+     * @param array $terms
+     * @param $exactSearch
+     * @param $searchOnId
+     * @param $limit
+     * @return array|bool|null|The
+     */
+    public function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
+    {
+        if (isset($terms[0])) {
+            $terms[0] = preg_replace('/([cC][0-9]{2})\.([0-9])/', '$1$2', $terms[0]);
+        }
+        return parent::globalSearch($terms, $exactSearch, $searchOnId, $limit);
     }
 }

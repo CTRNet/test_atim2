@@ -15,6 +15,9 @@ if ($typeOfList) {
         ),
         'bottom' => array()
     );
+    if ($typeOfList != 'temporary') {
+        unset($structureLinks['index']['save']);
+    }
     
     $finalAtimStructure = $atimStructure;
     $finalOptions = array(
@@ -50,7 +53,6 @@ if ($typeOfList) {
     $listData = array(
         'temporary' => 'temporary batch sets',
         'saved' => 'saved batch sets',
-        'group' => 'group batch sets',
         'all' => 'all batch sets'
     );
     

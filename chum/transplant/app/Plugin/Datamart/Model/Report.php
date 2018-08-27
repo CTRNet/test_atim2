@@ -9,6 +9,7 @@ class Report extends DatamartAppModel
     public $useTable = 'datamart_reports';
 
     /**
+     *
      * @param array $variables
      * @return array
      */
@@ -21,7 +22,7 @@ class Report extends DatamartAppModel
                 'conditions' => array(
                     'Report.id' => $variables['Report.id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             $reportData['Report']['name'] = __($reportData['Report']['name']);
             $reportData['Report']['description'] = __($reportData['Report']['description']);

@@ -116,6 +116,7 @@ class ViewShell extends AppShell
     }
 
     /**
+     *
      * @return array
      */
     public function getViews()

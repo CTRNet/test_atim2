@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => '/Order/Shipments/addToShipment/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . "/$orderLineId/$offset/$limit",
+    'top' => '/Order/Shipments/addToShipment/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . "/$orderLineId",
     'bottom' => array(
         'cancel' => '/Order/Shipments/detail/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/'
     ),
@@ -12,38 +12,28 @@ $structureLinks = array(
 $structureSettings = array(
     'pagination' => true,
     'header' => __('add items to shipment', null),
-    'actions' => false,
-    'form_inputs' => false,
-    'form_bottom' => false
+    'form_inputs' => false
 );
 
-$finalAtimStructure = $atimStructure;
-$finalAtimStructureWithOrderLines = $atimStructureWithOrderLines;
 $finalOptions = array(
     'type' => 'index',
     'links' => $structureLinks,
     'settings' => $structureSettings
 );
 
+if (isset($languageHeading)) {
+    $finalOptions['settings']['language_heading'] = $languageHeading;
+}
+
+$finalAtimStructure = $atimStructure;
+
 // CUSTOM CODE
 $hookLink = $this->Structures->hook();
 
 // BUILD FORM
-while ($data = array_shift($this->request->data)) {
-    $linkedToOrderLine = $data['order_line_id'] ? true : false;
-    if (empty($this->request->data)) {
-        $finalOptions['settings']['actions'] = true;
-        $finalOptions['settings']['form_bottom'] = true;
-    }
-    $finalOptions['settings']['language_heading'] = $linkedToOrderLine ? __('line') . ': ' . $data['name'] : null;
-    $finalOptions['data'] = $data['data'];
-    if ($hookLink) {
-        require ($hookLink);
-    }
-    $this->Structures->build(($linkedToOrderLine ? $finalAtimStructureWithOrderLines : $finalAtimStructure), $finalOptions);
-    
-    $finalOptions['settings']['header'] = array();
-}
+
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
 ?>
 <script>
     var dataLimit=<?php echo $dataLimit;?>;

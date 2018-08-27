@@ -9,6 +9,7 @@ class ProtocolExtendControl extends ProtocolAppModel
     public $masterFormAlias = 'protocol_extend_masters';
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

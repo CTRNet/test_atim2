@@ -11,7 +11,7 @@ if(isset($argv[1])) {
 }
 
 if($is_test_import_process) truncate();
-
+Pour ce qui des lames qui n'ont pas de blocs associés, oui nous voulons tout de même les migrer dans ATiM.
 //==============================================================================================
 // Main Code
 //==============================================================================================

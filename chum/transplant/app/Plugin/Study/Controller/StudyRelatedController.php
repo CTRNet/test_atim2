@@ -18,6 +18,7 @@ class StudyRelatedController extends StudyAppController
     );
 
     /**
+     *
      * @param $studySummaryId
      */
     public function listall($studySummaryId)
@@ -34,7 +35,7 @@ class StudyRelatedController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($studyRelatedData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -57,6 +58,7 @@ class StudyRelatedController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyRelatedId
      */
@@ -98,6 +100,7 @@ class StudyRelatedController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      */
     public function add($studySummaryId)
@@ -114,7 +117,7 @@ class StudyRelatedController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($studyRelatedData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -168,6 +171,7 @@ class StudyRelatedController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyRelatedId
      */
@@ -242,6 +246,7 @@ class StudyRelatedController extends StudyAppController
     }
 
     /**
+     *
      * @param $studySummaryId
      * @param $studyRelatedId
      */

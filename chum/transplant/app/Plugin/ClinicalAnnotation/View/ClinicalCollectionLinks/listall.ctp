@@ -51,9 +51,25 @@ if (! $isAjax) {
     );
     
     // LINKS
+    
+    $addButtonLinks = '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/';
+    if ($collectionProtocols) {
+        $addButtonLinks = array();
+        $addButtonLinks['collection'] = array(
+            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/',
+            'icon' => 'add_collection'
+        );
+        foreach ($collectionProtocols as $collectionProtocolId => $collectionProtocolName) {
+            $addButtonLinks[$collectionProtocolName] = array(
+                'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/' . $collectionProtocolId,
+                'icon' => 'add_collection_protocol'
+            );
+        }
+    }
+    
     $structureLinks = array(
         'bottom' => array(
-            'add' => '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/'
+            'add' => $addButtonLinks
         ),
         'tree' => array(
             'Collection' => array(
@@ -81,6 +97,7 @@ if (! $isAjax) {
             )
         )
     );
+    
     // EXTRAS
     
     $structureExtras = array();
