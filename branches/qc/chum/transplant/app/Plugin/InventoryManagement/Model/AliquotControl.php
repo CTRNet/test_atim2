@@ -33,6 +33,7 @@ class AliquotControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $useId
      * @param $parentSampleControlId
      * @return array
@@ -82,6 +83,7 @@ class AliquotControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $parentSampleControlId
      * @return array
      */
@@ -174,6 +176,7 @@ class AliquotControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

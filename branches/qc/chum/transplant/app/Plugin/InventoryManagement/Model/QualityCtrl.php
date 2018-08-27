@@ -24,6 +24,7 @@ class QualityCtrl extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -64,9 +65,8 @@ class QualityCtrl extends InventoryManagementAppModel
     /**
      * Check if a quality control can be deleted.
      *
-     * @param $qualityCtrlId Id
-     *            of the studied quality control.
-     *            
+     * @param $qualityCtrlId Id of the studied quality control.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -86,18 +86,16 @@ class QualityCtrl extends InventoryManagementAppModel
      * Create code of a new quality control.
      *
      *
-     * @param $qcId ID
-     *            of the studied quality control.
+     * @param $qcId ID of the studied quality control.
      * @param $storageData
-     * @param $qcData Data
-     *            of the quality control.
-     * @param $sampleData Data
-     *            of the sample linked to this quality control.
+     * @param $qcData Data of the quality control.
+     * @param $sampleData Data of the sample linked to this quality control.
      * @return The new code.
-     *
+     *        
      * @author N. Luc
      * @since 2008-01-31
      * @deprecated
+     *
      */
     public function createCode($qcId, $storageData, $qcData = null, $sampleData = null)
     {

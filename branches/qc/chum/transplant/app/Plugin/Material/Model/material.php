@@ -11,6 +11,7 @@ class Material extends AppModel
     public $useTable = 'materials';
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */

@@ -17,6 +17,7 @@ class Shipment extends OrderAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -52,12 +53,11 @@ class Shipment extends OrderAppModel
     /**
      * Get array gathering all existing shipments.
      *
-     * @param $orderId Id
-     *            of the order linked to the shipments to return (null for all).
-     *
+     * @param $orderId Id of the order linked to the shipments to return (null for all).
+     *       
      * @author N. Luc
      * @since 2009-09-11
-     * @updated N. Luc
+     *        @updated N. Luc
      * @return array
      */
     public function getShipmentPermissibleValues($orderId = null)
@@ -80,9 +80,8 @@ class Shipment extends OrderAppModel
     /**
      * Check if a shipment can be deleted.
      *
-     * @param $shipmentId Id
-     *            of the studied shipment.
-     *            
+     * @param $shipmentId Id of the studied shipment.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -98,7 +97,7 @@ class Shipment extends OrderAppModel
             'conditions' => array(
                 'OrderItem.shipment_id' => $shipmentId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -116,11 +115,9 @@ class Shipment extends OrderAppModel
     /**
      * Check if an item can be removed from a shipment.
      *
-     * @param $orderItemId Id
-     *            of the studied item.
-     * @param $shipmentId Id
-     *            of the studied shipemnt.
-     *            
+     * @param $orderItemId Id of the studied item.
+     * @param $shipmentId Id of the studied shipemnt.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false

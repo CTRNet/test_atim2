@@ -32,6 +32,7 @@ class CollectionsController extends InventoryManagementAppController
     );
 
     /**
+     *
      * @param int $searchId
      * @param bool $isCclAjax
      */
@@ -75,6 +76,11 @@ class CollectionsController extends InventoryManagementAppController
             $this->Structures->set('view_collection');
             $this->request->data = $this->paginate($this->ViewCollection, $conditions);
         } else {
+            $hookLink = $this->hook('pre_search_handler');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+            
             $this->searchHandler($searchId, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
         }
         
@@ -112,6 +118,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param bool $hideHeader
      */
@@ -140,8 +147,15 @@ class CollectionsController extends InventoryManagementAppController
         $this->set('isAjax', $this->request->is('ajax'));
         $this->set('hideHeader', $hideHeader);
         
+        $collectionSampleCounter = $this->SampleMaster->find('count', array(
+            'conditions' => array(
+                'SampleMaster.collection_id' => $collectionId
+            ),
+            'recursive' => 0
+        ));
+        $templateId = $collectionSampleCounter ? null : $this->request->data['Collection']['template_id'];
         $templateModel = AppModel::getInstance("Tools", "Template", true);
-        $templates = $templateModel->getAddFromTemplateMenu($collectionId);
+        $templates = $templateModel->getAddFromTemplateMenu($collectionId, $templateId);
         $this->set('templates', $templates);
         
         if (! $this->request->is('ajax')) {
@@ -173,12 +187,15 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param int $collectionId
      * @param int $copySource
      */
     public function add($collectionId = 0, $copySource = 0)
     {
         $collectionData = null;
+        $collectionProtocolFirstVisitsData = null;
+        $collectionProtocolOtherVisitsData = null;
         if ($collectionId > 0) {
             $collectionData = $this->Collection->find('first', array(
                 'conditions' => array(
@@ -187,7 +204,21 @@ class CollectionsController extends InventoryManagementAppController
                 ),
                 'recursive' => 1
             ));
+            if ($collectionData && $collectionData['Collection']['collection_protocol_id']) {
+                $collectionProtocolModel = AppModel::getInstance("Tools", "CollectionProtocol", true);
+                $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('use');
+                if (! array_key_exists($collectionData['Collection']['collection_protocol_id'], $collectionProtocolLists)) {
+                    // Can only happen if protocol properties have been modified just after user clicked on submit in clinical collection link (should probably never happen)
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                } else {
+                    // New participant collection part of a collections protocol and collection being the first one
+                    $collectionProtocolVisitModel = AppModel::getInstance("Tools", "CollectionProtocolVisit", true);
+                    $collectionProtocolOtherVisitsData = $collectionProtocolVisitModel->getCollectionProtocolVisitsData($collectionData['Collection']['collection_protocol_id']);
+                    $collectionProtocolFirstVisitsData = array_shift($collectionProtocolOtherVisitsData);
+                }
+            }
         }
+        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         if (! empty($collectionData)) {
@@ -204,8 +235,8 @@ class CollectionsController extends InventoryManagementAppController
         if (! empty($this->request->data) && ! array_key_exists('collection_property', $this->request->data['Collection'])) {
             // Set collection property to 'participant collection' if field collection property is hidden in add form (default value)
             $this->request->data['Collection']['collection_property'] = 'participant collection';
-            $this->Collection->addWritableField('collection_property'); // Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
         }
+        $this->Collection->addWritableField('collection_property'); // Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
         
         $needToSave = ! empty($this->request->data);
         if (empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])) {
@@ -213,9 +244,24 @@ class CollectionsController extends InventoryManagementAppController
                 if (empty($this->request->data)) {
                     $this->request->data = $this->Collection->getOrRedirect($copySource);
                 }
-                if ($this->request->data['Collection']['collection_property'] == 'participant collection') {
-                    $this->Structures->set('collections,col_copy_binding_opt');
+                $additionalColCopyStructure = '';
+                if ((isset($this->request->data['Collection']['collection_protocol_id']) && strlen($this->request->data['Collection']['collection_protocol_id'])) || isset($this->request->data['FunctionManagement']['col_copy_protocol_opt'])) {
+                    $additionalColCopyStructure = ',col_copy_protocol_opt';
+                    if (! $needToSave) {
+                        $collectionProtocolModel = AppModel::getInstance("Tools", "CollectionProtocol", true);
+                        $collectionProtocolLists = $collectionProtocolModel->getProtocolsList('use');
+                        if (! array_key_exists($this->request->data['Collection']['collection_protocol_id'], $collectionProtocolLists)) {
+                            // User is not supposed to work with this protocol but because it's a copy, protocol will be copied
+                            AppController::addWarningMsg(__("you don't have permission to use the protocol but this one will be linked to the collections"));
+                        }
+                    }
                 }
+                if ($this->request->data['Collection']['collection_property'] == 'participant collection') {
+                    $this->Structures->set('collections,col_copy_binding_opt' . $additionalColCopyStructure);
+                }
+            } elseif (! isset($this->request->data['FunctionManagement']['col_copy_binding_opt']) && isset($collectionProtocolFirstVisitsData['CollectionProtocolVisit']['default_values'])) {
+                // New participant collection part of a collections protocol and being the first one
+                $this->request->data = $collectionProtocolFirstVisitsData['CollectionProtocolVisit']['default_values'];
             }
             $this->request->data['Generated']['field1'] = (! empty($collectionData)) ? $collectionData['Participant']['participant_identifier'] : __('n/a');
         }
@@ -259,13 +305,50 @@ class CollectionsController extends InventoryManagementAppController
                         ));
                     }
                 }
+                if (isset($this->request->data['FunctionManagement']['col_copy_protocol_opt'])) {
+                    switch ($this->request->data['FunctionManagement']['col_copy_protocol_opt']) {
+                        case 'protocol and template':
+                            $this->Collection->addWritableField(array(
+                                'template_id'
+                            ));
+                            $this->request->data['Collection']['template_id'] = $copySrcData['Collection']['template_id'];
+                        case 'protocol only':
+                            $this->Collection->addWritableField(array(
+                                'collection_protocol_id'
+                            ));
+                            $this->request->data['Collection']['collection_protocol_id'] = $copySrcData['Collection']['collection_protocol_id'];
+                            break;
+                    }
+                }
+            } elseif ($collectionProtocolFirstVisitsData) {
+                // New participant collection part of a collections protocol and being the first one
+                $this->request->data['Collection']['template_id'] = $collectionProtocolFirstVisitsData['CollectionProtocolVisit']['template_id'];
+                $this->Collection->addWritableField(array(
+                    'participant_id',
+                    'collection_property',
+                    'consent_master_id',
+                    'diagnosis_master_id',
+                    'treatment_master_id',
+                    'event_master_id',
+                    'collection_protocol_id',
+                    'template_id'
+                ));
             }
             
             $this->request->data['Collection']['deleted'] = 0;
             $this->Collection->addWritableField('deleted');
             
-            // LAUNCH SAVE PROCESS
+            // LAUNCH VALIDATION PROCESS
+            
             $submittedDataValidates = true;
+            
+            $this->Collection->data = array();
+            $this->Collection->set($this->request->data);
+            if (! $this->Collection->validates()) {
+                $submittedDataValidates = false;
+            } else {
+                $this->request->data = $this->Collection->data;
+            }
             
             // HOOK AND VALIDATION
             $hookLink = $this->hook('presave_process');
@@ -283,12 +366,81 @@ class CollectionsController extends InventoryManagementAppController
                     $this->Collection->data = null;
                 }
                 
-                if ($this->Collection->save($this->request->data)) {
+                if ($this->Collection->save($this->request->data, false)) {
+                    $collectionId = $collectionId ?  : $this->Collection->getLastInsertId();
+                    
+                    // Launch the collection protocol visit creation
+                    if ($collectionProtocolOtherVisitsData) {
+                        $linkedRecordIds = array(
+                            'participant_id' => $collectionData['Collection']['participant_id'],
+                            'consent_master_id' => $collectionData['Collection']['consent_master_id'],
+                            'diagnosis_master_id' => $collectionData['Collection']['diagnosis_master_id'],
+                            'treatment_master_id' => $collectionData['Collection']['treatment_master_id'],
+                            'event_master_id' => $collectionData['Collection']['event_master_id']
+                        );
+                        $firstCollectionDateTime = $this->request->data['Collection']['collection_datetime'];
+                        $firstCollectionDateTimeAccuracy = $this->request->data['Collection']['collection_datetime_accuracy'];
+                        foreach ($collectionProtocolOtherVisitsData as $newVisitData) {
+                            $newCollectionToCreate = array_merge($linkedRecordIds, $newVisitData['CollectionProtocolVisit']['default_values']['Collection']);
+                            $newCollectionToCreate = array(
+                                'Collection' => $newCollectionToCreate
+                            );
+                            $newCollectionToCreate['Collection']['collection_protocol_id'] = $newVisitData['CollectionProtocolVisit']['collection_protocol_id'];
+                            $newCollectionToCreate['Collection']['template_id'] = $newVisitData['CollectionProtocolVisit']['template_id'];
+                            $newCollectionToCreate['Collection']['collection_property'] = 'participant collection';
+                            if ($firstCollectionDateTime && strlen($newVisitData['CollectionProtocolVisit']['time_from_first_visit']) && $newVisitData['CollectionProtocolVisit']['time_from_first_visit_unit']) {
+                                $newCollectionToCreate['Collection']['collection_datetime'] = date("Y-m-d", strtotime($firstCollectionDateTime . " +" . $newVisitData['CollectionProtocolVisit']['time_from_first_visit'] . " " . $newVisitData['CollectionProtocolVisit']['time_from_first_visit_unit']));
+                                $newCollectionToCreate['Collection']['collection_datetime'] = array_combine(array(
+                                    'year',
+                                    'month',
+                                    'day'
+                                ), explode('-', $newCollectionToCreate['Collection']['collection_datetime']));
+                                switch ($firstCollectionDateTimeAccuracy) {
+                                    case 'y':
+                                    case 'm':
+                                        unset($newCollectionToCreate['Collection']['collection_datetime']['month']);
+                                    case 'd':
+                                        unset($newCollectionToCreate['Collection']['collection_datetime']['day']);
+                                }
+                            }
+                            
+                            $hookLink = $this->hook('protocol_visit_presave_process');
+                            if ($hookLink) {
+                                require ($hookLink);
+                            }
+                            
+                            $this->Collection->set($newCollectionToCreate);
+                            if (! $this->Collection->validates()) {
+                                $allErrors = array();
+                                foreach ($this->Collection->validationErrors as $fieldInError => $fieldErrors) {
+                                    foreach ($fieldErrors as $newErrors) {
+                                        $allErrors[] = $newErrors;
+                                    }
+                                }
+                                $allErrors = implode(' & ', $allErrors);
+                                AppController::addWarningMsg(__("collection visit '%s' has not been created (from protocol)", $newVisitData['CollectionProtocolVisit']['name']) . ' : ' . $allErrors);
+                            } else {
+                                $newCollectionToCreate = $this->Collection->data;
+                                $this->Collection->id = 0;
+                                $this->Collection->data = null;
+                                
+                                $hookLink = $this->hook('protocol_visit_pretsave_process');
+                                if ($hookLink) {
+                                    require ($hookLink);
+                                }
+                                
+                                if (! $this->Collection->save($newCollectionToCreate, false)) {
+                                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                                }
+                            }
+                        }
+                    }
+                    
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
                         require ($hookLink);
                     }
-                    $collectionId = $collectionId ?: $this->Collection->getLastInsertId();
+                    
                     $this->atimFlash(__('your data has been saved'), '/InventoryManagement/Collections/detail/' . $collectionId);
                 }
             }
@@ -296,6 +448,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      */
     public function edit($collectionId)
@@ -354,6 +507,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      */
     public function delete($collectionId)
@@ -388,6 +542,7 @@ class CollectionsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $templateId
      */
@@ -435,11 +590,14 @@ class CollectionsController extends InventoryManagementAppController
         unset($sampleRelation);
         $samplesRelations = AppController::defineArrayKey($samplesRelations, 'ParentToDerivativeSampleControl', 'parent_sample_control_id');
         
+        $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
         $jsData = array(
             'sample_controls' => $sampleControls,
             'samples_relations' => $samplesRelations,
             'aliquot_controls' => AppController::defineArrayKey($aliquotControls, 'AliquotControl', 'id', true),
-            'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id")
+            'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id"),
+            'fomated_nodes_default_values' => $templateNodeModel->formatTemplateNodeDefaultValuesForDisplay($templateId),
+            'default_values_json' => $templateNodeModel->getDefaultValues($templateId)
         );
         
         $this->set('jsData', $jsData);
@@ -453,10 +611,13 @@ class CollectionsController extends InventoryManagementAppController
         ));
         $this->Structures->set('template');
         $this->request->data = empty($template) ? null : $template;
+        
+        $this->set('showDefaultIcon', false);
         $this->render('/../../Tools/View/Template/tree');
     }
 
     /**
+     *
      * @param $collectionId
      * @param $templateId
      */

@@ -33,6 +33,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getTypePermissibleValues()
@@ -53,6 +54,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getCategoryPermissibleValues()
@@ -73,6 +75,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

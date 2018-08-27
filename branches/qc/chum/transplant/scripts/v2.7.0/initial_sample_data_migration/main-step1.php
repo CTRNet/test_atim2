@@ -634,9 +634,15 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                     'blood_type' => 'none (red)'));
             $sample_master_id = customInsertRecord($sample_data);
             foreach($new_collection_data[$key] as $newTube) {
-                if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
+                if(strlen($newTube['parent_inventory_id'].$newTube['quantity'])) {
                     pr('TODO3883888a788');
                     pr($newTube);
+                }
+                if(strlen($newTube['label'].$newTube['position_string'])) {
+                    recordErrorAndMessage('Collection creation',
+                        '@@ERROR@@',
+                        "Storage position defined for a $key. No storage will be recorded.",
+                        "See aliquot ".trim($newTube['inventory_id'])." of the participant [$current_participant] and correct migrated data into ATiM.");
                 }
                 $barcode = trim($newTube['inventory_id']);
                 $aliquot_data = array(

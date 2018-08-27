@@ -33,6 +33,7 @@ class Order extends OrderAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -67,6 +68,7 @@ class Order extends OrderAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -101,8 +103,8 @@ class Order extends OrderAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($orderData['FunctionManagement']['autocomplete_order_study_summary_id']);
                 
                 // Set study summary id
@@ -121,9 +123,8 @@ class Order extends OrderAppModel
     /**
      * Check if an order can be deleted.
      *
-     * @param $orderId Id
-     *            of the studied order.
-     *            
+     * @param $orderId Id of the studied order.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -139,7 +140,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'OrderItem.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -154,7 +155,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'OrderLine.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -169,7 +170,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'Shipment.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -185,6 +186,7 @@ class Order extends OrderAppModel
     }
 
     /**
+     *
      * @param $orderId
      */
     public function warnUnconsentedAliquots($orderId)

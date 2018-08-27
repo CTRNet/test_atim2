@@ -9,6 +9,9 @@ $structureLinks = array(
 $finalAtimStructure = $atimStructure;
 $finalOptions = array(
     'links' => $structureLinks,
+    'settings' => array(
+        'header' => __('template', null)
+    ),
     'type' => 'edit'
 );
 

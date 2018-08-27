@@ -10,12 +10,9 @@ class CodingIcdAppModel extends AppModel
 
     /**
      *
-     * @param unknown_type $id
-     *            The id of the code to get the description of
-     * @param boolean $isSearchForm
-     *            Define if the data will be display in a search form or not
-     * @param array $dataArray
-     *            The CodingIcd* data array
+     * @param unknown_type $id The id of the code to get the description of
+     * @param boolean $isSearchForm Define if the data will be display in a search form or not
+     * @param array $dataArray The CodingIcd* data array
      * @return the description of an icd code
      *         @note: This is CodingIcdAppModel, thus this function must work for all coding
      */
@@ -42,6 +39,7 @@ class CodingIcdAppModel extends AppModel
     }
 
     /**
+     *
      * @param $id
      * @return bool
      */
@@ -59,6 +57,7 @@ class CodingIcdAppModel extends AppModel
     }
 
     /**
+     *
      * @param array $terms
      * @param $exactSearch
      * @param $searchOnId
@@ -75,7 +74,7 @@ class CodingIcdAppModel extends AppModel
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
         $searchFields = array_keys($this->schema());
         $filterKey = $lang . '_';
-        $searchFields = array_filter($searchFields, function ($in) use ($filterKey) {
+        $searchFields = array_filter($searchFields, function ($in) use($filterKey) {
             return strpos($in, $filterKey) === 0;
         });
         if ($searchOnId) {
@@ -138,8 +137,7 @@ class CodingIcdAppModel extends AppModel
     /**
      * Convert CodingIcd* data arrays to have them use the generic CodingIcd model so that we only have 2 CodingIcd structures
      *
-     * @param array $dataArray
-     *            The CodingIcd* data array to convert
+     * @param array $dataArray The CodingIcd* data array to convert
      * @return The converted array
      */
     public static function convertDataToNeutralIcd(array $dataArray)
@@ -158,6 +156,7 @@ class CodingIcdAppModel extends AppModel
     }
 
     /**
+     *
      * @param array $terms
      * @param $exactSearch
      * @return array
