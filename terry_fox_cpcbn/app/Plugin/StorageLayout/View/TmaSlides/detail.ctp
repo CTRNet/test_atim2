@@ -25,7 +25,6 @@ if ($isFromTreeViewOrLayout == 1) {
     $structureLinks['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'];
 }
 
-$formOverride = array();
 $structureOverride = array();
 
 $finalAtimStructure = $atimStructure;
