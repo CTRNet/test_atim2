@@ -302,8 +302,8 @@ if(!$is_test_import_process) {
 foreach($final_queries as $new_query) customQuery($new_query);
 
 insertIntoRevsBasedOnModifiedValues();
-//dislayErrorAndMessage(!$is_test_import_process);
-dislayErrorAndMessage(true);
+dislayErrorAndMessage(!$is_test_import_process);
+//dislayErrorAndMessage(true);
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
