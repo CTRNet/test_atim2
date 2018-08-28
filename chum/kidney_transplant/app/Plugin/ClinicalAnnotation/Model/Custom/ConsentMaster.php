@@ -12,8 +12,7 @@ class ConsentMasterCustom extends ConsentMaster
     {
         $result = parent::validates($options);
         if (($this->data['ConsentMaster']['consent_status'] == 'obtained') && (empty($this->data['ConsentMaster']['consent_signed_date']))) {
-            $result = false;
-            $this->validationErrors['consent_status'][] = 'all obtained consents should have a signed date';
+            AppController::addWarningMsg(__('all obtained consents should have a signed date'));
         }
         return $result;
     }

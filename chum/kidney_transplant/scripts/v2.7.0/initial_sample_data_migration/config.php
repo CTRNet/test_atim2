@@ -8,9 +8,9 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "chumtransplant";
+$db_schema		= "chumkidneytransplant";
 
-$isserver = true;
+$isserver = false;
 if($isserver) {
     $db_pwd			= "am3-y-4606";
     $db_schema		= "atimkidneytransplanttest";
@@ -22,13 +22,13 @@ $migration_user_id = 9;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$excel_files_paths = "C:/_NicolasLuc/Server/www/chum_transplant/scripts/v2.7.0/initial_sample_data_migration/";
+$excel_files_paths = "C:/_NicolasLuc/Server/www/ATiM biobanque Hebert-Cardinal/";
 if($isserver) $excel_files_paths = "/ATiM/atim-kidney-transplant/Test/scripts/v2.7.0/initial_sample_data_migration/";
 
 $excel_file_names = array(
     //Step1
-    'main' => 'CRCHUM - biorepository - Box Position.xls',
-    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM.xls',
+    'main' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
+    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
     //Step2
     'blocks' => array(
         'Transpl. Rein_2011_HD.xls',
@@ -50,22 +50,3 @@ $excel_file_names = array(
 );
 
 ?>
-
-
-Attention les formats des boites sont à intervertir.
-
-Dans la premiere analyse
-A1 B1 C1 D1 ...
-A2 B2 C2 ...
-A3 B3 ...
-A4 ...
-
-Or cela devrait être
-A1 A2 A3 A4 ...
-B1 B2 B3 ...
-C1 C2 ...
-D1 ...
-
-
-
-

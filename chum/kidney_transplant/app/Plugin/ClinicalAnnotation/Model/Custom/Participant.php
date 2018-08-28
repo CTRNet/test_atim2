@@ -34,7 +34,8 @@ class ParticipantCustom extends Participant
                 $result[0]['identifiers'] = "";
                 $tempArray = array();
                 foreach ($identifierResults as $ir) {
-                    $tempArray[__(str_replace(' bank no lab', '', $ir['MiscIdentifierControl']['misc_identifier_name']), true)] = $ir['MiscIdentifier']['identifier_value'];
+                    $key = __(str_replace(' bank no lab', '', $ir['MiscIdentifierControl']['misc_identifier_name']), true);
+                    $tempArray[$key] = (array_key_exists($key, $tempArray) ? $tempArray[$key] . ' & ' : '') . $ir['MiscIdentifier']['identifier_value'];
                 }
                 asort($tempArray);
                 foreach ($tempArray as $key => $value) {
