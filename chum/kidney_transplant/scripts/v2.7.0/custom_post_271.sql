@@ -116,18 +116,9 @@ VALUES
 ('no labos [%s] matche other bank numbers', 
 "No Labos [%s] matche 'Other Kidney/Transplant Bank #' that won't be linked to the data. Please use the Bank# assigned to data if required.", 
 "Les No Labos [%s] correspondent à d'autres 'No banque Rein/Transplant' qui ne sont pas liés aux données. Utilisez le bon numéro de banque assignée aux données au besoin");
-  
-  
-  
-  
-  
-  
-  
-   
-   
    		
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Version
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7305' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7385' WHERE version_number = '2.7.1';
