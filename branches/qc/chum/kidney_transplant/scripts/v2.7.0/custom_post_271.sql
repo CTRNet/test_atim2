@@ -72,7 +72,10 @@ ALTER TABLE sardo_import_summary
 ALTER TABLE sardo_import_summary
    MODIFY details varchar(1000) DEFAULT NULL;
    
-   
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Kidney Modifications
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 
 UPDATE structure_fields SET language_label = 'last modification' WHERE language_label = 'last modification (excepted SARDO imp)';
 INSERT INTO i18n (id,en,fr)
@@ -96,13 +99,23 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0'
 WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
  
-  
-  
-  
-  
-  
-  
-  
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_rec_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_reports SET flag_active = 1 WHERE name = 'participant identifiers';
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='code_barre' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET field = 'kidney_transplant_bank_no_lab' WHERE field = 'chum_kidney_transp_bank_no_lab' AND model = '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'other_kidney_transplant_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'other kidney transplant bank no lab', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_kidney_transplant_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='other kidney transplant bank no lab' AND `language_tag`=''), '0', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+('no labos [%s] matche other bank numbers', 
+"No Labos [%s] matche 'Other Kidney/Transplant Bank #' that won't be linked to the data. Please use the Bank# assigned to data if required.", 
+"Les No Labos [%s] correspondent à d'autres 'No banque Rein/Transplant' qui ne sont pas liés aux données. Utilisez le bon numéro de banque assignée aux données au besoin");
   
   
   

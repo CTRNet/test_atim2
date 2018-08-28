@@ -7,20 +7,21 @@ class ViewSampleCustom extends ViewSample
 
     // TODO: Kidney transplant customisation
     // Added Collection.chum_kidney_transp_collection_time to view.
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-	
+    
 		Collection.bank_id,
 		Collection.sop_master_id,
 		Collection.participant_id,
-	
+		Collection.collection_protocol_id AS collection_protocol_id,
+    
 		Participant.participant_identifier,
-	
-CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
-	
+    
+--		Collection.acquisition_label,
+    
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -29,7 +30,7 @@ CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-	
+    
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
@@ -49,7 +50,7 @@ Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
-	
+    
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -63,8 +64,8 @@ SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-
+        WHERE SampleMaster.deleted != 1 %%WHERE%%';
+    
     public function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
@@ -77,7 +78,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
                     $identifierValues = $newCondition;
                     break;
                 } elseif (is_string($newCondition)) {
-                    if (preg_match_all('/ViewSample\.identifier_value LIKE \'%([0-9]+)%\'/', $newCondition, $matches)) {
+                    if (preg_match_all('/ViewSample\.identifier_value LIKE \'%([^\']+)%\'/', $newCondition, $matches)) {
                         $identifierValues = $matches[1];
                         break;
                     }
@@ -87,7 +88,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
                 $miscIdentifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
                 $result = $miscIdentifierModel->find('all', array(
                     'conditions' => array(
-                        'MiscIdentifier.misc_identifier_control_id' => array(6,18,19),
+                        'MiscIdentifier.misc_identifier_control_id' => array(25),
                         'MiscIdentifier.identifier_value' => $identifierValues
                     ),
                     'fields' => 'MiscIdentifier.identifier_value'
@@ -96,7 +97,8 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
                     $allValues = array();
                     foreach ($result as $newRes)
                         $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
-                    AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $allValues)));
+                    AppController::forceMsgDisplayInPopup();
+                    AppController::addWarningMsg(__('no labos [%s] matche other bank numbers', implode(', ', $allValues)));
                 }
             }
             $gtKey = array_key_exists('ViewSample.identifier_value >=', $query['conditions']);

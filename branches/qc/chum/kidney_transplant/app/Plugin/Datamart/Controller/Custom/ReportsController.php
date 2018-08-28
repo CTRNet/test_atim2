@@ -107,9 +107,12 @@ class ReportsControllerCustom extends ReportsController
                         'old_breast_bank_no_lab' => null,
                         'old_ovary_bank_no_lab' => null,
                         'code_barre' => null,
-                        'qc_nd_study_misc_identifier_value' => ''
+                        'qc_nd_study_misc_identifier_value' => '',
+                        'kidney_transplant_bank_no_lab' => '',
+                        'other_kidney_transplant_bank_no_lab' => ''
                     )
                 );
+                
             }
             $generatedKey = str_replace(array(
                 ' ',
@@ -121,7 +124,7 @@ class ReportsControllerCustom extends ReportsController
                 '_'
             ), $newIdent['MiscIdentifierControl']['misc_identifier_name']);
             if (array_key_exists($generatedKey, $data[$participantId]['0'])) {
-                $data[$participantId]['0'][$generatedKey] = $newIdent['MiscIdentifier']['identifier_value'];
+                $data[$participantId]['0'][$generatedKey] .= (strlen($data[$participantId]['0'][$generatedKey]) ? ' & ' : '') . $newIdent['MiscIdentifier']['identifier_value'];
             } elseif ($newIdent['MiscIdentifier']['study_summary_id']) {
                 $data[$participantId]['0']['qc_nd_study_misc_identifier_value'] .= $newIdent['StudySummary']['title'] . ' [' . $newIdent['MiscIdentifier']['identifier_value'] . "] ";
             }
