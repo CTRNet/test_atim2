@@ -69,6 +69,7 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
                     $allValues = array();
                     foreach ($result as $newRes)
                         $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
+					AppController::forceMsgDisplayInPopup();
                     AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $allValues)));
                 }
             }

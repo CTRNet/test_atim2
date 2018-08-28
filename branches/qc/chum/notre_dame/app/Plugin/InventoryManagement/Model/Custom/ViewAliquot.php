@@ -118,6 +118,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
                     $allValues = array();
                     foreach ($result as $newRes)
                         $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
+					AppController::forceMsgDisplayInPopup();
                     AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $allValues)));
                 }
             }
