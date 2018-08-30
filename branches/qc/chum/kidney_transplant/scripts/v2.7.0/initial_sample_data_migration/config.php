@@ -12,7 +12,9 @@ $db_schema		= "chumkidneytransplant";
 
 $isserver = false;
 if($isserver) {
-
+    $db_user 		= "kidneytransplant";
+    $db_pwd			= "";
+    $db_schema		= "atimkidneytransplantprod";
 }
 
 $db_charset		= "utf8";
@@ -26,8 +28,12 @@ if($isserver) $excel_files_paths = "/ATiM/atim-kidney-transplant/Prod/scripts/v2
 
 $excel_file_names = array(
     //Step1
-    'main' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
-    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
+//    'main' => 'CRCHUM-specimens-2018-08-24_revised_20180828_final.xls',
+//    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
+    
+
+    'main' => 'CRCHUM-specimens-2018-08-24_revised_20180828_short.xls',
+    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_short.xls',
     //Step2
     'blocks' => array(
         'Transpl. Rein_2011_HD.xls',

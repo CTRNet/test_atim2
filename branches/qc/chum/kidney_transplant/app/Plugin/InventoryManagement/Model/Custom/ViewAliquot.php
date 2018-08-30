@@ -64,7 +64,7 @@ class ViewAliquotCustom extends ViewAliquot
 			 
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
         
-CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), Collection.chum_kidney_transp_collection_part_type, Collection.chum_kidney_transp_collection_time) acquisition_label,
 MiscIdentifier.identifier_value AS identifier_value,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time
@@ -89,7 +89,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
         WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
     public function find($type = 'first', $query = array())
-    {pr($query['conditions']);
+    {
         if (isset($query['conditions'])) {
             $identifierValues = array();
             $queryConditions = is_array($query['conditions']) ? $query['conditions'] : array(
