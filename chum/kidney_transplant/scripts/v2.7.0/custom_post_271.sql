@@ -122,3 +122,130 @@ VALUES
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7385' WHERE version_number = '2.7.1';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Modification after first validation
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Change Hospital Number Format
+
+UPDATE misc_identifier_controls SET reg_exp_validation = '^((H)|(HD))[\\d]+$', user_readable_format = 'HD#', misc_identifier_format = 'HD' WHERE misc_identifier_name = 'hotel-dieu id nbr';
+UPDATE misc_identifier_controls SET reg_exp_validation = '^((N)|(ND))[\\d]+$', user_readable_format = 'ND#', misc_identifier_format = 'ND' WHERE misc_identifier_name = 'notre-dame id nbr';
+UPDATE misc_identifier_controls SET reg_exp_validation = '^((S)|(SL))[\\d]+$', user_readable_format = 'SL#', misc_identifier_format = 'SL' WHERE misc_identifier_name = 'saint-luc id nbr';
+
+-- Remove SARDO menus
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Administrate/SardoMigrations/%';
+
+-- Move collection visit_label to read only
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='visit_label' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_visit_label') AND `flag_confidential`='0');
+
+-- Drop down list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Message Types');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id AND value IN ('CA-125');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id AND value IN ('CA-125','FACs','PDX','MDT','Redistribution par client');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("stephanie lariviere-beaudoin", "Stephanie Lariviere-Beaudoin", "Stephanie Lariviere-Beaudoin", '1', @control_id, NOW(), NOW(), 1, 1);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Collection Sites');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('chum test centres', 'CHUM - Test Centres', 'CHUM - Centre de prélèvements', '1', @control_id, NOW(), NOW(), 1, 1),
+("crchum 6th floor", "CRCHUM - 6th Floor", "CRCHUM - 6ème étage", '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- Participant alive default value
+
+UPDATE structure_fields SET `default`='alive' WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='health_status');
+UPDATE structure_fields SET `default`='crchum 6th floor' WHERE model='Collection' AND field='collection_site';
+
+-- Change misc identifier 'kidney transplant bank no lab'
+
+UPDATE misc_identifier_controls 
+SET autoincrement_name = '', misc_identifier_format = '', reg_exp_validation = '^CHUM[0-9]{5}$', user_readable_format = 'CHUM00000', pad_to_length = 0
+WHERE misc_identifier_name = 'kidney transplant bank no lab';
+DELETE  FROM key_increments WHERE key_name='kidney transplant bank no lab';
+UPDATE misc_identifier_controls 
+SET autoincrement_name = '', misc_identifier_format = '', reg_exp_validation = '^CHUM[0-9]{5}$', user_readable_format = 'CHUM00000', pad_to_length = 0
+WHERE misc_identifier_name = 'other kidney transplant bank no lab';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('kidney transplant bank no lab must be unique', 
+"Kidney transplant bank no lab must be unique! Please check both 'Kidney/Transplant Bank #' and 'Other Kidney/Transplant Bank #'.", 
+"No banque Rein/Transplant doit être unique! Veuillez vérifier les 'No banque Rein/Transplant' et les 'No banque Rein/Transplant - Autre'.");
+
+-- Template init
+
+UPDATE structure_formats SET `language_heading`='specimen' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_initial_storage_datetime_defintion' AND `language_label`='initial storage date' AND `language_tag`=''), '3', '1000', 'aliquot', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='derivative' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
+
+-- barcode
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,placeholder=-- atim --' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_validations 
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'barcode') AND rule = 'notBlank';
+INSERT INTO structure_validations (structure_field_id, rule, language_message)
+VALUES
+((SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'barcode'), 'custom,/^(?![Aa][Tt][Ii][Mm]#).*/', 'error barcode should be different than system barcode');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('error barcode should be different than system barcode', 
+"The barcode value should not beginn as 'ATiM#'!", "La valeur du code-barres ne doit pas commencer par 'ATiM#'!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'no participant is linked to the collection - risk linked to the biomaterial can not be evaluated'
+'a biological risk exists with the aliquots of this collection'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VIH. Afficher aliquot warning.
+Aller chercher les RR1 dans le fichiers de commentaire pour les collections dont seules la reception des tubes à été enregistrés dans le fichier de Nelson.
+Avoir un profil infirmier accès en writte mode a clinicalsupprimer cst CHUM RAMAN
+Par défaut lors création aliquot, utiliser derniere boite siaise
+
+
+
+
+
+
+

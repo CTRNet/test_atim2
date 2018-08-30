@@ -2,33 +2,12 @@
 require_once __DIR__.'/system.php';
 
 /*
- * 
-//TODO
-pr("!!!!!!!!!!!!!!!! Replace Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into excel file");
-pr("!!!!!!!!!!!!!!!! Replace accent for nominal inforamtion file : notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.");
-pr('Géerer patient avec deux ramq');
-pr("!!!!!!!!!!!!!!!! Au début = patient = ND Après SL modifier le code de création de ID.");
-pr('!!!!!!!!!!! Créer champ created_at_date avec la formule =ENT(H2*1) ou H2 est la colonne de created_at et created_at_time avec la formule =H2-ENT(H2)');
+ * TODO:
+In Nelson DB Dump and other xls:
+  - Replace Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into.
+  - Replace accent for nominal inforamtion file field notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.
+  - Créer champ created_at_date avec la formule =ENT(H2*1) ou H2 est la colonne de created_at et created_at_time avec la formule =H2-ENT(H2)');
 
-
- * 
- * 
-Attention les formats des boites sont à intervertir.
-
-Dans la premiere analyse
-A1 B1 C1 D1 ...
-A2 B2 C2 ...
-A3 B3 ...
-A4 ...
-
-Or cela devrait être
-A1 A2 A3 A4 ...
-B1 B2 B3 ...
-C1 C2 ...
-D1 ...
- 
- 
- 
  */
 $is_test_import_process = false;
 if(isset($argv[1])) {
@@ -117,21 +96,30 @@ $storages = array();
 global $created_storage_counters;
 $created_storage_counters = 0;
 
-//pr('TODO: Remove if($line_number > 351) break;');
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[0], $worksheet_name, 1)) {
-// if($line_number > (351)) {
-//     pr('the last one');
-//     pr($excel_line_data);
-//     break;
-// }
-    $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date'], $excel_line_data['created_at_time_minus_4'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
+    
+    if($excel_line_data['created_at_date'] != $excel_line_data['created_at_date_minus_4h']) {
+        recordErrorAndMessage('Collection creation',
+            '@@WARNING@@',
+            "Initial collection date (Nelson DB) and collection date minus 4h are different.",
+            "Dates (Nelson) ".$excel_line_data['created_at']." and date minus 4h ".$excel_line_data['created_at_minus_4h'].". See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
+            $excel_line_data['created_at_date'].$excel_line_data['created_at_date_minus_4h'].$excel_line_data['visit_number'].$excel_line_data['patient_number']);
+    }
+    /*
+    
+    compparer si un jour d'écart pour générer un warning
+        VIH - > Warning partout.
+        Aller chercher les RR1 si pas de dérivé'
+    */
+    
+    $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date_minus_4h'], $excel_line_data['created_at_time_minus_4h'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
     if(strlen($tmp_date[0])) {
        $excel_line_data['created_at'] = $tmp_date[0];
     } else {
        $excel_line_data['created_at'] = '';
     }
     if($current_participant != $excel_line_data['patient_number']) {
-        if(!is_null($current_participant)) {
+        if(!is_null($current_participant)) {pr($participant_aliquots);
             loadParticipantCollection($current_participant, $participant_aliquots);
         }
         $participant_aliquots = array();
@@ -148,7 +136,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 '@@WARNING@@',
                 "Source_worksheet format modified",
                 "source_worksheet [$oldWorksheet] has been modified to  [".$excel_line_data['source_worksheet']."]. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number). Please validate.");
-            }
+        }
         if(!isset($participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'])) {
             $participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'] = $excel_line_data['source_worksheet'];
         } else if($participant_aliquots[$excel_line_data['visit_number']]['source_worksheet'] != $excel_line_data['source_worksheet']) {
@@ -240,9 +228,9 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
             customInsertRecord(array(
                 'misc_identifiers' => array(
                     'participant_id' => $participant_id,
-                    'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                    'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['notre-dame id nbr']['id'],
                     'flag_unique' => '1',
-                    'identifier_value' => 'S'.str_replace(' ', '', $hospitalNbr))));
+                    'identifier_value' => 'ND'.str_replace(' ', '', $hospitalNbr))));
         }
         if($ramq) {
             customInsertRecord(array(
@@ -323,11 +311,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
     
     // Create participant
     $identifier_value = '';
-    if(preg_match('/^CHUM(0[0-9]{4})$/', $current_participant, $matches)) {
-        $identifier_value = $matches[1];
+    if(preg_match('/^CHUM0[0-9]{4}$/', $current_participant, $matches)) {
+        $identifier_value = $current_participant;
     } else {
         $identifier_value = str_replace('CHUM', '', $current_participant);
         $identifier_value = str_pad($identifier_value, 5, "0", STR_PAD_LEFT);
+        $identifier_value = "CHUM$identifier_value";
         recordErrorAndMessage('Participant creation', 
             '@@ERROR@@', 
             "Bank Number Format", 
@@ -450,9 +439,9 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         customInsertRecord(array(
             'misc_identifiers' => array(
                 'participant_id' => $participant_id,
-                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['saint-luc id nbr']['id'],
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['notre-dame id nbr']['id'],
                 'flag_unique' => '1',
-                'identifier_value' => 'S'.str_replace(' ', '', $hospitalNbr))));
+                'identifier_value' => 'ND'.str_replace(' ', '', $hospitalNbr))));
     }
     if($ramq) {
         customInsertRecord(array(
@@ -494,7 +483,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         if(!isset($new_collection_data['source_worksheet'])) {
             recordErrorAndMessage('Collection creation', 
                 '@@ERROR@@', 
-                "No source_worksheet value for the collection visit. Collection Time and Collection Participant Type can not be defined.", 
+                "No source_worksheet value for the collection visit. Collection Time and Collection Participant Type can not be defined probably derivative are not here.", 
                 "See visit [$visitId] for the participant [$current_participant] and correct missing collection information into ATiM."); 
         } else {
             $source_worksheet = $new_collection_data['source_worksheet'];
@@ -530,8 +519,18 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         unset($new_collection_data['source_worksheet']);
 
         //Collection datetime
-        $collection_date_time = $new_collection_data['created_at'];
-         unset($new_collection_data['created_at']);
+        if(!array_key_exists('created_at', $new_collection_data)) {
+            $collection_date_time = '';
+            recordErrorAndMessage('Collection creation',
+                '@@ERROR@@',
+                "System Error: Collection creation field 'created_at' is not set.",
+                "See visit number [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
+            pr('ERR73738383 : probably all spicimen expected are not here');
+            pr($new_collection_data);
+        } else {
+            $collection_date_time = $new_collection_data['created_at'];
+            unset($new_collection_data['created_at']);
+        }
         
         $collection_id = customInsertRecord(array(
             'collections' => array(
@@ -545,7 +544,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 'visit_label' => $visitId,
                 'collection_property' => 'participant collection')));
 
-        $aliquot_label = $source_worksheet_identifier_value . ' '. $source_worksheet_collection_part_type.' '.$source_worksheet_collection_time;
+        $aliquot_label = $source_worksheet_identifier_value . $source_worksheet_collection_part_type . $source_worksheet_collection_time;
         
         // --------------------------------------------------------------------------------------------------------------------
         // Tissue Tube
@@ -838,7 +837,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                         $tmpParentAliquotToDerivative[$parentAliquotBarcode][$sample_type] = $sample_master_id;
                         customInsertRecord(array('source_aliquots' => array('sample_master_id' => $sample_master_id, 'aliquot_master_id' => $parent_aliquot_master_id)));
                     }
-                    $sample_master_id = $tmpParentAliquotToDerivative[$parentAliquotBarcode][$sample_type];
+                    $sample_master_id = $tmpParentAliquotToDerivative[$parentAliquotBarcode][$sample_type];     
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
@@ -1239,7 +1238,7 @@ function getStorageData($barcode, $box_selection_label, $position_string) {
         if(empty($box_selection_label)) {
             recordErrorAndMessage('Storage creation', '@@ERROR@@', "Storage Label is null.", "No aliquot storage and position will be set but the aliquot in stock value will be set to 'available'. Please check data for aliquot [$barcode].");
         } else {
-            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Wrong Storage Label", "Label [$visitId] does not match a supported format. No aliquot storage and position will be set but the aliquot in stock value will be set to 'available'. Please check data for aliquot [$barcode].");
+            recordErrorAndMessage('Storage creation', '@@ERROR@@', "Wrong Storage Label", "Label [$box_selection_label] does not match a supported format. No aliquot storage and position will be set but the aliquot in stock value will be set to 'available'. Please check data for aliquot [$barcode].");
         }
         return array('', '', '');
     }

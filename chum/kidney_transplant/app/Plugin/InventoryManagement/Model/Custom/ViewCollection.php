@@ -26,7 +26,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
-CONCAT(IFNULL(MiscIdentifier.identifier_value, '?'), ' ', Collection.chum_kidney_transp_collection_part_type, ' ', Collection.chum_kidney_transp_collection_time) acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, '?'), Collection.chum_kidney_transp_collection_part_type, Collection.chum_kidney_transp_collection_time) acquisition_label,
 Bank.name AS bank_name,
 MiscIdentifier.identifier_value AS identifier_value,
 MiscIdentifierControl.misc_identifier_name AS identifier_name,
@@ -40,6 +40,71 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
     WHERE Collection.deleted <> 1 %%WHERE%%";
+
+    /**
+     *
+     * @param array $variables
+     * @return array|bool
+     */
+    public function summary($variables = array())
+    {
+        $return = false;
+        
+        if (isset($variables['Collection.id'])) {
+            $collectionData = $this->find('first', array(
+                'conditions' => array(
+                    'ViewCollection.collection_id' => $variables['Collection.id']
+                ),
+                'recursive' => - 1
+            ));
+            
+            $return = array(
+                'menu' => array(
+                    null,
+                    $collectionData['ViewCollection']['acquisition_label']
+                ),
+                'title' => array(
+                    null,
+                    __('collection') . ' : ' . $collectionData['ViewCollection']['acquisition_label']
+                ),
+                'structure alias' => 'view_collection',
+                'data' => $collectionData
+            );
+            
+            $consentStatus = $this->getUnconsentedParticipantCollections(array(
+                'data' => $collectionData
+            ));
+            if (! empty($consentStatus)) {
+                if (! $collectionData['ViewCollection']['participant_id']) {
+                    AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+                } elseif ($consentStatus[$variables['Collection.id']] == null) {
+                    $link = '';
+                    if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
+                        $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collectionData['ViewCollection']['participant_id'], $collectionData['ViewCollection']['collection_id'], __('click here to access it'));
+                    }
+                    AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
+                } else {
+                    AppController::addWarningMsg(__('the linked consent status is [%s]', __($consentStatus[$variables['Collection.id']])));
+                }
+            }
+            if ($collectionData['ViewCollection']['participant_id']) {
+                $participantModel = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+                $participantRisk = $participantModel->find('count', array(
+                    'conditions' => array(
+                        'Participant.chum_kidney_transp_vih' => 'y',
+                        'Participant.id' => $collectionData['ViewCollection']['participant_id']
+                    )
+                ));
+                if ($participantRisk) {
+                    AppController::addWarningMsg(__('a biological risk exists with the aliquots of this collection'));
+                }
+            } else {
+                AppController::addWarningMsg(__('no participant is linked to the collection - risk linked to the biomaterial can not be evaluated'));
+            }
+        }
+        
+        return $return;
+    }
 
     public function find($type = 'first', $query = array())
     {

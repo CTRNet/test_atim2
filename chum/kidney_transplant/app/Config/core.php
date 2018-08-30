@@ -40,7 +40,7 @@ Configure::write('debug', $debug);
  * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
  * 0: Install name will be displayed as usual.
  */
-$isTest = 0;
+$isTest = 1;
 Configure::write('IsTest', $isTest);
 
 /**
@@ -565,7 +565,7 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest) ? null : '/ATiM/logs/prod/ATiMKidneyTransplant/';
+$path = ($isTest) ? null : '/ATiM/logs/prod/ATiMKidneyTransplant';
 Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
