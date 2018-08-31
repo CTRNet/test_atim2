@@ -124,7 +124,7 @@ VALUES
 UPDATE versions SET branch_build_number = '7385' WHERE version_number = '2.7.1';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Modification after first validation
+-- Modification after first revision/test (20180828)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- Change Hospital Number Format
@@ -167,10 +167,27 @@ VALUES
 ('chum test centres', 'CHUM - Test Centres', 'CHUM - Centre de prélèvements', '1', @control_id, NOW(), NOW(), 1, 1),
 ("crchum 6th floor", "CRCHUM - 6th Floor", "CRCHUM - 6ème étage", '1', @control_id, NOW(), NOW(), 1, 1);
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Supplier Departments');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('chum test centres', 'CHUM - Test Centres', 'CHUM - Centre de prélèvements', '1', @control_id, NOW(), NOW(), 1, 1),
+("crchum 6th floor", "CRCHUM - 6th Floor", "CRCHUM - 6ème étage", '1', @control_id, NOW(), NOW(), 1, 1);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Sites');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('12th floor lab - dr hebert', 'Dre Marie-Josée Hébert Laboratory', "Laboratoire Dre Marie-Josée Hébert", '1', @control_id, NOW(), NOW(), 1, 1);
+
 -- Participant alive default value
 
 UPDATE structure_fields SET `default`='alive' WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='health_status');
 UPDATE structure_fields SET `default`='crchum 6th floor' WHERE model='Collection' AND field='collection_site';
+UPDATE structure_fields SET `default`='crchum 6th floor' WHERE model='SpecimenDetail' AND field='supplier_dept';
+UPDATE structure_fields SET `default`='stephanie lariviere-beaudoin' WHERE model='SpecimenDetail' AND field='reception_by';
+UPDATE structure_fields SET `default`='12th floor lab - dr hebert' WHERE model='DerivativeDetail' AND field='creation_site';
+UPDATE structure_fields SET `default`='stephanie lariviere-beaudoin' WHERE model='DerivativeDetail' AND field='creation_by';
 
 -- Change misc identifier 'kidney transplant bank no lab'
 
@@ -193,10 +210,12 @@ UPDATE structure_formats SET `language_heading`='specimen' WHERE structure_id=(S
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_initial_storage_datetime_defintion' AND `language_label`='initial storage date' AND `language_tag`=''), '3', '1000', 'aliquot', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE structure_formats SET `language_heading`='derivative' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='url=/StorageLayout/storage_masters/autocompleteLabel' AND `default`='' AND `language_help`='' AND `language_label`='storage' AND `language_tag`='storage selection label'), '3', '1100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- barcode
 
-UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,placeholder=-- atim --' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,placeholder=-- ATiM# --' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 DELETE FROM structure_validations 
 WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'barcode') AND rule = 'notBlank';
 INSERT INTO structure_validations (structure_field_id, rule, language_message)
@@ -207,45 +226,24 @@ VALUES
 ('error barcode should be different than system barcode', 
 "The barcode value should not beginn as 'ATiM#'!", "La valeur du code-barres ne doit pas commencer par 'ATiM#'!");
 
+-- biological hazard
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('aliquots of the collection present a confirmed biological hazard',
+"Aliquots of the collection present a confirmed biological hazard!",
+"Les aliquots de la collections présentent un risque biologique confirmé!"),
+('no participant is linked to the collection - biological hazard can not be evaluated',
+"No participant is linked to the collection! The biological hazard can not be evaluated!",
+"Aucun participant n'est lié à la collection! Le risque biologique ne peut pas être évalué!"),
+('at least one aliquot/sample is not linked to a collection - biological hazard can not be evaluated',
+"At least one aliquot/sample is not linked to a collection! The biological hazard can not be evaluated!",
+"Au moins un aliquot/échantillon n'est pas lié à un participant! Le risque biologique ne peut pas être évalué!"),
+('at least one aliquot/sample presents a confirmed biological hazard',
+"At least one aliquot/sample poses a confirmed biological hazard!", 
+"Au moins une aliquote / échantillon présente un risque biologique confirmé!");
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-'no participant is linked to the collection - risk linked to the biomaterial can not be evaluated'
-'a biological risk exists with the aliquots of this collection'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-VIH. Afficher aliquot warning.
 Aller chercher les RR1 dans le fichiers de commentaire pour les collections dont seules la reception des tubes à été enregistrés dans le fichier de Nelson.
 Avoir un profil infirmier accès en writte mode a clinicalsupprimer cst CHUM RAMAN
-Par défaut lors création aliquot, utiliser derniere boite siaise
-
-
-
-
-
-
-

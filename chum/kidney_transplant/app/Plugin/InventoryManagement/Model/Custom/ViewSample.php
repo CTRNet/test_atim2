@@ -50,7 +50,8 @@ Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
-SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
+SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
+IFNULL(Participant.chum_kidney_transp_vih, "u") AS chum_kidney_transp_biohazard
     
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -66,85 +67,4 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
         WHERE SampleMaster.deleted != 1 %%WHERE%%';
-    
-    public function find($type = 'first', $query = array())
-    {
-        if (isset($query['conditions'])) {
-            $identifierValues = array();
-            $queryConditions = is_array($query['conditions']) ? $query['conditions'] : array(
-                $query['conditions']
-            );
-            foreach ($queryConditions as $key => $newCondition) {
-                if ($key === 'ViewSample.identifier_value') {
-                    $identifierValues = $newCondition;
-                    break;
-                } elseif (is_string($newCondition)) {
-                    if (preg_match_all('/ViewSample\.identifier_value LIKE \'%([^\']+)%\'/', $newCondition, $matches)) {
-                        $identifierValues = $matches[1];
-                        break;
-                    }
-                }
-            }
-            if (! empty($identifierValues)) {
-                $miscIdentifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
-                $result = $miscIdentifierModel->find('all', array(
-                    'conditions' => array(
-                        'MiscIdentifier.misc_identifier_control_id' => array(25),
-                        'MiscIdentifier.identifier_value' => $identifierValues
-                    ),
-                    'fields' => 'MiscIdentifier.identifier_value'
-                ));
-                if ($result) {
-                    $allValues = array();
-                    foreach ($result as $newRes)
-                        $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
-                    AppController::forceMsgDisplayInPopup();
-                    AppController::addWarningMsg(__('no labos [%s] matche other bank numbers', implode(', ', $allValues)));
-                }
-            }
-            $gtKey = array_key_exists('ViewSample.identifier_value >=', $query['conditions']);
-            $ltKey = array_key_exists('ViewSample.identifier_value <=', $query['conditions']);
-            if ($gtKey || $ltKey) {
-                $infValue = $gtKey ? str_replace(',', '.', $query['conditions']['ViewSample.identifier_value >=']) : '';
-                $supValue = $ltKey ? str_replace(',', '.', $query['conditions']['ViewSample.identifier_value <=']) : '';
-                if (strlen($infValue . $supValue) && (is_numeric($infValue) || ! strlen($infValue)) && (is_numeric($supValue) || ! strlen($supValue))) {
-                    // Return just numeric
-                    $query['conditions']['ViewSample.identifier_value REGEXP'] = "^[0-9]+([\,\.][0-9]+){0,1}$";
-                    // Define range
-                    if ($gtKey) {
-                        $query['conditions']["(REPLACE(ViewSample.identifier_value, ',','.') * 1) >="] = $infValue;
-                        unset($query['conditions']['ViewSample.identifier_value >=']);
-                    }
-                    if ($ltKey) {
-                        $query['conditions']["(REPLACE(ViewSample.identifier_value, ',','.') * 1) <="] = $supValue;
-                        unset($query['conditions']['ViewSample.identifier_value <=']);
-                    }
-                    // Manage Order
-                    if (! isset($query['order'])) {
-                        // supperfluou?s
-                        $query['order'][] = "(REPLACE(ViewSample.identifier_value, ',','.') * 1)";
-                    } elseif (is_array($query['order']) && isset($query['order']['ViewSample.identifier_value'])) {
-                        $query['order']["(REPLACE(ViewSample.identifier_value, ',','.') * 1)"] = $query['order']['ViewSample.identifier_value'];
-                        unset($query['order']['ViewSample.identifier_value']);
-                    } elseif (is_string($query['order']) && preg_match('/^ViewSample.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
-                        $orderBy = $matches[1];
-                        $query['order'] = "IF(concat('', REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '0', '1') $orderBy, ViewSample.identifier_value*IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '1', '') $orderBy, ViewSample.identifier_value $orderBy";
-                    }
-                }
-            }
-        }
-        
-        if (isset($query['order'])) {
-            if (is_array($query['order']) && isset($query['order']['ViewSample.identifier_value']) && sizeof($query['order']) == 1) {
-                // Display first numerical values then alphanumerical values
-                $orderBy = $query['order']['ViewSample.identifier_value'];
-                $query['order'][] = "IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '0', '1') $orderBy, ViewSample.identifier_value*IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '1', '') $orderBy, ViewSample.identifier_value $orderBy";
-                unset($query['order']['ViewSample.identifier_value']);
-            } elseif (is_string($query['order']) && preg_match('/^ViewSample.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
-                $orderBy = $matches[1];
-                $query['order'] = "IF(concat('', REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '0', '1') $orderBy, ViewSample.identifier_value*IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '1', '') $orderBy, ViewSample.identifier_value $orderBy";
-            }
-        }
-        return parent::find($type, $query);
-    }
 }
