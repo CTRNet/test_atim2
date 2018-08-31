@@ -220,6 +220,20 @@ class API {
         return null;
     }
 
+    public static function checkExtradata($data){
+        if (isset($data['extraData'])){
+            foreach ($data['extraData'][0] as $model=>$values){
+                if (is_array($values)){
+                    foreach ($values as $k=>$v){
+                        $data[$model][$k]=$v;
+                    }
+                }
+            }
+            unset($data['extraData']);
+        }
+        return $data;
+    }
+    
     /**
      * @param $controller
      * @internal param array $data
@@ -234,7 +248,9 @@ class API {
         } else {
             return false;
         }
-
+        
+        $data = self::checkExtradata($data);
+        
         if (isset($data['modelName'])) {
             $model = $data['modelName'];
         } else {
