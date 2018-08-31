@@ -20,7 +20,7 @@ class MiscIdentifierCustom extends MiscIdentifier
                 'MAX(MiscIdentifier.identifier_value) AS last_identifier_value'
             )
         ));
-        if (! $nextIdentifierValue) {
+        if (! $nextIdentifierValue['0']['last_identifier_value']) {
             return 'CHUM00001';
         } else {
             if (preg_match('/^CHUM([0-9]{5})$/', $nextIdentifierValue['0']['last_identifier_value'], $matches)) {
@@ -60,6 +60,8 @@ class MiscIdentifierCustom extends MiscIdentifier
                     }
                 }
                 return $result;
+            } else {
+                return parent::validates($options);
             }
         } else {
             return parent::validates($options);
