@@ -995,7 +995,7 @@ div.wrapper table.structure td.total_columns_5 {
 	width: 20%;
 }
 
-div.wrapper div.message {
+div.wrapper div.message:not([id= "authMessage"]) {
 	padding: 1em;
 	border-right: 1px solid #374D61;
 	border-left: 1px solid #374D61;
@@ -1970,6 +1970,24 @@ ul.info {
 	background: -o-linear-gradient(135deg, #bfdcff 25%, #deedff 25%, #deedff 50%,
 		#bfdcff 50%, #bfdcff 75%, #deedff 75%);
 	background-size: 20px 20px;
+}
+
+#authMessage{
+    padding: 2px 5px;
+    border-radius: 5px;
+    border-width: 3px;
+    border-style: solid;
+
+    border-color: #933;
+    background-image: url(../img/error_bg.gif);
+    background: -webkit-linear-gradient(135deg, #f3dbdb 25%, #f7e8e8 25%, #f7e8e8 50%,
+            #f3dbdb 50%, #f3dbdb 75%, #f7e8e8 75%);
+    background: -moz-linear-gradient(135deg, #f3dbdb 25%, #f7e8e8 25%, #f7e8e8 50%,
+            #f3dbdb 50%, #f3dbdb 75%, #f7e8e8 75%);
+    background: -o-linear-gradient(135deg, #f3dbdb 25%, #f7e8e8 25%, #f7e8e8 50%,
+            #f3dbdb 50%, #f3dbdb 75%, #f7e8e8 75%);
+    background-size: 20px 20px;
+   
 }
 
 ul.info li {

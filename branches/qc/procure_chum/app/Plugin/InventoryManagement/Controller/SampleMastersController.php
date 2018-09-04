@@ -1211,7 +1211,7 @@ class SampleMastersController extends InventoryManagementAppController
             $aliquotIds = array_filter($this->request->data[$alqModel][$alqKey]);
             
             if (empty($aliquotIds)) {
-                $this->atimFlashWarning(__("batch init no data"), $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init no data"), $urlToCancel);
             }
             $aliquotData = $this->AliquotMaster->find('all', array(
                 'fields' => array(
@@ -1231,7 +1231,7 @@ class SampleMastersController extends InventoryManagementAppController
             $expectedCtrlId = $aliquotData[0]['AliquotMaster']['aliquot_control_id'];
             foreach ($aliquotData as $aliquotUnit) {
                 if ($aliquotUnit['AliquotMaster']['aliquot_control_id'] != $expectedCtrlId) {
-                    $this->atimFlashWarning(__("you must select elements with a common type"), $urlToCancel, 5);
+                    $this->atimFlashWarning(__("you must select elements with a common type"), $urlToCancel);
                 }
                 $ids[] = $aliquotUnit['AliquotMaster']['sample_master_id'];
             }
@@ -1242,7 +1242,7 @@ class SampleMastersController extends InventoryManagementAppController
             $key = 'id';
             $this->set("aliquotIds", implode(",", $aliquotIds));
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         if (isset($this->request->data['node']) && $this->request->data[$model][$key] == 'all') {
@@ -1261,7 +1261,7 @@ class SampleMastersController extends InventoryManagementAppController
         // Manage data
         $initData = $this->batchInit($this->SampleMaster, $model, $key, "sample_control_id", $this->ParentToDerivativeSampleControl, "parent_sample_control_id", "you cannot create derivatives for this sample type");
         if (array_key_exists('error', $initData)) {
-            $this->atimFlashWarning(__($initData['error']), $urlToCancel, 5);
+            $this->atimFlashWarning(__($initData['error']), $urlToCancel);
             return;
         }
         
@@ -1297,7 +1297,7 @@ class SampleMastersController extends InventoryManagementAppController
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();");
             return;
         }
         
@@ -1368,10 +1368,10 @@ class SampleMastersController extends InventoryManagementAppController
         unset($this->request->data['url_to_cancel']);
         
         if (! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-            $this->atimFlashWarning(__("you must select a derivative type"), $urlToCancel, 5);
+            $this->atimFlashWarning(__("you must select a derivative type"), $urlToCancel);
             return;
         }
         
@@ -1394,7 +1394,7 @@ class SampleMastersController extends InventoryManagementAppController
             if (is_numeric($result)) {
                 $labBookId = $result;
             } else {
-                $this->atimFlashWarning(__($result), $urlToCancel, 5);
+                $this->atimFlashWarning(__($result), $urlToCancel);
                 return;
             }
             $labBookData = $labBook->findById($labBookId);
@@ -1476,7 +1476,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'joins' => $joins
                 ));
                 if (sizeof($aliquots) > $displayLimit) {
-                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                     return;
                 }
                 $this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
@@ -1498,7 +1498,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'recursive' => - 1
                 ));
                 if (sizeof($samples) > $displayLimit) {
-                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                     return;
                 }
                 $this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
@@ -1530,7 +1530,7 @@ class SampleMastersController extends InventoryManagementAppController
             
             $prevData = $this->request->data;
             if (empty($prevData)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();");
                 return;
             }
             $this->request->data = array();

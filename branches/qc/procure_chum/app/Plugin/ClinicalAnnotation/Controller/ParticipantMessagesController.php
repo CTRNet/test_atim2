@@ -114,7 +114,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             $participantIds = explode(',', $this->request->data['participant_ids']);
             unset($this->request->data['participant_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -127,10 +127,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             'recursive' => 0
         ));
         if (! $participants)
-            $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel, 5);
+            $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel);
         $displayLimit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
         if (sizeof($participants) > $displayLimit)
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
         $this->set('participantIds', implode(',', $participantIds));
         
         if ($participantId)

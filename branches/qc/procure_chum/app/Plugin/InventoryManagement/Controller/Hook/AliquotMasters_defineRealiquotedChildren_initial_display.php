@@ -26,7 +26,7 @@ if ($newExcludedAliquot) {
     $msg = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)') . ': [' . implode(",", $tmpBarcode) . ']';
     
     if (empty($this->request->data)) {
-        $this->atimFlashError(__($msg), "javascript:history.back()", 5);
+        $this->atimFlashError(__($msg), "javascript:history.back()");
         return;
     } else {
         AppController::addWarningMsg($msg);

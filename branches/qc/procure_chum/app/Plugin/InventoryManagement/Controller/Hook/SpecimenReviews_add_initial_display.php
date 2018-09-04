@@ -12,7 +12,7 @@ if ($sampleData['SampleMaster']['procure_created_by_bank'] == 's') {
         )
     ));
     if (! $tmpAliquotsCount) {
-        $this->atimFlashError(__('no specimen review can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "/InventoryManagement/SpecimenReviews/listAll/$collectionId/$sampleMasterId/", 5);
+        $this->atimFlashError(__('no specimen review can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "/InventoryManagement/SpecimenReviews/listAll/$collectionId/$sampleMasterId/");
         return;
     }
 }
