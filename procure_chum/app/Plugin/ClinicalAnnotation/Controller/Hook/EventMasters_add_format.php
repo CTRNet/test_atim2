@@ -2,16 +2,16 @@
 $this->set('evHeader', __($eventControlData['EventControl']['event_type']));
 
 // Set default data
-$overrideData = array();
+$structureOverride = array();
 switch ($eventControlData['EventControl']['event_type']) {
     case 'laboratory':
-        $overrideData['EventDetail.biochemical_relapse'] = 'n';
+        $structureOverride['EventDetail.biochemical_relapse'] = 'n';
         break;
     case 'visit/contact':
-        $overrideData['EventDetail.refusing_treatments'] = 'n';
+        $structureOverride['EventDetail.refusing_treatments'] = 'n';
         break;
 }
-$this->set('overrideData', $overrideData);
+$this->set('structureOverride', $structureOverride);
 
 // Set data for validation
 $this->EventMaster->setEventTypeForDataEntryValidation($eventControlData['EventControl']['event_type']);
