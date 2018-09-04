@@ -916,6 +916,15 @@ class AppController extends Controller
             $_SESSION['ctrapp_core']['info_msg'][$msg] = 1;
         }
     }
+    
+    /**
+     *
+     * @param $msg
+     */
+    public static function addErrorMsg($msg)
+    {
+        $_SESSION['ctrapp_core']['error_msg'][] = $msg;
+    }
 
     /**
      */
