@@ -11,7 +11,7 @@ if ($parentSampleData && $parentSampleData['SampleMaster']['procure_created_by_b
         )
     ));
     if (! $tmpAliquotsCount) {
-        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "javascript:history.back();", 5);
+        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "javascript:history.back();");
         return;
     }
 }
