@@ -6,10 +6,10 @@ class ReportsControllerCustom extends ReportsController
     public function participantIdentifiersSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $header = null;
@@ -95,13 +95,13 @@ class ReportsControllerCustom extends ReportsController
     public function procureDiagnosisAndTreatmentReports($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
@@ -447,16 +447,16 @@ class ReportsControllerCustom extends ReportsController
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
@@ -805,10 +805,10 @@ class ReportsControllerCustom extends ReportsController
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
@@ -991,13 +991,13 @@ class ReportsControllerCustom extends ReportsController
     public function procureBcrDetection($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
@@ -1296,13 +1296,13 @@ class ReportsControllerCustom extends ReportsController
     public function procureNextFollowupReport($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
@@ -2001,10 +2001,10 @@ class ReportsControllerCustom extends ReportsController
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         
         // if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
-        // $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+        // $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         // }
         // if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
-        // $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+        // $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         // }
         
         // AppController::addWarningMsg(__('search is only done on banks aliquots'));
@@ -2132,10 +2132,10 @@ class ReportsControllerCustom extends ReportsController
     public function procureBankActivityReport($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
-            $this->atimFlashError(__('you need privileges to access this page'), 'jRouter::url(null , true)()');
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
         }
         
         $displayExactSearchWarning = false;
