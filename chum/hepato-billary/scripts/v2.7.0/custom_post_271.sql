@@ -27,4 +27,5 @@ VALUES
 ('other if applicable', 'Other (If Applicable', 'Autre (Si applicable)');
         
 UPDATE versions SET branch_build_number = '7379' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7397' WHERE version_number = '2.7.1';
         
