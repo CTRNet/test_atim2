@@ -357,7 +357,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 'treatment_master_id',
                 'event_master_id'
             );
+
             if (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) {
+
                 // test if the collection exists and is available
                 $collectionData = $this->Collection->find('first', array(
                     'conditions' => array(
@@ -380,7 +382,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 }
             }
             $this->request->data['Collection']['participant_id'] = $participantId;
-            $this->Collection->id = (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) ?  : null;
+            $this->Collection->id = (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null;
             unset($this->request->data['Collection']['id']);
             
             $this->Collection->addWritableField($fields);

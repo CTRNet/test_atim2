@@ -21,3 +21,4 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collectio
 UPDATE menus SET flag_active=false WHERE id IN('collection_template');
 
 UPDATE versions SET branch_build_number = '7376'  WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7400'  WHERE version_number = '2.7.1';
