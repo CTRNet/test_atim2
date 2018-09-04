@@ -14,6 +14,7 @@ columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 //}
 
 $(document).ready(function () {
+    $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
     var $tds = $("div.pasteDisabled").closest("td");
     $tds.each(function () {
         var $td = $(this);

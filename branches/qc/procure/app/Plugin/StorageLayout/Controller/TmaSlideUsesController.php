@@ -64,7 +64,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.add() form
             $tmaSlideIds = array_keys($this->request->data);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -85,7 +85,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         
         $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tmaSlidesFromId) > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         if (sizeof($tmaSlidesFromId) != sizeof($tmaSlideIds))
@@ -387,7 +387,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             // User submit data of the TmaSlideUse.editInBatch() form
             $tmaSlideUseIds = explode(',', $this->request->data['tma_slide_use_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['tma_slide_use_ids']);
@@ -406,7 +406,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 $this->TmaSlideUse->sortForDisplay($initialSlideUsesData, $tmaSlideUseIds);
             $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initialSlideUsesData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                 return;
             }
             foreach ($initialSlideUsesData as &$tmpData)

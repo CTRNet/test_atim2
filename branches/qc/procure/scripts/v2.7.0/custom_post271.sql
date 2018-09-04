@@ -289,16 +289,4 @@ UPDATE structure_fields SET field = 'ps4_other_contacts_in_case_of_death' WHERE 
 
 UPDATE versions SET branch_build_number = '7347' WHERE version_number = '2.7.1';
 
-
-
-
-
-
-
-  
-  
-  
-  
-  
-
-
+UPDATE versions SET branch_build_number = '7389' WHERE version_number = '2.7.1';

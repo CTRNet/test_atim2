@@ -318,6 +318,7 @@ class PermissionManagerComponent extends Component
     /**
      * Get the names of the plugin controllers .
      *
+     *
      * This function will get an array of the plugin controller names, and
      * also makes sure the controllers are available for us to get the
      * method names by doing an App::import for each plugin controller.
