@@ -69,7 +69,7 @@ $optionsChildren = array_merge($options, array(
         'language_heading' => __('derivatives'),
         'section_end' => true
     ),
-    "override" => $createdSampleOverrideData,
+    "override" => $createdSampleStructureOverride,
     "dropdown_options" => array(
         'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
             '' => ''
