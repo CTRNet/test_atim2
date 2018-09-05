@@ -11,3 +11,5 @@ if (isset($_SESSION['procure_clinical_file_update_process'])) {
         'icon' => 'procureskip'
     );
 }
+
+$finalOptions['override'] = array_merge((isset($finalOptions['override']) ? $finalOptions['override'] : array()), $structureOverride);

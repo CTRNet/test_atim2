@@ -73,7 +73,7 @@ class TemplateInit extends InventoryManagementAppModel
                     }
                     $model->set(array(
                         $masterModelName => array(
-                            $controlIdName => $tmpControlId
+                            $controlIdName => ($tmpControlId? $tmpControlId : 1)
                         ),
                         $detailModelName => array(
                             $fieldName => $fieldData
@@ -161,7 +161,7 @@ class TemplateInit extends InventoryManagementAppModel
                                 )
                             ));
                             if ($aliquotControl) {
-                                $detailFieldsControlIdsForValidation[$newStructureField['model']][$newStructureField['field']][$newStructureField['tablename']] = $aliquotControl['SampleControl']['id'];
+                                $detailFieldsControlIdsForValidation[$newStructureField['model']][$newStructureField['field']][$newStructureField['tablename']] = $aliquotControl['AliquotControl']['id'];
                             }
                         }
                     }
