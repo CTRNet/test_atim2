@@ -1,0 +1,1 @@
+UPDATE templates SET created_by = 1 WHERE created_by = 0;

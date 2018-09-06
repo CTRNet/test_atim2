@@ -1,59 +1,80 @@
-<?php 
-	
-	$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
-	
-	$procure_chronology_warnings = array();
-	
-	// *** Treatment ***
-	
-	$procure_treatment_types_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Treatment Types (PROCURE values only)'));
-	$procure_treatment_types_values = array_merge($procure_treatment_types_values['defined'], $procure_treatment_types_values['previously_defined']);
-	$procure_treatment_types_values[''] = '';
-	
-	$procure_treatment_precision_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Treatment Precisions (PROCURE values only)'));
-	$procure_treatment_precision_values = array_merge($procure_treatment_precision_values['defined'], $procure_treatment_precision_values['previously_defined']);
-	$procure_treatment_precision_values[''] = '';
-		
-	$procure_treatment_site_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Treatment Sites (PROCURE values only)'));
-	$procure_treatment_site_values = array_merge($procure_treatment_site_values['defined'], $procure_treatment_site_values['previously_defined']);
-	$procure_treatment_site_values[''] = '';
-	
-	$procure_surgery_type_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Surgery Types (PROCURE values only)'));
-	$procure_surgery_type_values = array_merge($procure_surgery_type_values['defined'], $procure_surgery_type_values['previously_defined']);
-	$procure_surgery_type_values[''] = '';
-	
-	// *** Clinical Exam ***	
-	
-	$procure_exam_types_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Exam - Types (PROCURE values only)'));
-	$procure_exam_types_values = array_merge($procure_exam_types_values['defined'], $procure_exam_types_values['previously_defined']);
-	$procure_exam_types_values[''] = '';
-	
-	$procure_exam_results_values  = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Exam - Results (PROCURE values only)'));
-	$procure_exam_results_values  = array_merge($procure_exam_results_values ['defined'], $procure_exam_results_values ['previously_defined']);
-	$procure_exam_results_values[''] = '';
-	
-	$clinical_exam_site_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Exam - Sites (PROCURE values only)'));
-	$clinical_exam_site_values = array_merge($clinical_exam_site_values['defined'], $clinical_exam_site_values['previously_defined']);
-	$clinical_exam_site_values[''] = '';
-	
-	$procure_progressions_comorbidities_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Progressions & Comorbidities (PROCURE values only)'));
-	$procure_progressions_comorbidities_values = array_merge($procure_progressions_comorbidities_values['defined'], $procure_progressions_comorbidities_values['previously_defined']);
-	$procure_progressions_comorbidities_values[''] = '';
+<?php
+$this->set('addLinkForProcureForms', $this->Participant->buildAddProcureFormsButton($participantId));
 
-	// *** Other Tumor ***	
-		
-	$procure_other_tumor_sites = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_other_tumor_sites'), 'recursive' => 2));
-	$procure_other_tumor_sites_values = array();
-	if($procure_other_tumor_sites) {
-		foreach($procure_other_tumor_sites['StructurePermissibleValue'] as $new_value) {
-			$procure_other_tumor_sites_values[$new_value['value']] = __($new_value['language_alias']);
-		}
-	}
-	$procure_other_tumor_sites_values[''] = '';
-	
-	// *** Clinical Note ***
-	
-	$procure_event_note_type_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Note Types'));
-	$procure_event_note_type_values = array_merge($procure_event_note_type_values['defined'], $procure_event_note_type_values['previously_defined']);
-	$procure_event_note_type_values[''] = '';
-	
+$procureChronologyWarnings = array();
+
+// *** Treatment ***
+
+$procureTreatmentTypesValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Treatment Types (PROCURE values only)'
+));
+$procureTreatmentTypesValues = array_merge($procureTreatmentTypesValues['defined'], $procureTreatmentTypesValues['previously_defined']);
+$procureTreatmentTypesValues[''] = '';
+
+$procureTreatmentPrecisionValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Treatment Precisions (PROCURE values only)'
+));
+$procureTreatmentPrecisionValues = array_merge($procureTreatmentPrecisionValues['defined'], $procureTreatmentPrecisionValues['previously_defined']);
+$procureTreatmentPrecisionValues[''] = '';
+
+$procureTreatmentSiteValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Treatment Sites (PROCURE values only)'
+));
+$procureTreatmentSiteValues = array_merge($procureTreatmentSiteValues['defined'], $procureTreatmentSiteValues['previously_defined']);
+$procureTreatmentSiteValues[''] = '';
+
+$procureSurgeryTypeValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Surgery Types (PROCURE values only)'
+));
+$procureSurgeryTypeValues = array_merge($procureSurgeryTypeValues['defined'], $procureSurgeryTypeValues['previously_defined']);
+$procureSurgeryTypeValues[''] = '';
+
+// *** Clinical Exam ***
+
+$procureExamTypesValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Clinical Exam - Types (PROCURE values only)'
+));
+$procureExamTypesValues = array_merge($procureExamTypesValues['defined'], $procureExamTypesValues['previously_defined']);
+$procureExamTypesValues[''] = '';
+
+$procureExamResultsValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Clinical Exam - Results (PROCURE values only)'
+));
+$procureExamResultsValues = array_merge($procureExamResultsValues['defined'], $procureExamResultsValues['previously_defined']);
+$procureExamResultsValues[''] = '';
+
+$clinicalExamSiteValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Clinical Exam - Sites (PROCURE values only)'
+));
+$clinicalExamSiteValues = array_merge($clinicalExamSiteValues['defined'], $clinicalExamSiteValues['previously_defined']);
+$clinicalExamSiteValues[''] = '';
+
+$procureProgressionsComorbiditiesValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Progressions & Comorbidities (PROCURE values only)'
+));
+$procureProgressionsComorbiditiesValues = array_merge($procureProgressionsComorbiditiesValues['defined'], $procureProgressionsComorbiditiesValues['previously_defined']);
+$procureProgressionsComorbiditiesValues[''] = '';
+
+// *** Other Tumor ***
+
+$procureOtherTumorSites = $this->StructureValueDomain->find('first', array(
+    'conditions' => array(
+        'StructureValueDomain.domain_name' => 'procure_other_tumor_sites'
+    ),
+    'recursive' => 2
+));
+$procureOtherTumorSitesValues = array();
+if ($procureOtherTumorSites) {
+    foreach ($procureOtherTumorSites['StructurePermissibleValue'] as $newValue) {
+        $procureOtherTumorSitesValues[$newValue['value']] = __($newValue['language_alias']);
+    }
+}
+$procureOtherTumorSitesValues[''] = '';
+
+// *** Clinical Note ***
+
+$procureEventNoteTypeValues = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+    'Clinical Note Types'
+));
+$procureEventNoteTypeValues = array_merge($procureEventNoteTypeValues['defined'], $procureEventNoteTypeValues['previously_defined']);
+$procureEventNoteTypeValues[''] = '';

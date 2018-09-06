@@ -1,12 +1,21 @@
 <?php
 
-class ProtocolExtendControl extends ProtocolAppModel {
+/**
+ * Class ProtocolExtendControl
+ */
+class ProtocolExtendControl extends ProtocolAppModel
+{
 
-   var $master_form_alias = 'protocol_extend_masters';
+    public $masterFormAlias = 'protocol_extend_masters';
 
-   	function afterFind($results, $primary = false) {
-   		return $this->applyMasterFormAlias($results, $primary);
-   	}
+    /**
+     *
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
+    public function afterFind($results, $primary = false)
+    {
+        return $this->applyMasterFormAlias($results, $primary);
+    }
 }
-
-?>

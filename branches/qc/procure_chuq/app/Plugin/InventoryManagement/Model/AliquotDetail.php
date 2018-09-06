@@ -1,9 +1,10 @@
 <?php
 
-class AliquotDetail extends InventoryManagementAppModel {
-	
-	var $useTable = false;
-	
-}
+/**
+ * Class AliquotDetail
+ */
+class AliquotDetail extends InventoryManagementAppModel
+{
 
-?>
+    public $useTable = false;
+}
