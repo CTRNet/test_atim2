@@ -1,9 +1,10 @@
 <?php
 
-class StructureValidation extends AppModel {
+/**
+ * Class StructureValidation
+ */
+class StructureValidation extends AppModel
+{
 
-	var $name = 'StructureValidation';
-	
+    public $name = 'StructureValidation';
 }
-
-?>

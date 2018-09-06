@@ -1,36 +1,42 @@
-<?php 
-	
-	//$aliquot_control
-	if($aliquot_control['AliquotControl']['aliquot_type'] == 'whatman paper') {
-		AppController::addWarningMsg(__('whatman paper should not be created anymore'));
-	}
+<?php
 
-	//Validate match between barcode, participant_identifier and visit
-	$record_counter = 0;
-	foreach($this->request->data as &$procure_new_sample_aliquots_set) {
-		$record_counter++;
-		$procure_participant_identifier = $procure_new_sample_aliquots_set['parent']['ViewSample']['participant_identifier'];
-		$procure_visit = $procure_new_sample_aliquots_set['parent']['ViewSample']['procure_visit'];
-		$line_counter = 0;
-		foreach($procure_new_sample_aliquots_set['children'] as &$procure_new_aliquot){
-			$line_counter++;
-			$barcode_error = $this->AliquotMaster->validateBarcode($procure_new_aliquot['AliquotMaster']['barcode'], Configure::read('procure_bank_id'), $procure_participant_identifier, $procure_visit);
-			if($barcode_error) $errors['barcode'][$barcode_error][] = ($is_batch_process? $record_counter : $line_counter);
-			$procure_new_aliquot['AliquotMaster']['procure_created_by_bank'] = Configure::read('procure_bank_id');
-		}
-	}
-	$this->AliquotMaster->addWritableField(array('procure_created_by_bank'));
+// $aliquotControl
+if ($aliquotControl['AliquotControl']['aliquot_type'] == 'whatman paper') {
+    AppController::addWarningMsg(__('whatman paper should not be created anymore'));
+}
 
-	if(empty($errors)){
-		$quantity_calculated = false;
-		foreach($this->request->data as &$tmp_created_aliquots){
-			if($tmp_created_aliquots['parent']['ViewSample']['sample_type'] == 'rna') {
-				$quantity_calculated = true;
-				foreach($tmp_created_aliquots['children'] as &$tmp_new_aliquot) {
-					list($tmp_new_aliquot['AliquotDetail']['procure_total_quantity_ug'], $tmp_new_aliquot['AliquotDetail']['procure_total_quantity_ug_nanodrop'])  = $this->AliquotMaster->calculateRnaQuantity($tmp_new_aliquot);
-				}
-			}
-		}
-		if($quantity_calculated) $this->AliquotMaster->addWritableField(array('procure_total_quantity_ug', 'procure_total_quantity_ug_nanodrop'));
-	}
-	
+// Validate match between barcode, participant_identifier and visit
+$recordCounter = 0;
+foreach ($this->request->data as &$procureNewSampleAliquotsSet) {
+    $recordCounter ++;
+    $procureParticipantIdentifier = $procureNewSampleAliquotsSet['parent']['ViewSample']['participant_identifier'];
+    $procureVisit = $procureNewSampleAliquotsSet['parent']['ViewSample']['procure_visit'];
+    $lineCounter = 0;
+    foreach ($procureNewSampleAliquotsSet['children'] as &$procureNewAliquot) {
+        $lineCounter ++;
+        $barcodeError = $this->AliquotMaster->validateBarcode($procureNewAliquot['AliquotMaster']['barcode'], Configure::read('procure_bank_id'), $procureParticipantIdentifier, $procureVisit);
+        if ($barcodeError)
+            $errors['barcode'][$barcodeError][] = ($isBatchProcess ? $recordCounter : $lineCounter);
+        $procureNewAliquot['AliquotMaster']['procure_created_by_bank'] = Configure::read('procure_bank_id');
+    }
+}
+$this->AliquotMaster->addWritableField(array(
+    'procure_created_by_bank'
+));
+
+if (empty($errors)) {
+    $quantityCalculated = false;
+    foreach ($this->request->data as &$tmpCreatedAliquots) {
+        if ($tmpCreatedAliquots['parent']['ViewSample']['sample_type'] == 'rna') {
+            $quantityCalculated = true;
+            foreach ($tmpCreatedAliquots['children'] as &$tmpNewAliquot) {
+                list ($tmpNewAliquot['AliquotDetail']['procure_total_quantity_ug'], $tmpNewAliquot['AliquotDetail']['procure_total_quantity_ug_nanodrop']) = $this->AliquotMaster->calculateRnaQuantity($tmpNewAliquot);
+            }
+        }
+    }
+    if ($quantityCalculated)
+        $this->AliquotMaster->addWritableField(array(
+            'procure_total_quantity_ug',
+            'procure_total_quantity_ug_nanodrop'
+        ));
+}
