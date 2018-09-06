@@ -1,24 +1,34 @@
 <?php
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'add',
+    'settings' => array(
+        'header' => __('aliquot creation batch process') . ' - ' . __('aliquot type selection'),
+        'stretch' => false
+    ),
+    'links' => array(
+        'top' => '/InventoryManagement/AliquotMasters/add/',
+        'bottom' => array(
+            'cancel' => $urlToCancel
+        )
+    ),
+    'extras' => '
+			<input type="hidden" name="data[0][ids]" value="' . $ids . '"/>
+			<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>',
+    'override' => array(
+        '0.aliquots_nbr_per_parent' => '1'
+    )
+);
 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array(
-		'type' => 'add', 
-		'settings' => array('header' => __('aliquot creation batch process') . ' - ' . __('aliquot type selection'), 'stretch' => false),
-		'links' => array(
-			'top' => '/InventoryManagement/AliquotMasters/add/',
-			'bottom' => array('cancel' => $url_to_cancel)),
-		'extras' => '
-			<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>
-			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>'
-	);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
+if ($defaultAliquotControlId) {
+    $finalOptions['override']['0.realiquot_into'] = $defaultAliquotControlId;
+}
 
-	// BUILD FORM
-	$this->Structures->build($final_atim_structure, $final_options);			
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
 
-?>
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

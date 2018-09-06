@@ -1,14 +1,22 @@
-<?php 
-	$structure_links = array(
-		'bottom'=>array(
-			'edit'=>'/Administrate/Announcements/edit/%%Announcement.id%%/',
-			'delete'=>'/Administrate/Announcements/delete/%%Announcement.id%%/'
-		)
-	);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-	
-	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>
+<?php
+$structureLinks = array(
+    'bottom' => array(
+        'edit' => '/Administrate/Announcements/edit/%%Announcement.id%%/',
+        'delete' => '/Administrate/Announcements/delete/%%Announcement.id%%/'
+    )
+);
+
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => array(
+        'header' => isset($atimMenuVariables['User.id']) ? '' : __('announcement', null)
+    )
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+$this->Structures->build($atimStructure, $finalOptions);

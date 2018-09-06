@@ -1,8 +1,5 @@
-<?php 
-	
-	unset($linked_records_properties['consents']);
-	unset($linked_records_properties['aliquots']);
-	unset($linked_records_properties['order lines']);
-	unset($linked_records_properties['tma slide uses']);
-	
-?>
+<?php
+unset($linkedRecordsProperties['consents']);
+unset($linkedRecordsProperties['aliquots']);
+unset($linkedRecordsProperties['order lines']);
+unset($linkedRecordsProperties['tma slide uses']);
