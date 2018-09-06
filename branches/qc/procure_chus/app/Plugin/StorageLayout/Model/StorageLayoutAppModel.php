@@ -1,7 +1,8 @@
 <?php
 
-class StorageLayoutAppModel extends AppModel {
-
+/**
+ * Class StorageLayoutAppModel
+ */
+class StorageLayoutAppModel extends AppModel
+{
 }
-
-?>

@@ -3311,8 +3311,7 @@ VALUES
 
 -- i18n correction
 
-DELETE FROM i18n WHERE id = 'procure next followup report description';
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ('procure next followup report description', 'Last data collected during the last followup visit', 'Dernieres données recueillies lors de la dernière visite de suivi');
 

@@ -13,7 +13,7 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.View
  * @since         CakePHP(tm) v 1.2.0.4206
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('View', 'View');
@@ -31,7 +31,7 @@ class HelperTestPost extends Model {
 /**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 
@@ -71,7 +71,7 @@ class HelperTestComment extends Model {
 /**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 
@@ -105,7 +105,7 @@ class HelperTestTag extends Model {
 /**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 
@@ -136,7 +136,7 @@ class HelperTestPostsTag extends Model {
 /**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 

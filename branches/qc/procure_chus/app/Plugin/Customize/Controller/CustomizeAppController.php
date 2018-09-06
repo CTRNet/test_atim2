@@ -1,8 +1,10 @@
 <?php
 
-class CustomizeAppController extends AppController {	
+/**
+ * Class CustomizeAppController
+ */
+App::uses('AppController', 'Controller');
 
-
+class CustomizeAppController extends AppController
+{
 }
-
-?>

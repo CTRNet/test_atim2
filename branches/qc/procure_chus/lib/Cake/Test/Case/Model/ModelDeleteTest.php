@@ -13,8 +13,9 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Model
  * @since         CakePHP(tm) v 1.2.0.4206
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 require_once dirname(__FILE__) . DS . 'ModelTestBase.php';
 
 /**
@@ -418,6 +419,20 @@ class ModelDeleteTest extends BaseModelTest {
 
 		$result = $TestModel->deleteAll(array('Article.user_id' => 999));
 		$this->assertTrue($result, 'deleteAll returned false when all no records matched conditions. %s');
+	}
+
+/**
+ * testDeleteAll diamond operator method
+ *
+ * @return void
+ */
+	public function testDeleteAllDiamondOperator() {
+		$this->loadFixtures('Article');
+		$article = new Article();
+
+		$result = $article->deleteAll(array('Article.id <>' => 1));
+		$this->assertTrue($result);
+		$this->assertFalse($article->exists(2));
 	}
 
 /**
