@@ -54,6 +54,7 @@ class ParticipantCustom extends Participant
                 'structure alias' => $tructureAlias,
                 'data' => $result
             );
+            
             if ($result['Participant']['procure_patient_withdrawn'])
                 AppController::addWarningMsg(__('patient withdrawn'));
                 
@@ -69,6 +70,7 @@ class ParticipantCustom extends Participant
                 ),
                 'recursive' => 0
             ));
+            
             if ($consentData) {
                 if ($consentData['ConsentDetail']['ps1_urine_blood_use_for_followup'] != 'y') {
                     AppController::addWarningMsg(__('participant does not allow followup'));
