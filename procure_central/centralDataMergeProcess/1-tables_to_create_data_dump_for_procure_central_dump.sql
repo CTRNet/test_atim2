@@ -1,8 +1,13 @@
--- ------------------------------------------------------
--- PROCURE Script used to ...
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ATiM PROCURE Data Transfert To Central
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --
--- ------------------------------------------------------
--- Server version	5.7.14
+-- PROCURE Script used to set up an ATiM Database Image
+-- that will be used to copy then populate .sql
+-- to migrate data to the central database.
+--
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -565,27 +570,6 @@ LOCK TABLES `derivative_details` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `diagnosis_controls`
---
-
-DROP TABLE IF EXISTS `diagnosis_controls`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `diagnosis_controls` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category` enum('primary','secondary - distant','progression - locoregional','remission','recurrence - locoregional') NOT NULL DEFAULT 'primary',
-  `controls_type` varchar(50) NOT NULL,
-  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
-  `detail_form_alias` varchar(255) NOT NULL DEFAULT '',
-  `detail_tablename` varchar(255) NOT NULL,
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `databrowser_label` varchar(200) DEFAULT '',
-  `flag_compare_with_cap` tinyint(1) DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `drugs`
 --
 
@@ -848,53 +832,6 @@ CREATE TABLE `order_items` (
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `order_lines`
---
-
-DROP TABLE IF EXISTS `order_lines`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `order_lines` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `quantity_ordered` varchar(30) DEFAULT NULL,
-  `min_quantity_ordered` varchar(30) DEFAULT NULL,
-  `quantity_unit` varchar(10) DEFAULT NULL,
-  `date_required` date DEFAULT NULL,
-  `date_required_accuracy` char(1) NOT NULL DEFAULT '',
-  `status` varchar(255) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime DEFAULT NULL,
-  `modified_by` int(10) unsigned NOT NULL,
-  `sample_control_id` int(11) DEFAULT NULL,
-  `aliquot_control_id` int(11) DEFAULT NULL,
-  `product_type_precision` varchar(30) DEFAULT NULL,
-  `order_id` int(11) NOT NULL,
-  `study_summary_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `is_tma_slide` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `FK_order_lines_orders` (`order_id`),
-  KEY `FK_order_lines_sample_controls` (`sample_control_id`),
-  KEY `FK_order_lines_aliquot_controls` (`aliquot_control_id`),
-  KEY `study_summary_id` (`study_summary_id`),
-  CONSTRAINT `FK_order_lines_aliquot_controls` FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`),
-  CONSTRAINT `FK_order_lines_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
-  CONSTRAINT `FK_order_lines_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`),
-  CONSTRAINT `order_lines_ibfk_1` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `order_lines`
---
-
-LOCK TABLES `order_lines` WRITE;
-/*!40000 ALTER TABLE `order_lines` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_lines` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2759,24 +2696,6 @@ CREATE TABLE `treatment_controls` (
   CONSTRAINT `FK_tx_controls_protocol_controls` FOREIGN KEY (`applied_protocol_control_id`) REFERENCES `protocol_controls` (`id`),
   CONSTRAINT `treatment_controls_treatment_extend_controls` FOREIGN KEY (`treatment_extend_control_id`) REFERENCES `treatment_extend_controls` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `treatment_extend_controls`
---
-
-DROP TABLE IF EXISTS `treatment_extend_controls`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `treatment_extend_controls` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `detail_tablename` varchar(255) NOT NULL,
-  `detail_form_alias` varchar(255) NOT NULL DEFAULT '',
-  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
-  `type` varchar(255) NOT NULL DEFAULT '',
-  `databrowser_label` varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

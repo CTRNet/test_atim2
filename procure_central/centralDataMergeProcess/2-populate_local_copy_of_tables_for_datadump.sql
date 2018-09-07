@@ -166,10 +166,10 @@ INSERT INTO aliquot_controls (
     %%local_procure_prod_database%%.aliquot_controls
 );
 
-UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -380,10 +380,10 @@ INSERT INTO aliquot_review_controls (
   WHERE flag_active = 1 AND review_type = 'procure tissue slide review'
 );
 
-UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE aliquot_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -512,10 +512,10 @@ INSERT INTO consent_controls (
     controls_type = 'procure consent form signature' AND flag_active = '1'
 );
 
-UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -652,10 +652,10 @@ INSERT INTO event_controls (
     'clinical note', 'other tumor diagnosis') AND flag_active = '1'
 );
 
-UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE event_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1611,10 +1611,10 @@ INSERT INTO sample_controls (
     %%local_procure_prod_database%%.sample_controls
 );
 
-UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE sample_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2068,10 +2068,10 @@ INSERT INTO specimen_review_controls (
   WHERE flag_active = 1 AND review_type = 'prostate review'
 );
 
-UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE specimen_review_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2370,10 +2370,10 @@ INSERT INTO storage_controls (
   WHERE flag_active = 1  
 );
 
-UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE storage_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2684,7 +2684,6 @@ INSERT INTO structure_permissible_values_custom_controls (
     'Questionnaire version date',
     'Slide Review : Tissue Type',
     'Storage Coordinate Titles',
-    'Storage Types',
     'Surgery Types (PROCURE values only)',
     'Tissue Slide Stains',
     'TMA Slide Stains',
@@ -3115,10 +3114,10 @@ INSERT INTO treatment_controls (
   WHERE flag_active = 1 AND tx_method = 'treatment' 
 );
 
-UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_');
-UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_');
-UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_form_alias, 'cusm_', 'ps3_');
-UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_form_alias, 'chus_', 'ps4_'); 
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_', 'ps1_'),  detail_tablename = REPLACE(detail_tablename, 'qc_nd_', 'ps1_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'procure_chuq_', 'ps2_'),  detail_tablename = REPLACE(detail_tablename, 'procure_chuq_', 'ps2_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'cusm_', 'ps3_'),  detail_tablename = REPLACE(detail_tablename, 'cusm_', 'ps3_');
+UPDATE treatment_controls SET detail_form_alias = REPLACE(detail_form_alias, 'chus_', 'ps4_'),  detail_tablename = REPLACE(detail_tablename, 'chus_', 'ps4_'); 
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------

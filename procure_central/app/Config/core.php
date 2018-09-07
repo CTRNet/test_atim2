@@ -448,7 +448,7 @@ Configure::write('maxUploadFileSize', 10 * 1024 * 1024);
  * - level 3: level 2 + contains at least one uppercase letter
  * - level 4: level 3 + special at least one character [!$-_.]
  */
-Configure::write('password_security_level', 2);
+Configure::write('password_security_level', 4);
 
 /**
  * Maximum number of successive failed login attempts (max_login_attempts_from_IP)
@@ -457,12 +457,12 @@ Configure::write('password_security_level', 2);
  * See 'time_mn_IP_disabled' core variable to set the time before an IP address is reactivated.
  * Set value to null if you don't want the system disables an IP address based on login attempts.
  */
-Configure::write('max_login_attempts_from_IP', 5);
+Configure::write('max_login_attempts_from_IP', 3);
 
 /**
  * Time in minute (time_mn_IP_disabled) before an IP address is reactivated.
  */
-Configure::write('time_mn_IP_disabled', 2);
+Configure::write('time_mn_IP_disabled', 10);
 
 /**
  * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
@@ -477,7 +477,7 @@ Configure::write('max_user_login_attempts', 5);
  * Keep empty if no control has to be done.
  * When password is invalid, a warning message will be displayed and the user will be redirect to the change password form.
  */
-Configure::write('password_validity_period_month', null);
+Configure::write('password_validity_period_month', 2);
 
 /**
  * Define if the feature of forgotten password reset by user is available on this installation or not
@@ -486,7 +486,7 @@ Configure::write('password_validity_period_month', null);
  * - level 1: Will require the exact answers to 3 user custom questions
  * - level 2: Will require the exact answers to 3 user custom questions plus the login and password of a second user
  */
-Configure::write('reset_forgotten_password_feature', 2);
+Configure::write('reset_forgotten_password_feature', 3);
 
 /**
  * Define the number of different passwords a user should use before to use an old one.
