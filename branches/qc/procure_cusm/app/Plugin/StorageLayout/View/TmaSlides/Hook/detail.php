@@ -1,6 +1,3 @@
-<?php 
-
-	unset($structure_links['bottom']['add tma slide use']);
-	unset($final_options['links']['bottom']['add tma slide use']);
-
-?>
+<?php
+unset($structureLinks['bottom']['add tma slide use']);
+unset($finalOptions['links']['bottom']['add tma slide use']);

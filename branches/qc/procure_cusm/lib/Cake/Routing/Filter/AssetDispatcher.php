@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -13,7 +11,7 @@
  * @link		  http://cakephp.org CakePHP(tm) Project
  * @package		  Cake.Routing
  * @since		  CakePHP(tm) v 2.2
- * @license		  MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('DispatcherFilter', 'Routing');
@@ -30,7 +28,7 @@ class AssetDispatcher extends DispatcherFilter {
  * Default priority for all methods in this filter
  * This filter should run before the request gets parsed by router
  *
- * @var integer
+ * @var int
  */
 	public $priority = 9;
 
@@ -38,12 +36,13 @@ class AssetDispatcher extends DispatcherFilter {
  * Checks if a requested asset exists and sends it to the browser
  *
  * @param CakeEvent $event containing the request and response object
- * @return CakeResponse if the client is requesting a recognized asset, null otherwise
+ * @return mixed The resulting response.
+ * @throws NotFoundException When asset not found
  */
 	public function beforeDispatch(CakeEvent $event) {
 		$url = urldecode($event->data['request']->url);
 		if (strpos($url, '..') !== false || strpos($url, '.') === false) {
-			return;
+			return null;
 		}
 
 		if ($result = $this->_filterAsset($event)) {
@@ -55,7 +54,6 @@ class AssetDispatcher extends DispatcherFilter {
 		if ($assetFile === null || !file_exists($assetFile)) {
 			return null;
 		}
-
 		$response = $event->data['response'];
 		$event->stopPropagation();
 
@@ -66,6 +64,7 @@ class AssetDispatcher extends DispatcherFilter {
 
 		$pathSegments = explode('.', $url);
 		$ext = array_pop($pathSegments);
+
 		$this->_deliverAsset($response, $assetFile, $ext);
 		return $response;
 	}
@@ -109,7 +108,7 @@ class AssetDispatcher extends DispatcherFilter {
 /**
  * Builds asset file path based off url
  *
- * @param string $url
+ * @param string $url URL
  * @return string Absolute path for asset file
  */
 	protected function _getAssetFile($url) {
@@ -150,12 +149,11 @@ class AssetDispatcher extends DispatcherFilter {
 			}
 			$response->type($contentType);
 		}
-		if (!$compressionEnabled) {
-			$response->header('Content-Length', filesize($assetFile));
-		}
+		$response->length(false);
 		$response->cache(filemtime($assetFile));
 		$response->send();
 		ob_clean();
+
 		if ($ext === 'css' || $ext === 'js') {
 			include $assetFile;
 		} else {

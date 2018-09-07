@@ -13,9 +13,11 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Configure
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('Hash', 'Utility');
+App::uses('CakePlugin', 'Core');
 
 /**
  * Ini file configuration engine.
@@ -32,10 +34,10 @@ App::uses('Hash', 'Utility');
  * You can nest properties as deeply as needed using `.`'s. In addition to using `.` you
  * can use standard ini section notation to create nested structures:
  *
- * {{{
+ * ```
  * [section]
  * key = value
- * }}}
+ * ```
  *
  * Once loaded into Configure, the above would be accessed using:
  *
@@ -100,7 +102,7 @@ class IniReader implements ConfigReaderInterface {
 		}
 
 		$file = $this->_getFilePath($key);
-		if (!is_file($file)) {
+		if (!is_file(realpath($file))) {
 			throw new ConfigureException(__d('cake_dev', 'Could not load configuration file: %s', $file));
 		}
 
@@ -151,7 +153,7 @@ class IniReader implements ConfigReaderInterface {
  * @param string $key The identifier to write to. If the key has a . it will be treated
  *  as a plugin prefix.
  * @param array $data The data to convert to ini file.
- * @return integer Bytes saved.
+ * @return int Bytes saved.
  */
 	public function dump($key, $data) {
 		$result = array();
@@ -180,7 +182,7 @@ class IniReader implements ConfigReaderInterface {
 /**
  * Converts a value into the ini equivalent
  *
- * @param mixed $value to export.
+ * @param mixed $val Value to export.
  * @return string String value for ini file.
  */
 	protected function _value($val) {
@@ -217,7 +219,7 @@ class IniReader implements ConfigReaderInterface {
 		}
 
 		if ($plugin) {
-			$file = App::pluginPath($plugin) . 'Config' . DS . $key;
+			$file = CakePlugin::path($plugin) . 'Config' . DS . $key;
 		} else {
 			$file = $this->_path . $key;
 		}
