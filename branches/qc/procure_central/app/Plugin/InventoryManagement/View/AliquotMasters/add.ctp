@@ -22,8 +22,6 @@ $optionsParent = array_merge($options, array(
     )
 ));
 
-$structureOverride = $overrideData;
-
 if (isset($templateNodeDefaultValues)) {
     $templateNodeDefaultValues = array_filter($templateNodeDefaultValues, function ($var) {
         return (! ($var == '' || is_null($var)));

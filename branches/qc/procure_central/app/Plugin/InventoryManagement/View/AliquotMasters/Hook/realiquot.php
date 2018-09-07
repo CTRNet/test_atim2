@@ -7,5 +7,5 @@ $optionsChildren['settings']['paste_disabled_fields'] = array(
     'AliquotMaster.barcode'
 );
 
-unset($createdAliquotOverrideData['Realiquoting.realiquoting_datetime']);
-unset($createdAliquotOverrideData['AliquotMaster.storage_datetime']);
+unset($createdAliquotStructureOverride['Realiquoting.realiquoting_datetime']);
+unset($createdAliquotStructureOverride['AliquotMaster.storage_datetime']);

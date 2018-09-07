@@ -1,9 +1,17 @@
-INSERT IGNORE INTO i18n (id,en,fr)
-VALUES
-('committee_convenience_ps1', 'PS1', 'PS1'),
-('committee_convenience_ps2', 'PS2', 'PS2'),
-('committee_convenience_ps3', 'PS3', 'PS3'),
-('committee_convenience_ps4', 'PS4', 'PS4');
+-- -------------------------------------------------------------------------------------
+-- MODIFIED SCRIPT FOR ATiM CENTRAL
+-- -------------------------------------------------------------------------------------
+--
+-- To execute after 
+--    - atim_procure_central_full_installation_v271_revs_7299_7339_7345.sql
+--    - atim_v2.7.1_upgrade.sql
+--    - custom_post271_central.sql
+--
+-- @author Nicolas Luc
+-- @date 2018-09-07
+-- -------------------------------------------------------------------------------------
+
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions

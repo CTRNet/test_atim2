@@ -24,7 +24,7 @@ if (isset($this->request->data[0]['parent']['AliquotMaster'])) {
         }
     }
     if ($dataSetNbrInError) {
-        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot') . ' ' . str_replace('%s', '[' . implode('] ,[', $dataSetNbrInError) . ']', __('see # %s')), $urlToCancel, 5);
+        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot') . ' ' . str_replace('%s', '[' . implode('] ,[', $dataSetNbrInError) . ']', __('see # %s')), $urlToCancel);
         return;
     }
 }
