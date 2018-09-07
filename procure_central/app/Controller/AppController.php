@@ -120,8 +120,18 @@ class AppController extends Controller
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
 
+    private function addUrl($type = "nonAjax")
+    {
+        if (! empty(Router::getPaths($this->here)->url)) {
+            $_SESSION['url'][$type][] = "/" . Router::getPaths($this->here)->url;
+        }
+    }
+
     private function checkUrl()
     {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return false;
+        }
         if (empty($_SESSION['url'])) {
             $_SESSION['url'] = array(
                 'nonAjax' => array(),
@@ -129,17 +139,44 @@ class AppController extends Controller
                 'all' => array()
             );
         }
+        
         if (! $this->request->is('ajax')) {
-            $_SESSION['url']['nonAjax'][] = "/" . Router::getPaths($this->here)->url;
+            $this->addUrl('nonAjax');
         } else {
-            $_SESSION['url']['ajax'][] = "/" . Router::getPaths($this->here)->url;
+            $this->addUrl('ajax');
         }
-        $_SESSION['url']['all'][] = "/" . Router::getPaths($this->here)->url;
+        $this->addUrl('all');
+    }
+
+    private function getBackHistoryUrl($type = "nonAjax", $num = 1)
+    {
+        $url = "/Menus";
+        if (isset($_SERVER["HTTP_REFERER"])) {
+            $url = $_SERVER["HTTP_REFERER"];
+        } else {
+            $size = count($_SESSION['url'][$type]);
+            if ($size <= $num) {
+                $url = "/Menus";
+            } else {
+                $currentUrl = $_SESSION['url'][$type][$size - 1];
+                $url = $_SESSION['url'][$type][$size - $num - 1];
+                $index = $size - $num - 1;
+                while ($url == $currentUrl && $index > 0) {
+                    $index --;
+                    $url = $_SESSION['url'][$type][$index];
+                }
+                if ($index == - 1) {
+                    $url = "/Menus";
+                }
+                array_splice($_SESSION['url'][$type], $index + 1);
+            }
+        }
+        return $url;
     }
 
     /**
      * This function is executed before every action in the controller.
-     * It’s a
+     * It's a
      * handy place to check for an active session or inspect user permissions.
      */
     public function beforeFilter()
@@ -200,7 +237,7 @@ class AppController extends Controller
                 $logDirectory = Configure::read('atim_user_log_output_path');
                 $permission = substr(sprintf('%o', fileperms($logDirectory)), - 4);
                 $debug = Configure::read("debug");
-                if ($debug>0){
+                if ($debug > 0) {
                     if ($permission != '0777') {
                         AppController::addWarningMsg(__('the permission of "log" directory is not correct.'));
                     } else {
@@ -464,7 +501,7 @@ class AppController extends Controller
             $url = "/Menus";
         }
         if (strpos(strtolower($url), 'javascript') !== false) {
-            $url = $_SERVER["HTTP_REFERER"];
+            $url = $this->getBackHistoryUrl();
         }
         if (strpos(strtolower($url), 'javascript') === false) {
             if ($type == self::CONFIRM) {
@@ -493,9 +530,8 @@ class AppController extends Controller
      *
      * @param $message
      * @param $url
-     * @param null $compatibility
      */
-    public function atimFlashError($message, $url, $compatibility = null)
+    public function atimFlashError($message, $url)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
@@ -504,9 +540,8 @@ class AppController extends Controller
      *
      * @param $message
      * @param $url
-     * @param null $compatibility
      */
-    public function atimFlashInfo($message, $url, $compatibility = null)
+    public function atimFlashInfo($message, $url)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
@@ -515,9 +550,8 @@ class AppController extends Controller
      *
      * @param $message
      * @param $url
-     * @param null $compatibility
      */
-    public function atimFlashConfirm($message, $url, $compatibility = null)
+    public function atimFlashConfirm($message, $url)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
@@ -526,9 +560,8 @@ class AppController extends Controller
      *
      * @param $message
      * @param $url
-     * @param null $compatibility
      */
-    public function atimFlashWarning($message, $url, $compatibility = null)
+    public function atimFlashWarning($message, $url)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
@@ -882,6 +915,15 @@ class AppController extends Controller
         } else {
             $_SESSION['ctrapp_core']['info_msg'][$msg] = 1;
         }
+    }
+    
+    /**
+     *
+     * @param $msg
+     */
+    public static function addErrorMsg($msg)
+    {
+        $_SESSION['ctrapp_core']['error_msg'][] = $msg;
     }
 
     /**

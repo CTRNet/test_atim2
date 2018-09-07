@@ -11,7 +11,7 @@ if ($parentSampleData && $parentSampleData['SampleMaster']['procure_created_by_b
         )
     ));
     if (! $tmpAliquotsCount) {
-        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "javascript:history.back();", 5);
+        $this->atimFlashError(__('no derivative can be created from sample created by system/script to migrate data from the processing site with no aliquot'), "javascript:history.back();");
         return;
     }
 }
@@ -30,7 +30,7 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'tissue') {
         'recursive' => - 1
     ));
     $participantIdentifier = empty($collection['ViewCollection']['participant_identifier']) ? '?' : $collection['ViewCollection']['participant_identifier'];
-    $defaultStructureOverridea['SampleDetail.procure_tissue_identification'] = $participantIdentifier . ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
+    $defaultStructureOverride['SampleDetail.procure_tissue_identification'] = $participantIdentifier . ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
 }
 
 if ($sampleControlData['SampleControl']['sample_type'] == 'serum') {

@@ -88,7 +88,7 @@ while ($data = array_shift($this->request->data)) {
     $finalOptionsParent['data'] = $parent;
     
     $finalOptionsChildren['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
-    $finalOptionsChildren['override'] = $createdAliquotOverrideData;
+    $finalOptionsChildren['override'] = $createdAliquotStructureOverride;
     $finalOptionsChildren['data'] = $data['children'];
     
     if (empty($parent['AliquotControl']['volume_unit'])) {

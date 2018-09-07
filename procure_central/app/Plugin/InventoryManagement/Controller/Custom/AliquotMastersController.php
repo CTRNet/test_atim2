@@ -40,10 +40,10 @@ class AliquotMastersControllerCustom extends AliquotMastersController
         ));
         $displayLimit = Configure::read('AliquotModification_processed_items_limit');
         if (empty($aliquotData)) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         } elseif (sizeof($aliquotData) > $displayLimit) {
-            $this->atimFlashError(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashError(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         $this->AliquotMaster->sortForDisplay($aliquotData, $aliquotIds);
@@ -65,7 +65,7 @@ class AliquotMastersControllerCustom extends AliquotMastersController
         $currentBarcodeToProcureCreatedByBank = array();
         foreach ($aliquotData as $newAliquot) {
             if (isset($currentBarcodeToAliquotMasterId[$newAliquot['AliquotMaster']['barcode']])) {
-                $this->atimFlashError((__('you can not edit 2 aliquots with the same barcode')), $urlToCancel, 5);
+                $this->atimFlashError((__('you can not edit 2 aliquots with the same barcode')), $urlToCancel);
                 return;
             }
             $currentBarcodeToAliquotMasterId[$newAliquot['AliquotMaster']['barcode']] = $newAliquot['AliquotMaster']['id'];

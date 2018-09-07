@@ -66,7 +66,7 @@ class OrderLinesController extends OrderAppController
         
         // Check order
         $orderData = $this->Order->getOrRedirect($orderId);
-        $this->set('overrideData', array(
+        $this->set('structureOverride', array(
             'FunctionManagement.autocomplete_order_line_study_summary_id' => $this->StudySummary->getStudyDataAndCodeForDisplay(array(
                 'StudySummary' => array(
                     'id' => $orderData['Order']['default_study_summary_id']
