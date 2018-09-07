@@ -2,8 +2,8 @@
 
 $track_queries = false;
 
-require_once 'system.php';
-require_once 'config.php';
+require_once '3-mergeParocureSitesDataSystem.php';
+require_once '3-mergeParocureSitesDataConfig.php';
 
 $atim_user_id = '2';
 $import_date = DATE('Ymd H:m:s');
@@ -241,13 +241,13 @@ $structure_permissible_values_custom_control_names = array(
     'Questionnaire version date',
     'Slide Review : Tissue Type',
     'Storage Coordinate Titles',
-    'Storage Types',
     'Surgery Types (PROCURE values only)',
     'Tissue Slide Stains',
     'TMA Slide Stains',
     'Treatment Precisions (PROCURE values only)',
     'Treatment Sites (PROCURE values only)',
-    'Treatment Types (PROCURE values only)');
+    'Treatment Types (PROCURE values only)',
+    'Shipping Conditions');
     
 $all_queries = array(
 	"UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null",
