@@ -3204,6 +3204,178 @@ INSERT INTO versions (
     %%local_procure_prod_database%%.versions
 );
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Clean up surgery/biopsy date and all information
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- AliquotMaster.storage_datetime
+
+UPDATE aliquot_masters_revs SET storage_datetime = null;
+UPDATE aliquot_masters SET storage_datetime = null WHERE deleted = 1;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, collections Collection, aliquot_masters AliquotMaster
+SET AliquotMaster.storage_datetime = CONCAT(SUBSTR(AliquotMaster.storage_datetime,1, 7), '-01 01:01:01'),
+AliquotMaster.storage_datetime_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = AliquotMaster.collection_id
+AND DATE(Collection.collection_datetime) = DATE(AliquotMaster.storage_datetime)
+AND AliquotMaster.storage_datetime_accuracy NOT IN ('y','m','d')
+AND AliquotMaster.storage_datetime IS NOT NULL;
+
+UPDATE event_masters EventMaster, event_controls EventControl, collections Collection, aliquot_masters AliquotMaster
+SET AliquotMaster.storage_datetime = CONCAT(SUBSTR(AliquotMaster.storage_datetime,1, 7), '-01 01:01:01'),
+AliquotMaster.storage_datetime_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = Collection.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = AliquotMaster.collection_id
+AND DATE(Collection.collection_datetime) = DATE(AliquotMaster.storage_datetime)
+AND AliquotMaster.storage_datetime_accuracy NOT IN ('y','m','d')
+AND AliquotMaster.storage_datetime IS NOT NULL;
+
+-- specimen_details.reception_datetime
+
+UPDATE sample_masters SampleMaster, specimen_details SpecimenDetail SET SpecimenDetail.reception_datetime = null WHERE SampleMaster.deleted = 1 AND SampleMaster.id = SpecimenDetail.sample_master_id;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, collections Collection, sample_masters SampleMaster, specimen_details SpecimenDetail
+SET SpecimenDetail.reception_datetime = CONCAT(SUBSTR(SpecimenDetail.reception_datetime,1, 7), '-01 01:01:01'),
+SpecimenDetail.reception_datetime_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = SampleMaster.collection_id
+AND SampleMaster.id = SpecimenDetail.sample_master_id
+AND DATE(Collection.collection_datetime) = DATE(SpecimenDetail.reception_datetime)
+AND SpecimenDetail.reception_datetime_accuracy NOT IN ('y','m','d')
+AND SpecimenDetail.reception_datetime IS NOT NULL;
+
+UPDATE event_masters EventMaster, event_controls EventControl, collections Collection, sample_masters SampleMaster, specimen_details SpecimenDetail
+SET SpecimenDetail.reception_datetime = CONCAT(SUBSTR(SpecimenDetail.reception_datetime,1, 7), '-01 01:01:01'),
+SpecimenDetail.reception_datetime_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = Collection.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = SampleMaster.collection_id
+AND SampleMaster.id = SpecimenDetail.sample_master_id
+AND DATE(Collection.collection_datetime) = DATE(SpecimenDetail.reception_datetime)
+AND SpecimenDetail.reception_datetime_accuracy NOT IN ('y','m','d')
+AND SpecimenDetail.reception_datetime IS NOT NULL;
+
+-- derivative_details.creation_datetime
+
+UPDATE sample_masters SampleMaster, derivative_details DerivativeDetail SET DerivativeDetail.creation_datetime = null WHERE SampleMaster.deleted = 1 AND SampleMaster.id = DerivativeDetail.sample_master_id;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, collections Collection, sample_masters SampleMaster, derivative_details DerivativeDetail
+SET DerivativeDetail.creation_datetime = CONCAT(SUBSTR(DerivativeDetail.creation_datetime,1, 7), '-01 01:01:01'),
+DerivativeDetail.creation_datetime_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = SampleMaster.collection_id
+AND SampleMaster.id = DerivativeDetail.sample_master_id
+AND DATE(Collection.collection_datetime) = DATE(DerivativeDetail.creation_datetime)
+AND DerivativeDetail.creation_datetime_accuracy NOT IN ('y','m','d')
+AND DerivativeDetail.creation_datetime IS NOT NULL;
+
+UPDATE event_masters EventMaster, event_controls EventControl, collections Collection, sample_masters SampleMaster, derivative_details DerivativeDetail
+SET DerivativeDetail.creation_datetime = CONCAT(SUBSTR(DerivativeDetail.creation_datetime,1, 7), '-01 01:01:01'),
+DerivativeDetail.creation_datetime_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = Collection.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+AND Collection.id = SampleMaster.collection_id
+AND SampleMaster.id = DerivativeDetail.sample_master_id
+AND DATE(Collection.collection_datetime) = DATE(DerivativeDetail.creation_datetime)
+AND DerivativeDetail.creation_datetime_accuracy NOT IN ('y','m','d')
+AND DerivativeDetail.creation_datetime IS NOT NULL;
+
+-- collections.collection_datetime
+
+UPDATE collections SET collection_datetime = null WHERE collections.deleted = 1;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, collections Collection
+SET Collection.collection_datetime = CONCAT(SUBSTR(Collection.collection_datetime,1, 7), '-01 01:01:01'),
+Collection.collection_datetime_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d');
+
+UPDATE event_masters EventMaster, event_controls EventControl, collections Collection
+SET Collection.collection_datetime = CONCAT(SUBSTR(Collection.collection_datetime,1, 7), '-01 01:01:01'),
+Collection.collection_datetime_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = Collection.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(Collection.collection_datetime)
+AND Collection.collection_datetime_accuracy NOT IN ('y','m','d');
+
+-- consent_masters.consent_signed_date
+
+UPDATE consent_masters SET consent_signed_date = null WHERE consent_masters.deleted = 1;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, consent_masters ConsentMaster
+SET ConsentMaster.consent_signed_date = CONCAT(SUBSTR(ConsentMaster.consent_signed_date,1, 7), '-01 01:01:01'),
+ConsentMaster.consent_signed_date_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = ConsentMaster.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(ConsentMaster.consent_signed_date)
+AND ConsentMaster.consent_signed_date_accuracy NOT IN ('y','m','d');
+
+UPDATE event_masters EventMaster, event_controls EventControl, consent_masters ConsentMaster
+SET ConsentMaster.consent_signed_date = CONCAT(SUBSTR(ConsentMaster.consent_signed_date,1, 7), '-01 01:01:01'),
+ConsentMaster.consent_signed_date_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = ConsentMaster.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(ConsentMaster.consent_signed_date)
+AND ConsentMaster.consent_signed_date_accuracy NOT IN ('y','m','d');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table atim_procure_dump_information
@@ -3211,7 +3383,6 @@ INSERT INTO versions (
 
 TRUNCATE TABLE atim_procure_dump_information;
 INSERT INTO atim_procure_dump_information (created) (SELECT NOW() FROM aliquot_controls LIMIT 0 ,1);
-  
   
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 

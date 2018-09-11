@@ -342,8 +342,25 @@ function getTotalMemoryCapacity()
     if ($os == "WIN") {
         $totalMemory = array();
         exec('wmic memorychip get capacity', $totalMemory);
-        if (is_numeric($totalMemory[1])) {
-            return round($totalMemory[1] / 1024 / 1024);
+        if (isset($totalMemory[1])){
+            if (is_numeric($totalMemory[1])) {
+                return round($totalMemory[1] / 1024 / 1024);
+            } else {
+                $totalMemory[1] = preg_replace("/[^0-9.]/", "", $totalMemory[1]);
+                if (is_numeric($totalMemory[1])){
+                    return round($totalMemory[1] / 1024 / 1024);
+                }else{
+                    return round(8589934592 / 1024 / 1024);
+                }
+                return - 1;
+            }
+        }elseif(isset($totalMemory[0])){
+            $totalMemory[0] = preg_replace("/[^0-9.]/", "", $totalMemory[0]);
+            if (is_numeric($totalMemory[0])){
+                return round($totalMemory[0] / 1024 / 1024);
+            }else{
+                return round(8589934592 / 1024 / 1024);
+            }
         } else {
             return - 1;
         }
