@@ -286,8 +286,14 @@ class ReportsController extends DatamartAppController
      */
     public function manageReport($reportId, $csvCreation = false)
     {
-        $totalMemory = getTotalMemoryCapacity();
+        $error = false;
+        $totalMemory = getTotalMemoryCapacity($error);
+        if ($error){
+            AppController::forceMsgDisplayInPopup();
+            AppController::addWarningMsg(__("the memory allocated to your query is low or undefined."));
+        }
         ini_set("memory_limit", $totalMemory / 4 . "M");
+        
         $reportId = ! empty($reportId) ? $reportId : "-1";
         $plugin = "Datamart";
         $controller = "Reports";

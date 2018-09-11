@@ -112,7 +112,12 @@ class BatchSetsController extends DatamartAppController
      */
     public function listall($batchSetId)
     {
-        $totalMemory = getTotalMemoryCapacity();
+        $error = false;
+        $totalMemory = getTotalMemoryCapacity($error);
+        if ($error){
+            AppController::forceMsgDisplayInPopup();
+            AppController::addWarningMsg(__("the memory allocated to your query is low or undefined."));
+        }
         ini_set("memory_limit", $totalMemory / 4 . "M");
         
         $this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');

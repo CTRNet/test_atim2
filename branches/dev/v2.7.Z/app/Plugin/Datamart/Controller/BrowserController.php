@@ -136,7 +136,12 @@ class BrowserController extends DatamartAppController
      */
     public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
-        $totalMemory = getTotalMemoryCapacity();
+        $error = false;
+        $totalMemory = getTotalMemoryCapacity($error);
+        if ($error){
+            AppController::forceMsgDisplayInPopup();
+            AppController::addWarningMsg(__("the memory allocated to your query is low or undefined."));
+        }
         ini_set("memory_limit", $totalMemory / 4 . "M");
         
         if ($controlId != 0) {
@@ -441,7 +446,12 @@ class BrowserController extends DatamartAppController
      */
     public function csv($allFields, $nodeId, $mergeTo)
     {
-        $totalMemory = getTotalMemoryCapacity();
+        $error = false;
+        $totalMemory = getTotalMemoryCapacity($error);
+        if ($error){
+            AppController::forceMsgDisplayInPopup();
+            AppController::addWarningMsg(__("the memory allocated to your query is low or undefined."));
+        }
         ini_set("memory_limit", $totalMemory / 4 . "M");
         ini_set("max_execution_time", - 1);
         
