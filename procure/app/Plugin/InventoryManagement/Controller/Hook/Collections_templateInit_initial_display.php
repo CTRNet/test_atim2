@@ -31,3 +31,12 @@ $this->request->data['SampleDetail']['procure_collection_site'] = 'clinic';
 
 $this->request->data['AliquotMaster']['storage_datetime'] = $tmpCollectionDateTime;
 $this->request->data['AliquotMaster']['storage_datetime_accuracy'] = $tmpCollectionDateTimeAccuracy;
+
+$tmpCollectionDateTime = substr($tmpCollectionDateTime, 0, $strgLength);
+$this->request->data['0']['procure_serum_creation_datetime'] = $tmpCollectionDateTime;
+$this->request->data['0']['procure_serum_storage_datetime'] = $tmpCollectionDateTime;
+if ($strgLength == 10) {
+    $tmpCollectionDateTime = date('Y-m-d', strtotime($tmpCollectionDateTime . ' +1 days'));
+}
+$this->request->data['0']['procure_pbmc_storage_datetime'] = $tmpCollectionDateTime;
+$this->request->data['0']['procure_date_at_minus_80'] = $tmpCollectionDateTime;
