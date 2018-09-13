@@ -14,7 +14,7 @@
    On each local server, create a second database {atimprocureps[1234]forcentral} loading the '1-tables_to_create_data_dump_for_procure_central_dump.sql' script 
    (see command line below):
      
-      mysql -u {username} -p atimprocureps[1234]forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
+      mysql -u {username} -p{password} atimprocureps[1234]forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
       
    Database don't have to be deleted after data transfert.
 
@@ -29,29 +29,36 @@
    
      a- Copy ATiM-PROCURE database to the {atimprocureps[1234]forcentral} database running following script
       
-      mysql -u {username} -p atimprocureps[1234]forcentral --default-character-set=utf8 < 2-populate_local_copy_of_tables_for_datadump.sql
+      mysql -u {username} -p{password} atimprocureps[1234]forcentral --default-character-set=utf8 < 2-populate_local_copy_of_tables_for_datadump.sql
       
      b- Create a dump of the copy
 
-      mysqldump -u {username} -p atimprocureps[1234]forcentral > ps[1234]_atim_procure_dump_for_central.sql
+      mysqldump -u {username} -p{password} atimprocureps[1234]forcentral > atimprocureps[1234]forcentral.sql
       
      c- Zip the file / Encrypt the zip
+
+      gpg --batch --yes --compress-level 9 --passphrase {phrase} -o atimprocureps[1234]forcentral.atim -c atimprocureps[1234]forcentral.sql
+     
+     d- sFTP the file to the central server (/ATiM/sites_dumps/ps[1234])
      
      ... TODO Yaser
      
-     d- sFTP the file to the central server
      
-     ... TODO Yaser
      
--- ## 3 ## Create the 4 sites databases copy (On PROCURE central server
+     
+     
+-- ## 3 ## Create the 4 sites databases copy (On PROCURE central server)
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------   
      
-     Create 4 databases to recieve the data of the 4 sites.
+     Create 4 databases to recieve the data of the 4 sites : atimprocureps[1234].
      
-      mysql -u {username} -p atimprocureps1forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
-      mysql -u {username} -p atimprocureps2forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
-      mysql -u {username} -p atimprocureps3forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
-      mysql -u {username} -p atimprocureps4forcentral --default-character-set=utf8 < 1-tables_to_create_data_dump_for_procure_central_dump.sql
+     De-crypt received files.
+     
+     gpg2 --batch --yes --passphrase {phrase} -o /ATiM/sites_data_merge/files/atimprocureps[1234]forcentral.sql -d /ATiM/sites_dumps/ps[1234]/atimprocureps[1234]forcentral.atim
+     
+     
+     
+      mysql -u {username} -p{password} atimprocureps[1234] --default-character-set=utf8 < atimprocureps[1234]forcentral.sql
       
      Database don't have to be deleted after data transfert.
      
