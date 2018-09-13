@@ -108,7 +108,7 @@ function testDbSchemas($db_schema, $site) {
 			$query_result = mysqli_query($db_connection, "SELECT created FROM $db_schema.atim_procure_dump_information LIMIT 0 ,1");
 			if($query_result) {
 				$atim_dump_data = $query_result->fetch_assoc();
-				$query_result = mysqli_query($db_connection, "select * FROM versions ORDER BY id DESC LIMIT 0 ,1;");
+				$query_result = mysqli_query($db_connection, "select * FROM $db_schema.versions ORDER BY id DESC LIMIT 0 ,1;");
 				$atim_dump_version = $query_result->fetch_assoc();
 				$atim_dump_version = $atim_dump_version['version_number'].' [revs:'.$atim_dump_version['trunk_build_number'].'/'.$atim_dump_version['branch_build_number'].'/'.$atim_dump_version['site_branch_build_number'].']';
 				customQuery("UPDATE procure_banks_data_merge_tries 
