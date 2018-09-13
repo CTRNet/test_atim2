@@ -50,3 +50,4 @@ UPDATE users SET username = 'NicoEn', flag_active = 1 WHERE id = 1;
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET site_branch_build_number = '7413' WHERE version_number = '2.7.1';
+UPDATE versions SET site_branch_build_number = '7417' WHERE version_number = '2.7.1';
