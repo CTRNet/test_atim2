@@ -1,7 +1,7 @@
 <?php
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
     'links' => array()
 );
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
