@@ -16,3 +16,4 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET site_branch_build_number = '7406' WHERE version_number = '2.7.1';
+UPDATE versions SET site_branch_build_number = '7420' WHERE version_number = '2.7.1';
