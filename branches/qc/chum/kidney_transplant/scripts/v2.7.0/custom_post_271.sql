@@ -243,7 +243,10 @@ VALUES
 "At least one aliquot/sample poses a confirmed biological hazard!", 
 "Au moins une aliquote / échantillon présente un risque biologique confirmé!");
 
+-- Consent
 
+UPDATE consent_controls SET flag_active = 0 WHERE controls_type = 'chum - raman';
 
-Aller chercher les RR1 dans le fichiers de commentaire pour les collections dont seules la reception des tubes à été enregistrés dans le fichier de Nelson.
-Avoir un profil infirmier accès en writte mode a clinicalsupprimer cst CHUM RAMAN
+-- versions
+
+UPDATE versions SET branch_build_number = '7422' WHERE version_number = '2.7.1';

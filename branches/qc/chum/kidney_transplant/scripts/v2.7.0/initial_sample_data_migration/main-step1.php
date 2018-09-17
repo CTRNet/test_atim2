@@ -25,7 +25,7 @@ if($is_test_import_process) truncate();
 //==============================================================================================
 ini_set('memory_limit', '2048M');
 
-$excel_file_names = array($excel_file_names['main'], $excel_file_names['participants']);
+$excel_file_names = array($excel_file_names['main'], $excel_file_names['participants'], $excel_file_names['comments']);
 if(!testExcelFile($excel_file_names)) {
     dislayErrorAndMessage();
     exit;
@@ -73,6 +73,31 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     }
 }
 
+// Load comment
+//---------------------------------------------------------------------------------------------------
+
+$worksheet_name = 'Feuil1';
+$data_from_comment_file = array();
+
+while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[2], $worksheet_name, 1)) {
+
+    if($excel_line_data['pnumber']) {
+        $excel_line_data['pnumber'] = str_replace('CHUM', '', $excel_line_data['pnumber']);
+        if(preg_match('/^[1-9]$/', $excel_line_data['visit_number'])) {
+            $excel_line_data['visit_number'] = 'V0'.$excel_line_data['visit_number'];
+        } else if(preg_match('/^[0-9]{2}$/', $excel_line_data['visit_number'])) {
+            $excel_line_data['visit_number'] = 'V'. $excel_line_data['visit_number'];
+        }
+        if(isset($data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] )) {
+            recordErrorAndMessage('Collection creation',
+                '@@WARNING@@',
+                "Participant visit comment created twice.",
+                "See participant ".$excel_line_data['pnumber']." / visit : ".$excel_line_data['visit_number']." : " . $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']]  ." != ". $excel_line_data['comment']);
+        }
+        $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] = $excel_line_data['comment'];
+    }
+}
+
 // Load invventory
 //---------------------------------------------------------------------------------------------------
 
@@ -104,14 +129,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
             "Initial collection date (Nelson DB) and collection date minus 4h are different.",
             "Dates (Nelson) ".$excel_line_data['created_at']." and date minus 4h ".$excel_line_data['created_at_minus_4h'].". See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
             $excel_line_data['created_at_date'].$excel_line_data['created_at_date_minus_4h'].$excel_line_data['visit_number'].$excel_line_data['patient_number']);
-    }
-    /*
-    
-    compparer si un jour d'écart pour générer un warning
-        VIH - > Warning partout.
-        Aller chercher les RR1 si pas de dérivé'
-    */
-    
+    }    
     $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date_minus_4h'], $excel_line_data['created_at_time_minus_4h'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
     if(strlen($tmp_date[0])) {
        $excel_line_data['created_at'] = $tmp_date[0];
@@ -119,8 +137,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
        $excel_line_data['created_at'] = '';
     }
     if($current_participant != $excel_line_data['patient_number']) {
-        if(!is_null($current_participant)) {pr($participant_aliquots);
-            loadParticipantCollection($current_participant, $participant_aliquots);
+        if(!is_null($current_participant)) {
+            loadParticipantCollection($current_participant, $participant_aliquots, $data_from_comment_file);
         }
         $participant_aliquots = array();
         $current_participant = $excel_line_data['patient_number'];
@@ -157,7 +175,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
        }
    }
 }
-loadParticipantCollection($current_participant, $participant_aliquots);
+loadParticipantCollection($current_participant, $participant_aliquots, $data_from_comment_file);
 
 // End of process
 // ----------------------------------------------------------------------------------------------------------------
@@ -290,14 +308,13 @@ if(!$is_test_import_process) {
 foreach($final_queries as $new_query) customQuery($new_query);
 
 insertIntoRevsBasedOnModifiedValues();
-dislayErrorAndMessage(!$is_test_import_process);
-//dislayErrorAndMessage(true);
+dislayErrorAndMessage(true);
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
 //==================================================================================================================================================================================
 
-function loadParticipantCollection($current_participant, $participant_aliquots) {
+function loadParticipantCollection($current_participant, $participant_aliquots, $data_from_comment_file) {
     global $participant_counter;
     global $sample_counter;
     global $aliquot_counter;
@@ -322,6 +339,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
             "Bank Number Format", 
             "Participant [$current_participant] bank number does not match expected format (5 digits) and has been replaced by [$identifier_value]. Please confirm.");
     }
+    $identifier_value_without_chum_prefix = str_replace('CHUM', '', $identifier_value);
     $query = "SELECT participant_id FROM misc_identifiers WHERE deleted <> 1 AND identifier_value = '$identifier_value';";
     $atim_data = getSelectQueryResult($query);
     if(sizeof($atim_data) > 0) {
@@ -343,11 +361,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
     $notes = '';
     $vialt_status = '';
     
-    if(isset($identValueToNominalInformation[$identifier_value])) {
-       $first_name = $identValueToNominalInformation[$identifier_value]['Prénom'];
-        $last_name = $identValueToNominalInformation[$identifier_value]['Nom'];
+    $comments = '';
+    if(isset($identValueToNominalInformation[$identifier_value_without_chum_prefix])) {
+       $first_name = $identValueToNominalInformation[$identifier_value_without_chum_prefix]['Prénom'];
+        $last_name = $identValueToNominalInformation[$identifier_value_without_chum_prefix]['Nom'];
         
-        $ramq = $identValueToNominalInformation[$identifier_value]['RAMQ'];
+        $ramq = $identValueToNominalInformation[$identifier_value_without_chum_prefix]['RAMQ'];
         if(preg_match('/^[A-Za-z]{4}([0-9]{2})([0-9]{2})([0-9]{2})[0-9]{2}$/', $ramq, $matches)) {
             $date_of_birth = '19'.$matches[1].'-'.(($matches[2]*1 > 49)? ($matches[2]-50): ($matches[2])).'-'.$matches[3] ;
             $date_of_birth_accuracy = 'c';
@@ -362,13 +381,13 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                 "No RAMQ",
                 "See RAMQ of Participant [$current_participant].");
         }
-        $hospitalNbr = $identValueToNominalInformation[$identifier_value]['# Dossier'];
-        $comments = $identValueToNominalInformation[$identifier_value]['Commentaire'];
-        unset($identValueToNominalInformation[$identifier_value]);
+        $hospitalNbr = $identValueToNominalInformation[$identifier_value_without_chum_prefix]['# Dossier'];
+        $comments = $identValueToNominalInformation[$identifier_value_without_chum_prefix]['Commentaire'];
+        unset($identValueToNominalInformation[$identifier_value_without_chum_prefix]);
     } else {
         recordErrorAndMessage('Participant creation',
             '@@ERROR@@',
-            "Participant nominal infomration not known",
+            "Participant nominal information not known",
             "Participant [$current_participant] don't have nominal information extracted from participant xls file.");
     }
     
@@ -480,13 +499,29 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
         $source_worksheet_identifier_value ='?';
         $source_worksheet_collection_part_type = '?';
         $source_worksheet_collection_time = '?';
-        if(!isset($new_collection_data['source_worksheet'])) {
+        $source_worksheet = (isset($new_collection_data['source_worksheet']) && strlen($new_collection_data['source_worksheet']))? $new_collection_data['source_worksheet'] : '';
+        if(!strlen($source_worksheet)) {
+            if(isset($data_from_comment_file[$identifier_value_without_chum_prefix][$visitId])) {
+                $source_worksheet = $data_from_comment_file[$identifier_value_without_chum_prefix][$visitId];
+                recordErrorAndMessage('Collection creation',
+                    '@@WARNING@@',
+                    "The source_worksheet does not exist in sepcimen file but exists in comments file. System will use comments data. Please confirm.",
+                    "source_worksheet [$source_worksheet]  for visit [$visitId] of the participant [$current_participant].");
+            }
+        } else {
+            if(isset($data_from_comment_file[$identifier_value_without_chum_prefix][$visitId]) && $source_worksheet != ($identifier_value_without_chum_prefix.$data_from_comment_file[$identifier_value_without_chum_prefix][$visitId])) {
+                recordErrorAndMessage('Collection creation',
+                    '@@ERROR@@',
+                    "The source_worksheet from comments file and sepcimen file are different. System will use specimens file data. Please confirm.",
+                    "See source_worksheet [$source_worksheet] from specimen and source_worksheet [".$data_from_comment_file[$identifier_value_without_chum_prefix][$visitId]."] from comment for visit [$visitId] of the participant [$current_participant].");
+            }
+        }
+        if(!strlen($source_worksheet)) {
             recordErrorAndMessage('Collection creation', 
                 '@@ERROR@@', 
                 "No source_worksheet value for the collection visit. Collection Time and Collection Participant Type can not be defined probably derivative are not here.", 
                 "See visit [$visitId] for the participant [$current_participant] and correct missing collection information into ATiM."); 
         } else {
-            $source_worksheet = $new_collection_data['source_worksheet'];
             if(preg_match('/^([0-9]{5})([DCR]{2}[0-9])(.+)/', $source_worksheet, $matches)) {
                 $source_worksheet_identifier_value = $matches[1];
                 $source_worksheet_collection_part_type = $matches[2];
@@ -503,7 +538,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots) 
                         "Wrong collection Time (based on source_worksheet)", 
                         "Collection Time [$source_worksheet_collection_time] created from source_worksheet [$source_worksheet] of visit [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated data into ATiM.");
                 }
-                if($identifier_value != $source_worksheet_identifier_value) {
+                if($identifier_value != 'CHUM'.$source_worksheet_identifier_value) {
                     recordErrorAndMessage('Collection creation', 
                         '@@ERROR@@', 
                         "Wrong participant bank number (based on source_worksheet)", 
@@ -1344,7 +1379,7 @@ function addViewUpdate(&$final_queries) {
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
-CONCAT(IFNULL(MiscIdentifier.identifier_value, '?'), ' ', Collection.chum_kidney_transp_collection_part_type, ' ', Collection.chum_kidney_transp_collection_time) acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, '?'), Collection.chum_kidney_transp_collection_part_type, Collection.chum_kidney_transp_collection_time) acquisition_label,
 Bank.name AS bank_name,
 MiscIdentifier.identifier_value AS identifier_value,
 MiscIdentifierControl.misc_identifier_name AS identifier_name,
@@ -1361,7 +1396,6 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
     )";
 
     $final_queries[] = 'INSERT INTO view_samples (
-        
         SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -1396,13 +1430,15 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
 		 
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), Collection.chum_kidney_transp_collection_part_type, Collection.chum_kidney_transp_collection_time) acquisition_label,
 MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 Collection.chum_kidney_transp_collection_part_type,
 Collection.chum_kidney_transp_collection_time,
-SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
+SampleMaster.qc_nd_sample_label AS qc_nd_sample_label,
+IFNULL(Participant.chum_kidney_transp_vih, "u") AS chum_kidney_transp_biohazard
     
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -1418,10 +1454,11 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
         WHERE SampleMaster.deleted != 1
+
     )';
 
     $final_queries[] = 'INSERT INTO view_aliquots (
-  SELECT 
+SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id, 
@@ -1477,10 +1514,11 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 			 
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
         
-CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), " ", Collection.chum_kidney_transp_collection_part_type, " ", Collection.chum_kidney_transp_collection_time) acquisition_label,
+CONCAT(IFNULL(MiscIdentifier.identifier_value, "?"), Collection.chum_kidney_transp_collection_part_type, Collection.chum_kidney_transp_collection_time) acquisition_label,
 MiscIdentifier.identifier_value AS identifier_value,
 Collection.chum_kidney_transp_collection_part_type,
-Collection.chum_kidney_transp_collection_time
+Collection.chum_kidney_transp_collection_time,
+IFNULL(Participant.chum_kidney_transp_vih, "u") AS chum_kidney_transp_biohazard
 			
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -1499,91 +1537,92 @@ Collection.chum_kidney_transp_collection_time
 LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-        WHERE AliquotMaster.deleted != 1 
+        WHERE AliquotMaster.deleted != 1
+
     )';
 
     $final_queries[] = "INSERT INTO view_aliquot_uses (
-        SELECT CONCAT(SourceAliquot.id,1) AS `id`,
-    AliquotMaster.id AS aliquot_master_id,
-    CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
-    SampleMaster.sample_code AS use_code,
-    '' AS `use_details`,
-    SourceAliquot.used_volume AS used_volume,
-    AliquotControl.volume_unit AS aliquot_volume_unit,
-    DerivativeDetail.creation_datetime AS use_datetime,
-    DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
-    NULL AS `duration`,
-    '' AS `duration_unit`,
-    DerivativeDetail.creation_by AS used_by,
-    SourceAliquot.created AS created,
-    CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
-    SampleMaster2.id AS sample_master_id,
-    SampleMaster2.collection_id AS collection_id,
-    NULL AS study_summary_id,
-    '' AS study_title
-    FROM source_aliquots AS SourceAliquot
-    JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
-    JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
-    JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
-    JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-    JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
-    WHERE SourceAliquot.deleted <> 1
+SELECT CONCAT(SourceAliquot.id,1) AS `id`,
+		AliquotMaster.id AS aliquot_master_id,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
+		SampleMaster.sample_code AS use_code,
+		'' AS `use_details`,
+		SourceAliquot.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		DerivativeDetail.creation_datetime AS use_datetime,
+		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
+		NULL AS `duration`,
+		'' AS `duration_unit`,
+		DerivativeDetail.creation_by AS used_by,
+		SourceAliquot.created AS created,
+		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		SampleMaster2.id AS sample_master_id,
+		SampleMaster2.collection_id AS collection_id,
+		NULL AS study_summary_id,
+		'' AS study_title
+		FROM source_aliquots AS SourceAliquot
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
+		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
+		WHERE SourceAliquot.deleted <> 1
     )";
 
     $final_queries[] = "INSERT INTO view_aliquot_uses (
-      SELECT CONCAT(Realiquoting.id ,2) AS id,
-    AliquotMaster.id AS aliquot_master_id,
-    'realiquoted to' AS use_definition,
-    AliquotMasterChild.barcode AS use_code,
-    '' AS use_details,
-    Realiquoting.parent_used_volume AS used_volume,
-    AliquotControl.volume_unit AS aliquot_volume_unit,
-    Realiquoting.realiquoting_datetime AS use_datetime,
-    Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-    NULL AS duration,
-    '' AS duration_unit,
-    Realiquoting.realiquoted_by AS used_by,
-    Realiquoting.created AS created,
-    CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
-    SampleMaster.id AS sample_master_id,
-    SampleMaster.collection_id AS collection_id,
-    NULL AS study_summary_id,
-    '' AS study_title
-    FROM realiquotings AS Realiquoting
-    JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
-    JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-    JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
-    JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-    WHERE Realiquoting.deleted <> 1
+	
+		SELECT CONCAT(Realiquoting.id ,2) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'realiquoted to' AS use_definition,
+		AliquotMasterChild.barcode AS use_code,
+		'' AS use_details,
+		Realiquoting.parent_used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		Realiquoting.realiquoting_datetime AS use_datetime,
+		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		Realiquoting.realiquoted_by AS used_by,
+		Realiquoting.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		NULL AS study_summary_id,
+		'' AS study_title
+		FROM realiquotings AS Realiquoting
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE Realiquoting.deleted <> 1 
 
     )";
 
     $final_queries[] = "INSERT INTO view_aliquot_uses (
-
-    SELECT CONCAT(AliquotInternalUse.id,6) AS id,
-    AliquotMaster.id AS aliquot_master_id,
-    AliquotInternalUse.type AS use_definition,
-    AliquotInternalUse.use_code AS use_code,
-    AliquotInternalUse.use_details AS use_details,
-    AliquotInternalUse.used_volume AS used_volume,
-    AliquotControl.volume_unit AS aliquot_volume_unit,
-    AliquotInternalUse.use_datetime AS use_datetime,
-    AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
-    AliquotInternalUse.duration AS duration,
-    AliquotInternalUse.duration_unit AS duration_unit,
-    AliquotInternalUse.used_by AS used_by,
-    AliquotInternalUse.created AS created,
-    CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
-    SampleMaster.id AS sample_master_id,
-    SampleMaster.collection_id AS collection_id,
-    StudySummary.id AS study_summary_id,
-    StudySummary.title AS study_title
-    FROM aliquot_internal_uses AS AliquotInternalUse
-    JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
-    JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-    JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-    LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
-    WHERE AliquotInternalUse.deleted <> 1
+SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		AliquotInternalUse.type AS use_definition,
+		AliquotInternalUse.use_code AS use_code,
+		AliquotInternalUse.use_details AS use_details,
+		AliquotInternalUse.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		AliquotInternalUse.use_datetime AS use_datetime,
+		AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
+		AliquotInternalUse.duration AS duration,
+		AliquotInternalUse.duration_unit AS duration_unit,
+		AliquotInternalUse.used_by AS used_by,
+		AliquotInternalUse.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		StudySummary.id AS study_summary_id,
+		StudySummary.title AS study_title
+		FROM aliquot_internal_uses AS AliquotInternalUse
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
+		WHERE AliquotInternalUse.deleted <> 1
 
     )";
 }
