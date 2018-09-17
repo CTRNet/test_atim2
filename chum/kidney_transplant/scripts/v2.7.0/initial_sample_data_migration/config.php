@@ -23,17 +23,14 @@ $migration_user_id = 9;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$excel_files_paths = "C:/_NicolasLuc/Server/www/ATiM biobanque Hebert-Cardinal/";
+$excel_files_paths = "C:\_NicolasLuc\Server\www\chum_kidney_transplant_data/";
 if($isserver) $excel_files_paths = "/ATiM/atim-kidney-transplant/Prod/scripts/v2.7.0/initial_sample_data_migration/";
 
 $excel_file_names = array(
     //Step1
-//    'main' => 'CRCHUM-specimens-2018-08-24_revised_20180828_final.xls',
-//    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
-    
-
-    'main' => 'CRCHUM-specimens-2018-08-24_revised_20180828_short.xls',
-    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_short.xls',
+    'main' => 'short specimens.xls',
+    'participants' => 'short Liste patients BD.xls',
+    'comments' => 'short collectionEventComments.xls',
     //Step2
     'blocks' => array(
         'Transpl. Rein_2011_HD.xls',
