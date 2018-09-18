@@ -29,6 +29,7 @@ class ViewAliquotCustom extends ViewAliquot
 			
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
+AliquotMaster.chum_kidney_transp_aliquot_nbr,        
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,

@@ -28,9 +28,9 @@ if($isserver) $excel_files_paths = "/ATiM/atim-kidney-transplant/Prod/scripts/v2
 
 $excel_file_names = array(
     //Step1
-    'main' => 'short specimens.xls',
-    'participants' => 'short Liste patients BD.xls',
-    'comments' => 'short collectionEventComments.xls',
+    'main' => 'short-specimens.xls',
+    'participants' => 'short- Liste patients.xls',
+    'comments' => 'short-collectionEventComments.xls',
     //Step2
     'blocks' => array(
         'Transpl. Rein_2011_HD.xls',
