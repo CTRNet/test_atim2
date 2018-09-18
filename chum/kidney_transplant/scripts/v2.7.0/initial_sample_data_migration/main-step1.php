@@ -127,8 +127,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     if($excel_line_data['created_at_date'] != $excel_line_data['created_at_date_minus_4h']) {
         recordErrorAndMessage('Collection creation',
             '@@WARNING@@',
-            "The day calcluated in excel from the Initial collection date (Nelson DB) minus 4h is different than Nelson day (minus 1 day). Date used for ATiM will be excel collection date minus 4h. Please validate.",
-            "Dates (Nelson) ".$excel_line_data['created_at']." and date minus 4h (excel) ".$excel_line_data['created_at_minus_4h'].". See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
+            "The day calcluated in excel from the Initial collection date (Nelson DB) minus 4h is different than Nelson day (minus 1 day). Date used for ATiM will be excel collection date minus 4h. Please validate dates in ATiM.",
+            "See dates fot the visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
             $excel_line_data['created_at_date'].$excel_line_data['created_at_date_minus_4h'].$excel_line_data['visit_number'].$excel_line_data['patient_number']);
     }    
     $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date_minus_4h'], $excel_line_data['created_at_time_minus_4h'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");

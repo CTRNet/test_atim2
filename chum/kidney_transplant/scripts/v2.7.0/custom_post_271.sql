@@ -281,4 +281,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model = 'ViewAliquot'));
 UPDATE structure_fields SET `language_label` = '', `language_tag` = '#', setting = 'size=7' WHERE `field`='chum_kidney_transp_aliquot_nbr';
 
-UPDATE versions SET branch_build_number = '7424' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7425' WHERE version_number = '2.7.1';
