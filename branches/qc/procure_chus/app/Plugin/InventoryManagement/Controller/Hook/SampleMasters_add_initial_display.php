@@ -36,13 +36,15 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'tissue') {
 if ($sampleControlData['SampleControl']['sample_type'] == 'serum') {
     if (isset(AppController::getInstance()->passedArgs['templateInitId'])) {
         $templateInitDefaultValues = Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . AppController::getInstance()->passedArgs['templateInitId']));
-        $templateInitDefaultValues = array_filter($templateInitDefaultValues, function ($var) {
-            return (! ($var == '' || is_null($var)));
-        });
-        if ( isset($templateInitDefaultValues['0.procure_serum_creation_datetime.year']) &&  $templateInitDefaultValues['0.procure_serum_creation_datetime.year']) {
-            foreach (array ('year', 'month', 'day', 'hour', 'min') as $key) {
-                $this->request->data['DerivativeDetail']['creation_datetime'][$key] = $templateInitDefaultValues['0.procure_serum_creation_datetime.' . $key];
-            }            
+        $tmpDateTimeArray = array();
+        foreach (array ('year', 'month', 'day', 'hour', 'min') as $key) {
+            if(isset($templateInitDefaultValues['0.procure_serum_creation_datetime.' . $key])) {
+                $tmpDateTimeArray[$key] = $templateInitDefaultValues['0.procure_serum_creation_datetime.' . $key];
+                $isDateTimeArrayEmpty = false;
+            }
+        }
+        if(!$isDateTimeArrayEmpty) {
+            $this->request->data['DerivativeDetail']['creation_datetime'] = $tmpDateTimeArray;
         }
     }
 }

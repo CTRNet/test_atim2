@@ -70,13 +70,44 @@ foreach ($this->request->data as &$newSampleRecord) {
             }
             break;
         case 'serum-tube':
-            $barcodeSuffix = '-SER';
+        case 'pbmc-tube':
+            if (isset(AppController::getInstance()->passedArgs['templateInitId'])) {
+                $procureAliquotDefaultValue = array();
+                $templateInitDefaultValues = Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . AppController::getInstance()->passedArgs['templateInitId']));
+                $tmpDateTimeArray = array();
+                $isDateTimeArrayEmpty = true;
+                foreach (array ('year', 'month', 'day', 'hour', 'min') as $key) {
+                    if (isset($templateInitDefaultValues['0.procure_' . $newSampleRecord['parent']['ViewSample']['sample_type'] . '_storage_datetime.' . $key])) {
+                        $tmpDateTimeArray[$key] = $templateInitDefaultValues['0.procure_' . $newSampleRecord['parent']['ViewSample']['sample_type'] . '_storage_datetime.' . $key];
+                        $isDateTimeArrayEmpty = false;
+                    }
+                }
+                if (! $isDateTimeArrayEmpty) {
+                    $procureAliquotDefaultValue = array(
+                        'AliquotMaster.storage_datetime' => sprintf("%s-%s-%s %s:%s:%s", $tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day'], $tmpDateTimeArray['hour'], $tmpDateTimeArray['min'], '00'),
+                        'AliquotMaster.storage_datetime_accuracy' => 'c'
+                    );
+                }
+                if ($newSampleRecord['parent']['ViewSample']['sample_type'] == 'pbmc') {
+                    $tmpDateTimeArray = array();
+                    $isDateTimeArrayEmpty = true;
+                    foreach (array ('year', 'month', 'day') as $key) {
+                        if (isset($templateInitDefaultValues['0.procure_date_at_minus_80.' . $key])) {
+                            $tmpDateTimeArray[$key] = $templateInitDefaultValues['0.procure_date_at_minus_80.' . $key];
+                            $isDateTimeArrayEmpty = false;
+                        }
+                    }
+                    if (! $isDateTimeArrayEmpty) {
+                        $procureAliquotDefaultValue['AliquotDetail.procure_date_at_minus_80'] = sprintf("%s-%s-%s", $tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day']);
+                        $procureAliquotDefaultValue['AliquotDetail.procure_date_at_minus_80_accuracy'] = 'c';
+                    }
+                }
+                $this->set('procureAliquotDefaultValue', $procureAliquotDefaultValue);
+            }
+            $barcodeSuffix = ($newSampleRecord['parent']['ViewSample']['sample_type'] == 'serum') ? '-SER' : '-PBMC';
             break;
         case 'plasma-tube':
             $barcodeSuffix = '-PLA';
-            break;
-        case 'pbmc-tube':
-            $barcodeSuffix = '-PBMC';
             break;
         case 'buffy coat-tube':
             $barcodeSuffix = '-BFC';
