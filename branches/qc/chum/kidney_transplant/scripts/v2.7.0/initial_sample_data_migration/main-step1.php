@@ -91,10 +91,11 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         if(isset($data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] )) {
             recordErrorAndMessage('Collection creation',
                 '@@WARNING@@',
-                "Participant visit comment created twice.",
+                "2 lines for the same visit & participant exist into the participant comments file: Only the first one will be used by the script.",
                 "See participant ".$excel_line_data['pnumber']." / visit : ".$excel_line_data['visit_number']." : " . $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']]  ." != ". $excel_line_data['comment']);
+        } else {
+            $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] = $excel_line_data['comment'];
         }
-        $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] = $excel_line_data['comment'];
     }
 }
 
@@ -126,8 +127,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     if($excel_line_data['created_at_date'] != $excel_line_data['created_at_date_minus_4h']) {
         recordErrorAndMessage('Collection creation',
             '@@WARNING@@',
-            "Initial collection date (Nelson DB) and collection date minus 4h are different.",
-            "Dates (Nelson) ".$excel_line_data['created_at']." and date minus 4h ".$excel_line_data['created_at_minus_4h'].". See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
+            "The day calcluated in excel from the Initial collection date (Nelson DB) minus 4h is different than Nelson day (minus 1 day). Date used for ATiM will be excel collection date minus 4h. Please validate.",
+            "Dates (Nelson) ".$excel_line_data['created_at']." and date minus 4h (excel) ".$excel_line_data['created_at_minus_4h'].". See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
             $excel_line_data['created_at_date'].$excel_line_data['created_at_date_minus_4h'].$excel_line_data['visit_number'].$excel_line_data['patient_number']);
     }    
     $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date_minus_4h'], $excel_line_data['created_at_time_minus_4h'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
@@ -502,7 +503,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $source_worksheet = (isset($new_collection_data['source_worksheet']) && strlen($new_collection_data['source_worksheet']))? $new_collection_data['source_worksheet'] : '';
         if(!strlen($source_worksheet)) {
             if(isset($data_from_comment_file[$identifier_value_without_chum_prefix][$visitId])) {
-                $source_worksheet = $data_from_comment_file[$identifier_value_without_chum_prefix][$visitId];
+                $source_worksheet = $identifier_value_without_chum_prefix.$data_from_comment_file[$identifier_value_without_chum_prefix][$visitId];
                 recordErrorAndMessage('Collection creation',
                     '@@WARNING@@',
                     "The source_worksheet does not exist in sepcimen file but exists in comments file. System will use comments data. Please confirm.",
@@ -638,18 +639,22 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $key = 'Rateentube';
         $sample_type = 'tissue';
         if(array_key_exists($key, $new_collection_data)) {
+            $nbrOfTubes = sizeof($new_collection_data[$key]);
+            $tubeCounter = 0;
             foreach($new_collection_data[$key] as $newTube) {
                 $parentAliquotBarcode = $newTube['parent_inventory_id'];
                 if(!array_key_exists($parentAliquotBarcode, $rateAliquots)) {
                     pr('TODO 32387 891698 7971.1 : ['.$parentAliquotBarcode.']');
                 } else {
                     $barcode = trim($newTube['inventory_id']);
+                    $tubeCounter++;
                     list($sample_master_id, $parent_aliquot_master_id) = $rateAliquots[$parentAliquotBarcode];
                     list($storage_master_id, $storage_coord_x, $storage_coord_y) = getStorageData($barcode, $newTube['label'], $newTube['position_string']);
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
                             "aliquot_label" => $aliquot_label, 
+                            "chum_kidney_transp_aliquot_nbr" => "D $tubeCounter/$nbrOfTubes",
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -733,11 +738,14 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $sample_type = 'serum';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
+            $nbrOfTubes = sizeof($new_collection_data[$key]);
+            $tubeCounter = 0;
             foreach($new_collection_data[$key] as $newTube) {
                 $parentAliquotBarcode = $newTube['parent_inventory_id'];
                 if(!array_key_exists($parentAliquotBarcode, $specimenBloodAliquots)) {
                     pr('TODO 32387 891698 7971.2.7 : ['.$parentAliquotBarcode.']');
                 } else {
+                    $tubeCounter++;
                     $barcode = trim($newTube['inventory_id']);
                     list($specimen_sample_master_id, $parent_aliquot_master_id) = $specimenBloodAliquots[$parentAliquotBarcode];
                     list($storage_master_id, $storage_coord_x, $storage_coord_y) = getStorageData($barcode, $newTube['label'], $newTube['position_string']);
@@ -767,6 +775,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
                             "aliquot_label" => $aliquot_label, 
+                            "chum_kidney_transp_aliquot_nbr" => "A $tubeCounter/$nbrOfTubes",
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -845,11 +854,14 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $sample_type = 'buffy coat';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
+            $nbrOfTubes = sizeof($new_collection_data[$key]);
+            $tubeCounter = 0;
             foreach($new_collection_data[$key] as $newTube) {
                 $parentAliquotBarcode = $newTube['parent_inventory_id'];
                 if(!array_key_exists($parentAliquotBarcode, $specimenBloodAliquots)) {
                     pr('TODO 32387 891698 7971.2.3 : ['.$parentAliquotBarcode.']');
                 } else {
+                    $tubeCounter++;
                     $barcode = trim($newTube['inventory_id']);
                     list($specimen_sample_master_id, $parent_aliquot_master_id) = $specimenBloodAliquots[$parentAliquotBarcode];
                     list($storage_master_id, $storage_coord_x, $storage_coord_y) = getStorageData($barcode, $newTube['label'], $newTube['position_string']);
@@ -877,6 +889,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
                             "aliquot_label" => $aliquot_label, 
+                            "chum_kidney_transp_aliquot_nbr" => "F $tubeCounter/$nbrOfTubes",
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -905,11 +918,14 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $sample_type = 'plasma';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
+            $nbrOfTubes = sizeof($new_collection_data[$key]);
+            $tubeCounter = 0;
             foreach($new_collection_data[$key] as $newTube) {
                 $parentAliquotBarcode = $newTube['parent_inventory_id'];
                 if(!array_key_exists($parentAliquotBarcode, $specimenBloodAliquots)) {
                     pr('TODO 32387 891698 7971.2.5 : ['.$parentAliquotBarcode.']');
                 } else {
+                    $tubeCounter++;
                     $barcode = trim($newTube['inventory_id']);
                     list($specimen_sample_master_id, $parent_aliquot_master_id) = $specimenBloodAliquots[$parentAliquotBarcode];
                     list($storage_master_id, $storage_coord_x, $storage_coord_y) = getStorageData($barcode, $newTube['label'], $newTube['position_string']);
@@ -938,7 +954,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => $aliquot_label, 
+                            "aliquot_label" => $aliquot_label,
+                            "chum_kidney_transp_aliquot_nbr" => "B $tubeCounter/$nbrOfTubes",
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -1095,7 +1112,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                 $aliquot_data = array(
                     'aliquot_masters' => array(
                         "barcode" => $barcode,
-                        "aliquot_label" => $aliquot_label, 
+                        "aliquot_label" => $aliquot_label,
                         "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                         "collection_id" => $collection_id,
                         "sample_master_id" => $sample_master_id,
@@ -1119,11 +1136,14 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         $sample_type = 'centrifuged urine';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
+            $nbrOfTubes = sizeof($new_collection_data[$key]);
+            $tubeCounter = 0;
             foreach($new_collection_data[$key] as $newTube) {
                 $parentAliquotBarcode = $newTube['parent_inventory_id'];
                 if(!array_key_exists($parentAliquotBarcode, $specimenUrinAliquots)) {
                     pr('TODO 32387 891698 7971.2.6 : ['.$parentAliquotBarcode.']');
                 } else {
+                    $tubeCounter++;
                     $barcode = trim($newTube['inventory_id']);
                     list($specimen_sample_master_id, $parent_aliquot_master_id) = $specimenUrinAliquots[$parentAliquotBarcode];
                     list($storage_master_id, $storage_coord_x, $storage_coord_y) = getStorageData($barcode, $newTube['label'], $newTube['position_string']);
@@ -1152,7 +1172,8 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                     $aliquot_data = array(
                         'aliquot_masters' => array(
                             "barcode" => $barcode,
-                            "aliquot_label" => $aliquot_label, 
+                            "aliquot_label" => $aliquot_label,
+                            "chum_kidney_transp_aliquot_nbr" => "E $tubeCounter/$nbrOfTubes",
                             "aliquot_control_id" => $atim_controls['aliquot_controls'][$sample_type.'-tube']['id'],
                             "collection_id" => $collection_id,
                             "sample_master_id" => $sample_master_id,
@@ -1479,6 +1500,7 @@ SELECT
 			
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
+AliquotMaster.chum_kidney_transp_aliquot_nbr,   
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,

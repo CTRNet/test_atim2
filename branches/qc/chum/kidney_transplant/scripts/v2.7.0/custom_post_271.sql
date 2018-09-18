@@ -250,3 +250,35 @@ UPDATE consent_controls SET flag_active = 0 WHERE controls_type = 'chum - raman'
 -- versions
 
 UPDATE versions SET branch_build_number = '7422' WHERE version_number = '2.7.1';
+
+-- Aliquot number
+
+ALTER TABLE aliquot_masters
+  ADD COLUMN chum_kidney_transp_aliquot_nbr varchar(50) DEFAULT NULL;
+ALTER TABLE aliquot_masters_revs
+  ADD COLUMN chum_kidney_transp_aliquot_nbr varchar(50) DEFAULT NULL;
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`, `sortable`) 
+VALUES
+(null, '', 'InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'chum_kidney_transp_aliquot_nbr', '#', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', 0, 1),
+(null, '', 'InventoryManagement', 'ViewAliquot', '', 'chum_kidney_transp_aliquot_nbr', '#', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', 0, 1);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, 
+`flag_float`) 
+(SELECT `structure_id`, (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='chum_kidney_transp_aliquot_nbr'), `display_column`, `display_order`, 
+'', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, 
+`flag_float`
+FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model = 'AliquotMaster'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, 
+`flag_float`) 
+(SELECT `structure_id`, (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='chum_kidney_transp_aliquot_nbr'), `display_column`, `display_order`, 
+'', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, 
+`flag_float`
+FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model = 'ViewAliquot'));
+UPDATE structure_fields SET `language_label` = '', `language_tag` = '#', setting = 'size=7' WHERE `field`='chum_kidney_transp_aliquot_nbr';
+
+UPDATE versions SET branch_build_number = '7424' WHERE version_number = '2.7.1';

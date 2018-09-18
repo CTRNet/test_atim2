@@ -9,13 +9,9 @@ class StorageMasterCustom extends StorageMaster
 
     public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
-        // TODO: Kidney transplant customisation
-        if (Configure::read('chum_atim_conf') == 'KIDNEY_TRANSLPANT') {
-            return parent::getLabel($childrenArray, $typeKey, $labelKey);
-        }
         // USE THIS TO OVERRIDE THE DEFAULT LABEL
-        if ($typeKey == 'AliquotMaster') {
-            $labelKey = 'aliquot_label';
+        if ($typeKey == 'AliquotMaster' && $childrenArray[$typeKey]['aliquot_label']) {
+            return $childrenArray[$typeKey]['aliquot_label'] . (strlen($childrenArray[$typeKey]['chum_kidney_transp_aliquot_nbr'])? ' ' . $childrenArray[$typeKey]['chum_kidney_transp_aliquot_nbr'] : '');
         }
         return parent::getLabel($childrenArray, $typeKey, $labelKey);
     }
