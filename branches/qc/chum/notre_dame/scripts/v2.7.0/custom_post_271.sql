@@ -80,3 +80,4 @@ UPDATE versions SET branch_build_number = '7374' WHERE version_number = '2.7.1';
 
 UPDATE versions SET branch_build_number = '7381' WHERE version_number = '2.7.1';
 UPDATE versions SET branch_build_number = '7396' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7427' WHERE version_number = '2.7.1';
