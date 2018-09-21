@@ -282,3 +282,23 @@ FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fie
 UPDATE structure_fields SET `language_label` = '', `language_tag` = '#', setting = 'size=7' WHERE `field`='chum_kidney_transp_aliquot_nbr';
 
 UPDATE versions SET branch_build_number = '7425' WHERE version_number = '2.7.1';
+
+UPDATE structure_fields SET `default`='' WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='health_status');
+
+-- consent master
+
+ALTER TABLE consent_masters ADD COLUMN chum_kidney_transp_donor_consent tinyint(1) DEFAULT null;
+ALTER TABLE consent_masters_revs ADD COLUMN chum_kidney_transp_donor_consent tinyint(1) DEFAULT null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'chum_kidney_transp_donor_consent', 'checkbox',  NULL , '0', '', '', '', 'donor', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='chum_kidney_transp_donor_consent' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='donor' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("donor", "donor");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="contact_type"), (SELECT id FROM structure_permissible_values WHERE value="donor" AND language_alias="donor"), "1", "1");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('donor', 'Donor', 'Donneur');
+
+UPDATE versions SET branch_build_number = '7430' WHERE version_number = '2.7.1';
