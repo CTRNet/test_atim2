@@ -81,7 +81,6 @@ $worksheet_name = 'Feuil1';
 $data_from_comment_file = array();
 
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[2], $worksheet_name, 1)) {
-
     if($excel_line_data['pnumber']) {
         $excel_line_data['pnumber'] = str_replace('CHUM', '', $excel_line_data['pnumber']);
         if(preg_match('/^[1-9]$/', $excel_line_data['visit_number'])) {
@@ -95,7 +94,27 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 "2 lines for the same visit & participant exist into the participant comments file: Only the first one will be used by the script.",
                 "See participant ".$excel_line_data['pnumber']." / visit : ".$excel_line_data['visit_number']." : " . $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']]  ." != ". $excel_line_data['comment']);
         } else {
-            $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] = $excel_line_data['comment'];
+            $to_empty = array(
+                'PATIENT VIH POSITIF',
+                'PLUS DE 4 HEURES POUR SERUM + PLASMA',
+                'PLUS DE 4 HEURES',
+                '*'
+            );
+            $to_empty_final = array(
+                '',
+                '',
+                '',
+                ''
+            );           
+            $new_comment = str_replace($to_empty, $to_empty_final, $excel_line_data['comment']);
+            if($new_comment != $excel_line_data['comment']) {
+                recordErrorAndMessage('Collection creation',
+                    '@@WARNING@@',
+                    "Comment of participant comments file as been modified.",
+                    "See participant ".$excel_line_data['comment']." / $new_comment at line $line_number for ".$excel_line_data['pnumber']." visit ".$excel_line_data['visit_number'].".");
+                
+            }
+            $data_from_comment_file[$excel_line_data['pnumber']][$excel_line_data['visit_number']] = $new_comment;
         }
     }
 }
@@ -140,7 +159,10 @@ while (($new_csv_line_data = fgetcsv($handle, 1000, ";")) !== FALSE) {
     foreach(array('created_at', 'time_drawn') as $csv_field_name) {
         if(strlen($excel_line_data[$csv_field_name])) {
             if(!preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}\ [0-9]{2}:[0-9]{2}$/', $excel_line_data[$csv_field_name])) {
-                echo "Date Time erreur : $csv_field_name = ".$excel_line_data[$csv_field_name]." (see line $line_number)";
+                recordErrorAndMessage('Collection creation',
+                    '@@ERROR@@',
+                    "Wrong $csv_field_name date time format. Date won't be migrated.",
+                    "Date Time erreur : $csv_field_name = ".$excel_line_data[$csv_field_name]." (see line $line_number)");
                 $excel_line_data[$csv_field_name] = '';
             } else {
                 $date = new DateTime($excel_line_data[$csv_field_name].':00', $utcTimeZone);
@@ -184,8 +206,10 @@ while (($new_csv_line_data = fgetcsv($handle, 1000, ";")) !== FALSE) {
    }
    if(in_array($excel_line_data['name'], array('rate', 'paxgene arn', 'contenant sterile 90ml urine', '6ml red top tube', '6ml lavender top edta tube', '15ml urine'))) {
        if(empty($excel_line_data['created_at']) || !empty($excel_line_data['time_drawn'])) {
-           pr('ERR453784658734658734657863485 : created_at ['.$excel_line_data['created_at'].'] & time_drawn ['.$excel_line_data['time_drawn'].']');
-           pr($excel_line_data);
+           recordErrorAndMessage('Collection creation',
+               '@@WARNING@@',
+               "Either created_at is empty or time_drawn is not empty for a specimen. Please validate data into ATiM",
+               "created_at [".$excel_line_data['created_at']."] & time_drawn [".$excel_line_data['time_drawn']."] for a ".$excel_line_data['name'].". See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
        }
        // Specimen
        if(empty($participant_aliquots[$excel_line_data['visit_number']]['created_at'])) {
@@ -198,9 +222,11 @@ while (($new_csv_line_data = fgetcsv($handle, 1000, ";")) !== FALSE) {
        }
    } else {
        if(empty($excel_line_data['time_drawn'])) {
-           pr('ERR849762374629374485 : time_drawn ['.$excel_line_data['time_drawn'].']');
-           pr($excel_line_data);
-       }
+           recordErrorAndMessage('Collection creation',
+               '@@ERROR@@',
+               "time_drawn empty for a derivative",
+               "See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
+        }
        // Derivative
        if(empty($participant_aliquots[$excel_line_data['visit_number']]['time_drawn'])) {
            $participant_aliquots[$excel_line_data['visit_number']]['time_drawn'] = $excel_line_data['time_drawn'];
@@ -611,17 +637,20 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
             recordErrorAndMessage('Collection creation',
                 '@@ERROR@@',
                 "System Error: Collection creation field 'created_at' is not set.",
-                "See visit number [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
-            pr('ERR73738383 : probably all spicimen expected are not here');
-            pr($new_collection_data);
+                "See visit number [$visitId] of participant [$current_participant] and correct migrated data into ATiM.");
         } else {
             $collection_date_time = $new_collection_data['created_at'];
             if(array_key_exists('time_drawn', $new_collection_data)) {
-                if($new_collection_data['created_at'] != $new_collection_data['time_drawn']) {
+                if(empty($new_collection_data['time_drawn'])) {
                     recordErrorAndMessage('Participant creation',
-                        empty($new_collection_data['time_drawn'])? '@@WARNING@@' : '@@ERROR@@',
+                        '@@WARNING@@',
+                        "The time_drawn field is empty",
+                        "See visit number [$visitId] of participant [$current_participant] and correct migrated data into ATiM.");
+                } elseif($new_collection_data['created_at'] != $new_collection_data['time_drawn']) {
+                    recordErrorAndMessage('Participant creation',
+                        '@@ERROR@@',
                         "created_at != time_drawn",
-                        $new_collection_data['created_at']." != ".$new_collection_data['time_drawn'] .". See visit number [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
+                        "See visit number [$visitId] of participant [$current_participant] and correct migrated data into ATiM.");
                 }
                 unset($new_collection_data['time_drawn']);
             }
@@ -1259,8 +1288,11 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         
         // Check nothing else has to be created
         if(!empty($new_collection_data)) {
-            pr('234587234897234897238947293');
-            pr($new_collection_data);
+            unset($new_collection_data['created_at']);unset($new_collection_data['time_drawn']);
+            if(!empty($new_collection_data)) {
+                pr('234587234897234897238947293');
+                pr($new_collection_data);
+            }
         }        
     }
 }
