@@ -20,7 +20,7 @@ $miscIdentifierControlId = $this->MiscIdentifierControl->find('first', array(
 if ($miscIdentifierControlId) {
     $miscIdentifierControlId = $miscIdentifierControlId['MiscIdentifierControl']['id'];
     $urlToFlash = '/ClinicalAnnotation/MiscIdentifiers/add/' . $this->Participant->getLastInsertID() . "/$miscIdentifierControlId";
-    $_SESSION['created_participant']['next_identifier_controls'] = array(
+    $_SESSION['chum_kidney_transp_next_identifier_controls'] = array(
         'saint-luc id nbr',
         'ramq nbr'
     );

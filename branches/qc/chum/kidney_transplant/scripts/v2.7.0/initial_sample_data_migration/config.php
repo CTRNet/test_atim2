@@ -23,14 +23,14 @@ $migration_user_id = 9;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$excel_files_paths = "C:\_NicolasLuc\Server\www\chum_kidney_transplant_data/";
+$excel_files_paths = "C:/_NicolasLuc/Server/www/chum_kidney_transplant/scripts/v2.7.0/initial_sample_data_migration/";
 if($isserver) $excel_files_paths = "/ATiM/atim-kidney-transplant/Prod/scripts/v2.7.0/initial_sample_data_migration/";
 
 $excel_file_names = array(
     //Step1
-    'main' => 'short-specimens.xls',
-    'participants' => 'short- Liste patients.xls',
-    'comments' => 'short-collectionEventComments.xls',
+    'main' => 'Nelson_CRCHUM-specimens-short.csv',
+    'participants' => 'Pour Nicolas - Liste patients BD migration ATiM_20180827_revised.xls',
+    'comments' => 'Nelson_CRCHUM-collectionEventComments-2018-08-24 for migration.xls',
     //Step2
     'blocks' => array(
         'Transpl. Rein_2011_HD.xls',

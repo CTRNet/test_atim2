@@ -4,7 +4,7 @@ require_once __DIR__.'/system.php';
 /*
  * TODO:
 In Nelson DB Dump and other xls:
-  - Replace Contenant st├®rile 90mL urine by Contenant sterile 90mL urine into.
+  - Replace Contenant st├®rile 90mL urine by contenant sterile 90ml urine into.
   - Replace accent for nominal inforamtion file field notes : 'greffe annulée', 'non greffé', 'non greffée', '2ème greffe', 'décédè'.
   - Créer champ created_at_date avec la formule =ENT(H2*1) ou H2 est la colonne de created_at et created_at_time avec la formule =H2-ENT(H2)');
 
@@ -25,12 +25,13 @@ if($is_test_import_process) truncate();
 //==============================================================================================
 ini_set('memory_limit', '2048M');
 
-$excel_file_names = array($excel_file_names['main'], $excel_file_names['participants'], $excel_file_names['comments']);
-if(!testExcelFile($excel_file_names)) {
+$tmp_file_names = array($excel_file_names['participants'], $excel_file_names['comments']);
+if(!testExcelFile($tmp_file_names)) {
     dislayErrorAndMessage();
     exit;
 }
 
+$excel_file_names = array($excel_file_names['main'], $excel_file_names['participants'], $excel_file_names['comments']);
 displayMigrationTitle("MUHC - Transplant Aliquots Migration - Step 1 : Collections & Aliquots Creation", $excel_file_names);
 
 global $bank_id;
@@ -99,7 +100,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     }
 }
 
-// Load invventory
+// Load invventory (from csv)
 //---------------------------------------------------------------------------------------------------
 
 $worksheet_name = 'Feuil1';
@@ -122,20 +123,31 @@ $storages = array();
 global $created_storage_counters;
 $created_storage_counters = 0;
 
-while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_names[0], $worksheet_name, 1)) {
-    
-    if($excel_line_data['created_at_date'] != $excel_line_data['created_at_date_minus_4h']) {
-        recordErrorAndMessage('Collection creation',
-            '@@WARNING@@',
-            "The day calcluated in excel from the Initial collection date (Nelson DB) minus 4h is different than Nelson day (minus 1 day). Date used for ATiM will be excel collection date minus 4h. Please validate dates in ATiM.",
-            "See dates fot the visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.",
-            $excel_line_data['created_at_date'].$excel_line_data['created_at_date_minus_4h'].$excel_line_data['visit_number'].$excel_line_data['patient_number']);
-    }    
-    $tmp_date = validateAndGetDatetimeAndAccuracy($excel_line_data['created_at_date_minus_4h'], $excel_line_data['created_at_time_minus_4h'], 'Collection creation', "Wrong collection date format", "See visit [".$excel_line_data['visit_number']."] of participant [".$excel_line_data['patient_number']."]. Correct migrated data into ATiM.");
-    if(strlen($tmp_date[0])) {
-       $excel_line_data['created_at'] = $tmp_date[0];
-    } else {
-       $excel_line_data['created_at'] = '';
+if (($handle = fopen("$excel_files_paths/".$excel_file_names[0], "r")) === FALSE) {
+    die('ERR 7747474884 - '."$excel_files_paths/".$excel_file_names[0]);
+}
+$csv_headers = fgetcsv($handle, 1000, ";");
+$line_number = 1;
+$utcTimeZone = new DateTimeZone('UTC');
+$mtlTimeZone = new DateTimeZone('Canada/Eastern');
+while (($new_csv_line_data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+    $line_number++;
+    $excel_line_data = array();
+    foreach($csv_headers as $key => $csv_field_name) {
+        $excel_line_data[$csv_field_name] = $new_csv_line_data[$key];
+    }
+    $excel_line_data['name'] = strtolower($excel_line_data['name']);
+    foreach(array('created_at', 'time_drawn') as $csv_field_name) {
+        if(strlen($excel_line_data[$csv_field_name])) {
+            if(!preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}\ [0-9]{2}:[0-9]{2}$/', $excel_line_data[$csv_field_name])) {
+                echo "Date Time erreur : $csv_field_name = ".$excel_line_data[$csv_field_name]." (see line $line_number)";
+                $excel_line_data[$csv_field_name] = '';
+            } else {
+                $date = new DateTime($excel_line_data[$csv_field_name].':00', $utcTimeZone);
+                $date->setTimezone($mtlTimeZone);
+                $excel_line_data[$csv_field_name] =  $date->format('Y-m-d H:i:s');
+            }
+        }
     }
     if($current_participant != $excel_line_data['patient_number']) {
         if(!is_null($current_participant)) {
@@ -145,6 +157,11 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         $current_participant = $excel_line_data['patient_number'];
         if(in_array($current_participant, $participants_done)) die('ERR2376286237862 '.$current_participant);
         $participants_done[] = $current_participant;
+    }
+    if(!isset($participant_aliquots[$excel_line_data['visit_number']])) {
+        $participant_aliquots[$excel_line_data['visit_number']] = array(
+            'created_at' => '', 
+            'time_drawn' => '');
     }
     $participant_aliquots[$excel_line_data['visit_number']][$excel_line_data['name']][$excel_line_data['inventory_id']] = $excel_line_data;
     if(strlen($excel_line_data['source_worksheet'])) {
@@ -165,8 +182,13 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 "source_worksheet [".$participant_aliquots[$excel_line_data['visit_number']]['source_worksheet']."] & [".$excel_line_data['source_worksheet']."] does not match. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
         }
    }
-   if(in_array($excel_line_data['name'], array('Rate', 'PAXGene ARN', 'Contenant sterile 90mL urine', '6mL red top tube', '6mL lavender top EDTA tube', '5mL Urine'))) {
-       if(!isset($participant_aliquots[$excel_line_data['visit_number']]['created_at'])) {
+   if(in_array($excel_line_data['name'], array('rate', 'paxgene arn', 'contenant sterile 90ml urine', '6ml red top tube', '6ml lavender top edta tube', '15ml urine'))) {
+       if(empty($excel_line_data['created_at']) || !empty($excel_line_data['time_drawn'])) {
+           pr('ERR453784658734658734657863485 : created_at ['.$excel_line_data['created_at'].'] & time_drawn ['.$excel_line_data['time_drawn'].']');
+           pr($excel_line_data);
+       }
+       // Specimen
+       if(empty($participant_aliquots[$excel_line_data['visit_number']]['created_at'])) {
            $participant_aliquots[$excel_line_data['visit_number']]['created_at'] = $excel_line_data['created_at'];
        } else if($participant_aliquots[$excel_line_data['visit_number']]['created_at'] != $excel_line_data['created_at']) {
            recordErrorAndMessage('Collection creation',
@@ -174,8 +196,23 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                "created_at different between tubes of the same visit",
                "created_at [".$participant_aliquots[$excel_line_data['visit_number']]['created_at']."] & [".$excel_line_data['created_at']."] does not match. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
        }
+   } else {
+       if(empty($excel_line_data['time_drawn'])) {
+           pr('ERR849762374629374485 : time_drawn ['.$excel_line_data['time_drawn'].']');
+           pr($excel_line_data);
+       }
+       // Derivative
+       if(empty($participant_aliquots[$excel_line_data['visit_number']]['time_drawn'])) {
+           $participant_aliquots[$excel_line_data['visit_number']]['time_drawn'] = $excel_line_data['time_drawn'];
+       } else if($participant_aliquots[$excel_line_data['visit_number']]['time_drawn'] != $excel_line_data['time_drawn']) {
+           recordErrorAndMessage('Collection creation',
+               '@@ERROR@@',
+               "time_drawn different between tubes of the same visit",
+               "time_drawn [".$participant_aliquots[$excel_line_data['visit_number']]['time_drawn']."] & [".$excel_line_data['time_drawn']."] does not match. See visit [".$excel_line_data['visit_number']."] of participant [$current_participant] (line $line_number) and correct migrated data into ATiM.");
+       }
    }
 }
+fclose($handle);
 loadParticipantCollection($current_participant, $participant_aliquots, $data_from_comment_file);
 
 // End of process
@@ -186,6 +223,7 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
     $anonymise = false;
     $consent_status = null;
     $notes = null;
+    $vital_status = '';
     switch(strtolower(utf8_decode($data['Commentaire']))) {
         case 'greffe annulee':
         case 'non greffe':
@@ -195,6 +233,13 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
             break;
         case 'refus de consentement':
             $consent_status = 'denied';
+            break;
+        case 'retrait de consentement':
+            $consent_status = 'withdrawn';
+            break;
+        case 'decedee':
+        case 'decede':
+            $vital_status = 'deceased';
             break;
         default:
             if(strlen($data['Commentaire'])) {
@@ -212,7 +257,7 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
         $participant_with_no_collection_counter++;
         recordErrorAndMessage('Participant creation',
             '@@MESSAGE@@',
-            "Anonymized participant : participant with no collection data into Nelson DB.",
+            "Participant anonymized by script : participant with no collection data into Nelson DB.",
             "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
     } else {
         $hospitalNbr = $data['# Dossier'];
@@ -241,6 +286,7 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
                 'date_of_birth' => $date_of_birth,
                 'date_of_birth_accuracy' => $date_of_birth_accuracy,
                 'last_modification' => $import_date,
+                'vital_status' => $vital_status,
                 'notes' => $notes)));
         $participant_with_no_collection_counter++;
         if( $hospitalNbr) {
@@ -259,6 +305,7 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
                     'flag_unique' => '1',
                     'identifier_value' =>  str_replace(' ', '', $ramq) )));
         }
+        $consent_msg = '';
         if($consent_status) {
             $consent_data = array(
                 'consent_masters' => array(
@@ -269,10 +316,11 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
                 $atim_controls['consent_controls']['kidney transplant']['detail_tablename'] => array()
             );
             customInsertRecord($consent_data);
+            $consent_msg = " and a consent with status = '$consent_status'";
         }
         recordErrorAndMessage('Participant creation',
             '@@MESSAGE@@',
-            "Created participant with nominal information but no collection data into Nelson DB. Update participant status based on comment if required.",
+            "Created ".($vital_status? $vital_status : '')." participant with nominal information but no collection data into Nelson DB$consent_msg. Update participant status based on comment if required.",
             "See participant [$banknbr] ".(strlen($data['Commentaire'])? ' with comment ['.$data['Commentaire'].']': '')." and correct migrated data into ATiM.");
     }
     customInsertRecord(array(
@@ -280,7 +328,7 @@ foreach($identValueToNominalInformation as $banknbr => $data) {
             'participant_id' => $participant_id,
             'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['kidney transplant bank no lab']['id'],
             'flag_unique' => '1',
-            'identifier_value' => $banknbr)));
+            'identifier_value' => 'CHUM'.$banknbr)));
 }
 
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$participant_counter participants.");
@@ -288,7 +336,6 @@ recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$parti
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$sample_counter samples.");
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$aliquot_counter aliquots.");
 recordErrorAndMessage('Summary', '@@MESSAGE@@', "Data Creation Counter", "$created_storage_counters storages.");
-
 
 $final_queries = array();
 $final_queries[] = "UPDATE participants SET participant_identifier = id";
@@ -536,8 +583,9 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                 if(!preg_match('!^(([0-9]+)(([EN])|(N/E))([0-9]*))$!', $source_worksheet_collection_time)) {
                     recordErrorAndMessage('Collection creation', 
                         '@@ERROR@@', 
-                        "Wrong collection Time (based on source_worksheet)", 
+                        "Wrong collection Time (based on source_worksheet). VAlue won't be migrated.", 
                         "Collection Time [$source_worksheet_collection_time] created from source_worksheet [$source_worksheet] of visit [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated data into ATiM.");
+                    $source_worksheet_collection_time = '';
                 }
                 if($identifier_value != 'CHUM'.$source_worksheet_identifier_value) {
                     recordErrorAndMessage('Collection creation', 
@@ -556,6 +604,9 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
 
         //Collection datetime
         if(!array_key_exists('created_at', $new_collection_data)) {
+            pr('ERR73734635635345338383');
+            pr($new_collection_data);
+        } else if(!$new_collection_data['created_at']) {
             $collection_date_time = '';
             recordErrorAndMessage('Collection creation',
                 '@@ERROR@@',
@@ -565,6 +616,15 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
             pr($new_collection_data);
         } else {
             $collection_date_time = $new_collection_data['created_at'];
+            if(array_key_exists('time_drawn', $new_collection_data)) {
+                if($new_collection_data['created_at'] != $new_collection_data['time_drawn']) {
+                    recordErrorAndMessage('Participant creation',
+                        empty($new_collection_data['time_drawn'])? '@@WARNING@@' : '@@ERROR@@',
+                        "created_at != time_drawn",
+                        $new_collection_data['created_at']." != ".$new_collection_data['time_drawn'] .". See visit number [$visitId] does not match a supported format. See participant [$current_participant] and correct migrated visit number into ATiM.");
+                }
+                unset($new_collection_data['time_drawn']);
+            }
             unset($new_collection_data['created_at']);
         }
         
@@ -588,7 +648,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
          
         // Create rates tubes
         $rateAliquots = array();
-        $key = 'Rate';    
+        $key = 'rate';    
         $sample_type = 'tissue';
         if(array_key_exists($key, $new_collection_data)) {
             foreach($new_collection_data[$key] as $newTube) {
@@ -636,7 +696,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // Create realiquoted rates tubes
-        $key = 'Rateentube';
+        $key = 'rateentube';
         $sample_type = 'tissue';
         if(array_key_exists($key, $new_collection_data)) {
             $nbrOfTubes = sizeof($new_collection_data[$key]);
@@ -683,7 +743,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         
         // Create Red Blood Tube
         $specimenBloodAliquots = array();
-        $key = '6mL red top tube';
+        $key = '6ml red top tube';
         $sample_type = 'blood';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Blood: One blood per blood type
@@ -734,7 +794,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // Create serum tubes
-        $key = 'Serum';
+        $key = 'serum';
         $sample_type = 'serum';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
@@ -805,7 +865,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
                 
         // Create EDTA Blood Tube
         $specimenBloodAliquots = array();
-        $key = '6mL lavender top EDTA tube';
+        $key = '6ml lavender top edta tube';
         $sample_type = 'blood';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Blood: One blood per blood type
@@ -823,7 +883,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
             $sample_master_id = customInsertRecord($sample_data);
             foreach($new_collection_data[$key] as $newTube) {
                 if(strlen($newTube['parent_inventory_id'].$newTube['quantity'].$newTube['label'].$newTube['position_string'])) {
-                    pr('TODO3883888a788');
+                    pr('TODO3883888a788: either parent_inventory_id, quantity, label or position_string is defined for a specimen tube');
                     pr($newTube);
                 }
                 $barcode = trim($newTube['inventory_id']);
@@ -850,7 +910,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // Create plasma tubes
-        $key = 'Buffy coat';
+        $key = 'buffy coat';
         $sample_type = 'buffy coat';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
@@ -914,7 +974,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // Create plasma tubes
-        $key = 'Plasma';
+        $key = 'plasma';
         $sample_type = 'plasma';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();
@@ -980,12 +1040,12 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // --------------------------------------------------------------------------------------------------------------------
-        // PAXGene ARN Blood Tube
+        // paxgene arn Blood Tube
         // --------------------------------------------------------------------------------------------------------------------
         
-        // Create PAXGene ARN Blood Tube
+        // Create paxgene arn Blood Tube
         $specimenBloodAliquots = array();
-        $key = 'PAXGene ARN';
+        $key = 'paxgene arn';
         $sample_type = 'blood';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Blood: One blood per blood type
@@ -1036,7 +1096,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         // Create Urine Tube
         $specimenUrinAliquots = array();
         
-        $key = '15mL Urine';
+        $key = '15ml urine';
         $sample_type = 'urine';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Urine: One urine per visit
@@ -1086,7 +1146,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         }
         unset($new_collection_data[$key]);
         
-        $key = 'Contenant sterile 90mL urine';
+        $key = 'contenant sterile 90ml urine';
         $sample_type = 'urine';
         if(array_key_exists($key, $new_collection_data)) {
             // Rule Urine: One urine per visit
@@ -1132,7 +1192,7 @@ function loadParticipantCollection($current_participant, $participant_aliquots, 
         unset($new_collection_data[$key]);
         
         // Create centrif. urine tubes
-        $key = 'Urine';
+        $key = 'urine';
         $sample_type = 'centrifuged urine';
         if(array_key_exists($key, $new_collection_data)) {
             $tmpParentAliquotToDerivative = array();

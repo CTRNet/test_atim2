@@ -2,8 +2,8 @@
 // --------------------------------------------------------------------------------
 // Set next kidney bank identifier
 // --------------------------------------------------------------------------------
-if ($_SESSION['created_participant']['next_identifier_controls']) {
-    $nextIdentifierName = array_shift($_SESSION['created_participant']['next_identifier_controls']);
+if ($_SESSION['chum_kidney_transp_next_identifier_controls']) {
+    $nextIdentifierName = array_shift($_SESSION['chum_kidney_transp_next_identifier_controls']);
     if ($nextIdentifierName) {
         $miscIdentifierControlId = $this->MiscIdentifierControl->find('first', array(
             'conditions' => array(
