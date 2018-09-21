@@ -9,6 +9,7 @@ class MasterDetailBehavior extends ModelBehavior
     public $__settings = array();
 
     /**
+     *
      * @param Model $model
      * @param array $config
      */
@@ -80,6 +81,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param mixed $results
      * @param bool $primary
@@ -153,8 +155,8 @@ class MasterDetailBehavior extends ModelBehavior
      * If there is a single control id condition, returns the id, otherwise
      * false
      *
-     * @param Model $model            
-     * @param unknown $query            
+     * @param Model $model
+     * @param unknown $query
      * @return mixed
      */
     public function getSingleControlIdCondition(Model $model, $query)
@@ -167,6 +169,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param $controlId
      * @param null $alternateModelName
@@ -214,6 +217,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param array $query
      * @return array|void
@@ -242,6 +246,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param bool $created
      * @param array $options
@@ -302,6 +307,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param bool $cascade
      * @return bool
@@ -338,6 +344,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @return null
      */
@@ -350,6 +357,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @return null
      */
@@ -382,6 +390,7 @@ class MasterDetailBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param $model
      * @param $controlId
      * @return AppModel

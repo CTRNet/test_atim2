@@ -5,7 +5,7 @@ $structureLinks = array(
         'detail' => '/Order/Shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
         'copy for new shipment' => array(
             'link' => '/Order/Shipments/add/%%Shipment.order_id%%/%%Shipment.id%%/',
-            'icon' => 'copy'
+            'icon' => 'duplicate'
         ),
         'add items to shipment' => array(
             'link' => '/Order/Shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/',

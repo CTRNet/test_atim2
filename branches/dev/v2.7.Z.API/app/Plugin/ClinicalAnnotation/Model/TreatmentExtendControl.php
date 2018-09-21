@@ -9,6 +9,7 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel
     public $masterFormAlias = 'treatment_extend_masters';
 
     /**
+     *
      * @return array
      */
     public function getPrecisionTypeValues()
@@ -29,6 +30,7 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

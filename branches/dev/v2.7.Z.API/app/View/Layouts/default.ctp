@@ -9,11 +9,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.View.Layouts
- * @since         CakePHP(tm) v 0.10.0.1076
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.View.Layouts
+ * @since CakePHP(tm) v 0.10.0.1076
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 $useBuffer = false;
 if (! headers_sent()) {
@@ -24,8 +24,6 @@ if (! headers_sent()) {
     header('Content-type: text/html; charset=utf-8');
     AppController::atimSetCookie(isset($skipExpirationCookie) && $skipExpirationCookie);
 }
-?>
-<?php
 // Add this if because the Print and echo functions cause warning in mode debug.
 //https://stackoverflow.com/questions/8028957#answer-8028987
 if(Configure::read('debug')===0){
@@ -37,6 +35,21 @@ if(Configure::read('debug')===0){
 <!DOCTYPE html>
 <html>
 <head>
+<noscript>
+	<style>
+body * {
+	display: none;
+}
+
+.noJavaScript {
+	color: red;
+	font-weight: bold;
+	text-align: center;
+	display: block;
+}
+</style>
+	<p class="noJavaScript">This page needs Javascript activated to work.</p>
+</noscript>	
 	<?php
 $header = $this->Shell->header(array(
     'atim_menu_for_header' => $atimMenuForHeader,
@@ -49,13 +62,12 @@ $title = $this->Shell->pageTitle;
 	
 	<title><?php echo $title ? $title.' &laquo ATiM' : __('core_appname'); ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<!--<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Cache-Control"
-	content=" no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0" />
-<meta http-equiv="Expires" content="0" />-->
+
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
+
 	<?php
+echo $this->Html->css('d3/nv.d3.css') . "\n"; // Chart
 echo $this->Html->css('style') . "\n";
 echo $this->Html->css('jQuery/themes/custom-theme/jquery-ui-1.8.20.custom') . "\n";
 echo $this->Html->css('jQuery/popup/popup.css');
@@ -93,7 +105,11 @@ if (__('clin_english') == "Anglais") {
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
 			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
 			var csvWarning = "<?php echo __('csv file warning') ?>";
-                        
+			var maxUploadFileSize = "<?php echo Configure::read('maxUploadFileSize'); ?>";
+			var maxUploadFileSizeError = "<?php echo __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
+			var loadSearchDataMessage = Array("<?php echo __('previous search') ?>", "<?php echo __('reset search') ?>");
+            var DUPLICATED_ALIQUOT = "<?php echo __('this aliquot is registered in another place'); ?>";
+            <?php if (isset($_SESSION['js_post_data'])){echo ($_SESSION['js_post_data']); unset($_SESSION['js_post_data']);}?>
 		</script>
 <!--[if IE 7]>
 	<?php
@@ -103,14 +119,13 @@ echo $this->Html->css('iehacks');
 	<![endif]-->
 </head>
 <body>
-	
 <?php
 echo $header;
-
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
-//echo $content_for_layout;
+// echo $content_for_layout;
+
 echo $this->fetch('content');
 
 echo $this->Shell->footer();
@@ -118,7 +133,6 @@ echo $this->Shell->footer();
 // echo $this->element('sql_dump');
 
 // JS added to end of DOM tree...
-
 echo $this->Html->script('jquery-1.7.2.min') . "\n";
 echo $this->Html->script('jquery-ui-1.8.20.custom.min') . "\n";
 echo $this->Html->script('jquery.ui-datepicker-fr.js') . "\n";
@@ -135,8 +149,13 @@ echo $this->Html->script('ccl') . "\n";
 echo $this->Html->script('dropdownConfig') . "\n";
 echo $this->Html->script('jquery.fm-menu') . "\n";
 echo $this->Html->script('form/jquery.form.js') . "\n";
+echo $this->Html->script('d3/d3.js') . "\n"; // Chart
+echo $this->Html->script('saveSvgAsPng.js') . "\n"; // Chart
+if ($this->params['plugin'] == 'Datamart' && $this->params['controller'] == 'Reports' && $this->params['action'] == 'manageReport') {
+    echo $this->Html->script('d3/nv.d3.js') . "\n"; // Chart
+}
 ?>
-	
+
 	<script type="text/javascript">
 		$(function(){
 			initJsControls();

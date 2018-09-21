@@ -3,6 +3,7 @@
 define("REST_API", "API");
 define("CONFIG_API", "config");
 define("MODEL_NAME", "modelName");
+define("CONTROLLER_NAME", "controller");
 define("REST_API_MODE", "APIMode");
 define("REST_API_ACTION", "APIAction");
 define("REST_API_MODE_STRUCTURE", "APISModeStructure");
@@ -240,7 +241,6 @@ class API {
      * @internal param string $model
      */
     public static function checkData(&$controller) {
-
         if (is_string($controller->request->data)) {
             $data = json_decode($controller->request->data, true);
         } elseif (is_array($controller->request->data)) {
@@ -250,33 +250,29 @@ class API {
         }
         
         $data = self::checkExtradata($data);
-        
-        if (isset($data['modelName'])) {
-            $model = $data['modelName'];
-        } else {
-            $model = $controller->modelClass;
-        }
+
 //if ($data['data_put_options']['action']!="initialAPI"){
 //print_r($controller->request->data);
 //print_r($data);
 //exit("______________");
 //}
         if (!(isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api'])) {
-            unset($_SESSION[REST_API]);
+            if (isset($_SESSION[REST_API])){
+                unset($_SESSION[REST_API]);
+            }
         }
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
                 $controller->request->data = $data;
                 Configure::write('debug', 0);
                 $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY] = $data['data_put_options']['atimApiKey'];
-                $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
-                $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME] = (isset($data['modelName'])) ? $data['modelName'] : Inflector::pluralize($model);
+                $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = $data['data_put_options']['model'];
+                $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME] = $data['data_put_options']['controller'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
                 $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
                 unset($controller->request->data['data_put_options']);
-                unset($controller->request->data['modelName']);
             }
         }
         $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) ? $_SESSION[REST_API][CONFIG_API][REST_API_MODE] : false;
@@ -358,10 +354,10 @@ class API {
      * @param $response
      * @param $item
      * @param $suffixes
-     * @param $option
+     * @param $options
      */
-    private static function setField(&$response, $item, $suffixes, $option) {
-        $optionType = $option['type'];
+    private static function setField(&$response, $item, $suffixes, $options) {
+        $optionType = $options['type'];
         $type = $item['type'];
         $field = null;
         if ($suffixes == null) {
@@ -441,11 +437,11 @@ class API {
      * @param $response
      * @param $item
      * @param $suffixes
-     * @param $option
+     * @param $options
      * @internal param string $type
      */
-    private static function setDate(&$response, $item, $suffixes, $option) {
-        $optionType = $option['type'];
+    private static function setDate(&$response, $item, $suffixes, $options) {
+        $optionType = $options['type'];
         $type = $item['type'];
         if (!$suffixes) {
             $response['fields'][$item['field']]['field'] = $item['field'];
@@ -523,51 +519,102 @@ class API {
     /**
      * @param $tableIndex
      * @param $structures
-     * @param $option
+     * @param $options
      * @return array
      */
-    private static function createStructure($tableIndex, $structures, $option) {
-        if (empty($tableIndex)) {
+    private static function createStructure($tableIndex, $structures, $options, $data) {
+        if (empty($tableIndex) && $options['type'] != 'index') {
             return null;
         }
+
         $response = array('fields' => array(), 'example' => array());
-        foreach ($tableIndex as $columns) {
-            foreach ($columns as $column) {
-                foreach ($column as $item) {
-                    if (!$item['flag_confidential'] || self::$user['Group']['flag_show_confidential']) {
-                        $suffixes = null;
-                        if (API::getAction() == "search") {
-                            $suffixes = in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
-                        }
-                        if (in_array($item['type'], array('date', 'datetime'))) {
-                            self::setDate($response, $item, $suffixes, $option);
-                        } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
-                            self::setField($response, $item, $suffixes, $option);
-                            if ($suffixes && strpos($item['setting'], 'range') && $item['type'] == 'input') {
-                                $suffixes = array("_start", "_end");
-                                self::setField($response, $item, $suffixes, $option);
+        if ($options['type'] == 'index'){
+            foreach ($data as $dataVal) {
+                foreach($dataVal as $modelName => $modelArray) {
+                    if (isset($options['links']['tree'][$modelName]['radiolist'])) {
+                        self::createTreeRadioButtonStructure($response, $data, $modelName, $options, 'radiolist');
+                    }
+                }
+            }
+        }else{
+            foreach ($tableIndex as $columns) {
+                foreach ($columns as $column) {
+                    foreach ($column as $item) {
+                        if (!$item['flag_confidential'] || self::$user['Group']['flag_show_confidential']) {
+                            $suffixes = null;
+                            if (API::getAction() == "search") {
+                                $suffixes = in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
                             }
-                        } else {
-                            continue;
+                            if (in_array($item['type'], array('date', 'datetime'))) {
+                                self::setDate($response, $item, $suffixes, $options);
+                            } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
+                                self::setField($response, $item, $suffixes, $options);
+                                if ($suffixes && strpos($item['setting'], 'range') && $item['type'] == 'input') {
+                                    $suffixes = array("_start", "_end");
+                                    self::setField($response, $item, $suffixes, $options);
+                                }
+                            } else {
+                                continue;
+                            }
                         }
                     }
                 }
             }
         }
+        
         $response['phpArray'] = "[" . convertJSONtoArray($response['example']) . "]";
         $response['jsArray'] = (isAssoc($response['example'])) ? "{" . json_encode_js($response['example']) . "}" : associateToIndexArray($response['example']);
         return $response;
     }
 
+    private static function createTreeRadioButtonStructure(&$response, $data, $modelName, $options, $treeType)
+    {
+        if ($treeType == 'radiolist') {
+            $rawRadiolist = $options['links']['tree'][$modelName]['radiolist'];
+            foreach ($rawRadiolist as $radiobuttonName => $radiobuttonValue) {
+                list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
+                $field = str_replace("%", "", $radiobuttonValue);
+                $field = (strpos($field, ".") !== false) ? substr($field, strpos($field, ".") + 1) : null;
+                break;
+            }
+        }
+        $values = self::getAllPossibleValue($data, $modelName, $field);
+        $response['fields'][$tmpField]=array(
+            'field' => $tmpField,
+            'name' => $tmpModel."[".$tmpField."]",
+            'type' =>'radiobutton',
+            'defined' => $values,
+            'note' =>"(IMPORTANT) ".$tmpModel."[".$tmpField."] is a dynamic field related to your model, to have more information about it should use the related functions in your API model."
+        );
+        $response['example'][$tmpModel][$tmpField] = count($values)>0?array_keys($values)[1]:0;
+    }
+    
+    private static function getAllPossibleValue($data, $modelName, $field=null)
+    {
+        $ids = array("0" => "N/A");
+        if (isset($data[0])){
+            for ($i=0; $i<count($data); $i++){
+                $ids += self::getAllPossibleValue($data[$i], $modelName, $field);
+            }
+        }else
+            if (!empty($field) && isset($data[$modelName][$field])) {
+            $ids += array($data[$modelName][$field] => $modelName . ".$field: " . $data[$modelName][$field]);
+            if (!empty($data['children'])) {
+                $ids += self::getAllPossibleValue($data['children'], $modelName, $field);
+            }
+        }
+        return $ids;
+    }
+
     /**
      * @param $tableIndex
      * @param $structure
-     * @param $option
+     * @param $options
      * @return array|null
      */
-    public static function getStructure($tableIndex, $structure, $option) {
+    public static function getStructure($tableIndex, $structure, $options, $data = array()) {
         if (API::isStructMode()) {
-            $result = self::createStructure($tableIndex, $structure, $option);
+            $result = self::createStructure($tableIndex, $structure, $options, $data);
             return $result;
         } else {
             return null;

@@ -225,8 +225,8 @@ class Browser extends DatamartAppModel
                     $children = self::getSubModels($dataUnit, $dataUnit['DatamartStructure']['id'], $ids);
                     if (! empty($children)) {
                         array_unshift($children, array(
-                            'value' => $dataUnit['DatamartStructure']['id'],
-                            'label' => __('all')
+                            'label' => __('all'),
+                            'value' => $dataUnit['DatamartStructure']['id']
                         ));
                         $tmpResult['children'] = $children;
                     }
@@ -1765,6 +1765,7 @@ class Browser extends DatamartAppModel
         $nodeId = $params['node_id'];
         $save = array();
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
+            echo $browsing['DatamartStructure']['index_link'];
             $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return false;
         }
@@ -2084,8 +2085,7 @@ $browsingFilter['attribute']);
             // we have an empty set, bail out! (don't save empty result)
             if ($params['last']) {
                 // go back 1 page
-                $controller->atimFlashError(__("no data matches your search parameters"), Router::url( $this->here, true));
-//                $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
+                $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
             } else {
                 // go to the last node
                 $controller->atimFlashWarning(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/");

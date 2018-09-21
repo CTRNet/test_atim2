@@ -17,6 +17,7 @@ class UserLogsController extends AdministrateAppController
     );
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */

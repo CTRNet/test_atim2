@@ -9,7 +9,7 @@ class MenusController extends AdministrateAppController
     public $uses = array(
         'Menu'
     );
-
+    
     // temp beforefilter to allow permissions, ACL tables not updated yet
     public function beforeFilter()
     {
@@ -30,6 +30,7 @@ class MenusController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $menuId
      */
     public function detail($menuId)
@@ -46,6 +47,7 @@ class MenusController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $bankId
      */
     public function edit($bankId)

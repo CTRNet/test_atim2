@@ -14,8 +14,14 @@ $finalOptions = array(
     ),
     'extras' => '<input type="hidden" name="data[sample_ctrl_id]" value="' . $sampleCtrlId . '"/>
 			<input type="hidden" name="data[realiquot_from]" value="' . $realiquotFrom . '"/>
-			<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>'
+			<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>',
+    'override' => array(
+        '0.aliquots_nbr_per_parent' => '1'
+    )
 );
+if ($defaultChildrenAliquotControlId) {
+    $finalOptions['override']['0.realiquot_into'] = $defaultChildrenAliquotControlId;
+}
 
 // CUSTOM CODE
 $hookLink = $this->Structures->hook();

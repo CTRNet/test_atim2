@@ -47,6 +47,7 @@ class SampleMastersController extends InventoryManagementAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -56,6 +57,11 @@ class SampleMastersController extends InventoryManagementAppController
         // lazy load
         $this->SampleControl;
         $this->AliquotControl;
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
         
         $this->searchHandler($searchId, $this->ViewSample, 'view_sample_joined_to_collection', '/InventoryManagement/SampleMasters/search');
         
@@ -78,6 +84,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param int $sampleMasterId
      * @param bool $isAjax
@@ -86,8 +93,8 @@ class SampleMastersController extends InventoryManagementAppController
     {
         $this->Collection->getOrRedirect($collectionId);
         
-        // To sort data based on date        
-        $tmpArray = array();        
+        // To sort data based on date
+        $tmpArray = array();
         $aS = array(
             '±' => 0,
             'y' => 1,
@@ -97,8 +104,8 @@ class SampleMastersController extends InventoryManagementAppController
             'i' => 5,
             'c' => 6,
             '' => 7
-        );        
-        $addToTmpArray = function (array $in, $model, $dateField, $accuracyField) use ($aS, &$tmpArray) {
+        );
+        $addToTmpArray = function (array $in, $model, $dateField, $accuracyField) use($aS, &$tmpArray) {
             if ($in[$model][$dateField]) {
                 $tmpArray[$in[$model][$dateField] . $aS[$in[$model][$accuracyField]]][] = $in;
             } else {
@@ -106,7 +113,7 @@ class SampleMastersController extends InventoryManagementAppController
             }
         };
         
-        // Main Code        
+        // Main Code
         if ($isAjax) {
             $this->layout = 'ajax';
             Configure::write('debug', 0);
@@ -118,7 +125,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
         $atimStructure['SampleMaster'] = $this->Structures->get('form', 'sample_masters_for_collection_tree_view');
         $atimStructure['AliquotMaster'] = $this->Structures->get('form', 'aliquot_masters_for_collection_tree_view');
-        $atimStructure['SampleUseForCollectionTreeView'] = $this->Structures->get('form', 'sample_uses_for_collection_tree_view');      
+        $atimStructure['SampleUseForCollectionTreeView'] = $this->Structures->get('form', 'sample_uses_for_collection_tree_view');
         
         $this->set('atimStructure', $atimStructure);
         $this->set("collectionId", $collectionId);
@@ -154,7 +161,15 @@ class SampleMastersController extends InventoryManagementAppController
                 'recursive' => 0
             ));
             foreach ($this->request->data as &$newSample)
-                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h', 'h', 'h'), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
+                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array(
+                    '',
+                    'c',
+                    'i'
+                ), array(
+                    'h',
+                    'h',
+                    'h'
+                ), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
         }
         
         $ids = array();
@@ -169,8 +184,8 @@ class SampleMastersController extends InventoryManagementAppController
         if ($sampleMasterId != 0) {
             
             // Display aliquots first then all other linked records (sample, quality controls , etc) ordered on dates
-            foreach ($this->request->data as $unit_2) {
-                $addToTmpArray($unit_2, 'DerivativeDetail', 'creation_datetime', 'creation_datetime_accuracy');
+            foreach ($this->request->data as $unit2) {
+                $addToTmpArray($unit2, 'DerivativeDetail', 'creation_datetime', 'creation_datetime_accuracy');
             }
             $this->request->data = array();
             
@@ -234,13 +249,19 @@ class SampleMastersController extends InventoryManagementAppController
                 }
             }
             $this->request->data = $aliquots;
-                
+            
             // Add sample Specimen Review that is not linked to an aliquot
-            foreach ($this->SpecimenReviewMaster->find('all', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sampleMasterId))) as $newSpecimenReview) {
+            foreach ($this->SpecimenReviewMaster->find('all', array(
+                'conditions' => array(
+                    'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
+                )
+            )) as $newSpecimenReview) {
                 $aliquotReviewMasterConditions = array(
                     'AliquotReviewMaster.specimen_review_master_id' => $newSpecimenReview['SpecimenReviewMaster']['id']
                 );
-                if (! $this->AliquotReviewMaster->find('count', array('conditions' => $aliquotReviewMasterConditions))) {
+                if (! $this->AliquotReviewMaster->find('count', array(
+                    'conditions' => $aliquotReviewMasterConditions
+                ))) {
                     $formatedSpecimenReviewData = array_merge($newSpecimenReview, array(
                         'Generated' => array(
                             'sample_use_definition' => __('specimen review'),
@@ -254,7 +275,12 @@ class SampleMastersController extends InventoryManagementAppController
             }
             
             // Add sample Specimen Review that is not linked to an aliquot
-            foreach ($this->QualityCtrl->find('all', array('conditions' => array('QualityCtrl.sample_master_id' => $sampleMasterId, 'QualityCtrl.aliquot_master_id IS NULL'))) as $newQualityCtrl) {
+            foreach ($this->QualityCtrl->find('all', array(
+                'conditions' => array(
+                    'QualityCtrl.sample_master_id' => $sampleMasterId,
+                    'QualityCtrl.aliquot_master_id IS NULL'
+                )
+            )) as $newQualityCtrl) {
                 $formatedQualityCtrlData = array_merge($newQualityCtrl, array(
                     'Generated' => array(
                         'sample_use_definition' => __('quality control'),
@@ -311,10 +337,9 @@ class SampleMastersController extends InventoryManagementAppController
     /**
      * List all derivatives samples of a specimen.
      *
-     * @param $collectionId ID
-     *            of the collection
+     * @param $collectionId ID of the collection
      * @param $specimenSampleMasterId
-     * @internal param sample_master_id $specimenSampleId of the specimen*            of the specimen
+     * @internal param sample_master_id $specimenSampleId of the specimen* of the specimen
      */
     public function listAllDerivatives($collectionId, $specimenSampleMasterId)
     {
@@ -376,6 +401,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param int $isFromTreeView
@@ -436,7 +462,7 @@ class SampleMastersController extends InventoryManagementAppController
         $this->set('parentSampleMasterId', $parentSampleMasterId);
         
         // Set sample data
-        $this->set('sampleMasterData', $sampleData, SHOW_IN_API);
+        $this->set('sampleMasterData', $sampleData);
         $this->request->data = array();
         
         // Set sample aliquot list
@@ -543,6 +569,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleControlId
      * @param int $parentSampleMasterId
@@ -688,6 +715,36 @@ class SampleMastersController extends InventoryManagementAppController
                 }
             }
             
+            // Set default field values defined into the collection template
+            if (isset(AppController::getInstance()->passedArgs['nodeIdWithDefaultValues'])) {
+                $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+                $templateNode = $templateNodeModel->find('first', array(
+                    'conditions' => array(
+                        'TemplateNode.id' => AppController::getInstance()->passedArgs['nodeIdWithDefaultValues']
+                    )
+                ));
+                $templateNodeDefaultValues = array();
+                foreach (json_decode($templateNode['TemplateNode']['default_values'], true) as $model => $fieldsValues) {
+                    foreach ($fieldsValues as $field => $Value) {
+                        if (is_array($Value)) {
+                            $tmpDateTimeArray = array(
+                                'year' => '',
+                                'month' => '',
+                                'day' => '',
+                                'hour' => '',
+                                'min' => '',
+                                'sec' => ''
+                            );
+                            $tmpDateTimeArray = array_merge($tmpDateTimeArray, $Value);
+                            $templateNodeDefaultValues["$model.$field"] = sprintf("%s-%s-%s %s:%s:%s", $tmpDateTimeArray['year'], $tmpDateTimeArray['month'], $tmpDateTimeArray['day'], $tmpDateTimeArray['hour'], $tmpDateTimeArray['min'], $tmpDateTimeArray['sec']);
+                        } else {
+                            $templateNodeDefaultValues["$model.$field"] = $Value;
+                        }
+                    }
+                }
+                $this->set('templateNodeDefaultValues', $templateNodeDefaultValues);
+            }
+            
             $hookLink = $this->hook('initial_display');
             if ($hookLink) {
                 require ($hookLink);
@@ -828,6 +885,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -907,7 +965,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'conditions' => array(
                         'id' => $sampleData['DerivativeDetail']['lab_book_master_id']
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
                 if (empty($previousLabook)) {
                     $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1033,6 +1091,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -1092,6 +1151,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivativeInit($aliquotMasterId = null)
@@ -1120,7 +1180,7 @@ class SampleMastersController extends InventoryManagementAppController
             $model = 'SampleMaster';
             $key = 'id';
             $aliquotMaster = $this->AliquotMaster->findById($aliquotMasterId);
-            if (empty($aliquotMaster)){
+            if (empty($aliquotMaster)) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
@@ -1151,7 +1211,7 @@ class SampleMastersController extends InventoryManagementAppController
             $aliquotIds = array_filter($this->request->data[$alqModel][$alqKey]);
             
             if (empty($aliquotIds)) {
-                $this->atimFlashWarning(__("batch init no data"), $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init no data"), $urlToCancel);
             }
             $aliquotData = $this->AliquotMaster->find('all', array(
                 'fields' => array(
@@ -1171,7 +1231,7 @@ class SampleMastersController extends InventoryManagementAppController
             $expectedCtrlId = $aliquotData[0]['AliquotMaster']['aliquot_control_id'];
             foreach ($aliquotData as $aliquotUnit) {
                 if ($aliquotUnit['AliquotMaster']['aliquot_control_id'] != $expectedCtrlId) {
-                    $this->atimFlashWarning(__("you must select elements with a common type"), $urlToCancel, 5);
+                    $this->atimFlashWarning(__("you must select elements with a common type"), $urlToCancel);
                 }
                 $ids[] = $aliquotUnit['AliquotMaster']['sample_master_id'];
             }
@@ -1182,7 +1242,7 @@ class SampleMastersController extends InventoryManagementAppController
             $key = 'id';
             $this->set("aliquotIds", implode(",", $aliquotIds));
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         if (isset($this->request->data['node']) && $this->request->data[$model][$key] == 'all') {
@@ -1201,7 +1261,7 @@ class SampleMastersController extends InventoryManagementAppController
         // Manage data
         $initData = $this->batchInit($this->SampleMaster, $model, $key, "sample_control_id", $this->ParentToDerivativeSampleControl, "parent_sample_control_id", "you cannot create derivatives for this sample type");
         if (array_key_exists('error', $initData)) {
-            $this->atimFlashWarning(__($initData['error']), $urlToCancel, 5);
+            $this->atimFlashWarning(__($initData['error']), $urlToCancel);
             return;
         }
         
@@ -1229,6 +1289,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivativeInit2($aliquotMasterId = null)
@@ -1236,8 +1297,7 @@ class SampleMastersController extends InventoryManagementAppController
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-            $this->atimFlashWarning(__("you must select a derivative type"), Router::url( $this->here, true), 5);
-//            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();");
             return;
         }
         
@@ -1289,6 +1349,7 @@ class SampleMastersController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param null $aliquotMasterId
      */
     public function batchDerivative($aliquotMasterId = null)
@@ -1307,10 +1368,10 @@ class SampleMastersController extends InventoryManagementAppController
         unset($this->request->data['url_to_cancel']);
         
         if (! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-            $this->atimFlashWarning(__("you must select a derivative type"), $urlToCancel, 5);
+            $this->atimFlashWarning(__("you must select a derivative type"), $urlToCancel);
             return;
         }
         
@@ -1333,7 +1394,7 @@ class SampleMastersController extends InventoryManagementAppController
             if (is_numeric($result)) {
                 $labBookId = $result;
             } else {
-                $this->atimFlashWarning(__($result), $urlToCancel, 5);
+                $this->atimFlashWarning(__($result), $urlToCancel);
                 return;
             }
             $labBookData = $labBook->findById($labBookId);
@@ -1371,7 +1432,7 @@ class SampleMastersController extends InventoryManagementAppController
         $this->Structures->set('empty', 'emptyStructure');
         
         $this->set('childrenSampleControlId', $this->request->data['SampleMaster']['sample_control_id']);
-        $this->set('createdSampleOverrideData', array(
+        $this->set('createdSampleStructureOverride', array(
             'SampleControl.sample_type' => $childrenControlData['SampleControl']['sample_type']
         ));
         $this->set('parentSampleControlId', $parentSampleControlId);
@@ -1415,7 +1476,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'joins' => $joins
                 ));
                 if (sizeof($aliquots) > $displayLimit) {
-                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                     return;
                 }
                 $this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
@@ -1437,7 +1498,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'recursive' => - 1
                 ));
                 if (sizeof($samples) > $displayLimit) {
-                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                     return;
                 }
                 $this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
@@ -1469,8 +1530,7 @@ class SampleMastersController extends InventoryManagementAppController
             
             $prevData = $this->request->data;
             if (empty($prevData)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
-//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();");
                 return;
             }
             $this->request->data = array();

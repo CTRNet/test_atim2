@@ -7,12 +7,23 @@ var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt(
 var sessionTimeout = new Object();
 var checkedData = [];
 var DEBUG_MODE_JS = 0;
-
+var sessionId = "";
+columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
 //window.alert = function(a){
 //    console.log(a);
 //}
 
 $(document).ready(function () {
+    $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
+    var $tds = $("div.pasteDisabled").closest("td");
+    $tds.each(function () {
+        var $td = $(this);
+        var index = $td.index();
+        $th = $td.closest("table").find("tr:last-child").children("th:nth-child(" + (index + 1) + ")");
+        if ($th.find(".pasteDisabledBefore").length === 0) {
+            $th.append("<div class='pasteDisabledBefore'></div>");
+        }
+    });
     if (typeof dataLimit !== 'undefined') {
         if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
             checkedData = [];
@@ -51,8 +62,8 @@ $(document).ready(function () {
             }
 
             var domNodes = document.createElement('div');
-            if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -91,10 +102,10 @@ $(document).ready(function () {
         }
 
         var errorFunction = function (jqXHR, textStatus, errorThrown) {
-            $(document).remove('#popupError');
-            var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            $(document).append(popupError);
+            //$(document).remove('#popupError');
+            //var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            //popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            //$(document).append(popupError);
 //        $(popupError).popup();
             if (DEBUG_MODE_JS > 0) {
                 console.log (jqXHR);
@@ -564,7 +575,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $(cell).find("span:first").addClass("specific_span");
 
             var baseName = $(cell).find("input").prop("name");
-            baseName = baseName.substr(0, baseName.length - 3);
+            if (baseName.substr(baseName.length-3,baseName.length-1)=="][]"){
+                baseName = baseName.substr(0, baseName.length - 3);
+            }else{
+                baseName = baseName.substr(0, baseName.length - 1);
+            }
             tabindex = $(cell).find("input").prop("tabindex");
             $(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> "
                     + STR_TO
@@ -657,8 +672,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     //alternate source for debugging
             source: function(request, response) {
                     $.get(url, request, function(data){
-                        if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
                         }                        
@@ -837,7 +852,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     if (buttons != null && buttons.length > 0) {
         for (i in buttons) {
             buttonsHtml +=
-                    '<div id="' + id + i + '" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
+                    '<div id="' + id + i + '" class="bottom_button"><a href="javascript:void(0)" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
         }
         buttonsHtml = '<div class="actions split">' + buttonsHtml + '</div>';
     }
@@ -904,8 +919,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
         }
         $.get($(this).prop("href"), null, function (data) {
-            if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -1020,6 +1035,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(this).addClass('consents');
             }
         }).click(function () {
+            $(".this_column_1.total_columns_2").css("width", "1%")
             var link = this;
             //remove highlighted stuff
             var td = $(".at").removeClass("at").find("td:last-child");
@@ -1032,11 +1048,23 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if ($(link).data('cached_result')) {
                 $("#frame").html($(link).data('cached_result'));
                 initActions();
+                dynamicHeight = $("#dynamicHeight");
+                frame =  $("#frame");
+                frameHeight = frame.height();
+                tr = $(link).parents("tr").first().addClass("at");
+                td = $(tr).find("td").last();
+
+                var topValue = $(td).position().top - frameHeight;
+                if (topValue<0){
+                        topValue=0;
+                }
+                dynamicHeight.css("height", topValue);
+
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -1044,13 +1072,33 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     $("#frame").html(data);
                     $(link).data('cached_result', data);
                     initActions();
+                    
+                    dynamicHeight = $("#dynamicHeight");
+                    frame =  $("#frame");
+                    frameHeight = frame.height();
+                    tr = $(link).parents("tr").first().addClass("at");
+                    td = $(tr).find("td").last();
+
+                    var topValue = $(td).position().top - frameHeight;
+                    if (topValue<0){
+                            topValue=0;
+                    }
+                    dynamicHeight.css("height", topValue);
+                    
                 });
             }
             return false;
         });
-        $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
-                '<td class="this_column_2 total_columns2"><div id="frame"></td>'
-                );
+        columnLarge = (typeof columnLarge!='undefined')?columnLarge:false;
+        if (!columnLarge){
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="frame"></td>'
+                    );
+        }else{
+            $(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "100%").parent().append(
+                    '<td class="this_column_2 total_columns2"><div id="dynamicHeight"></div><div id="frame"></div></td>'
+                    );
+        }
 
     }
 }
@@ -1086,27 +1134,29 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         return computeSum(obj, newArr);
     };
     var totalColspan = $(floatingBckGrnd).data("totalColspan");
-    var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
-    if (!lastTd.length) {
-        //no more rows
-        lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
-    }
-    var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
-    width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
-    height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
-    if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
-        $(floatingBckGrnd).data("onlyDimension", true);
-        $(floatingBckGrnd).css({
-            "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
-            "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
-            "width": width + "px",
-            "height": height + "px"
-        });
-    } else {
-        $(floatingBckGrnd).css({
-            "width": width + "px",
-            "height": height + "px"
-        });
+    if (typeof totalColspan !=='undefined'){
+        var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+        if (!lastTd.length) {
+            //no more rows
+            lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
+        }
+        var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
+        width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+        height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
+            $(floatingBckGrnd).data("onlyDimension", true);
+            $(floatingBckGrnd).css({
+                "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
+                "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
+                "width": width + "px",
+                "height": height + "px"
+            });
+        } else {
+            $(floatingBckGrnd).css({
+                "width": width + "px",
+                "height": height + "px"
+            });
+        }
     }
 }
 
@@ -1283,8 +1333,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
-    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
         saveSqlLogAjax(ajaxSqlLog);
     }
@@ -1343,6 +1393,26 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(this).prop("checked", checked);
             });
         }
+    });
+    
+    $(scope).find("input[type=checkbox]").each(function(){
+        $(this).click(function(){
+            $currentCheckBox=$(this);            
+            $parent=$currentCheckBox.parent();
+            $checkBoxesChildren = $parent.children('input[type=checkbox]');
+
+            $required=false;
+            $checkBoxesChildren.each(function () {
+                if ($(this).prop('required')) {
+                    $required=true;
+                    $(this).prop('required', false);
+                }
+            });
+            
+            if ($required){
+                $currentCheckBox.prop('required', true);
+            }
+        });
     });
 }
 
@@ -1406,7 +1476,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1558,6 +1628,8 @@ function getTime(){
     });    
 }
 
+
+
 function sessionExpired() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1595,7 +1667,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + "Users/Login/login:/", function (data) {
-        if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
         }
         
@@ -1614,7 +1686,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger ;
+		   //debugger ;
 		}
 	}catch(ex){
 	}
@@ -1627,11 +1699,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             sessionTimeout.expirationTime =  ($.cookie("session_expiration") * 1000)+ sessionTimeout.serverOffset;
         }
         if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
-            $("#loginPopup").popup('close');
+            $.post(root_url + "Users/getUserId", function (data) {
+                if (data!=sessionId){
+                    window.location = root_url + "Menus";
+                }else{
+                    $("#loginPopup").popup('close');
+                }
+            });
         }
     }
 
     if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length === 0) {
+        sessionId = $.cookie("sessionId");
         sessionExpired();
     }
 
@@ -1865,9 +1944,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
+            ).delegate("input.upload", "change", checkBrowseFile
+            ).delegate("p.bottom_button_load", "click", loadClearSearchData
             ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
+    $("span.default-value-template").hover(showDefaultValues);
     $(window).bind("pageshow", function (event) {
         //remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
         //don't bother using console.log, console is not ready yet
@@ -1900,13 +1982,136 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
+    initPostData();
+}
+
+function loadClearSearchData()
+{
+    var flag = $(this).data('bottom_button_load');
+    $(this).data('bottom_button_load', 1 - flag);
+    var message=loadSearchDataMessage[flag];
+    $(this).find('span.button_load_text').html(message);
+    $(this).find('span.icon16').toggleClass('load-search').toggleClass('reset-search');
+    var form=$(this).parents('form')[0];
+    form.reset();
+    $(form).find('a.btn_rmv_or, a.specific.specific_btn').each(function(){
+        $(this).click();
+    });
+    if (flag === 1) {
+        if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
+            if (typeof jsPostData['exact_search'] === 'undefined'){
+                $("input[type='checkbox'][name*='data[exact_search']").prop('checked', false);
+            }
+            var model = "", modelValues = "", value = "", field = "";
+            //$("input[name*='data[Participant][participant_identifier][]']");
+            for (model in jsPostData) {
+                modelValues = jsPostData[model];
+                if (modelValues.constructor === Object) {
+                    for (field in modelValues) {
+                        value = modelValues[field];
+                        if (value.constructor === Array) {
+                            $("[name*='data[" + model + "][" + field + "][]']").eq(0).val(value[0]);
+                            if (value.length > 1) {
+                                for (var i = 1; i < value.length; i++) {
+                                    $("[name*='data[" + model + "][" + field + "][]']").first().parent().siblings(".btn_add_or").click();
+                                    $("[name*='data[" + model + "][" + field + "][]']").eq(i).val(value[i]);
+                                }
+                            }
+                        } else if (value.constructor === Object) {
+                            for (var i in value) {
+                                $("[name*='data[" + model + "][" + field + "][" + i + "]']").val(value[i]);
+                            }
+                        } else if (value.constructor === String) {
+                            if ($("[name*='data[" + model + "][" + field + "]']").length === 0) {
+                                if (field.search("_start") == field.length - 6) {
+                                    $("[name*='data[" + model + "][" + field.replace("_start", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                } else if (field.search("_end") == field.length - 4) {
+                                    $("[name*='data[" + model + "][" + field.replace("_end", "") + "]']").closest("span.specific_span").siblings("a.range.range_btn").eq(0).trigger("click");
+                                }
+                            }
+                            $("[name*='data[" + model + "][" + field + "]']").val(value);
+                        }
+                    }
+                } else if (modelValues.constructor === String) {
+                    if (modelValues === "on") {
+                        $("input[type='checkbox'][name*='data[" + model + "]']").prop('checked', true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+function initPostData() {
+    if (typeof jsPostData !== 'undefined' && (jsPostData.constructor === Object || jsPostData.constructor === Array)) {
+        $this = $('p.bottom_button_load');
+        $this.css('display', 'inline-block');
+    }
+}
+
+function checkBrowseFile()
+{
+    if (this.files.length===1){
+        if (this.files[0].size> maxUploadFileSize){
+            alert(maxUploadFileSizeError);
+            this.value="";
+            return false;
+        }
+    }
+    return true;
+}
+
+function isJSON(text) {
+    try {
+        if (typeof text !== "string") {
+            return false;
+        } else {
+            $.parseJSON(text);
+            return true;
+        }
+    } catch (error) {
+        return false;
+    }
+}
+
+function normalisedAjaxData(data){
+    var response = {'data': [], 'sqlLog': {'sqlLog': undefined, 'sqlLogInformations': undefined}};
+    if (typeof data !== 'undefined'){
+        if (data.indexOf("ajaxSqlLog")>-1 ||  data.indexOf("\"sqlLog\":")>-1 ){
+            if (isJSON(data)){
+                data = $.parseJSON(data);
+                if (typeof data.sqlLog !== 'undefined'){
+                    response.sqlLog.sqlLog = data.sqlLog;
+                }
+                if (typeof data.sqlLogInformations !== 'undefined'){
+                    response.sqlLog.sqlLogInformations = data.sqlLogInformations;
+                }
+                if (typeof data.page !== 'undefined'){
+                    response.data = data.page;
+                }
+            }else if($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                response.data = data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                response.sqlLog = {'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            }
+        }else if (data.indexOf("ajaxSqlLog")===-1){
+            response.data = data;
+            response.sqlLog = undefined;
+        }
+    }else{
+            response.data = undefined;
+            response.sqlLog = undefined;
+    }
+    return response;
 }
 
 function saveSqlLogAjax(data){
-    if (data.sqlLog && typeof DEBUGKIT !=="undefined"){
+    if (data && data.sqlLog && typeof DEBUGKIT !=="undefined"){
         var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
         var logs='';
         data.sqlLog.forEach(function(log){
+            if (!log){
+                return false;
+            }
             var infoIndex=log.lastIndexOf('<div id="ajaxSqlLogInformation"');
             if (infoIndex>-1){
                 info=log.substring(infoIndex, log.indexOf('</div>', infoIndex))+'</div>';
@@ -1954,24 +2159,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
 function showHint(event) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   debugger ;
-		}
-	}catch(ex){
-	}
-}
-
     if (event.type === "mouseenter") {
         if (countLines(this) >= 3) {
-            this.title = $(this).text();
+            this.title = $(this).text().replace(/\s&\s/g, "\n");
+        } else if ($(this).text().indexOf(" + ")>-1){
+            this.title = $(this).text().replace(/\s&\s/g, "\n");
         } else {
-            this.title = $(this).text();
             this.title = "";
         }
     } else if (event.type === "mouseleave") {
@@ -1979,20 +2172,15 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
-function countLines(item) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
-		if (DEBUG_MODE_JS>0){
-		   debugger ;
-		}
-	}catch(ex){
-	}
+function showDefaultValues(event) {
+    if (event.type === "mouseenter") {
+        this.title = $(this).text().replace(/\s&\s/g, "\n");
+    } else if (event.type === "mouseleave") {
+        this.title = "";
+    }
 }
 
+function countLines(item) {
     var divHeight = $(item).outerHeight();
     var lineHeight = parseInt($(item).css("lineHeight"));
     var lines = Math.round(divHeight / lineHeight);
@@ -2145,8 +2333,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         var flat_url = json.url.replace(/\//g, "_");
         if (flat_url.length > 0) {
             $.get(root_url + json.url + "?t=" + new Date().getTime(), function (data) {
-                if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                    var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                     data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                     saveSqlLogAjax(ajaxSqlLog);
                 }
@@ -2166,7 +2354,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     initTree($(currentLi));
                 }
                 currentUl=currentLi.children("ul").first();
-                findDuplicatedSamples(currentUl);
+                if (typeof duplicatedSamples !=='undefined'){
+                    findDuplicatedSamples(currentUl);
+                }
             });
         }
     }
@@ -2242,8 +2432,8 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
-        if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
             saveSqlLogAjax(ajaxSqlLog);
         }
@@ -2358,7 +2548,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
     $.post(url, $("#default_popup form").serialize(), function (data) {
-        data = $.parseJSON(data);
+        if (isJSON(data)){
+            data = $.parseJSON(data);
+            saveSqlLogAjax(data);
+        }else{
+            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            data = $.parseJSON(data);
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+
         if (data.type == 'form') {
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
@@ -2614,12 +2813,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
-
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
-            if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                 data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                 saveSqlLogAjax(ajaxSqlLog);
             }
@@ -2630,6 +2828,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
             $("#csvPopup form").attr("action", root_url + target);
             $("#csvPopup a.submit").click(function () {
+                $("#csvPopup form input[type=hidden]").remove();
+                $("form:first input[type=checkbox]:checked").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
+                });
+                $(".databrowser .selectableNode.selected").each(function () {
+                    $("#csvPopup form").append('<input type="hidden" name="data[0][singleLineNodes][]" value="' + $(this).parent("a").data("nodeId") + '"/>');
+                });
+            });
+
+            $("#csvPopup form").submit(function () {
                 $("#csvPopup form input[type=hidden]").remove();
                 $("form:first input[type=checkbox]:checked").each(function () {
                     $("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
@@ -2742,9 +2950,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if (visible) {
                 $("#csvPopup").popup();
             }
-
-            var attention='<ul class="warning"><li><span class="icon16 warning mr5px"></span>'+csvWarning+'</li></ul>'
-            $("#csvPopup h4").after(attention);
             
         });
     }
@@ -2807,12 +3012,25 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 url: url,
                 data: data, 
                 success: function (data) {
-                    if (data.indexOf("{") == 0) {
+                    if (isJSON(data)){
                         data = $.parseJSON(data);
+                        saveSqlLogAjax(data);
                         popup.frame.html(data.page);
-                    } else {
+                    }else{
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        data = $.parseJSON(data);
+                        saveSqlLogAjax(ajaxSqlLog);
                         popup.frame.html(data);
                     }
+
+//                    if (data.indexOf("{") == 0) {
+//                        data = $.parseJSON(data);
+//                        popup.frame.html(data.page);
+//                    } else {
+//                        popup.frame.html(data);
+//                    }
+
                     popup.popup('center');
                     fctLinksToAjax(popup.frame);
                 }
@@ -2833,8 +3051,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     
                     targetDiv.html(data.page);
                 } else {
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -2849,8 +3067,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + button.data('url') + '/noActions:', function (data) {
-        if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
             saveSqlLogAjax(ajaxSqlLog);
         }
@@ -2928,8 +3146,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     
                     page = data.page;
                 } else {
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }
@@ -2969,8 +3187,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     page = data.page;
                     indexZone.html(data.page);
                 } else {
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    

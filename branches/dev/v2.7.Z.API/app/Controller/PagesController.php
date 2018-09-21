@@ -11,11 +11,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Controller
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Controller
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('AppController', 'Controller');
 
@@ -49,8 +49,7 @@ class PagesController extends AppController
     /**
      * Displays a view
      *
-     * @param
-     *            mixed What page to display
+     * @param mixed What page to display
      * @return void
      * @throws NotFoundException When the view file could not be found
      *         or MissingViewException in debug mode.

@@ -17,27 +17,26 @@ class StorageControl extends StorageLayoutAppModel
      */
     public function getStorageTypePermissibleValues()
     {
-        $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-        $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
-            'storage types'
-        ));
-        $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);
-        
         // Build tmp array to sort according to translated value
+        $lang = ($_SESSION['Config']['language'] == 'eng') ? 'en' : 'fr';
         $result = array();
         foreach ($this->find('all', array(
             'conditions' => array(
                 'flag_active = 1'
             )
         )) as $storageControl) {
-            $result[$storageControl['StorageControl']['id']] = isset($translatedStorageTypes[$storageControl['StorageControl']['storage_type']]) ? $translatedStorageTypes[$storageControl['StorageControl']['storage_type']] : $storageControl['StorageControl']['storage_type'];
+            $translatedStorageType = $storageControl['StorageControl']['storage_type'];
+            if (isset($storageControl['StorageControl']['storage_type_' . $lang]) && strlen($storageControl['StorageControl']['storage_type_' . $lang])) {
+                $translatedStorageType = $storageControl['StorageControl']['storage_type_' . $lang];
+            }
+            $result[$storageControl['StorageControl']['id']] = $translatedStorageType;
         }
         natcasesort($result);
-        
         return $result;
     }
 
     /**
+     *
      * @return array
      */
     public function getNonTmaBlockStorageTypePermissibleValues()
@@ -59,6 +58,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getTmaBlockStorageTypePermissibleValues()
@@ -83,6 +83,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param null $storageMasterId
      * @return array|string
      */
@@ -120,11 +121,9 @@ class StorageControl extends StorageLayoutAppModel
      * Note: Only storage having storage type including one dimension and a coordinate type 'x'
      * equals to 'list' can support custom coordinate 'x' list.
      *
-     * @param $storageControlId Storage
-     *            Control ID of the studied storage.
-     * @param $storageControlData Storage
-     *            Control Data of the studied storage (not required).
-     *            
+     * @param $storageControlId Storage Control ID of the studied storage.
+     * @param $storageControlData Storage Control Data of the studied storage (not required).
+     *       
      * @return true when the coordinate 'x' list of a storage can be set by the user.
      *        
      * @author N. Luc
@@ -151,6 +150,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $storageControlData
      * @return string
      */
@@ -195,6 +195,7 @@ class StorageControl extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

@@ -22,6 +22,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -50,6 +51,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */
@@ -91,12 +93,12 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentControlId
      */
     public function add($participantId, $consentControlId)
     {
-
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -149,6 +151,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */
@@ -217,6 +220,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $consentMasterId
      */

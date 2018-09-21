@@ -4,7 +4,7 @@ App::uses('Helper', 'View');
 /**
  * Class StructuresHelper
  */
-class StructuresHelper extends Helper
+class StructuresHelper extends AppHelper
 {
 
     public $helpers = array(
@@ -16,7 +16,7 @@ class StructuresHelper extends Helper
         'Paginator',
         'Session'
     );
-
+    
     // an hidden field will be printed for the following field types if they are in readonly mode
     public $structureAlias = '';
 
@@ -47,9 +47,13 @@ class StructuresHelper extends Helper
         'editgrid',
         'batchedit'
     );
-
+    
     // default options
     private static $defaults = array(
+        'chartSettings' => array(),
+        'chartsType' => array(),
+        'number' => 0,
+        'titles' => '',
         'type' => null,
         'data' => false, // override $this->request->data values, will not work properly for EDIT forms
         'settings' => array(
@@ -98,7 +102,7 @@ class StructuresHelper extends Helper
         'dropdown_options' => array(),
         'extras' => array()
     );
-
+    
     // HTML added to structure blindly, each in own COLUMN
     private static $defaultSettingsArr = array(
         "label" => false,
@@ -192,6 +196,7 @@ class StructuresHelper extends Helper
 
     /**
      * StructuresHelper constructor.
+     *
      * @param View $view
      * @param array $settings
      */
@@ -204,6 +209,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param string $hookExtension
      * @return bool|string
      */
@@ -222,6 +228,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param array $data
      * @param array $structure
      */
@@ -292,6 +299,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $options
      * @param $atimStructure
      */
@@ -318,6 +326,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @return string
      */
     public function getStructureAlias()
@@ -328,6 +337,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $sfs
      * @param $unimportantFields
      */
@@ -341,24 +351,18 @@ class StructuresHelper extends Helper
     }
 
     /**
-     * @param $structureSfs
+     *
+     * @param $tmp
      * @return string
      */
-    private function putInTable($structureSfs)
+    private function putInTable($tmp)
     {
         $htmlResult = "";
         $temp = array();
-        foreach ($structureSfs as $key => &$values) {
+        foreach ($tmp as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
-                    if (!is_int($alias)){
-                        $temp[$alias] = $structures;
-                    }elseif (isset($structures['Structure'][0]) && isset($structures['Structure'][0]['alias'])){
-                        $temp[$structures['Structure'][0]['alias']] = $structures;
-                    }
-                    else{
-                        $temp[$structures['Structure']['alias']] = $structures;
-                    }
+                    $temp[$alias] = $structures;
                 }
             }
         }
@@ -391,6 +395,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $atimStructure
      * @return array
      */
@@ -406,8 +411,8 @@ class StructuresHelper extends Helper
             'StructureValidation'
         );
         if (Configure::read('debug')) {
-            //$tmp = array($atimStructure);
-			$tmp=array();
+            // $tmp = array($atimStructure);
+            $tmp = array();
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
@@ -432,12 +437,15 @@ class StructuresHelper extends Helper
                     "SampleMaster"
                 );
                 $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
+                // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
+                // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
             }
         }
         return $tmp;
     }
 
     /**
+     *
      * @param $atimStructure
      * @param $possibles
      * @param array $unimportantFields
@@ -456,6 +464,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $atimStructure
      * @param $possibles
      * @return array
@@ -474,10 +483,8 @@ class StructuresHelper extends Helper
     /**
      * Builds a structure
      *
-     * @param array $atimStructure
-     *            The structure to build
-     * @param array $options
-     *            The various options indicating how to build the structures. refer to self::$default for all options
+     * @param array $atimStructure The structure to build
+     * @param array $options The various options indicating how to build the structures. refer to self::$default for all options
      * @return depending on the return option, echoes the structure and returns true or returns the string
      */
     public function build(array $atimStructure = array(), array $options = array())
@@ -508,6 +515,7 @@ class StructuresHelper extends Helper
                     );
                     $tmp = $this->getIndexStructure($atimStructure, $possible);
                 }
+                // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
                 
                 $test = $this->structureAliasFinal;
                 $test[] = $this->simplifyStructureTable($atimStructure);
@@ -679,15 +687,26 @@ class StructuresHelper extends Helper
                 $this->myValidationErrors = array_merge($validationErrorArr, $this->myValidationErrors);
             }
         }
+        
         $tableIndex=null;
         if ($type == 'summary') {
-            $this->buildSummary($atimStructure, $options, $data, $tableIndex);
-        } elseif (in_array($type, array('index', 'addgrid','editgrid'))) {
+            $this->buildSummary($atimStructure, $options, $data);
+        } elseif (in_array($type, array(
+            'index',
+            'addgrid',
+            'editgrid'
+        ))) {
             if ($type == 'addgrid' || $type == 'editgrid') {
                 $options['settings']['pagination'] = false;
             }
-            $this->buildTable($atimStructure, $options, $data, $tableIndex, $type);
-        } elseif (in_array($type, array('detail', 'add', 'edit', 'search', 'batchedit'))) {
+            $this->buildTable($atimStructure, $options, $data, $type);
+        } elseif (in_array($type, array(
+            'detail',
+            'add',
+            'edit',
+            'search',
+            'batchedit'
+        ))) {
             $this->buildDetail($atimStructure, $options, $data, $tableIndex);
         } elseif ($type == 'tree') {
             $options['type'] = 'index';
@@ -695,6 +714,29 @@ class StructuresHelper extends Helper
         } elseif ($type == 'csv') {
             $this->buildCsv($atimStructure, $options, $data);
             $options['settings']['actions'] = false;
+        } elseif ($type == 'chart') {
+            for ($i = 0; $i < $options['number']; $i ++) {
+                if (! isset($options['chartSettings']['popup']) || ! $options['chartSettings']['popup']) {
+                    $options['titles'][$i] = isset($options['titles'][$i]) ? $options['titles'][$i] : "";
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
+                    echo '<div class="chartDivHTML" style="height: 300px"><svg></svg></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" title="' . __('detach the chart') . '" class="search pop-up-chart-a" onclick = "createGraph(' . $i . ', true)">
+                                <span class="icon16 charts" style="margin-right: 0px;"></span>' . '</a>
+                            </div>
+                        </div>';
+                } else {
+                    echo '<div class="heading_mimic"><h4>' . $options['titles'][$i] . '</h4></div>';
+                    echo '<div class="actions" style ="background: white">
+                            <div class="bottom_button">
+                                <a href="javascript:void(0)" class= "show-chart-popup" title="' . __('detach the chart') . '" class="search">
+                                <span class="icon16 charts"></span>' . __('detach the chart') . '</a>
+                            </div>
+                        </div>';
+                }
+            }
+            return;
         } else {
             if (Configure::read('debug') > 0) {
                 AppController::addWarningMsg(__("warning: unknown build type [%s]", $type));
@@ -704,9 +746,9 @@ class StructuresHelper extends Helper
             $this->buildDetail($atimStructure, $options, $data, $tableIndex);
         }
         
-        if (isset($options['type']) && !in_array($options['type'], array('index', 'summary'))) {
+        if (isset($options['type']) && !in_array($options['type'], array('index1', 'summary'))) {
             if (API::isAPIMode()) {
-                $structure=API::getStructure($tableIndex, $atimStructure, $options);
+                $structure=API::getStructure($tableIndex, $atimStructure, $options, $data);
                 if ($structure){
                     API::addToBundle($structure, API::$structures);
                 }
@@ -728,6 +770,7 @@ class StructuresHelper extends Helper
                 $linkClass = "search";
                 $linkLabel = __("search", null);
                 $exactSearch = __("exact search") . '<input type="checkbox" name="data[exact_search]"/>';
+                $exactSearch .= "\r\n<p class='bottom_button_load' data-bottom_button_load = '1'>\r\n\t<a href='javascript:void(0)' tabindex='10' class=''>\r\n\t\t<span class='icon16 load-search'></span>" . "<span class='button_load_text'>" . __("previous search") . "</span>\r\n\t</a>\r\n</p>\r\n";
             } else { // other mode
                 $linkClass = "submit";
                 $linkLabel = __("submit", null);
@@ -774,13 +817,13 @@ class StructuresHelper extends Helper
         }
         return $result;
     }
-
+    
     // end FUNCTION build()
     
     /**
      * Reorganizes a structure in a single column
      *
-     * @param array $structure            
+     * @param array $structure
      */
     private function flattenStructure(array &$structure)
     {
@@ -800,10 +843,9 @@ class StructuresHelper extends Helper
     /**
      * Build a structure in a detail format
      *
-     * @param array $atimStructure            
-     * @param array $options            
-     * @param array $dataUnit      
-     * @param $tableIndex
+     * @param array $atimStructure
+     * @param array $options
+     * @param array $dataUnit
      */
     private function buildDetail(array $atimStructure, array $options, $dataUnit, &$tableIndex)
     {
@@ -879,7 +921,12 @@ class StructuresHelper extends Helper
                         
                         // value
                         $currentValue = null;
-                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : array("");
+                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$dateRange) ? array(
+                            "_start",
+                            "_end"
+                        ) : array(
+                            ""
+                        );
                         foreach ($suffixes as $suffix) {
                             $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, $suffix, $options);
                             if ($manyColumns) {
@@ -961,9 +1008,9 @@ class StructuresHelper extends Helper
     /**
      * Echoes a structure in a summary format
      *
-     * @param array $atimStructure            
-     * @param array $options            
-     * @param array $dataUnit            
+     * @param array $atimStructure
+     * @param array $options
+     * @param array $dataUnit
      */
     private function buildSummary(array $atimStructure, array $options, array $dataUnit)
     {
@@ -1000,27 +1047,33 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $currentValue
      * @return string
      */
     private function getOpenFileLink($currentValue)
     {
-        return '<a href="?file=' . $currentValue . '">' . __("open file") . '</a>';
+        $fileArray = explode(".", $currentValue);
+        $extention = $fileArray[count($fileArray) - 1];
+        $name = "";
+        for ($i = 3; $i < count($fileArray) - 1; $i ++) {
+            $name .= $fileArray[$i] . ".";
+        }
+        $shortName = $name;
+        if (strlen($name) > 30) {
+            $shortName = substr($name, 0, 30) . '...';
+        }
+        return '<a title = "' . __("download %s", $name . $extention) . '" href="?file=' . $currentValue . '">' . $shortName . $extention . '</a>';
     }
 
     /**
      * Echoes a structure field
      *
-     * @param array $tableRowPart
-     *            The field settings
-     * @param array $options
-     *            The structure settings
-     * @param string $currentValue
-     *            The value to use/lookup for the field
-     * @param int $key
-     *            A numeric key used when there is multiple instances of the same field (like grids)
-     * @param string $fieldNameSuffix
-     *            A name suffix to use on active non input fields
+     * @param array $tableRowPart The field settings
+     * @param array $options The structure settings
+     * @param string $currentValue The value to use/lookup for the field
+     * @param int $key A numeric key used when there is multiple instances of the same field (like grids)
+     * @param string $fieldNameSuffix A name suffix to use on active non input fields
      * @return string The built field
      */
     private function getPrintableField(array $tableRowPart, array $options, $currentValue, $key, $fieldNameSuffix)
@@ -1149,11 +1202,13 @@ class StructuresHelper extends Helper
                 $currentValue = str_replace('\n', "\n", $currentValue);
             } elseif ($tableRowPart['type'] == 'file') {
                 if ($currentValue) {
-                    $display = $this->getOpenFileLink($currentValue);
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
-                    $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
-                    $display .= ' ';
+                    if (! is_array($currentValue)) {
+                        $display = $this->getOpenFileLink($currentValue);
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="delete"><span>' . _('delete') . '</span>';
+                        $display .= '<input type="radio" class="fileOption" name="data[' . $fieldName . '][option]" value="replace"><span>' . _('replace') . '</span>';
+                        $display .= ' ';
+                    }
                 }
             }
             $display .= $tableRowPart['format']; // might contain hidden field if the current one is disabled
@@ -1162,7 +1217,7 @@ class StructuresHelper extends Helper
             
             if (($options['type'] == "addgrid" || $options['type'] == "editgrid") && strpos($tableRowPart['settings']['class'], "pasteDisabled") !== false && $tableRowPart['type'] != "hidden") {
                 // displays the "no copy" icon on the left of the fields with disabled copy option
-                $display = '<div class="pasteDisabled"></div>' . $display;
+                $display .= '<div class="pasteDisabled"></div>';
             }
         } elseif (strlen($currentValue) > 0) {
             $elligibleAsDate = strlen($currentValue) > 1;
@@ -1249,14 +1304,10 @@ class StructuresHelper extends Helper
     /**
      * Update the field display to insert in it its values and classes
      *
-     * @param
-     *            string &$display Pointer to the display string, which will be updated
-     * @param array $tableRowPart
-     *            The current field data/settings
-     * @param string $key
-     *            The key, if any to use in the name
-     * @param string $currentValue
-     *            The current field value
+     * @param string &$display Pointer to the display string, which will be updated
+     * @param array $tableRowPart The current field data/settings
+     * @param string $key The key, if any to use in the name
+     * @param string $currentValue The current field value
      */
     private function fieldDisplayFormat(&$display, array $tableRowPart, $key, $currentValue)
     {
@@ -1280,17 +1331,17 @@ class StructuresHelper extends Helper
      * @param array $atimStructure
      * @param array $options
      * @param array $data
-     * @param $tableIndex
      * @param $type
      */
-    private function buildTable(array $atimStructure, array $options, array $data, &$tableIndex, $type)
+    private function buildTable(array $atimStructure, array $options, array $data, $type)
     {
         // attach PER PAGE pagination param to PASSED params array...
         if (isset($this->request->params['named']) && isset($this->request->params['named']['per'])) {
             $this->request->params['pass']['per'] = $this->request->params['named']['per'];
         }
         
-        $tableStructure = $this->buildStack($atimStructure, $options);        
+        $tableStructure = $this->buildStack($atimStructure, $options);
+        
         $structureCount = 0;
         $structureIndex = array(
             1 => $tableStructure
@@ -1393,18 +1444,17 @@ class StructuresHelper extends Helper
                             foreach ($tableColumn as $tableRow) {
                                 foreach ($tableRow as $tableRowPart) {
                                     $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, "", $options);
-                                    $getPrintableField=$this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
-                                    $hint=strlen($getPrintableField)>100?$getPrintableField:" ";
+                                    $getPrintableField = $this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
+                                    $hint = strlen($getPrintableField) > 100 ? $getPrintableField : " ";
                                     if (strlen($tableRowPart['label']) || $firstCell) {
-                                        if ($type==='index'){
+                                        if ($type === 'index') {
                                             if ($firstCell) {
                                                 echo "<td><p class = 'wraped-text'>";
                                                 $firstCell = false;
                                             } else {
-                                                echo "</p></td><td><p class = 'wraped-text' title='".$hint."'>";
+                                                echo "</p></td><td><p class = 'wraped-text' title='" . $hint . "'>";
                                             }
-                                        }
-                                        else{
+                                        } else {
                                             if ($firstCell) {
                                                 echo "<td>";
                                                 $firstCell = false;
@@ -1417,9 +1467,9 @@ class StructuresHelper extends Helper
                                 }
                             }
                         }
-                        if ($type==='index'){
+                        if ($type === 'index') {
                             echo "</p></td>\n";
-                        }else{
+                        } else {
                             echo "</td>\n";
                         }
                         
@@ -1441,7 +1491,9 @@ class StructuresHelper extends Helper
                         echo '</pre>';
                         echo '<tr class="pagination">
                                 <th colspan="', $headerData['count'], '">
-                                    <span class="results">', $this->Paginator->counter(array('format' => '%start%-%end%' . __(' of ') . '%count%')), '</span>
+                                    <span class="results">', $this->Paginator->counter(array(
+                            'format' => '%start%-%end%' . __(' of ') . '%count%'
+                        )), '</span>
                                     <span class="links">
                                             ', $this->Paginator->prev(__('prev'), null, __('prev')), '
                                             ', $this->Paginator->numbers(), '
@@ -1736,10 +1788,8 @@ class StructuresHelper extends Helper
     /**
      * Convert all HTML entities to their applicable characters for all headings, labels and tags of the structure
      *
-     * @param array $tableStructure
-     *            Structure to work on
-     * @param string $encoding
-     *            Enconding
+     * @param array $tableStructure Structure to work on
+     * @param string $encoding Enconding
      * @return array $tableStructure Processed structrue
      */
     public function titleHtmlSpecialCharsDecode($tableStructure, $encoding)
@@ -1761,8 +1811,7 @@ class StructuresHelper extends Helper
      *
      * @param array $modelData
      * @param array $field
-     * @param array $fieldType
-     *            date or datetime
+     * @param array $fieldType date or datetime
      * @return array
      */
     public function getDateValuesFormattedForExcel($modelData, $field, $fieldType)
@@ -1807,10 +1856,9 @@ class StructuresHelper extends Helper
     /**
      * Echoes a structure in a tree format
      *
-     * @param array $atimStructures
-     *            Contains atim_strucures (yes, plural), one for each data model to display
-     * @param array $options            
-     * @param array $data            
+     * @param array $atimStructures Contains atim_strucures (yes, plural), one for each data model to display
+     * @param array $options
+     * @param array $data
      */
     private function buildTree(array $atimStructures, array $options, array $data)
     {
@@ -1908,13 +1956,14 @@ class StructuresHelper extends Helper
     /**
      * Echoes a tree node for the tree structure
      *
-     * @param array $atimStructures            
-     * @param array $options            
-     * @param array $data            
+     * @param array $atimStructures
+     * @param array $options
+     * @param array $data
      */
     private function buildTreeNode(array &$atimStructures, array $options, array $data)
     {
         $accuracyUpdated = array();
+//ob_get_clean(); echo json_encode($data); die();
         foreach ($data as $dataKey => &$dataVal) {
             // unset CHILDREN from data, to not confuse STACK function
             $children = array();
@@ -1933,9 +1982,13 @@ class StructuresHelper extends Helper
             echo '<div class="nodeBlock"><div class="leftPart">- ';
             if (count($options['links']['tree'])) {
                 $i = 0;
+
+//echo ob_get_clean(); echo json_encode($dataVal); die();
+//echo ob_get_clean(); echo json_encode($options['links']['tree']); die();
                 foreach ($dataVal as $modelName => $modelArray) {
                     if (isset($options['links']['tree'][$modelName])) {
                         // apply prebuilt links
+//echo ob_get_clean(); echo json_encode($options['links']['tree']); die();
                         if (isset($options['links']['tree'][$modelName]['radiolist'])) {
                             $links .= $this->getRadiolist($options['links']['tree'][$modelName]['radiolist'], $dataVal);
                         }
@@ -1955,6 +2008,7 @@ class StructuresHelper extends Helper
             } elseif (count($options['links']['index'])) {
                 // apply prebuilt links
                 $links = $this->strReplaceLink($options['links']['tree'][$expandKey], $dataVal);
+                
             }
             if (is_array($children)) {
                 if (empty($children)) {
@@ -2033,6 +2087,7 @@ class StructuresHelper extends Helper
 			</div>';
             
             // create sub-UL, calling this NODE function again, if model has any CHILDREN
+
             if (is_array($children) && ! empty($children)) {
                 echo '
 					<ul style="display:none;">
@@ -2054,10 +2109,9 @@ class StructuresHelper extends Helper
      * Builds the display header
      *
      * @param array $tableStructure
-     * @param array $options
-     *            The options
+     * @param array $options The options
      * @return array
-     * @internal param array $tableIndex The structural information*            The structural information
+     * @internal param array $tableIndex The structural information* The structural information
      */
     private function buildDisplayHeader(array $tableStructure, array $options)
     {
@@ -2263,6 +2317,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param array $returnArray
      * @param $options
      * @return array
@@ -2285,6 +2340,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $thisColumn
      * @param $totalColumns
      * @param $content
@@ -2313,8 +2369,8 @@ class StructuresHelper extends Helper
      * Input types (inputs and numbers) are prebuilt
      * whereas other types still need to be generated
      *
-     * @param array $atimStructure            
-     * @param array $options            
+     * @param array $atimStructure
+     * @param array $options
      * @return array The representation of the display where $result = arry(x => array(y => array(field data))
      */
     private function buildStack(array $atimStructure, array $options)
@@ -2372,7 +2428,7 @@ class StructuresHelper extends Helper
                         "help" => strlen($sfs['language_help']) > 0 ? sprintf($helpBullet, __($sfs['language_help'])) : $emptyHelpBullet,
                         "setting" => $sfs['setting'], // required for icd10 magic
                         "default" => $sfs['default'],
-                        "sortable" => $sfs['sortable'],
+                        "sortable" => array_key_exists('sortable', $sfs)? $sfs['sortable'] : 0,
                         "flag_confidential" => $sfs['flag_confidential'],
                         "flag_float" => $sfs['flag_float'],
                         "readonly" => isset($sfs["flag_" . $options['type'] . "_readonly"]) && $sfs["flag_" . $options['type'] . "_readonly"],
@@ -2400,11 +2456,18 @@ class StructuresHelper extends Helper
                         $fieldName .= $modelDotField;
                         $fieldName = str_replace(".", "][", $fieldName); // manually replace . by ][ to counter cake bug
                         $current['name'] = $fieldName;
-                        if (strlen($sfs['setting']) > 0 && ! $current['readonly']) {
+                        $rangeValueSearch = $options['type'] == "search" && in_array($current['type'], StructuresComponent::$rangeTypesNumber);
+                        if (strlen($sfs['setting']) > 0 && ! $current['readonly'] || $rangeValueSearch) {
                             // parse through FORM_FIELDS setting value, and add to helper array
+                            if (empty($sfs['setting'])) {
+                                $sfs['setting'] = "calss=%c";
+                            }
                             $tmpSetting = explode(',', $sfs['setting']);
                             foreach ($tmpSetting as $setting) {
                                 $setting = explode('=', $setting);
+                                if ($rangeValueSearch && strpos($settings['class'], 'range') === false) {
+                                    $settings['class'] .= 'range ';
+                                }
                                 if ($setting[0] == 'tool') {
                                     if ($setting[1] == 'csv') {
                                         if ($options['type'] == 'search') {
@@ -2422,14 +2485,21 @@ class StructuresHelper extends Helper
                                     if ($setting[0] == 'class' && isset($settings['class'])) {
                                         $settings['class'] .= ' ' . $setting[1];
                                     } else {
-                                        $settings[$setting[0]] = $setting[1];
+                                        if (! array_key_exists(1, $setting)) {
+                                            $settings[$setting[0]] = '';
+                                            if (Configure::read('debug') > 0) {
+                                                AppController::addWarningMsg(__("missing value for the setting [%s] of the structure field [%s]", $setting[0], $fieldName));
+                                            }
+                                        } else {
+                                            $settings[$setting[0]] = $setting[1];
+                                        }
                                     }
                                 }
                             }
                         }
                         
                         // validation CSS classes
-                        if (count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
+                        if (isset($sfs['StructureValidation']) && count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
                             
                             foreach ($sfs['StructureValidation'] as $validation) {
                                 if ($validation['rule'] == 'notBlank') {
@@ -2444,7 +2514,6 @@ class StructuresHelper extends Helper
                                 $settings["class"] .= "validation";
                             }
                         }
-                        
                         if ($current['readonly']) {
                             unset($settings['disabled']);
                             $current["format"] = $this->Form->text($fieldName, array(
@@ -2545,7 +2614,12 @@ class StructuresHelper extends Helper
                         );
                         if ($sfs['type'] == "select") {
                             $addBlank = true;
-                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array('edit', 'editgrid', 'add', 'addgrid')))) {
+                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array(
+                                'edit',
+                                'editgrid',
+                                'add',
+                                'addgrid'
+                            )))) {
                                 // check if the field can be empty or not
                                 foreach ($sfs['StructureValidation'] as $validation) {
                                     if ($validation['rule'] == 'notBlank') {
@@ -2599,7 +2673,7 @@ class StructuresHelper extends Helper
                         }
                         $current['settings']['options'] = $dropdownResult;
                     }
-
+                    
                     if (! isset($stack[$sfs['display_column']][$sfs['display_order']])) {
                         $stack[$sfs['display_column']][$sfs['display_order']] = array();
                     }
@@ -2614,7 +2688,7 @@ class StructuresHelper extends Helper
                 }
             }
         }
-
+        
         if (Configure::read('debug') > 0 && count($options['override']) > 0) {
             $override = array_merge(array(), $options['override']);
             foreach ($stack as $cell) {
@@ -2643,6 +2717,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param array $atimContent
      * @param array $options
      * @return string
@@ -2690,6 +2765,7 @@ class StructuresHelper extends Helper
     }
 
     /**
+     *
      * @param $data
      * @param array $optionLinks
      * @param string $state
@@ -2813,7 +2889,7 @@ $confirmationMsg); // confirmation message
                 $returnLinks[$linkName] = $linkResults[$linkName];
             } else {
                 $linksAppend = '
-							<a href="javascript:return false;"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
+							<a href="javascript:void(0)"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu' . (count($linkResults) > 7 ? ' scroll' : '') . '">
 								
@@ -2896,6 +2972,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param null $linkName
      * @param null $linkLocation
      * @return mixed|null|string
@@ -2970,6 +3047,7 @@ $confirmationMsg); // confirmation message
 
     /**
      * FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value
+     *
      * @param string $link
      * @param array $data
      * @return mixed|string
@@ -2997,6 +3075,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param $array1
      * @param null $array2
      * @return mixed
@@ -3023,8 +3102,7 @@ $confirmationMsg); // confirmation message
      * Returns the date inputs
      *
      * @param string $name
-     * @param string $date
-     *            YYYY-MM-DD
+     * @param string $date YYYY-MM-DD
      * @param array $attributes
      * @return string
      */
@@ -3127,8 +3205,7 @@ $confirmationMsg); // confirmation message
      * Returns the time inputs
      *
      * @param string $name
-     * @param string $time
-     *            HH:mm (24h format)
+     * @param string $time HH:mm (24h format)
      * @param array $attributes
      * @return string
      */
@@ -3196,6 +3273,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param $dataUnit
      * @param array $tableRowPart
      * @param $suffix
@@ -3266,10 +3344,12 @@ $confirmationMsg); // confirmation message
                 }
             }
         }
+        
         return $currentValue;
     }
 
     /**
+     *
      * @param array $rawRadiolist
      * @param array $data
      * @return string
@@ -3299,6 +3379,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param array $rawChecklist
      * @param array $data
      * @return string
@@ -3319,6 +3400,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param array $sanitizedData
      * @param array $orgData
      * @param array $unsanitize
@@ -3348,6 +3430,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param $searchUrl
      * @param $name
      * @return string
@@ -3363,6 +3446,7 @@ $confirmationMsg); // confirmation message
     }
 
     /**
+     *
      * @param $indexUrl
      * @return string
      */
