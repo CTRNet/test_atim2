@@ -12,11 +12,11 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Model
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Model
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Model', 'Model');
 
@@ -30,34 +30,30 @@ App::uses('Model', 'Model');
  */
 class AppModel extends Model
 {
+
     public $actsAs = array(
         'Revision',
         'SoftDeletable',
         'MasterDetail'
     );
-
-    /**
-     * @param $message
-     */
-    public function setValidationErrors($message){
-        $this->validationErrors['error'.rand(0, 100)]=$message;
-    }
     
     // It's important that MasterDetail be after Revision
     public static $autoValidation = null;
-
+    
     // Validation for all models based on the table field length for char/varchar
     public static $accuracyConfig = array();
-
+    
     // tablename -> accuracy fields
     public static $writableFields = array();
-
+    
+    public $requiredFields = array();
+    
     // tablename -> flag suffix -> fields
     public $checkWritableFields = true;
-
+    
     // whether to check writable fields or not (security check)
     public $writableFieldsMode = null;
-
+    
     // add, edit, addgrid, editgrid, batchedit
     
     // The values in this array can trigger magic actions when applied to a field settings
@@ -69,10 +65,10 @@ class AppModel extends Model
     );
 
     public $pkeySafeguard = true;
-
+    
     // whether to prevent data to be saved if the data array contains a pkey different than model->id
     private $registeredModels;
-
+    
     // use related to views
     
     /**
@@ -91,7 +87,7 @@ class AppModel extends Model
     private static $cachedViewsInsert = array();
 
     private static $cachedViewsModel = null;
-
+    
     // some model, only provides accc
     const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
 
@@ -99,18 +95,12 @@ class AppModel extends Model
      * If $baseModelName and $detailTable are not null, a new hasOne relationship is created before calling the parent constructor.
      * This is convenient for search based on master/detail detail table.
      *
-     * @param bool|unknown_type $id
-     *            (see parent::__construct)
-     * @param unknown_type $table
-     *            (see parent::__construct)
-     * @param unknown_type $ds
-     *            (see parent::__construct)
-     * @param string $baseModelName
-     *            The base model name of a master/detail model
-     * @param string $detailTable
-     *            The name of the table to use for detail
-     * @param AppModel $previousModel
-     *            The previous model prior to that new creation (purely for convenience)
+     * @param bool|unknown_type $id (see parent::__construct)
+     * @param unknown_type $table (see parent::__construct)
+     * @param unknown_type $ds (see parent::__construct)
+     * @param string $baseModelName The base model name of a master/detail model
+     * @param string $detailTable The name of the table to use for detail
+     * @param AppModel $previousModel The previous model prior to that new creation (purely for convenience)
      * @see parent::__construct
      */
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
@@ -133,6 +123,7 @@ class AppModel extends Model
      * Update the $data array
      * with the name the stored file will have and returns the $modeFiles
      * directive array to
+     *
      * @param $data
      * @return array
      */
@@ -142,7 +133,6 @@ class AppModel extends Model
         if (! is_array($data)) {
             return $moveFiles;
         }
-        
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
         
@@ -154,21 +144,55 @@ class AppModel extends Model
             }
             foreach ($fields as $fieldName => $value) {
                 if (is_array($value)) {
+                    if (isset($value['option']) && in_array($value['option'], array(
+                        'delete',
+                        'replace'
+                    ))) {
+                        if ($prevData[$modelName][$fieldName]) {
+                            // delete previous file
+                            $ifDelete = Configure::read('deleteUploadedFilePhysically');
+                            if (! $ifDelete) {
+                                $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                                if (! is_dir($deleteDirectory)) {
+                                    mkdir($deleteDirectory);
+                                }
+                                if (file_exists($dir . DS . $prevData[$modelName][$fieldName])) {
+                                    copy($dir . DS . $prevData[$modelName][$fieldName], $deleteDirectory . DS . $prevData[$modelName][$fieldName]);
+                                }
+                            }
+                            if (file_exists($dir . '/' . $prevData[$modelName][$fieldName])) {
+                                unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            }
+                        }
+                    }
                     if (isset($value['name'])) {
                         if (! $value['size']) {
                             // no file
-                            $data[$modelName][$fieldName] = '';
+                            $data[$modelName][$fieldName] = $value['name'];
                             continue;
+                        }
+                        $maxUploadFileSize = Configure::read('maxUploadFileSize');
+                        if ($value['size'] > $maxUploadFileSize) {
+                            $this->validationErrors = array_merge($this->validationErrors, array(
+                                'size' => array(
+                                    __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize'))
+                                )
+                            ));
+                            if (file_exists($value['tmp_name'])) {
+                                unlink($value['tmp_name']);
+                            }
+                            if ($prevData[$modelName][$fieldName]) {
+                                $data[$modelName][$fieldName] = $prevData[$modelName][$fieldName];
+                            } else {
+                                $data[$modelName][$fieldName] = null;
+                            }
+                            return null;
                         }
                         if (! file_exists($value['tmp_name'])) {
                             die('Error with temporary file');
                         }
                         $targetName = $modelName . '.' . $fieldName . '.%%key_increment%%.' . $value['name'];
                         
-                        if ($prevData[$modelName][$fieldName]) {
-                            // delete previous file
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
-                        }
                         $targetName = $this->getKeyIncrement('atim_internal_file', $targetName);
                         array_push($moveFiles, array(
                             'tmpName' => $value['tmp_name'],
@@ -176,9 +200,12 @@ class AppModel extends Model
                         ));
                         $data[$modelName][$fieldName] = $targetName;
                     } elseif (isset($value['option'])) {
-                        if ($value['option'] == 'delete' && $prevData[$modelName][$fieldName]) {
+                        if (in_array($value['option'], array(
+                            'delete',
+                            'replace'
+                        )) && $prevData[$modelName][$fieldName]) {
                             $data[$modelName][$fieldName] = '';
-                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
+                            // unlink($dir . '/' . $prevData[$modelName][$fieldName]);
                         } else {
                             unset($data[$modelName][$fieldName]);
                         }
@@ -196,6 +223,7 @@ class AppModel extends Model
     /**
      * Takes the move_files array returned by filter_move_files and moves the
      * uploaded files to the configured directory with the set file name.
+     *
      * @param $moveFiles
      */
     private function moveFiles($moveFiles)
@@ -213,6 +241,22 @@ class AppModel extends Model
         }
     }
 
+    private function checkRequiredFields($data)
+    {
+        foreach ($this->requiredFields as $model => $rules) {
+            foreach ($rules as $field => $rule) {
+                if (!isset($data[$model][$field])){
+                    if (!isset($data[$model])){
+                        $data[$model] = array($field => "");
+                    }else{
+                        $data[$model][$field] = "";
+                    }
+                }
+            }
+        }
+        return $data;
+    }
+    
     /**
      * Override to prevent saving id directly with the array to avoid hacks
      *
@@ -224,6 +268,7 @@ class AppModel extends Model
      */
     public function save($data = null, $validate = true, $fieldList = array())
     {
+        $data = $this->checkRequiredFields($data);
         $modelName= strtolower($this->name);
 
         //Check the $validate for not consodering Delete function here
@@ -249,34 +294,34 @@ class AppModel extends Model
             $this->normalizedValidationErrors($this->validationErrors);
             $this->moveFiles($moveFiles);              
         }else{
-            if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
-                AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
-                AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                return false;
-            }
-
-            if (! $validate && ! isset($data[$this->alias]['__validated__']) && ! isset($data['__validated__']) && ! isset($data[$this->alias]['deleted']) && ! isset($data['deleted']) && Configure::read('debug') > 0) {
-                AppController::addWarningMsg('saving unvalidated data [' . $this->name . ']', true);
-            }
-
-            if ((! isset($data[$this->name]) || empty($data[$this->name])) && isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model'] && isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
-                // Eventum 2619: When there is no master data, details aren't saved
-                // properly because cake core flushes them out.
-                // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
-                $data[$this->name]['-'] = "foo";
-            }
-
-            $moveFiles = $this->filterMoveFiles($data);
-            $result = parent::save($data, $validate, $fieldList);
-            $this->moveFiles($moveFiles);
+        if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
+            AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            return false;
+        }
+        
+        if (! $validate && ! isset($data[$this->alias]['__validated__']) && ! isset($data['__validated__']) && ! isset($data[$this->alias]['deleted']) && ! isset($data['deleted']) && Configure::read('debug') > 0) {
+            AppController::addWarningMsg('saving unvalidated data [' . $this->name . ']', true);
+        }
+        
+        if ((! isset($data[$this->name]) || empty($data[$this->name])) && isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model'] && isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
+            // Eventum 2619: When there is no master data, details aren't saved
+            // properly because cake core flushes them out.
+            // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
+            $data[$this->name]['-'] = "foo";
+        }
+        
+        $moveFiles = $this->filterMoveFiles($data);
+        $result = parent::save($data, $validate, $fieldList);
+        $this->moveFiles($moveFiles);
         }
         return $result;
     }
 
-
     /**
      * Checks Writable fields, sets trackability, manages floats ("," and ".")
      * and date strings.
+     *
      * @param array $options
      * @return bool
      */
@@ -483,28 +528,84 @@ class AppModel extends Model
         }
     }
 
+    /**
+     *
+     * @param $data
+     * @param $modelName
+     */
+    private function deleteUploadedFile($data, $modelName)
+    {
+        $ifDelete = Configure::read('deleteUploadedFilePhysically');
+        $dir = Configure::read('uploadDirectory');
+        
+        foreach ($data[$modelName] as $field => $value) {
+            preg_match('/(' . $modelName . ')\.(' . $field . ')\.([0-9]+)\.(.+)/', $value, $matches, PREG_OFFSET_CAPTURE);
+            if (! empty($matches)) {
+                if (file_exists($dir . DS . $matches[0][0])) {
+                    $fileName = $matches[0][0];
+                    if (! $ifDelete) {
+                        $deleteDirectory = $dir . DS . Configure::read('deleteDirectory');
+                        if (! is_dir($deleteDirectory)) {
+                            mkdir($deleteDirectory);
+                        }
+                        if (file_exists($dir . DS . $fileName)) {
+                            copy($dir . DS . $fileName, $deleteDirectory . DS . $fileName);
+                        }
+                        if (file_exists($dir . DS . $fileName)) {
+                            unlink($dir . DS . $fileName);
+                        }
+                        
+                        move_uploaded_file($matches[0][0], $deleteDirectory . DS . $fileName);
+                    } else {
+                        if (file_exists($dir . DS . $fileName)) {
+                            unlink($dir . DS . $fileName);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Run atimDelete which use soft delete.
+     *
+     * @param null $modelId
+     * @param bool $cascade Set to true to delete records that depend on this record
+     * @return bool True on success
+     * @internal param int|string $id ID of record to delete
+     */
+    public function delete($modelId = null, $cascade = true)
+    {
+        $this->atimDelete($modelId, $cascade);
+    }
+
     /*
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
      */
     /**
+     *
      * @param $modelId
      * @param bool $cascade
      * @return bool
      */
     public function atimDelete($modelId, $cascade = true)
     {
-        
         $this->id = $modelId;
+        $data = $this->read();
+        
         $this->registerModelsToCheck();
         
         // delete DATA as normal
         $this->addWritableField('deleted');
-        $this->delete($modelId, $cascade);
+        
+        parent::delete($modelId, $cascade);
+        
         // do a FIND of the same DATA, return FALSE if found or TRUE if not found
         if ($this->read()) {
             return false;
         }
+        $this->deleteUploadedFile($data, $this->name);
         $this->updateRegisteredModels();
         return true;
     }
@@ -514,6 +615,7 @@ class AppModel extends Model
      * acts like find('all') but returns array with ID values as arrays key values
      */
     /**
+     *
      * @param array $options
      * @return array|bool
      */
@@ -548,6 +650,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $conditions
      * @param $fields
      * @param $order
@@ -580,14 +683,10 @@ class AppModel extends Model
      * Deconstructs a complex data type (array or object) into a single field value.
      * Copied from CakePHP core since alterations were required
      *
-     * @param string $field
-     *            The name of the field to be deconstructed
-     * @param mixed $data
-     *            An array or object to be deconstructed into a field
-     * @param boolean $isEnd
-     *            (for a range search)
-     * @param boolean $isSearch
-     *            If true, date/time will be patched as much as possible
+     * @param string $field The name of the field to be deconstructed
+     * @param mixed $data An array or object to be deconstructed into a field
+     * @param boolean $isEnd (for a range search)
+     * @param boolean $isSearch If true, date/time will be patched as much as possible
      * @return mixed The resulting data that should be assigned to a field
      */
     public function deconstruct($field, $data, $isEnd = false, $isSearch = false)
@@ -727,12 +826,9 @@ class AppModel extends Model
     /**
      * Replace the %%key_increment%% part of a string with the key increment value
      *
-     * @param string $key
-     *            - The key to seek in the database
-     * @param string $str
-     *            - The string where to put the value. %%key_increment%% will be replaced by the value.
-     * @param int $padToLength
-     *            - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended.
+     * @param string $key - The key to seek in the database
+     * @param string $str - The string where to put the value. %%key_increment%% will be replaced by the value.
+     * @param int $padToLength - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended.
      * @return string The string with the replaced value or false when SQL error happens
      */
     public function getKeyIncrement($key, $str, $padToLength = 0)
@@ -754,6 +850,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @return array
      */
     public static function getMagicCodingIcdTriggerArray()
@@ -876,6 +973,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -975,7 +1073,8 @@ class AppModel extends Model
             }
         }
         
-        $this->checkFloats();        
+        $this->checkFloats();
+        
         parent::validates($options);
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
@@ -985,6 +1084,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $pluginName
      * @param $className
      * @param bool $errorViewOnNull
@@ -1013,7 +1113,7 @@ class AppModel extends Model
         if ($instance === false && $errorViewOnNull) {
             if (Configure::read('debug') > 0) {
                 pr(AppController::getStackTrace());
-                die('died in AppModel::getInstance [' . $pluginName . $className . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
+                die('died in AppModel::getInstance [' . $pluginName . $className . '] <br>' . '(If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty) <br>' . ('(If getInstance() is called by function fetchSummary(), please validate that the plugin is defined for the menus.use_summary field as follow : {Plugin}.{Model}::summary)'));
             } else {
                 AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $className, null, true);
             }
@@ -1027,10 +1127,8 @@ class AppModel extends Model
      * It loads it based on the
      * table_name and and configures the shadow model
      *
-     * @param class $class
-     *            The class to instantiate
-     * @param string $tableName
-     *            The table to use
+     * @param class $class The class to instantiate
+     * @param string $tableName The table to use
      * @return The instantiated class
      */
     public static function atimInstantiateExtend($class, $tableName)
@@ -1044,10 +1142,8 @@ class AppModel extends Model
     /**
      * Builds automatic string length and float validations based on the field type
      *
-     * @param string $useName
-     *            The name under which to record the validations
-     * @param Model $model
-     *            The model to base the validations on
+     * @param string $useName The name under which to record the validations
+     * @param Model $model The model to base the validations on
      */
     public static function buildAutoValidation($useName, Model $model)
     {
@@ -1186,10 +1282,8 @@ class AppModel extends Model
     /**
      * Searches recursively for field in CakePHP SQL conditions
      *
-     * @param string $field
-     *            The field to look for
-     * @param array $conditions
-     *            CakePHP SQL conditionnal array
+     * @param string $field The field to look for
+     * @param array $conditions CakePHP SQL conditionnal array
      * @return true if the field was found
      */
     public static function isFieldUsedAsCondition($field, array $conditions)
@@ -1221,11 +1315,9 @@ class AppModel extends Model
      *
      * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
      *
-     * @param $startDatetime Start
-     *            date and time
-     * @param $endDatetime End
-     *            date and time
-     *            
+     * @param $startDatetime Start date and time
+     * @param $endDatetime End date and time
+     *       
      * @return Return an array that contains the spent time
      *         or an error message when the spent time can not be calculated.
      *         The sturcture of the array is defined below:
@@ -1298,7 +1390,7 @@ class AppModel extends Model
      *
      * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
      *
-     * @param $dateString Date            
+     * @param $dateString Date
      *
      * @return Return time stamp of the date.
      *        
@@ -1315,6 +1407,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $spentTimeData
      * @param bool $withTime
      * @return mixed|string
@@ -1342,6 +1435,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $spentTimeData
      * @param $timeUnit
      * @return string
@@ -1357,10 +1451,8 @@ class AppModel extends Model
     /**
      * Uses the same url sorting options as cakephp paginator uses to sort a data array
      *
-     * @param array $data
-     *            The data to sort
-     * @param array $passedArgs
-     *            The controller passed arguments. (From the controller, $this->passedArgs)
+     * @param array $data The data to sort
+     * @param array $passedArgs The controller passed arguments. (From the controller, $this->passedArgs)
      * @return The data sorted if the passed_args were compatible with it
      */
     public static function sortWithUrl(array $data, array $passedArgs)
@@ -1389,8 +1481,7 @@ class AppModel extends Model
     /**
      * Generic function made to be overriden in model/custom models.
      *
-     * @param int $id
-     *            The db id of the element to allow the deletion of
+     * @param int $id The db id of the element to allow the deletion of
      * @return array with two keys, one being allow_detion, a boolean telling
      *         whether the element can be deleted or not and the second one being msg,
      *         a string that telles why, if relevant, the element cannot be deleted.
@@ -1406,13 +1497,10 @@ class AppModel extends Model
     /**
      * Redirects to the missing data page if a model id cannot be fetched
      *
-     * @param int $id            
-     * @param string $method
-     *            The method name to display in the error message
-     * @param string $line
-     *            The line number to display in the error message
-     * @param bool $return
-     *            Returns the data line if it exists
+     * @param int $id
+     * @param string $method The method name to display in the error message
+     * @param string $line The line number to display in the error message
+     * @param bool $return Returns the data line if it exists
      * @return null if $return is true and the data exists, the data, null otherwise
      * @deprecated Use getOrRedirect instead. TODO: Remove in ATiM 2.6
      */
@@ -1433,8 +1521,7 @@ class AppModel extends Model
      * Tries to fetch model data.
      * If it doesn't exists, redirects to an error page.
      *
-     * @param string $id
-     *            The model primary key to fetch
+     * @param string $id The model primary key to fetch
      * @return The model data if it succeeds
      */
     public function getOrRedirect($id)
@@ -1446,7 +1533,7 @@ class AppModel extends Model
         }
         $bt = debug_backtrace(1);
         if (!API::isAPIMode()){
-            AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
+        AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
         }else{
             $message['method']=$bt[1]['function'];
             $message['action']=__('error_There are no fields matching ID').': '.$id;
@@ -1456,6 +1543,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $field
      * @param null $tablename
      * @param $add
@@ -1471,7 +1559,7 @@ class AppModel extends Model
             $addInto = 'none';
             $removeFrom = 'all';
         }
-        $tablename = $tablename ?: $this->table;
+        $tablename = $tablename ?  : $this->table;
         if (! isset(AppModel::$writableFields[$tablename][$addInto])) {
             AppModel::$writableFields[$tablename][$addInto] = array();
         }
@@ -1490,10 +1578,8 @@ class AppModel extends Model
     /**
      * Add fields to the current model table Writable fields array.
      *
-     * @param mixed $field
-     *            A single field or an array of fields.
-     * @param string $tablename
-     *            The tablename to allow the fields to be written to.
+     * @param mixed $field A single field or an array of fields.
+     * @param string $tablename The tablename to allow the fields to be written to.
      */
     public function addWritableField($field, $tablename = null)
     {
@@ -1501,6 +1587,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $field
      * @param null $tablename
      */
@@ -1530,7 +1617,7 @@ class AppModel extends Model
      * Searches into
      * base model when called from a view.
      *
-     * @param string $fieldName            
+     * @param string $fieldName
      * @return array if the field config is found, null otherwise
      */
     public function getBrowsingAdvSearchArray($fieldName)
@@ -1548,7 +1635,7 @@ class AppModel extends Model
     /**
      * Called by structure builder to get the browsing advanced search fields.
      *
-     * @param array $fieldName            
+     * @param array $fieldName
      * @return array An array formated for dropdown use
      */
     public function getBrowsingAdvSearch($fieldName)
@@ -1597,10 +1684,22 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @return array
      */
     public function getOwnershipConditions()
     {
+        $userBankId = AppController::getInstance()->Session->read('Auth.User.Group.bank_id');
+        $userBankGroupIds = array(
+            '-1'
+        );
+        if ($userBankId) {
+            $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+            $tmpBankGroupIds = $bankModel->getBankGroupIds($userBankId);
+            if ($tmpBankGroupIds) {
+                $userBankGroupIds = $tmpBankGroupIds;
+            }
+        }
         return array(
             'OR' => array(
                 array(
@@ -1608,8 +1707,15 @@ class AppModel extends Model
                     $this->name . '.user_id' => AppController::getInstance()->Session->read('Auth.User.id')
                 ),
                 array(
-                    $this->name . '.sharing_status' => 'group',
+                    $this->name . '.sharing_status' => array(
+                        'group',
+                        'bank'
+                    ),
                     $this->name . '.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')
+                ),
+                array(
+                    $this->name . '.sharing_status' => 'bank',
+                    $this->name . '.group_id' => $userBankGroupIds
                 ),
                 array(
                     $this->name . '.sharing_status' => 'all'
@@ -1619,6 +1725,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
@@ -1643,7 +1750,7 @@ class AppModel extends Model
                         $time['hours'] = $remainder % 24;
                         $time['days'] = ($remainder - $time['hours']) / 24;
                         $spentTime = AppModel::translateDateValueAndUnit($time, 'days') . '' . AppModel::translateDateValueAndUnit($time, 'hours') . AppModel::translateDateValueAndUnit($time, 'minutes');
-                        $result[$this->name][$fieldName] = $spentTime ?: 0;
+                        $result[$this->name][$fieldName] = $spentTime ?  : 0;
                     }
                 }
             }
@@ -1692,6 +1799,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param bool $created
      * @param array $options
      */
@@ -1702,6 +1810,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param array $in
      */
     public function makeTree(array &$in)
@@ -1727,6 +1836,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @return mixed|null
      */
     public function getPluginName()
@@ -1768,6 +1878,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $sql
      * @param bool $cache
      * @return mixed
@@ -1791,10 +1902,8 @@ class AppModel extends Model
     /**
      * Will sort data based on the given primary key order.
      *
-     * @param array $data
-     *            The data to sort.
-     * @param array|string $order
-     *            The ordered pkeys in either an array or a comma separated string.
+     * @param array $data The data to sort.
+     * @param array|string $order The ordered pkeys in either an array or a comma separated string.
      */
     public function sortForDisplay(array &$data, $order)
     {
@@ -1819,6 +1928,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @param $modelTable
      * @param $foreignKey
      * @param $ids
@@ -1882,6 +1992,7 @@ class AppModel extends Model
     }
 
     /**
+     *
      * @return mixed
      */
     public static function getRemoteIPAddress()

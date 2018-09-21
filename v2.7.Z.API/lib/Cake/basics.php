@@ -580,7 +580,6 @@ if (!function_exists('__')) {
  */
 	function __($singular, $args = null) {
 	    //ATIM start-----
-            //Yaser: I checked it, I think we can remove this part.
 	    if(is_numeric($singular)){
 	        return $singular;
 	    }

@@ -1,11 +1,11 @@
 <?php
 $structureLinks = array(
     'index' => array(
-        'detail' => '/material/materials/detail/%%Material.id%%'
+        'detail' => '/Material/Materials/detail/%%Material.id%%'
     ),
     'bottom' => array(
-        'add' => '/material/materials/add',
-        'search' => '/material/materials/index'
+        'add' => '/Material/Materials/add',
+        'search' => '/Material/Materials/index'
     )
 );
 

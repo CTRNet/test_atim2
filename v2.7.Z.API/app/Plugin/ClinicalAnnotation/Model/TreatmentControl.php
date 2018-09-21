@@ -57,6 +57,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $participantId
      * @param string $diagnosisMasterId
      * @return mixed
@@ -77,6 +78,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

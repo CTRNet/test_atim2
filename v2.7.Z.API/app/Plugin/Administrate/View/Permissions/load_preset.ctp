@@ -33,7 +33,7 @@ $this->Structures->build($atimStructure, array(
     )
 ));
 
-$canDelete = (! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete'])) || AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
+$canDelete = (! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete'])) && AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
 $this->Structures->build($atimStructure, array(
     'type' => 'index',
     'data' => $this->request->data,
@@ -44,7 +44,7 @@ $this->Structures->build($atimStructure, array(
                 'icon' => 'detail jsApplyPreset',
                 'json' => '%%PermissionsPreset.json%%'
             ),
-            'delete' => $canDelete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'
+            'delete' => $canDelete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : false
         ),
         'bottom' => array(
             __('save preset') => array(
@@ -66,8 +66,8 @@ function deletePreset(id){
 	$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$.post(root_url + "Administrate/Permissions/deletePreset/" + id, "", function(data){
 		$.get(root_url + "Administrate/Permissions/loadPreset/", null, function(data){
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    
@@ -130,8 +130,8 @@ function savePresetPopup(){
 		$.get(root_url + "Administrate/Permissions/savePreset/", null, function(data){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    
@@ -168,8 +168,8 @@ function savePreset(){
 			$("#savePresetPopup").remove();
 			loadPresetFrame();
 		}else{
-                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                         data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                         saveSqlLogAjax(ajaxSqlLog);
                     }                    

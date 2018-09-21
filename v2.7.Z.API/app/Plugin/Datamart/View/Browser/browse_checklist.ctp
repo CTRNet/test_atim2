@@ -98,11 +98,11 @@ if (isset($header)) {
     if (! is_array($header)) {
         $headerTitle = $header;
     } elseif (array_key_exists('title', $header)) {
-            $headerTitle = $header['title'];
-            if (array_key_exists('description', $header)) {
-                $headerDescription = $header['description'] . '<br>' . $headerDescription;
-            }
+        $headerTitle = $header['title'];
+        if (array_key_exists('description', $header)) {
+            $headerDescription = $header['description'] . '<br>' . $headerDescription;
         }
+    }
 }
 $this->Structures->build($atimStructure, array(
     'type' => $type,

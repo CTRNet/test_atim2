@@ -110,7 +110,7 @@ $structureBottomLinks = array(
     ),
     'copy for new collection' => array(
         'link' => '/InventoryManagement/Collections/add/0/' . $atimMenuVariables['Collection.id'],
-        'icon' => 'copy'
+        'icon' => 'duplicate'
     )
 );
 
@@ -137,6 +137,5 @@ if ($hookLink) {
     require ($hookLink);
 }
 
-if ($displayNextSubForm){
+if ($displayNextSubForm)
     $this->Structures->build($finalAtimStructure, $finalOptions);
-}

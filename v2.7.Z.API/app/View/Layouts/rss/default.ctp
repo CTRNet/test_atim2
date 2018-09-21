@@ -5,9 +5,11 @@ if (! isset($channel)) :
 
 
 
+
 endif;
 if (! isset($channel['title'])) :
     $channel['title'] = $titleForLayout;
+
 
 
 

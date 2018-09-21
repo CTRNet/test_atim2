@@ -38,6 +38,7 @@ class PermissionsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $aroId
      * @param $acoId
      * @param $state
@@ -72,6 +73,7 @@ class PermissionsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $aroId
      * @param $acoId
      * @param $state
@@ -117,6 +119,7 @@ class PermissionsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param int $groupId
      * @param int $userId
      */
@@ -141,6 +144,7 @@ class PermissionsController extends AdministrateAppController
         }
         $this->set('aro', $aro);
         $this->set('knownAcos', $knownAcos);
+        
         if ($this->request->data) {
             $this->Group->id = $groupId;
             $this->Aro->pkeySafeguard = false;
@@ -296,6 +300,7 @@ class PermissionsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param array $threadedData
      * @return array
      */
@@ -378,9 +383,13 @@ class PermissionsController extends AdministrateAppController
         foreach ($this->request->data as &$unit) {
             $unit['PermissionsPreset']['json'] = json_encode(unserialize($unit['PermissionsPreset']['serialized_data']));
         }
+        if (! empty($this->request->data)) {
+            $this->request->data[0]['PermissionsPreset']['delete'] = '/Administrate/Permissions/deletePreset/';
+        }
     }
 
     /**
+     *
      * @param $presetId
      */
     public function deletePreset($presetId)

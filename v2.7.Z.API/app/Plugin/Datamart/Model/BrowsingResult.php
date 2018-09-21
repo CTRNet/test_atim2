@@ -20,6 +20,7 @@ class BrowsingResult extends DatamartAppModel
     );
 
     /**
+     *
      * @param $startId
      * @param $browsingCache
      * @return array|null
@@ -44,7 +45,7 @@ class BrowsingResult extends DatamartAppModel
      *
      * @param $browsingResult
      * @return array
-     * @internal param mixed $node Either a browsing result id or the data array related to it*            Either a browsing result id or the data array related to it
+     * @internal param mixed $node Either a browsing result id or the data array related to it* Either a browsing result id or the data array related to it
      */
     public function getModelAndStructureForNode($browsingResult)
     {
@@ -63,17 +64,14 @@ class BrowsingResult extends DatamartAppModel
             $controlId = $browsingResult['BrowsingResult']['browsing_structures_sub_id'];
         } elseif ($browsingResult['DatamartStructure']['control_master_model']) {
             $controlForeign = $model->getControlForeign();
-            $data=array();
-            if (!empty ($browsingResult['BrowsingResult']['id_csv'])){
-                $data = array_unique(array_filter($model->find('list', array(
-                    'fields' => array(
-                        $model->name . '.' . $controlForeign
-                    ),
-                    'conditions' => array(
-                        $model->name . '.' . $model->primaryKey . ' IN(' . $browsingResult['BrowsingResult']['id_csv'] . ')'
-                    )
-                ))));
-            }
+            $data = array_unique(array_filter($model->find('list', array(
+                'fields' => array(
+                    $model->name . '.' . $controlForeign
+                ),
+                'conditions' => array(
+                    $model->name . '.' . $model->primaryKey . ' IN(' . $browsingResult['BrowsingResult']['id_csv'] . ')'
+                )
+            ))));
             if (count($data) == 1) {
                 $controlId = array_shift($data);
             }
@@ -114,6 +112,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $startingNodeId
      * @return array
      */
@@ -227,6 +226,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $baseNodeId
      * @param $targetNodeId
      * @return array
@@ -270,6 +270,7 @@ class BrowsingResult extends DatamartAppModel
     }
 
     /**
+     *
      * @param $baseNodeId
      * @param $targetNodeId
      * @return mixed

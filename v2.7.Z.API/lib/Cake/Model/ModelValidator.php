@@ -96,6 +96,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  * @return bool True if there are no errors
  */
 	public function validates($options = array()) {
+
 		$errors = $this->errors($options);
 		if (empty($errors) && $errors !== false) {
 			$errors = $this->_validateWithModels($options);

@@ -5,7 +5,7 @@
  */
 class DiagnosisMastersController extends ClinicalAnnotationAppController
 {
-    
+
     public $uses = array(
         'ClinicalAnnotation.DiagnosisMaster',
         'ClinicalAnnotation.DiagnosisDetail',
@@ -20,7 +20,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         'CodingIcd.CodingIcdo3Topo', // required by model
         'CodingIcd.CodingIcdo3Morpho'
     );
-
+    
     // required by model
     public $paginate = array(
         'DiagnosisMaster' => array(
@@ -29,6 +29,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      * @param null $parentDxId
      * @param int $isAjax
@@ -164,6 +165,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $diagnosisMasterId
      */
@@ -301,6 +303,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $dxControlId
      * @param $parentId
@@ -316,7 +319,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             if ($dxCtrl['DiagnosisControl']['category'] != 'primary') {
                 // is not a primary but has no parent
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
-//                return ;
+                return;
             }
         } else {
             $parentDx = $this->DiagnosisMaster->find('first', array(
@@ -328,7 +331,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             if (empty($parentDx)) {
                 $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            if ($dxCtrl['DiagnosisControl']['category'] == 'primary' || !in_array($parentDx['DiagnosisControl']['category'], array('primary', 'secondary - distant')) || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant' && $parentDx['DiagnosisControl']['category'] != 'primary')) {
+            if ($dxCtrl['DiagnosisControl']['category'] == 'primary' || ! in_array($parentDx['DiagnosisControl']['category'], array(
+                'primary',
+                'secondary - distant'
+            )) || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant' && $parentDx['DiagnosisControl']['category'] != 'primary')) {
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
                 return;
             }
@@ -418,6 +424,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $diagnosisMasterId
      * @param null $redefinedPrimaryControlId
@@ -522,6 +529,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $diagnosisMasterId
      */
@@ -562,6 +570,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $dxMasterData
      * @param array $additionalMenuVariables
      */

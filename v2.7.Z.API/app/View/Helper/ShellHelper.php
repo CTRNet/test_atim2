@@ -1,11 +1,10 @@
 <?php
-
 App::uses('Helper', 'View');
 
 /**
  * Class ShellHelper
  */
-class ShellHelper extends Helper
+class ShellHelper extends AppHelper
 {
 
     public $helpers = array(
@@ -16,6 +15,7 @@ class ShellHelper extends Helper
     );
 
     /**
+     *
      * @param array $options
      * @return string
      */
@@ -121,11 +121,12 @@ class ShellHelper extends Helper
             $loggedIn = false;
         }
         $return .= "<fieldset class='mainFieldset'>"; // the fieldset is present to manage the display for wide forms such as addgrids
+        $headerClass = (Configure::read("IsTest")) ? "test" : "prod";
         $return .= '
 			<!-- start #header -->
 			<div id="header"><div>
 				<h1>' . __('core_appname') . '</h1>
-				<h2>' . __('core_installname') . '</h2>
+				<h2 class = "' . $headerClass . '">' . __('core_installname') . ($headerClass == "test" ? ' - ' . __('test') : '') . '</h2>
 				' . $rootMenuForHeader . '
 			</div></div>
 			<!-- end #header -->
@@ -133,8 +134,8 @@ class ShellHelper extends Helper
 		';
         if ($loggedIn) {
             // display DEFAULT menu
-            if (empty($menuForWrapper)){
-                $menuForWrapper="";
+            if (empty($menuForWrapper)) {
+                $menuForWrapper = "";
             }
             $return .= '
 				<!-- start #menu -->
@@ -176,6 +177,7 @@ class ShellHelper extends Helper
     }
 
     /**
+     *
      * @param $class
      * @param $msg
      * @param null $collapsable
@@ -191,6 +193,7 @@ class ShellHelper extends Helper
     }
 
     /**
+     *
      * @return string
      */
     public function validationHtml()
@@ -208,7 +211,7 @@ class ShellHelper extends Helper
                 if (isset($traceMsg['msg']) && isset($traceMsg['trace']) && is_array($traceMsg['trace'])) {
                     $confirmMsgHtml .= $this->getValidationLine('warning', $traceMsg['msg'], $traceMsg['trace']);
                 } else {
-                    $confirmMsgHtml .= '<li><span class="icon16 warning mr5px"></span>' . $traceMsg.'</li>';
+                    $confirmMsgHtml .= '<li><span class="icon16 warning mr5px"></span>' . $traceMsg . '</li>';
                 }
             }
             $confirmMsgHtml .= '</ul>';
@@ -218,7 +221,7 @@ class ShellHelper extends Helper
         if (isset($_SESSION['ctrapp_core']['error_msg']) && count($_SESSION['ctrapp_core']['error_msg'])) {
             $confirmMsgHtml .= '<ul class="error">';
             foreach ($_SESSION['ctrapp_core']['error_msg'] as $traceMsg) {
-                $confirmMsgHtml .= '<li><span class="icon16 delete mr5px"></span>' . $traceMsg.'</li>';
+                $confirmMsgHtml .= '<li><span class="icon16 delete mr5px"></span>' . $traceMsg . '</li>';
             }
             $confirmMsgHtml .= '</ul>';
             $_SESSION['ctrapp_core']['error_msg'] = array();
@@ -244,7 +247,7 @@ class ShellHelper extends Helper
         }
         
         $return = "";
-        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0) {
+        if ($displayErrorsHtml != null || strlen($confirmMsgHtml) > 0 && (! $this->request->is('ajax') || $_SESSION['ctrapp_core']['force_msg_display_in_popup'])) {
             $return .= '
 				<!-- start #validation -->
 				<div class="validation">
@@ -254,10 +257,13 @@ class ShellHelper extends Helper
 				';
         }
         
+        $_SESSION['ctrapp_core']['force_msg_display_in_popup'] = false;
+        
         return $return;
     }
 
     /**
+     *
      * @return string
      */
     public function validationErrors()
@@ -285,6 +291,7 @@ class ShellHelper extends Helper
     }
 
     /**
+     *
      * @param array $options
      * @return string
      */
@@ -312,6 +319,7 @@ class ShellHelper extends Helper
     }
 
     /**
+     *
      * @param array $atimMenu
      * @param array $options
      * @return array
@@ -339,155 +347,155 @@ class ShellHelper extends Helper
                 $count = 0;
                 $totalCount = 0;
                 $isRoot = false; // used to remove unneeded ROOT menu items from displaying in bar
-                if (is_array($atimMenu)){
+                if (is_array($atimMenu)) {
                     foreach ($atimMenu as $menu) {
-                                        $activeItem = '';
-                                        $summaryItem = '';
-                                        $appendMenu = '';
-
-                                        // save BASE array (main menu) for display in header
-                                        if ($count == (count($atimMenu) - 1)) {
-                                            $rootMenuArray = $menu;
-                                        } elseif ($count == (count($atimMenu) - 2)) {
-                                            $mainMenuArray = $menu;
+                        $activeItem = '';
+                        $summaryItem = '';
+                        $appendMenu = '';
+                        
+                        // save BASE array (main menu) for display in header
+                        if ($count == (count($atimMenu) - 1)) {
+                            $rootMenuArray = $menu;
+                        } elseif ($count == (count($atimMenu) - 2)) {
+                            $mainMenuArray = $menu;
+                        }
+                        
+                        if (! $isRoot) {
+                            
+                            $subCount = 0;
+                            foreach ($menu as &$menuItem) {
+                                
+                                if ($menuItem['Menu']['use_link'] && count($options['variables'])) {
+                                    foreach ($options['variables'] as $k => $v) {
+                                        $menuItem['Menu']['use_link'] = str_replace('%%' . $k . '%%', $v, $menuItem['Menu']['use_link']);
+                                    }
+                                }
+                                
+                                if ($menuItem['Menu']['at'] && $menuItem['Menu']['use_summary']) {
+                                    $fetchedSummary = $this->fetchSummary($menuItem['Menu']['use_summary'], $options);
+                                    $summaries[] = $fetchedSummary['long'];
+                                    $menuItem['Menu']['use_summary'] = isset($fetchedSummary['page_title']) ? $fetchedSummary['page_title'] : "";
+                                }
+                                
+                                if ($menuItem['Menu']['at']) {
+                                    $isRoot = $menuItem['Menu']['is_root'];
+                                    
+                                    $summaryItem = $menuItem['Menu']['use_summary'] ? null : array(
+                                        'class' => 'without_summary'
+                                    );
+                                    
+                                    if ($menuItem['Menu']['use_summary']) {
+                                        $word = __(trim($menuItem['Menu']['language_title']));
+                                        $untranslated = strpos($word, "<span class='untranslated'>") === 0;
+                                        if ($untranslated) {
+                                            $word = substr(trim($word), 27, - 7);
                                         }
-
-                                        if (! $isRoot) {
-
-                                            $subCount = 0;
-                                            foreach ($menu as &$menuItem) {
-
-                                                if ($menuItem['Menu']['use_link'] && count($options['variables'])) {
-                                                    foreach ($options['variables'] as $k => $v) {
-                                                        $menuItem['Menu']['use_link'] = str_replace('%%' . $k . '%%', $v, $menuItem['Menu']['use_link']);
-                                                    }
-                                                }
-
-                                                if ($menuItem['Menu']['at'] && $menuItem['Menu']['use_summary']) {
-                                                    $fetchedSummary = $this->fetchSummary($menuItem['Menu']['use_summary'], $options);
-                                                    $summaries[] = $fetchedSummary['long'];
-                                                    $menuItem['Menu']['use_summary'] = isset($fetchedSummary['page_title']) ? $fetchedSummary['page_title'] : "";
-                                                }
-
-                                                if ($menuItem['Menu']['at']) {
-                                                    $isRoot = $menuItem['Menu']['is_root'];
-
-                                                    $summaryItem = $menuItem['Menu']['use_summary'] ? null : array(
-                                                        'class' => 'without_summary'
-                                                    );
-
-                                                    if ($menuItem['Menu']['use_summary']) {
-                                                        $word = __(trim($menuItem['Menu']['language_title']));
-                                                        $untranslated = strpos($word, "<span class='untranslated'>") === 0;
-                                                        if ($untranslated) {
-                                                            $word = substr(trim($word), 27, - 7);
-                                                        }
-                                                        $maxLength = 30;
-                                                        if (strlen($word) > $maxLength) {
-                                                            $word = '<span class="incompleteMenuTitle" title="' . htmlentities($word, ENT_QUOTES) . '">' . substr($word, 0, - 1 * (strlen($word) - $maxLength)) . "..." . '</span>';
-                                                        }
-                                                        $word = $untranslated ? '<span class="untranslated">' . $word . '</span>' : $word;
-
-                                                        if ($isRoot) {
-                                                            $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
-                                                            $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '" style="vertical-align: bottom;"></span><span style="display: inline-block">' . $menuItem['Menu']['use_summary'] . '<br/><span class="menuSubTitle">&nbsp;&lfloor; ' . $word . '</span></span>', ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
-                                                                'escape' => false,
-                                                                'title' => $title,
-                                                                'class' => 'mainTitle'
-                                                            ));
-                                                        } else {
-                                                            $activeItem = '
+                                        $maxLength = 30;
+                                        if (strlen($word) > $maxLength) {
+                                            $word = '<span class="incompleteMenuTitle" title="' . htmlentities($word, ENT_QUOTES) . '">' . substr($word, 0, - 1 * (strlen($word) - $maxLength)) . "..." . '</span>';
+                                        }
+                                        $word = $untranslated ? '<span class="untranslated">' . $word . '</span>' : $word;
+                                        
+                                        if ($isRoot) {
+                                            $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
+                                            $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '" style="vertical-align: bottom;"></span><span style="display: inline-block">' . $menuItem['Menu']['use_summary'] . '<br/><span class="menuSubTitle">&nbsp;&lfloor; ' . $word . '</span></span>', ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
+                                                'escape' => false,
+                                                'title' => $title,
+                                                'class' => 'mainTitle'
+                                            ));
+                                        } else {
+                                            $activeItem = '
                                                                                                             <span class="mainTitle">' . $menuItem['Menu']['use_summary'] . '</span>
                                                                                                             <br/>&nbsp;&lfloor; <span class="menuSubTitle">' . $word . '</span>
                                                                                                     ';
-                                                        }
-
-                                                        $pageTitle[] = $menuItem['Menu']['use_summary'];
-                                                    } else {
-
-                                                        if ($isRoot) {
-                                                            $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
-
-                                                            // $activeItem = $menuItem['Menu']['allowed'] ? $this->Html->link( __($menuItem['Menu']['language_title']), $menuItem['Menu']['use_link'], $htmlAttributes ) : __($menuItem['Menu']['language_title']);
-
-                                                            if (! $menuItem['Menu']['allowed']) {
-                                                                $activeItem = '<a class="icon32 mr5px not_allowed" title="' . __($menuItem['Menu']['language_title']) . '">' . __($menuItem['Menu']['language_title']) . '</a>';
-                                                            } else {
-                                                                // $htmlAttributes
-                                                                $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
-                                                                $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '"></span>' . __($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
-                                                                    'escape' => false,
-                                                                    'title' => $title,
-                                                                    'class' => 'mainTitle'
-                                                                ));
-                                                            }
-                                                        } else {
-                                                            $activeItem = '<span class="mainTitle">' . __($menuItem['Menu']['language_title']) . '</span>';
-                                                        }
-
-                                                        $pageTitle[] = __($menuItem['Menu']['language_title']);
-                                                    }
-                                                }
-
-                                                $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
-                                                if (! $menuItem['Menu']['is_root'] && $menuItem['Menu']['flag_submenu']) {
-                                                    if ($menuItem['Menu']['allowed']) {
-                                                        $appendMenu .= '
+                                        }
+                                        
+                                        $pageTitle[] = $menuItem['Menu']['use_summary'];
+                                    } else {
+                                        
+                                        if ($isRoot) {
+                                            $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
+                                            
+                                            // $activeItem = $menuItem['Menu']['allowed'] ? $this->Html->link( __($menuItem['Menu']['language_title']), $menuItem['Menu']['use_link'], $htmlAttributes ) : __($menuItem['Menu']['language_title']);
+                                            
+                                            if (! $menuItem['Menu']['allowed']) {
+                                                $activeItem = '<a class="icon32 mr5px not_allowed" title="' . __($menuItem['Menu']['language_title']) . '">' . __($menuItem['Menu']['language_title']) . '</a>';
+                                            } else {
+                                                // $htmlAttributes
+                                                $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
+                                                $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '"></span>' . __($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
+                                                    'escape' => false,
+                                                    'title' => $title,
+                                                    'class' => 'mainTitle'
+                                                ));
+                                            }
+                                        } else {
+                                            $activeItem = '<span class="mainTitle">' . __($menuItem['Menu']['language_title']) . '</span>';
+                                        }
+                                        
+                                        $pageTitle[] = __($menuItem['Menu']['language_title']);
+                                    }
+                                }
+                                
+                                $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
+                                if (! $menuItem['Menu']['is_root'] && $menuItem['Menu']['flag_submenu']) {
+                                    if ($menuItem['Menu']['allowed']) {
+                                        $appendMenu .= '
                                                                                                             <!-- ' . $menuItem['Menu']['id'] . ' -->
                                                                                                             <li class="' . ($menuItem['Menu']['at'] ? 'at ' : '') . 'count_' . $subCount . '">
                                                                                                                     ' . $this->Html->link('<span class="icon16 list"></span><span class="menuLabel">' . $title . '</span>', $menuItem['Menu']['use_link'], array(
-                                                            'escape' => false,
-                                                            'title' => $title
-                                                        )) . '
+                                            'escape' => false,
+                                            'title' => $title
+                                        )) . '
                                                                                                             </li>
                                                                                             ';
-                                                    } else {
-                                                        $appendMenu .= '
+                                    } else {
+                                        $appendMenu .= '
                                                                                                             <!-- ' . $menuItem['Menu']['id'] . ' -->
                                                                                                             <li class="not_allowed count_' . $subCount . '">
                                                                                                                     <a title="' . $title . '"><span class="icon16 not_allowed"></span><span class="menuLabel">' . $title . '</span></a>
                                                                                                             </li>
                                                                                                                                             ';
-                                                    }
-                                                    $subCount ++;
-                                                }
-                                            }
-
-                                            if (Configure::read('debug')) {
-                                                foreach ($menu as $menuItem) {
-                                                    if (preg_match('/%%[\w.]+%%/', $menuItem['Menu']['use_link'])) {
-                                                        AppController::addWarningMsg('DEBUG: bad link detected [' . $menuItem['Menu']['use_link'] . ']');
-                                                    }
-                                                }
-                                            }
-
-                                            // append FLYOUT menus to all menu bar TABS except ROOT tab
-                                            if (! $isRoot) {
-                                                $appendMenu = '
+                                    }
+                                    $subCount ++;
+                                }
+                            }
+                            
+                            if (Configure::read('debug')) {
+                                foreach ($menu as $menuItem) {
+                                    if (preg_match('/%%[\w.]+%%/', $menuItem['Menu']['use_link'])) {
+                                        AppController::addWarningMsg('DEBUG: bad link detected [' . $menuItem['Menu']['use_link'] . ']');
+                                    }
+                                }
+                            }
+                            
+                            // append FLYOUT menus to all menu bar TABS except ROOT tab
+                            if (! $isRoot) {
+                                $appendMenu = '
                                                                                             <div class="menu level_1">
                                                                                                     <ul>
                                                                                                             ' . $appendMenu . '
                                                                                                     </ul>
                                                                                             </div>
                                                                             ';
-                                            } else {
-                                                $appendMenu = '';
-                                            }
-
-                                            $returnHtml[] = '
+                            } else {
+                                $appendMenu = '';
+                            }
+                            
+                            $returnHtml[] = '
                                                                             <li class="at count_' . $count . ($isRoot ? ' root' : '') . '">
                                                                                     ' . $activeItem . '
                                                                                     ' . $appendMenu . '
                                                                             </li>
                                                                     ';
-
-                                            // increment number of VISIBLE menu bar tabs
-                                            $totalCount ++;
-                                        }
-
-                                        // increment number to TOTAL menu array items
-                                        $count ++;
-                                    }
+                            
+                            // increment number of VISIBLE menu bar tabs
+                            $totalCount ++;
+                        }
+                        
+                        // increment number to TOTAL menu array items
+                        $count ++;
+                    }
                 }
             }
             
@@ -552,8 +560,8 @@ class ShellHelper extends Helper
     /**
      * Builds 2 summaries, one for the menu tabs (short) and one for the summary button (long)
      *
-     * @param unknown_type $summary            
-     * @param unknown_type $options            
+     * @param unknown_type $summary
+     * @param unknown_type $options
      * @return array('short' => short summary, 'long' => long summary)
      */
     public function fetchSummary($summary, $options)
