@@ -1,5 +1,5 @@
 <?php
-if ($collectionData) {
+if (isset($collectionData)) {
     if ($collectionData['Collection']['collection_property'] != 'independent collection') {
         // Participant Tissue: Prostate tissue (not a control)
         if ($this->request->data['SampleDetail']['tissue_source'] != 'prostate') {
@@ -24,6 +24,4 @@ if ($collectionData) {
             $submittedDataValidates = false;
         }
     }
-} else {
-    $this->redirect('/Pages/err_plugin_system_error?method=Collection.add(),line=' . __LINE__, null, true);
 }
