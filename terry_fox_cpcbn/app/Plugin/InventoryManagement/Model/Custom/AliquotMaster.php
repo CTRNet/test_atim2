@@ -30,7 +30,7 @@ class AliquotMasterCustom extends AliquotMaster
         return $retVal;
     }
 
-    public function generateDefaultAliquotLabel($viewData)
+    public function generateDefaultAliquotLabel($viewData, $aliquotControl)
     {
         // Parameters check: Verify parameters have been set
         if (empty($viewData))
@@ -47,7 +47,11 @@ class AliquotMasterCustom extends AliquotMaster
                 $defaultAliquotLabel = $viewData['participant_identifier'] . '-';
             }
             $defaultAliquotLabel .= 'RNA-';
-        }
+        } elseif ($viewData['sample_type'] == 'tissue') {
+            if ($viewData['participant_identifier'] && $aliquotControl['AliquotControl']['aliquot_type'] == 'slide') {
+                $defaultAliquotLabel = $viewData['participant_identifier'];
+            }
+        } 
         
         return $defaultAliquotLabel;
     }
