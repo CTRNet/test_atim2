@@ -80,6 +80,8 @@ $parameters);
         );
         $allStructures = array();
         
+        $validationErrors = array();
+        $models = array();
         foreach ($alias as $aliasUnit) {
             $structUnit = $this->getSingleStructure($aliasUnit);
             
@@ -92,14 +94,29 @@ $parameters);
                         if (!$this->controller->{ $model }) {
                             $this->controller->{ $model } = new AppModel();
                         }
+
+                        $models[$model] = $this->controller->{ $model };
                         $this->controller->{ $model }->validate = array();
                         foreach ($rules as $field=> $rls){
                             foreach ($rls as $rule){
                                 if ($rule["rule"] == "notBlank"){
-                                    if (isset($this->controller->{ $model }->requiredFields [$model])){
-                                        $this->controller->{ $model }->requiredFields [$model][$field] = $rule["rule"];
+                                    if ($model =="FunctionManagement"){
+                                        if (!isset($this->controller->data[$model][$field]) || empty($this->controller->data[$model][$field])){
+                                                $validationErrors[$field] = $rule['message'];
+                                        }else{
+                                            if (is_numeric(key($this->controller->data))){
+                                                foreach (current($this->controller->data) as $k=>$data) {
+                                                    if (isset($data[$model][$field]) && empty($data[$model][$field])){
+                                                        $validationErrors[$field] = $rule['message'];
+                                                    }                                                
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (isset(AppModel::$requiredFields[$model])){
+                                        AppModel::$requiredFields[$model][$field] = $rule["rule"];
                                     }else{
-                                        $this->controller->{ $model }->requiredFields [$model] = array($field => $rule["rule"]);
+                                        AppModel::$requiredFields[$model] = array($field => $rule["rule"]);
                                     }
                                 }
                             }
@@ -107,6 +124,7 @@ $parameters);
                         }
                     }
                 }
+
                 if (isset($structUnit['structure']['Sfs'])) {
                     foreach ($structUnit['structure']['Sfs'] as $sfs) {
                         $tablename = isset($parameters['model_table_assoc'][$sfs['model']]) ? $parameters['model_table_assoc'][$sfs['model']] : $sfs['tablename'];
@@ -137,6 +155,15 @@ $parameters);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
             }
         }
+        if (!empty($validationErrors)){
+            foreach ($models as $modelName => $model) {
+                if ($modelName != "FunctionManagement"){
+                    foreach ($validationErrors as $field => $errorMessage){
+                        $this->controller->{ $modelName }->notBlankFields["FunctionManagement"][$field] = $errorMessage;
+                    }
+                }
+            }
+        }
         
         foreach ($allStructures as &$structUnit) {
             if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
@@ -146,6 +173,7 @@ $parameters);
                 }
             }
         }
+
         if (count($alias) > 1) {
             self::sortStructure($structure);
         } elseif (count($structure['Structure']) == 1) {
