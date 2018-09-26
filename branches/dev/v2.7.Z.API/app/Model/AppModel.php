@@ -46,8 +46,9 @@ class AppModel extends Model
     // tablename -> accuracy fields
     public static $writableFields = array();
     
-    public $requiredFields = array();
-    
+    public static $requiredFields = array();
+    public $notBlankFields=array();
+
     // tablename -> flag suffix -> fields
     public $checkWritableFields = true;
     
@@ -136,7 +137,9 @@ class AppModel extends Model
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
         
+        $validationErrors = $this->validationErrors;
         $prevData = $this->id ? $this->read() : null;
+        $this->validationErrors = $validationErrors;
         $dir = Configure::read('uploadDirectory');
         foreach ($data as $modelName => $fields) {
             if (! is_array($fields)) {
@@ -243,13 +246,15 @@ class AppModel extends Model
 
     private function checkRequiredFields($data)
     {
-        foreach ($this->requiredFields as $model => $rules) {
+        foreach (self::$requiredFields as $model => $rules) {
             foreach ($rules as $field => $rule) {
-                if (!isset($data[$model][$field])){
-                    if (!isset($data[$model])){
-                        $data[$model] = array($field => "");
-                    }else{
-                        $data[$model][$field] = "";
+                if (isset($data[$model])){
+                    if (!isset($data[$model][$field])){
+                        if (!isset($data[$model])){
+                            $data[$model] = array($field => "");
+                        }else{
+                            $data[$model][$field] = "";
+                        }
                     }
                 }
             }
@@ -268,7 +273,6 @@ class AppModel extends Model
      */
     public function save($data = null, $validate = true, $fieldList = array())
     {
-        $data = $this->checkRequiredFields($data);
         $modelName= strtolower($this->name);
 
         //Check the $validate for not consodering Delete function here
@@ -787,7 +791,7 @@ class AppModel extends Model
                     }
                 } else {
                     if (isset($data['year_accuracy'])) {
-                        $data['year'] = 'Â±' . $data['year'];
+                        $data['year'] = '±' . $data['year'];
                     }
                     
                     if (! isset($data['sec']) || strlen($data['sec']) == 0) {
@@ -979,6 +983,7 @@ class AppModel extends Model
      */
     public function validates($options = array())
     {
+        $this->data = $this->checkRequiredFields($this->data);
         if (! $this->_schema) {
             $this->schema();
         }
@@ -1076,6 +1081,16 @@ class AppModel extends Model
         $this->checkFloats();
         
         parent::validates($options);
+        
+        if (!empty($this->notBlankFields)){
+            $modelTemp = "FunctionManagement";
+            foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
+                if (!isset($this->data[$modelTemp][$field]) || empty($this->data[$modelTemp][$field])){
+                    $this->validationErrors[$field][]= $message;
+                }
+            }
+        }
+
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
             return true;
