@@ -59,3 +59,11 @@ UPDATE structure_fields SET tablename = 'ad_tissue_slides' WHERE tablename = 'ad
 UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tissue_slides' AND `field`='qc_tf_cpcbn_thickness');
 UPDATE versions SET branch_build_number = '7434' WHERE version_number = '2.7.1';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE (id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 =(SELECT id FROM datamart_structures WHERE model = 'StudySummary')) 
+OR (id1 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary') AND id2 =(SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'));
+
+UPDATE versions SET branch_build_number = '7435' WHERE version_number = '2.7.1';
