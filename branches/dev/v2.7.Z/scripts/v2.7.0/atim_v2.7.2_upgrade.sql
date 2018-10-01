@@ -29,4 +29,4 @@ VALUES
 ('2.7.2', NOW(),'XXXX','n/a');
 
 
-UPDATE versions SET trunk_build_number = 'YYYY' WHERE versions = '2.7.1';
+UPDATE versions SET trunk_build_number = 'YYYY' WHERE version_number = '2.7.1';

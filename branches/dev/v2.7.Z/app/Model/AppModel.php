@@ -246,14 +246,16 @@ class AppModel extends Model
 
     private function checkRequiredFields($data)
     {
-        foreach (self::$requiredFields as $model => $rules) {
-            foreach ($rules as $field => $rule) {
-                if (isset($data[$model])){
-                    if (!isset($data[$model][$field])){
-                        if (!isset($data[$model])){
-                            $data[$model] = array($field => "");
-                        }else{
-                            $data[$model][$field] = "";
+        if (!$this->id){
+            foreach (self::$requiredFields as $model => $rules) {
+                foreach ($rules as $field => $rule) {
+                    if (isset($data[$model])){
+                        if (!isset($data[$model][$field])){
+                            if (!isset($data[$model])){
+                                $data[$model] = array($field => "");
+                            }else{
+                                $data[$model][$field] = "";
+                            }
                         }
                     }
                 }
