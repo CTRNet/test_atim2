@@ -53,3 +53,4 @@ UPDATE versions SET site_branch_build_number = '7413' WHERE version_number = '2.
 UPDATE versions SET site_branch_build_number = '7417' WHERE version_number = '2.7.1';
 UPDATE structure_fields SET  `language_label`='PS3' WHERE model='ProcureBanksDataMergeTrie' AND tablename='procure_banks_data_merge_tries' AND field='ps3_dump_date' AND `type`='datetime' AND structure_value_domain  IS NULL ;
 UPDATE versions SET site_branch_build_number = '7418' WHERE version_number = '2.7.1';
+UPDATE versions SET site_branch_build_number = '7437' WHERE version_number = '2.7.1';

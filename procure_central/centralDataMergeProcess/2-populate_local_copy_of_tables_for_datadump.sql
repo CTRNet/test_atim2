@@ -1379,16 +1379,16 @@ INSERT INTO procure_ed_questionnaires (
 )
 (
   SELECT
-    delivery_date,
+    CONCAT(SUBSTR(delivery_date, 1, 7),'-01'),
     delivery_date_accuracy,
     delivery_site_method,
     method_to_complete,
-    recovery_date,
+    CONCAT(SUBSTR(recovery_date, 1, 7),'-01'),
     recovery_date_accuracy,
     recovery_method,
-    verification_date,
+    CONCAT(SUBSTR(verification_date, 1, 7),'-01'),
     verification_date_accuracy,
-    revision_date,
+    CONCAT(SUBSTR(revision_date, 1, 7),'-01'),
     revision_date_accuracy,
     revision_method,
     version,
@@ -3262,7 +3262,7 @@ AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
 AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
 AND Collection.id = SampleMaster.collection_id
 AND SampleMaster.id = SpecimenDetail.sample_master_id
-AND DATE(Collection.collection_datetime) = DATE(SpecimenDetail.reception_datetime)
+AND SpecimenDetail.reception_datetime IS  NOT NULL
 AND SpecimenDetail.reception_datetime_accuracy NOT IN ('y','m','d')
 AND SpecimenDetail.reception_datetime IS NOT NULL;
 
@@ -3279,7 +3279,7 @@ AND EventMaster.event_date = DATE(Collection.collection_datetime)
 AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
 AND Collection.id = SampleMaster.collection_id
 AND SampleMaster.id = SpecimenDetail.sample_master_id
-AND DATE(Collection.collection_datetime) = DATE(SpecimenDetail.reception_datetime)
+AND SpecimenDetail.reception_datetime IS  NOT NULL
 AND SpecimenDetail.reception_datetime_accuracy NOT IN ('y','m','d')
 AND SpecimenDetail.reception_datetime IS NOT NULL;
 
@@ -3376,6 +3376,61 @@ AND EventMaster.event_date IS NOT NULL
 AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
 AND EventMaster.event_date = DATE(ConsentMaster.consent_signed_date)
 AND ConsentMaster.consent_signed_date_accuracy NOT IN ('y','m','d');
+
+-- consent_masters.status_date
+
+UPDATE consent_masters SET status_date = null WHERE consent_masters.deleted = 1;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail, consent_masters ConsentMaster
+SET ConsentMaster.status_date = CONCAT(SUBSTR(ConsentMaster.status_date,1, 7), '-01 01:01:01'),
+ConsentMaster.status_date_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.participant_id = ConsentMaster.participant_id
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+AND TreatmentMaster.start_date = DATE(ConsentMaster.status_date)
+AND ConsentMaster.status_date_accuracy NOT IN ('y','m','d');
+
+UPDATE event_masters EventMaster, event_controls EventControl, consent_masters ConsentMaster
+SET ConsentMaster.status_date = CONCAT(SUBSTR(ConsentMaster.status_date,1, 7), '-01 01:01:01'),
+ConsentMaster.status_date_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis')
+AND EventMaster.participant_id = ConsentMaster.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d')
+AND EventMaster.event_date = DATE(ConsentMaster.status_date)
+AND ConsentMaster.status_date_accuracy NOT IN ('y','m','d');
+
+-- TreatmentMaster.start_date
+
+UPDATE treatment_masters TreatmentMaster SET TreatmentMaster.start_date = null WHERE TreatmentMaster.deleted = 1;
+
+UPDATE treatment_masters TreatmentMaster, procure_txd_treatments TreatmentDetail
+SET TreatmentMaster.start_date = CONCAT(SUBSTR(TreatmentMaster.start_date,1, 7), '-01'),
+TreatmentMaster.start_date_accuracy = 'd'
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentDetail.treatment_type IN ('surgery', 'prostatectomy')
+AND TreatmentMaster.start_date IS NOT NULL
+AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d');
+
+-- EventMaster.event_date
+
+UPDATE event_masters EventMaster SET EventMaster.event_date = null WHERE EventMaster.deleted = 1;
+
+UPDATE event_masters EventMaster, event_controls EventControl, consent_masters ConsentMaster
+SET EventMaster.event_date = CONCAT(SUBSTR(EventMaster.event_date,1, 7), '-01'),
+EventMaster.event_date_accuracy = 'd'
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = EventControl.id
+AND EventControl.event_type IN ('procure pathology report','prostate cancer - diagnosis','other tumor diagnosis')
+AND EventMaster.participant_id = ConsentMaster.participant_id
+AND EventMaster.event_date IS NOT NULL
+AND EventMaster.event_date_accuracy NOT IN ('y','m','d');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Table atim_procure_dump_information
