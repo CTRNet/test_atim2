@@ -164,7 +164,7 @@ while (($new_csv_line_data = fgetcsv($handle, 1000, ";")) !== FALSE) {
                     "Wrong $csv_field_name date time format. Date won't be migrated.",
                     "Date Time erreur : $csv_field_name = ".$excel_line_data[$csv_field_name]." (see line $line_number)");
                 $excel_line_data[$csv_field_name] = '';
-            } else {
+            } elseif(strtolower($excel_line_data['ETC']) != 'y') {
                 $date = new DateTime($excel_line_data[$csv_field_name].':00', $utcTimeZone);
                 $date->setTimezone($mtlTimeZone);
                 $excel_line_data[$csv_field_name] =  $date->format('Y-m-d H:i:s');
