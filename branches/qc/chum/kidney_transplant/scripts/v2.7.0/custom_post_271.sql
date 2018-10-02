@@ -302,3 +302,7 @@ VALUES
 ('donor', 'Donor', 'Donneur');
 
 UPDATE versions SET branch_build_number = '7430' WHERE version_number = '2.7.1';
+
+UPDATE structure_fields SET `default` = '' WHERE `default` IN ('crchum 6th floor', 'stephanie lariviere-beaudoin', 'spleen', 'alive', '12th floor lab - dr hebert');
+
+UPDATE versions SET branch_build_number = '7438' WHERE version_number = '2.7.1';
