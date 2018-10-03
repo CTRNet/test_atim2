@@ -246,14 +246,16 @@ class AppModel extends Model
 
     private function checkRequiredFields($data)
     {
-        foreach (self::$requiredFields as $model => $rules) {
-            foreach ($rules as $field => $rule) {
-                if (isset($data[$model])){
-                    if (!isset($data[$model][$field])){
-                        if (!isset($data[$model])){
-                            $data[$model] = array($field => "");
+        if (empty($this->id)){
+            foreach (self::$requiredFields as $model => $rules) {
+                foreach ($rules as $field => $rule) {
+                    if ($this->name == $model || $model == 'FunctionManagement'){
+                        if (isset($data[$model])){
+                            if (!isset($data[$model][$field])){
+                                $data[$model][$field] = "";
+                            }
                         }else{
-                            $data[$model][$field] = "";
+                            $data[$model] = array($field => "");
                         }
                     }
                 }
@@ -1059,6 +1061,7 @@ class AppModel extends Model
                     }
                     
                     $detailClassInstance->validate = AppController::getInstance()->{$detailClass}->validate;
+
                     foreach (self::$autoValidation[$autoValidationName] as $fieldName => $rules) {
                         if (! isset($detailClassInstance->validate[$fieldName])) {
                             $detailClassInstance->validate[$fieldName] = array();
@@ -1066,7 +1069,14 @@ class AppModel extends Model
                         $detailClassInstance->validate[$fieldName] = array_merge($detailClassInstance->validate[$fieldName], $rules);
                     }
                     $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
+
+
+                    $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
+
                     $validDetailClass = $detailClassInstance->validates();
+                    
+                    $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
+
                     if ($detailClassInstance->data) {
                         $this->data = array_merge($this->data, $detailClassInstance->data);
                     }
@@ -1085,7 +1095,7 @@ class AppModel extends Model
         if (!empty($this->notBlankFields)){
             $modelTemp = "FunctionManagement";
             foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
-                if (!isset($this->data[$modelTemp][$field]) || empty($this->data[$modelTemp][$field])){
+                if (isset($this->data[$modelTemp][$field]) && empty($this->data[$modelTemp][$field])){
                     $this->validationErrors[$field][]= $message;
                 }
             }
@@ -1098,6 +1108,41 @@ class AppModel extends Model
         return false;
     }
 
+    private function checkMasterDetailRequiredFields(&$master, &$detail)
+    {
+        if (!empty(self::$requiredFields['FunctionManagement'])) {
+            foreach (self::$requiredFields['FunctionManagement']as $field => $message) {
+                if (!isset($master->notBlankFields['FunctionManagement'][$field])) {
+                    if (isset($master->notBlankFields['FunctionManagement'])) {
+                        $master->notBlankFields['FunctionManagement'][$field] = $message;
+                    } else {
+                        $master->notBlankFields['FunctionManagement'] = array($field, $message);
+                    }
+                }
+
+                if (isset($detail->data['FunctionManagement'][$field])) {
+                    if (empty($master->data['FunctionManagement'][$field]) && !$master->id) {
+                        if (isset($master->data['FunctionManagement'][$field])) {
+                            $master->data['FunctionManagement'][$field] = $detail->data['FunctionManagement'][$field];
+                        } else {
+                            $master->data['FunctionManagement'] = array($field, $detail->data['FunctionManagement'][$field]);
+                        }
+                    }
+                }
+
+                unset($detail->notBlankFields['FunctionManagement'][$field]);
+                unset($detail->data['FunctionManagement'][$field]);
+            }
+            if (empty($detail->notBlankFields['FunctionManagement'])) {
+                unset($detail->notBlankFields['FunctionManagement']);
+            }
+
+            if (empty($detail->data['FunctionManagement'])) {
+                unset($detail->data['FunctionManagement']);
+            }
+        }
+    }
+    
     /**
      *
      * @param $pluginName
