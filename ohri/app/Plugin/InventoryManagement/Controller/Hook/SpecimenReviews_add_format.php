@@ -1,2 +1,2 @@
 <?php
-	$this->set('sample_data', $sample_data);
+$this->set('sampleData', $sampleData);

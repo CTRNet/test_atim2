@@ -1,15 +1,18 @@
 <?php
- 	
- 	// --------------------------------------------------------------------------------
-	// Presentation creation check
-	// -------------------------------------------------------------------------------- 
-	$event_type_title = $event_control_data['EventControl']['disease_site'].$event_control_data['EventControl']['event_group'].$event_control_data['EventControl']['event_type'];
-	if(empty($this->request->data) && ($event_type_title == 'ohrilabmarkers')) {
-		
-		$existing_presentation = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.event_control_id'=>$event_control_data['EventControl']['id'], 'EventMaster.participant_id'=>$participant_id)));
-		if (!empty($existing_presentation)) { 
-			$this->atimFlash( 'a markers report can only be created once per participant','/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id);
-		}
-	}
-	
-?>
+
+// --------------------------------------------------------------------------------
+// Presentation creation check
+// --------------------------------------------------------------------------------
+$eventTypeTitle = $eventControlData['EventControl']['disease_site'] . $eventControlData['EventControl']['event_group'] . $eventControlData['EventControl']['event_type'];
+if (empty($this->request->data) && ($eventTypeTitle == 'ohrilabmarkers')) {
+    
+    $existingPresentation = $this->EventMaster->find('first', array(
+        'conditions' => array(
+            'EventMaster.event_control_id' => $eventControlData['EventControl']['id'],
+            'EventMaster.participant_id' => $participantId
+        )
+    ));
+    if (! empty($existingPresentation)) {
+        $this->atimFlash('a markers report can only be created once per participant', '/ClinicalAnnotation/EventMasters/listall/' . $eventGroup . '/' . $participantId);
+    }
+}
