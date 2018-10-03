@@ -102,7 +102,7 @@ $parameters);
                                 if ($rule["rule"] == "notBlank"){
                                     if ($model =="FunctionManagement"){
                                         if (!isset($this->controller->data[$model][$field]) || empty($this->controller->data[$model][$field])){
-                                                $validationErrors[$field] = $rule['message'];
+                                            $validationErrors[$field] = $rule['message'];
                                         }else{
                                             if (is_numeric(key($this->controller->data))){
                                                 foreach (current($this->controller->data) as $k=>$data) {
@@ -114,9 +114,9 @@ $parameters);
                                         }
                                     }
                                     if (isset(AppModel::$requiredFields[$model])){
-                                        AppModel::$requiredFields[$model][$field] = $rule["rule"];
+                                        AppModel::$requiredFields[$model][$field] = $rule["message"];
                                     }else{
-                                        AppModel::$requiredFields[$model] = array($field => $rule["rule"]);
+                                        AppModel::$requiredFields[$model] = array($field => $rule["message"]);
                                     }
                                 }
                             }
