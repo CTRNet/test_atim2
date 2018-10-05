@@ -19,6 +19,9 @@ class ParticipantCustom extends Participant
                     'Participant.id' => $variables['Participant.id']
                 )
             ));
+            if ($result['Participant']['chum_kidney_transp_vih'] == 'y') {
+                AppController::addWarningMsg(__('participant present a confirmed biological hazard'));
+            }
             
             $identifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
             $identifierResults = $identifierModel->find('all', array(

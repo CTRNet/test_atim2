@@ -307,3 +307,13 @@ UPDATE structure_fields SET `default` = '' WHERE `default` IN ('crchum 6th floor
 
 UPDATE versions SET branch_build_number = '7438' WHERE version_number = '2.7.1';
 UPDATE versions SET branch_build_number = '7439' WHERE version_number = '2.7.1';
+
+-- 
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('participant present a confirmed biological hazard',
+"Participant presents a confirmed biological hazard!",
+"Le participant présente un risque biologique confirmé!"),
+
+UPDATE versions SET branch_build_number = '7449' WHERE version_number = '2.7.1';
