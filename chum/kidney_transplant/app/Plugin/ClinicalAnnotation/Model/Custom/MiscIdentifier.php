@@ -14,7 +14,8 @@ class MiscIdentifierCustom extends MiscIdentifier
     {
         $nextIdentifierValue = $this->find('first', array(
             'conditions' => array(
-                "MiscIdentifierControl.misc_identifier_name IN ('kidney transplant bank no lab', 'other kidney transplant bank no lab')"
+                "MiscIdentifierControl.misc_identifier_name IN ('kidney transplant bank no lab', 'other kidney transplant bank no lab')",
+                "MiscIdentifier.identifier_value REGEXP '^CHUM([0-9]{5})$'"
             ),
             'fields' => array(
                 'MAX(MiscIdentifier.identifier_value) AS last_identifier_value'
