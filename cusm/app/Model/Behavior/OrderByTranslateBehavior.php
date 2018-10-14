@@ -12,6 +12,7 @@ class OrderByTranslateBehavior extends ModelBehavior
     private $modelsFieldsAssoc = array();
 
     /**
+     *
      * @param Model $model
      * @param array $config
      */
@@ -33,6 +34,7 @@ class OrderByTranslateBehavior extends ModelBehavior
     }
 
     /**
+     *
      * @param Model $model
      * @param array $query
      * @return array
@@ -40,7 +42,9 @@ class OrderByTranslateBehavior extends ModelBehavior
     public function beforeFind(Model $model, $query)
     {
         $index = 0;
-        $query['order'] = array_filter($query['order']);
+        if (is_array($query['order'])) {
+            $query['order'] = array_filter($query['order']);
+        }
         $c = count($query['order']);
         if ($c == 0) {
             // do nothing

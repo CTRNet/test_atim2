@@ -1,9 +1,9 @@
 <?php
 $structureLinks = array(
     'bottom' => array(
-        'search' => '/material/materials/index/',
-        'edit' => '/material/materials/edit/%%Material.id%%/',
-        'delete' => '/material/materials/delete/%%Material.id%%/'
+        'search' => '/Material/Materials/index/',
+        'edit' => '/Material/Materials/edit/%%Material.id%%/',
+        'delete' => '/Material/Materials/delete/%%Material.id%%/'
     )
 );
 

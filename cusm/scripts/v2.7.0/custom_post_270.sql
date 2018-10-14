@@ -520,7 +520,10 @@ WHERE parent_aliquot_control_id = (
 
 
 
-
+Mettre RAMQ et Hospital nbr dans la creation du patient
+Affichier no labo dans summary
+nom prenom obligatoire
+pouvoire modifier bank number
 
 # Label of the aliquots (labelled from 1 to n)
      - Buffy coat :: JS-00-0000 BC
@@ -544,6 +547,8 @@ format des boites et racks
 
 
 
+TODO:
+- Migrer les données du tumor registery. Comes from in CSV file format. Erase all data and rebuild the data. CSV file will be on a share.
 
 
 

@@ -20,6 +20,7 @@ class ProtocolExtendMaster extends ProtocolAppModel
     public static $drugModel = null;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -48,8 +49,8 @@ class ProtocolExtendMaster extends ProtocolAppModel
                 // Load model
                 if (self::$drugModel == null)
                     self::$drugModel = AppModel::getInstance("Drug", "Drug", true);
-                
-                // Check the protocol extend drug definition
+                    
+                    // Check the protocol extend drug definition
                 $arrDrugSelectionResults = self::$drugModel->getDrugIdFromDrugDataAndCode($protocolExtendData['FunctionManagement']['autocomplete_protocol_drug_id']);
                 
                 // Set drug id

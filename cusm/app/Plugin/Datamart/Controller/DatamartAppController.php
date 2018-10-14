@@ -7,6 +7,7 @@ class DatamartAppController extends AppController
 {
 
     /**
+     *
      * @param $options
      * @param $label
      * @param $webroot

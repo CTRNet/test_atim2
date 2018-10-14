@@ -18,6 +18,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      */
     public function listall($participantId)
@@ -42,6 +43,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -53,7 +55,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMesssageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -74,6 +76,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param null $participantId
      */
     public function add($participantId = null)
@@ -111,7 +114,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             $participantIds = explode(',', $this->request->data['participant_ids']);
             unset($this->request->data['participant_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -124,10 +127,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             'recursive' => 0
         ));
         if (! $participants)
-            $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel, 5);
+            $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel);
         $displayLimit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
         if (sizeof($participants) > $displayLimit)
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
         $this->set('participantIds', implode(',', $participantIds));
         
         if ($participantId)
@@ -222,6 +225,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -237,7 +241,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -281,6 +285,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $participantMessageId
      */
@@ -292,7 +297,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -317,11 +322,18 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->ParticipantMessage, 'participantmessages', '/ClinicalAnnotation/ParticipantMessages/search');
         $this->Structures->set('participantmessages');
         

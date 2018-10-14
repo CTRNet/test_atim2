@@ -5,7 +5,7 @@
  */
 class CodingIcdo3Topo extends CodingIcdAppModel
 {
-
+    
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-O-3
     // From: Stats Canada through the Manitoba Cancer Registry (CCR_Reference_Tables_2009_FinalDraft_21122009)
@@ -38,6 +38,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel
     }
 
     /**
+     *
      * @param $id
      * @return bool
      */
@@ -47,6 +48,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return CodingIcdo3Topo|null
      */
     public static function getSingleton()
@@ -55,6 +57,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel
     }
 
     /**
+     *
      * @return array
      */
     public static function getTopoCategoriesCodes()
@@ -69,5 +72,21 @@ class CodingIcdo3Topo extends CodingIcdAppModel
             $data[$newId['0']['id']] = $newId['0']['id'] . ' - ' . $newId['CodingIcdo3Topo'][$lang . '_sub_title'];
         }
         return $data;
+    }
+
+    /**
+     *
+     * @param array $terms
+     * @param $exactSearch
+     * @param $searchOnId
+     * @param $limit
+     * @return array|bool|null|The
+     */
+    public function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
+    {
+        if (isset($terms[0])) {
+            $terms[0] = preg_replace('/([cC][0-9]{2})\.([0-9]){0,1}/', '$1$2', $terms[0]);
+        }
+        return parent::globalSearch($terms, $exactSearch, $searchOnId, $limit);
     }
 }

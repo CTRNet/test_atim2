@@ -19,6 +19,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     public $paginate = array();
 
     /**
+     *
      * @param $protocolMasterId
      */
     public function listall($protocolMasterId)
@@ -47,6 +48,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      * @param $protocolExtendMasterId
      */
@@ -88,6 +90,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      */
     public function add($protocolMasterId)
@@ -143,6 +146,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      * @param $protocolExtendMasterId
      */
@@ -218,6 +222,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     }
 
     /**
+     *
      * @param $protocolMasterId
      * @param $protocolExtendMasterId
      */

@@ -13,6 +13,7 @@ class PasswordsAdminController extends AdministrateAppController
     );
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */

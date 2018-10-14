@@ -9,6 +9,10 @@ if ($_SESSION['Auth']['User']['id'] == $atimMenuVariables['User.id']) {
     $structureLinks = array(
         'bottom' => array(
             'edit' => '/Administrate/AdminUsers/edit/' . $atimMenuVariables['Group.id'] . '/%%User.id%%',
+            'change group' => array(
+                'link' => '/Administrate/AdminUsers/changeGroup/' . $atimMenuVariables['Group.id'] . '/%%User.id%%',
+                'icon' => 'users'
+            ),
             'delete' => '/Administrate/AdminUsers/delete/' . $atimMenuVariables['Group.id'] . '/%%User.id%%'
         )
     );
