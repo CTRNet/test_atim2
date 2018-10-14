@@ -98,7 +98,8 @@ function pasteLine(line){
  * replaces them with copy controls
  */
 function enableCopyCtrl(){
-	$(":hidden").each(function(){
+	//$(":hidden")
+	$("input[type='hidden']").each(function(){
 		if($(this).prop("name") != undefined && $(this).prop("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
 			$(this).parent().append("<span class='button copy'><a class='icon16 copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='icon16 paste' title='" + STR_PASTE + "'></a></span>");
 			bindCopyCtrl($(this).parent());

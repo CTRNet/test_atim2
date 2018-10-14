@@ -17,6 +17,7 @@ class StructureFormatsController extends AdministrateAppController
     );
 
     /**
+     *
      * @param $structureId
      */
     public function listall($structureId)
@@ -34,6 +35,7 @@ class StructureFormatsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $structureId
      * @param $structureFormatId
      */
@@ -55,6 +57,7 @@ class StructureFormatsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $structureId
      * @param $structureFormatId
      */

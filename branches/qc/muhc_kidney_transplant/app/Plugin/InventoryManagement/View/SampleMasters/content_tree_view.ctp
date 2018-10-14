@@ -7,7 +7,7 @@ $structureSettings = array(
         'AliquotMaster' => 'AliquotMaster',
         'TmaBlock' => 'AliquotMaster',
         'QualityCtrl' => 'SampleUseForCollectionTreeView',
-        'SpecimenReviewMaster' => 'SampleUseForCollectionTreeView',
+        'SpecimenReviewMaster' => 'SampleUseForCollectionTreeView'
     )
 );
 $atimStructure['SampleUseForCollectionTreeView']['Accuracy']['Generated']['sample_use_date'] = 'sample_use_date_accuracy';

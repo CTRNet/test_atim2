@@ -20,6 +20,7 @@ class TmaSlideUse extends StorageLayoutAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -51,8 +52,8 @@ class TmaSlideUse extends StorageLayoutAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($tmaSlideUseData['FunctionManagement']['autocomplete_tma_slide_use_study_summary_id']);
                 
                 // Set study summary id
