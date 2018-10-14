@@ -60,6 +60,7 @@ class ViewAliquot extends InventoryManagementAppModel
 			Participant.participant_identifier, 
 			
 			Collection.acquisition_label, 
+            Collection.collection_protocol_id AS collection_protocol_id,
 			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -129,6 +130,7 @@ class ViewAliquot extends InventoryManagementAppModel
 
     /**
      * ViewAliquot constructor.
+     *
      * @param bool $id
      * @param null $table
      * @param null $ds

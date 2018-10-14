@@ -47,6 +47,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -56,6 +57,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -65,6 +67,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -74,6 +77,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param null $diagnosisMasterId
      * @return array|bool
      */
@@ -118,8 +122,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     /**
      * Replaces icd10 empty string to null values to respect foreign keys constraints
      *
-     * @param
-     *            $participantArray
+     * @param $participantArray
      */
     public function patchIcd10NullValues(&$participantArray)
     {
@@ -131,9 +134,8 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $diagnosisMasterId Id
-     *            of the studied record.
-     *            
+     * @param $diagnosisMasterId Id of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -154,7 +156,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
                 'DiagnosisMaster.primary_id' => $diagnosisMasterId,
                 "DiagnosisMaster.id != $diagnosisMasterId"
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrPrimary > 0) {
             $arrAllowDeletion['allow_deletion'] = false;
@@ -166,7 +168,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'DiagnosisMaster.parent_id' => $diagnosisMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrParent > 0) {
             $arrAllowDeletion['allow_deletion'] = false;
@@ -210,6 +212,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $participantId
      * @param string $currentDxId
      * @param string $currentDxPrimaryNumber
@@ -246,6 +249,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $diagnosisMasterIds
      * @return array
      */
@@ -279,6 +283,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
 
     /**
      * Arranges the threaded data
+     *
      * @param array $threadedDxData
      * @param $seekingDxId
      * @param $seekingModelName
@@ -306,6 +311,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $diagnosisMasterId
      * @return array
      */
@@ -349,6 +355,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param $onField
      * @return array
      */
@@ -365,6 +372,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */

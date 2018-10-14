@@ -15,6 +15,7 @@ class StudySummary extends StudyAppModel
     public $studyDataAndCodeForDisplayAlreadySet = array();
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -71,6 +72,7 @@ class StudySummary extends StudyAppModel
     }
 
     /**
+     *
      * @param $studyData
      * @return mixed|string
      */
@@ -106,6 +108,7 @@ class StudySummary extends StudyAppModel
     }
 
     /**
+     *
      * @param $studyDataAndCode
      * @return mixed
      */
@@ -126,7 +129,15 @@ class StudySummary extends StudyAppModel
         if (! isset($this->studyTitlesAlreadyChecked[$studyDataAndCode])) {
             $matches = array();
             $selectedStudies = array();
-            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $studyDataAndCode);
+            $term = str_replace(array(
+                "\\",
+                '%',
+                '_'
+            ), array(
+                "\\\\",
+                '\%',
+                '\_'
+            ), $studyDataAndCode);
             if (preg_match("/(.+)\ \[([0-9]+)\]/", $term, $matches) > 0) {
                 // Auto complete tool has been used
                 $selectedStudies = $this->find('all', array(
@@ -139,7 +150,9 @@ class StudySummary extends StudyAppModel
                 // consider $studyDataAndCode contains just study title
                 $terms = array();
                 foreach (explode(' ', $term) as $keyWord) {
-                    $terms[] = array("StudySummary.title LIKE " => '%' . $keyWord . '%');
+                    $terms[] = array(
+                        "StudySummary.title LIKE " => '%' . $keyWord . '%'
+                    );
                 }
                 $conditions = array(
                     'AND' => $terms
@@ -166,6 +179,7 @@ class StudySummary extends StudyAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getStudyPermissibleValuesForView()
@@ -176,6 +190,7 @@ class StudySummary extends StudyAppModel
     }
 
     /**
+     *
      * @param int $studySummaryId
      * @return array
      */
@@ -186,7 +201,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'StudyFunding.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -200,7 +215,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'StudyInvestigator.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -214,7 +229,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'TmaSlide.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -228,7 +243,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'TmaSlideUse.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -242,7 +257,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'MiscIdentifier.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -256,7 +271,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'ConsentMaster.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -270,7 +285,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'Order.default_study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -284,7 +299,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'OrderLine.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -298,7 +313,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'AliquotMaster.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -312,7 +327,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'AliquotInternalUse.study_summary_id' => $studySummaryId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(

@@ -23,6 +23,7 @@ class Participant extends ClinicalAnnotationAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -73,9 +74,8 @@ class Participant extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $participantId ID
-     *            of the studied record.
-     *            
+     * @param $participantId ID of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -211,6 +211,7 @@ class Participant extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */

@@ -26,6 +26,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
 
     /* ----------------------------- TMA SLIDES ANALYSIS ------------------------ */
     /**
+     *
      * @param null $tmaSlideId
      */
     public function add($tmaSlideId = null)
@@ -63,7 +64,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.add() form
             $tmaSlideIds = array_keys($this->request->data);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -84,13 +85,13 @@ class TmaSlideUsesController extends StorageLayoutAppController
         
         $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tmaSlidesFromId) > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         if (sizeof($tmaSlidesFromId) != sizeof($tmaSlideIds))
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
-        // SET MENU AND STRUCTURE DATA
+            
+            // SET MENU AND STRUCTURE DATA
         
         $this->set('urlToCancel', $urlToCancel);
         $this->set('tmaSlideId', $tmaSlideId);
@@ -236,6 +237,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaBlockStorageMasterId
      * @param $tmaSlideId
      */
@@ -266,6 +268,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaSlideUseId
      */
     public function edit($tmaSlideUseId)
@@ -384,7 +387,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             // User submit data of the TmaSlideUse.editInBatch() form
             $tmaSlideUseIds = explode(',', $this->request->data['tma_slide_use_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['tma_slide_use_ids']);
@@ -403,7 +406,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 $this->TmaSlideUse->sortForDisplay($initialSlideUsesData, $tmaSlideUseIds);
             $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initialSlideUsesData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                 return;
             }
             foreach ($initialSlideUsesData as &$tmpData)
@@ -484,7 +487,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlideUse.id' => $updatedTmaSlideUseIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($updatedTmaSlideUseIds)) {
                 // In case a TMA slide use has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -551,6 +554,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaSlideUseId
      */
     public function delete($tmaSlideUseId)

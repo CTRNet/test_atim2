@@ -15,16 +15,17 @@ class CsvHelper extends AppHelper
     public $buffer;
 
     public $csvSeparator = ";";
-
+    
     // var $csvSeparator = CSV_SEPARATOR; See Issue# 3318: Fixe following notice: Notice (8): Use of undefined constant CSV_SEPARATOR
     public static $nodesInfo = null;
 
     public static $structures = null;
-
+    
     // function CsvHelper() : This methode of calling constructor is deprecated in PHP 7.0
-
+    
     /**
      * CsvHelper constructor.
+     *
      * @param View $view
      */
     public function __construct(View $view)
@@ -40,6 +41,7 @@ class CsvHelper extends AppHelper
     }
 
     /**
+     *
      * @param $value
      */
     public function addField($value)
@@ -54,6 +56,7 @@ class CsvHelper extends AppHelper
     }
 
     /**
+     *
      * @param $row
      */
     public function addRow($row)
@@ -71,6 +74,7 @@ class CsvHelper extends AppHelper
     }
 
     /**
+     *
      * @param $filename
      */
     public function setFilename($filename)
@@ -84,6 +88,7 @@ class CsvHelper extends AppHelper
     }
 
     /**
+     *
      * @param bool $outputHeaders
      * @param null $toEncoding
      * @param string $fromEncoding

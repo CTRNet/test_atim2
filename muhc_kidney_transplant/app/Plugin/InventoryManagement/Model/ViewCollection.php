@@ -42,6 +42,7 @@ class ViewCollection extends InventoryManagementAppModel
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -55,6 +56,7 @@ class ViewCollection extends InventoryManagementAppModel
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -67,7 +69,7 @@ class ViewCollection extends InventoryManagementAppModel
                 'conditions' => array(
                     'ViewCollection.collection_id' => $variables['Collection.id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             
             $return = array(
@@ -106,9 +108,8 @@ class ViewCollection extends InventoryManagementAppModel
 
     /**
      *
-     * @param array $collection
-     *            with either a key 'id' referring to an array
-     *            of ids, or a key 'data' referring to ViewCollections.
+     * @param array $collection with either a key 'id' referring to an array
+     *        of ids, or a key 'data' referring to ViewCollections.
      * @return array The ids of participants collections with a consent status
      *         other than 'obtained' as key. Their value will null if there is no linked
      *         consent or the consent status otherwise.
@@ -121,7 +122,7 @@ class ViewCollection extends InventoryManagementAppModel
                 'conditions' => array(
                     'ViewCollection.collection_id' => $collection['id']
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
         } else {
             $data = array_key_exists('ViewCollection', $collection['data']) ? array(
