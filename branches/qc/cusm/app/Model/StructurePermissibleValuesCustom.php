@@ -20,6 +20,7 @@ class StructurePermissibleValuesCustom extends AppModel
     protected static $lang = null;
 
     /**
+     *
      * @return null|string
      */
     static protected function getLanguage()
@@ -33,6 +34,7 @@ class StructurePermissibleValuesCustom extends AppModel
     }
 
     /**
+     *
      * @param array $args
      * @return array
      */
@@ -92,6 +94,7 @@ class StructurePermissibleValuesCustom extends AppModel
     }
 
     /**
+     *
      * @param $controlName
      * @param $value
      * @return bool
@@ -118,6 +121,7 @@ class StructurePermissibleValuesCustom extends AppModel
     }
 
     /**
+     *
      * @param bool $created
      * @param array $options
      */

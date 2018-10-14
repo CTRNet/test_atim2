@@ -32,6 +32,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     );
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      */
@@ -43,7 +44,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -86,6 +87,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $specimenReviewControlId
@@ -98,7 +100,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -269,6 +271,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $specimenReviewId
@@ -285,7 +288,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -353,6 +356,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $specimenReviewId
@@ -368,7 +372,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -598,6 +602,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     }
 
     /**
+     *
      * @param $collectionId
      * @param $sampleMasterId
      * @param $specimenReviewId
@@ -612,7 +617,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

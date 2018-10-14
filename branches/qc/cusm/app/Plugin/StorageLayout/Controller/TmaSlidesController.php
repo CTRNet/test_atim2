@@ -30,6 +30,7 @@ class TmaSlidesController extends StorageLayoutAppController
      * --------------------------------------------------------------------------
      */
     /**
+     *
      * @param $tmaBlockStorageMasterId
      */
     public function listAll($tmaBlockStorageMasterId)
@@ -74,6 +75,7 @@ class TmaSlidesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param null $tmaBlockStorageMasterId
      */
     public function add($tmaBlockStorageMasterId = null)
@@ -111,7 +113,7 @@ class TmaSlidesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.add() form
             $tmaBlockIds = array_keys($this->request->data);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -136,18 +138,18 @@ class TmaSlidesController extends StorageLayoutAppController
                 $realStorageSelected = true;
         }
         if ($realStorageSelected) {
-            $this->atimFlashWarning(__('at least one selected item is not a tma block'), $urlToCancel, 5);
+            $this->atimFlashWarning(__('at least one selected item is not a tma block'), $urlToCancel);
             return;
         }
         $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tmaBlocksFromId) > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         if (sizeof($tmaBlocksFromId) != sizeof($tmaBlockIds))
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
-        // SET MENU AND STRUCTURE DATA
+            
+            // SET MENU AND STRUCTURE DATA
         
         $this->set('urlToCancel', $urlToCancel);
         $this->set('tmaBlockStorageMasterId', $tmaBlockStorageMasterId);
@@ -293,6 +295,7 @@ class TmaSlidesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaBlockStorageMasterId
      * @param $tmaSlideId
      * @param int $isFromTreeViewOrLayout
@@ -353,6 +356,7 @@ class TmaSlidesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaBlockStorageMasterId
      * @param $tmaSlideId
      * @param int $fromSlidePage
@@ -496,7 +500,7 @@ class TmaSlidesController extends StorageLayoutAppController
             // User submit data of the TmaSlide.editInBatch() form
             $tmaSlideIds = explode(',', $this->request->data['tma_slide_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['tma_slide_ids']);
@@ -514,7 +518,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 $this->TmaSlide->sortForDisplay($initialSlideData, $tmaSlideIds);
             $displayLimit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initialSlideData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                 return;
             }
         }
@@ -588,7 +592,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlide.id' => $updatedTmaSlideIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($updatedTmaSlideIds)) {
                 // In case a TMA slide has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -658,6 +662,7 @@ class TmaSlidesController extends StorageLayoutAppController
     }
 
     /**
+     *
      * @param $tmaBlockStorageMasterId
      * @param $tmaSlideId
      */
@@ -721,11 +726,21 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = array("TmaSlide.barcode LIKE" => '%' . $keyWord . '%');
+            $terms[] = array(
+                "TmaSlide.barcode LIKE" => '%' . $keyWord . '%'
+            );
         }
         
         $conditions = array(
@@ -746,13 +761,19 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => -1
+            'recursive' => - 1
         ));
         
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit['TmaSlide']['barcode']) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $dataUnit['TmaSlide']['barcode']) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);
@@ -777,12 +798,24 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace(array(
+            "\\",
+            '%',
+            '_'
+        ), array(
+            "\\\\",
+            '\%',
+            '\_'
+        ), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = array("TmaSlide.immunochemistry LIKE" => '%'.$keyWord.'%');
-            $termsUses[] = array("TmaSlideUse.immunochemistry LIKE" => '%'.$keyWord.'%');
+            $terms[] = array(
+                "TmaSlide.immunochemistry LIKE" => '%' . $keyWord . '%'
+            );
+            $termsUses[] = array(
+                "TmaSlideUse.immunochemistry LIKE" => '%' . $keyWord . '%'
+            );
         }
         
         $conditions = array(
@@ -810,7 +843,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => -1
+            'recursive' => - 1
         ));
         
         foreach ($data as $dataUnit)
@@ -822,7 +855,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $orderUses,
             'joins' => $joinsUses,
             'limit' => 10,
-            'recursive' => -1
+            'recursive' => - 1
         ));
         
         foreach ($data as $dataUnit)
@@ -833,7 +866,13 @@ class TmaSlidesController extends StorageLayoutAppController
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit) . '", ';
+            $result .= '"' . str_replace(array(
+                '\\',
+                '"'
+            ), array(
+                '\\\\',
+                '\"'
+            ), $dataUnit) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

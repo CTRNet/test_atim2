@@ -12,23 +12,22 @@
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Config.Schema
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link http://cakephp.org CakePHP(tm) Project
+ * @package app.Config.Schema
+ * @since CakePHP(tm) v 0.2.9
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 /*
- *
  * Using the Schema command line utility
  * cake schema run create DbAcl
- *
  */
 class DbAclSchema extends CakeSchema
 {
 
     /**
+     *
      * @param array $event
      * @return bool
      */
@@ -38,6 +37,7 @@ class DbAclSchema extends CakeSchema
     }
 
     /**
+     *
      * @param array $event
      */
     public function after($event = array())

@@ -10,10 +10,7 @@ class StorageControlsController extends AdministrateAppController
 
     public $uses = array(
         'StorageLayout.StorageMaster',
-        // 'StorageLayout.StorageControl', //Not able to use this one because save process call afterSave() function of MasterDetailBehavior
-        'Administrate.StorageCtrl',
-        'StructurePermissibleValuesCustom',
-        'StructurePermissibleValuesCustomControl'
+        'Administrate.StorageCtrl'
     );
 
     public $paginate = array(
@@ -24,7 +21,7 @@ class StorageControlsController extends AdministrateAppController
 
     public function listAll()
     {
-        $this->Structures->set('storage_controls');
+        $this->Structures->set('storage_controls,storage_control_type_and_translations');
         $this->request->data = $this->paginate($this->StorageCtrl, array());
         
         $this->StorageCtrl->validatesAllStorageControls();
@@ -36,6 +33,7 @@ class StorageControlsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $storageCategory
      * @param null $duplicatedParentStorageControlId
      */
@@ -44,11 +42,13 @@ class StorageControlsController extends AdministrateAppController
         if ($duplicatedParentStorageControlId && empty($this->request->data)) {
             $this->request->data = $this->StorageCtrl->getOrRedirect($duplicatedParentStorageControlId);
             $this->request->data['StorageCtrl']['storage_type'] = '';
+            $this->request->data['StorageCtrl']['storage_type_en'] = '';
+            $this->request->data['StorageCtrl']['storage_type_fr'] = '';
             $storageCategory = $this->StorageCtrl->getStorageCategory($this->request->data);
         }
         $this->set('storageCategory', $storageCategory);
         $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
-        $this->Structures->set($this->StorageCtrl->getStructure($storageCategory));
+        $this->Structures->set($this->StorageCtrl->getStructure($storageCategory) . ',storage_control_type_and_translations');
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -58,10 +58,6 @@ class StorageControlsController extends AdministrateAppController
         if (! $duplicatedParentStorageControlId && ! empty($this->request->data)) {
             // Set system value
             $this->request->data['StorageCtrl']['databrowser_label'] = 'custom#storage types#' . $this->request->data['StorageCtrl']['storage_type'];
-            if (! isset($this->request->data['StorageCtrl']['set_temperature']))
-                $this->request->data['StorageCtrl']['set_temperature'] = '0';
-            if (! isset($this->request->data['StorageCtrl']['check_conflicts']))
-                $this->request->data['StorageCtrl']['check_conflicts'] = '0';
             $this->request->data['StorageCtrl']['flag_active'] = '0';
             $this->request->data['StorageCtrl']['is_tma_block'] = ($storageCategory == 'tma') ? '1' : '0';
             $this->request->data['StorageCtrl']['detail_tablename'] = ($storageCategory == 'tma') ? 'std_tma_blocks' : 'std_customs';
@@ -71,8 +67,6 @@ class StorageControlsController extends AdministrateAppController
             $this->request->data['StorageCtrl']['detail_form_alias'] = implode(',', $detailFormAlias);
             $this->StorageCtrl->addWritableField(array(
                 'databrowser_label',
-                'set_temperature',
-                'check_conflicts',
                 'flag_active',
                 'is_tma_block',
                 'detail_tablename',
@@ -90,52 +84,30 @@ class StorageControlsController extends AdministrateAppController
                 $this->StorageCtrl->id = null;
                 if ($this->StorageCtrl->save($this->request->data)) {
                     $storageControlId = $this->StorageCtrl->getLastInsertId();
-                    $controlData = $this->StructurePermissibleValuesCustomControl->find('first', array(
-                        'conditions' => array(
-                            'StructurePermissibleValuesCustomControl.name' => 'storage types'
-                        )
-                    ));
-                    if (empty($controlData))
-                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    $existingValue = $this->StructurePermissibleValuesCustom->find('count', array(
-                        'conditions' => array(
-                            'StructurePermissibleValuesCustom.control_id' => $controlData['StructurePermissibleValuesCustomControl']['id'],
-                            'StructurePermissibleValuesCustom.value' => $this->request->data['StorageCtrl']['storage_type']
-                        )
-                    ));
-                    if (! $existingValue) {
-                        $dataUnit = array();
-                        $dataUnit['StructurePermissibleValuesCustom']['control_id'] = $controlData['StructurePermissibleValuesCustomControl']['id'];
-                        $dataUnit['StructurePermissibleValuesCustom']['value'] = $this->request->data['StorageCtrl']['storage_type'];
-                        $this->StructurePermissibleValuesCustom->addWritableField(array(
-                            'control_id',
-                            'value'
-                        ));
-                        $this->StructurePermissibleValuesCustom->id = null;
-                        if (! $this->StructurePermissibleValuesCustom->save($dataUnit))
-                            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
                     
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
                         require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved') . '<br>' . __('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
+                    $this->atimFlash(__('your data has been saved'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
                 }
             }
         }
     }
 
     /**
+     *
      * @param $storageControlId
      */
     public function edit($storageControlId)
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
+        $dataCanBeModified = true;
+        $addWarningMsg = null;
         if ($storageControlData['StorageCtrl']['flag_active']) {
-            $this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
-            return;
+            $addWarningMsg = __('you are not allowed to work on active storage type');
+            $dataCanBeModified = false;
         } elseif ($this->StorageMaster->find('count', array(
             'conditions' => array(
                 'StorageMaster.storage_control_id' => $storageControlId,
@@ -145,14 +117,14 @@ class StorageControlsController extends AdministrateAppController
                 )
             )
         ))) {
-            $this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
-            return;
+            $addWarningMsg = __('this storage type has already been used to build a storage in the past - properties can not be changed anymore');
+            $dataCanBeModified = false;
         }
         
         $storageCategory = $this->StorageCtrl->getStorageCategory($storageControlData);
         $this->set('storageCategory', $storageCategory);
         $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
-        $this->Structures->set($this->StorageCtrl->getStructure($storageCategory));
+        $this->Structures->set('storage_control_type_and_translations' . ($dataCanBeModified ? ',' . $this->StorageCtrl->getStructure($storageCategory) : ''));
         $this->set('atimMenuVariables', array(
             'StorageCtrl.id' => $storageControlId
         ));
@@ -165,6 +137,9 @@ class StorageControlsController extends AdministrateAppController
         }
         
         if (empty($this->request->data)) {
+            if ($addWarningMsg) {
+                AppController::addWarningMsg($addWarningMsg);
+            }
             $this->request->data = $storageControlData;
         } else {
             // Validates and set additional data
@@ -172,8 +147,8 @@ class StorageControlsController extends AdministrateAppController
             
             if ($this->request->data['StorageCtrl']['storage_type'] != $storageControlData['StorageCtrl']['storage_type'])
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            
-            // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+                
+                // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
@@ -183,6 +158,7 @@ class StorageControlsController extends AdministrateAppController
             if ($submittedDataValidates) {
                 // Save storage data
                 $this->StorageCtrl->id = $storageControlId;
+                $this->StorageCtrl->data = array();
                 if ($this->StorageCtrl->save($this->request->data)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
@@ -190,17 +166,29 @@ class StorageControlsController extends AdministrateAppController
                     }
                     $this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
                 }
+            } elseif ($addWarningMsg) {
+                AppController::addWarningMsg($addWarningMsg);
             }
         }
     }
 
     /**
+     *
      * @param $storageControlId
      * @param string $redirectTo
      */
     public function changeActiveStatus($storageControlId, $redirectTo = 'listAll')
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
+        
+        $nextUrl = 'javascript:history.go(-1)';
+        // if ($redirectTo == 'listAll') {
+        // if (! strpos($nextUrl, 'StorageControls/listAll')) {
+        // $nextUrl = '/Administrate/StorageControls/listAll/';
+        // }
+        // } else {
+        // $nextUrl = '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId;
+        // }
         
         $newData = array();
         if ($storageControlData['StorageCtrl']['flag_active']) {
@@ -211,7 +199,7 @@ class StorageControlsController extends AdministrateAppController
                 )
             ));
             if ($existingStorageCount) {
-                $this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), 'javascript:history.go(-1)');
+                $this->atimFlashError(__('this storage type has already been used to build a storage - active status can not be changed'), $nextUrl);
                 return;
             }
             $newData['StorageCtrl']['flag_active'] = '0';
@@ -225,7 +213,7 @@ class StorageControlsController extends AdministrateAppController
         $this->StorageCtrl->data = array();
         $this->StorageCtrl->id = $storageControlId;
         if ($this->StorageCtrl->save($newData)) {
-            $this->atimFlash(__('your data has been updated'), "/Administrate/StorageControls/$redirectTo/$storageControlId");
+            $this->atimFlash(__('your data has been updated'), $nextUrl);
         }
     }
 
@@ -233,12 +221,12 @@ class StorageControlsController extends AdministrateAppController
      * Display the content of a storage into a layout.
      *
      * @param $storageControlId
-     * @internal param Id $storageMasterId of the studied storage.*            of the studied storage.
+     * @internal param Id $storageMasterId of the studied storage.* of the studied storage.
      * @internal param $isAjax : Tells
-     *            wheter the request has to be treated as ajax
-     *            query (required to counter issues in Chrome 15 back/forward button on the
-     *            page and Opera 11.51 first ajax query that is not recognized as such)
-     *
+     *           wheter the request has to be treated as ajax
+     *           query (required to counter issues in Chrome 15 back/forward button on the
+     *           page and Opera 11.51 first ajax query that is not recognized as such)
+     *          
      * @author N. Luc
      * @since 2007-05-22
      */
@@ -246,7 +234,14 @@ class StorageControlsController extends AdministrateAppController
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         $storageCategory = $this->StorageCtrl->getStorageCategory($storageControlData);
-        $this->Structures->set('storage_controls');
+        $this->Structures->set('storage_controls,storage_control_type_and_translations');
+        
+        $lang = ($_SESSION['Config']['language'] == 'eng') ? 'en' : 'fr';
+        $translatedStorageType = $storageControlData['StorageCtrl']['storage_type'];
+        if (isset($storageControlData['StorageCtrl']['storage_type_' . $lang]) && strlen($storageControlData['StorageCtrl']['storage_type_' . $lang])) {
+            $translatedStorageType = $storageControlData['StorageCtrl']['storage_type_' . $lang];
+        }
+        $this->set('translatedStorageType', $translatedStorageType);
         
         $noLayoutMsg = '';
         if ($storageCategory == 'no_d') {
@@ -256,8 +251,6 @@ class StorageControlsController extends AdministrateAppController
         }
         $this->set('noLayoutMsg', $noLayoutMsg);
         
-        $translatedStorageType = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storageControlData['StorageCtrl']['storage_type']);
-        $storageControlData['StorageCtrl']['translated_storage_type'] = ($translatedStorageType !== false) ? $translatedStorageType : $storageControlData['StorageCtrl']['storage_type'];
         $this->set('storageControlData', $storageControlData);
         
         $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
@@ -266,5 +259,44 @@ class StorageControlsController extends AdministrateAppController
         ));
         
         $this->Structures->set('empty', 'emptyStructure');
+    }
+
+    /**
+     *
+     * @param $storageControlId
+     */
+    public function delete($storageControlId)
+    {
+        $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
+        $arrAllowDeletion = $this->StorageCtrl->allowDeletion($storageControlId);
+        
+        // CUSTOM CODE
+        
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        $nextUrl = 'javascript:history.go(-1)';
+        // if (! strpos($nextUrl, 'StorageControls/listAll')) {
+        // $nextUrl = '/Administrate/StorageControls/listAll/';
+        // }
+        
+        if ($arrAllowDeletion['allow_deletion']) {
+            $this->StorageCtrl->data = null;
+            
+            if ($this->StorageCtrl->atimDelete($storageControlId)) {
+                
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
+                }
+                $this->atimFlash(__('your data has been deleted'), $nextUrl);
+            } else {
+                $this->atimFlashError(__('error deleting data - contact administrator'), $nextUrl);
+            }
+        } else {
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
+        }
     }
 }

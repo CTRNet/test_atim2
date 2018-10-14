@@ -33,6 +33,7 @@ class ConsentControl extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

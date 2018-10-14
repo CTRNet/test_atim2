@@ -7,6 +7,7 @@ class Config extends AppModel
 {
 
     /**
+     *
      * @param $groupId
      * @param $userId
      * @return array|null
@@ -90,6 +91,7 @@ class Config extends AppModel
     }
 
     /**
+     *
      * @param $configResults
      * @param $requestData
      * @param $groupId
