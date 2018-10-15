@@ -26,6 +26,7 @@ class OrdersController extends OrderAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -35,6 +36,11 @@ class OrdersController extends OrderAppController
         if (empty($searchId)) {
             // index
             unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
+        }
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         $this->searchHandler($searchId, $this->Order, 'orders', '/Order/Orders/search');
@@ -83,6 +89,7 @@ class OrdersController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param bool $isFromTreeView
      */
@@ -102,7 +109,7 @@ class OrdersController extends OrderAppController
             'conditions' => array(
                 'Shipment.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $this->set('shipmentsList', $shipmentsList);
         
@@ -121,6 +128,7 @@ class OrdersController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      */
     public function edit($orderId)
@@ -171,6 +179,7 @@ class OrdersController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      */
     public function delete($orderId)
