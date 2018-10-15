@@ -21,7 +21,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/det
     $finalAtimStructure = array();
     $finalOptions['type'] = 'detail';
     $finalOptions['data'] = array();
-    $finalOptions['extras'] = '<div>' . ('You are not authorized to access that location.') . '</div>';
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
 $displayNextSubForm = true;
@@ -70,7 +70,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/d
     $finalAtimStructure = array();
     $finalOptions['type'] = 'detail';
     $finalOptions['data'] = array();
-    $finalOptions['extras'] = '<div>' . ('You are not authorized to access that location.') . '</div>';
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
 $displayNextSubForm = true;
@@ -84,8 +84,8 @@ if ($hookLink) {
 // BUILD FORM
 if ($displayNextSubForm)
     $this->Structures->build($finalAtimStructure, $finalOptions);
-
-// tx----------------
+    
+    // tx----------------
 $structureLinks['radiolist'] = array(
     'Collection.treatment_master_id' => '%%TreatmentMaster.id%%'
 );
@@ -108,7 +108,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/d
     $finalAtimStructure = array();
     $finalOptions['type'] = 'detail';
     $finalOptions['data'] = array();
-    $finalOptions['extras'] = '<div>' . ('You are not authorized to access that location.') . '</div>';
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
 $displayNextSubForm = true;
@@ -122,8 +122,8 @@ if ($hookLink) {
 // BUILD FORM
 if ($displayNextSubForm)
     $this->Structures->build($finalAtimStructure, $finalOptions);
-
-// event----------------
+    
+    // event----------------
 $structureLinks['radiolist'] = array(
     'Collection.event_master_id' => '%%EventMaster.id%%'
 );
@@ -146,7 +146,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detai
     $finalAtimStructure = array();
     $finalOptions['type'] = 'detail';
     $finalOptions['data'] = array();
-    $finalOptions['extras'] = '<div>' . ('You are not authorized to access that location.') . '</div>';
+    $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
 $displayNextSubForm = true;
