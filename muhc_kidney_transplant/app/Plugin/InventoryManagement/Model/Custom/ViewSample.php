@@ -1,15 +1,12 @@
 <?php
-
 /** **********************************************************************
  * CUSM-Kidney Transplant
  * ***********************************************************************
  *
  * InventoryManagement plugin custom code
- *
- * Class ViewCollectionCustom
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
- @since 2018-05-28
+ * @since 2018-10-15
  */
 class ViewSampleCustom extends ViewSample
 {
@@ -25,6 +22,7 @@ class ViewSampleCustom extends ViewSample
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
+		Collection.collection_protocol_id AS collection_protocol_id,
 		
 		Participant.participant_identifier, 
 		

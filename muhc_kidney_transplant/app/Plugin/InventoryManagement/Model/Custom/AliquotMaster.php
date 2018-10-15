@@ -1,15 +1,12 @@
 <?php
-
 /** **********************************************************************
  * CUSM-Kidney Transplant
  * ***********************************************************************
  *
  * InventoryManagement plugin custom code
- *
- * Class AliquotMasterCustom
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
- @since 2018-05-28
+ * @since 2018-10-15
  */
 class AliquotMasterCustom extends AliquotMaster
 {
