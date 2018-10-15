@@ -3,12 +3,11 @@
  * CUSM-Kidney Transplant
  * ***********************************************************************
  *
- * ClinicalAnnotation plugin custom code
- *
+ * StorageLayout plugin custom code
+ * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
- * @since 2018-05-28
+ * @since 2018-10-15
  */
- 
 $finalOptions['links']['bottom']['cancel'] = '/ClinicalAnnotation/EventMasters/detail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['EventMaster.id'];
 $finalOptions['settings']['actions'] = true;
 $finalOptions['settings']['form_bottom'] = true;
