@@ -3,7 +3,7 @@
  * CUSM-Kidney Transplant
  * ***********************************************************************
  *
- * StorageLayout plugin custom code
+ * Clinical Annotation plugin custom code
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
