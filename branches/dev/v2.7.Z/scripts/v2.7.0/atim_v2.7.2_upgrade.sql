@@ -20,6 +20,19 @@ VALUES 	(
 );
 
 
+-- -------------------------------------------------------------------------------------
+--	Check if the diagnosisMaster is related to the correct participant
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	(
+'the diagnosis is not related to the participant', 
+'The diagnosis is not related to the participant.',
+'Le diagnostic n\'est pas lié au participant.'
+);
+
+
 
 -- -------------------------------------------------------------------------------------
 
