@@ -246,6 +246,21 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 $this->TreatmentMaster->addWritableField(array(
                     'diagnosis_master_id'
                 ));
+                
+                if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                    $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                    $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                    $p = $diagnosisMasterModel->find('first', array(
+                        'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                    ));
+
+                    if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                    }
+
+                }
+
                 if ($this->TreatmentMaster->save($this->request->data)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
@@ -362,6 +377,20 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 }
                 
                 if ($submittedDataValidates) {
+                    if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                        $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                        $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                        $p = $diagnosisMasterModel->find('first', array(
+                            'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                        ));
+
+                        if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                            $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                        }
+
+                    }
+
                     if ($this->TreatmentMaster->save($this->request->data)) {
                         $treatmentMasterId = $this->TreatmentMaster->getLastInsertId();
                         $urlToFlash = '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $treatmentMasterId;
