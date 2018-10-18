@@ -1,17 +1,19 @@
 <?php
-
-/**
- * Class ViewAliquotCustom
+/** **********************************************************************
+ * CUSM
+ * ***********************************************************************
  *
- * @author Nicolas Luc
- *
- * @package ATiM CUSM
+ * Clinical Annotation plugin custom code
+ * 
+ * @author N. Luc - CTRNet (nicol.luc@gmail.com)
+ * @since 2018-10-15
  */
+
  class ViewAliquotCustom extends ViewAliquot
 {
 
     var $name = 'ViewAliquot';
-
+    
     public static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
@@ -23,6 +25,7 @@
 			Participant.participant_identifier,
 		
 			Collection.acquisition_label,
+            Collection.collection_protocol_id AS collection_protocol_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -69,7 +72,8 @@
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
         
 Bank.name AS cusm_collection_bank_name,
-MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number
+MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number,
+Collection.cusm_collection_type
 		
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id

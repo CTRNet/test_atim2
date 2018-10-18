@@ -126,8 +126,9 @@ $created_storage_counter = 0;
 
 $last_lung_bank_key_value_used = 1;
 $worksheet_name = 'DATABASE';
-while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2,  $windows_xls_offset)) {
-	$bank_patient_id = $excel_line_data['Patient ID'];
+while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2,  $windows_xls_offset)) {   
+    
+	$bank_patient_id = str_replace(' ', '', $excel_line_data['Patient ID']);
 	if($bank_patient_id) {
 	    
 	    // Chek it's a new participant
@@ -173,7 +174,11 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	        $matches[1] = $matches[1]*1;
         	        if($last_lung_bank_key_value_used < $matches[1]) $last_lung_bank_key_value_used = $matches[1];
         	    }  else {
-        	        die('ERR Misc Identifier Format : '.$bank_patient_id);
+        	        recordErrorAndMessage('Participant',
+        	            '@@ERROR@@',
+        	            "Wrong bank number format. Particiapnt will be created without consent and invetory. Please confirm and complete data into ATiM if required.",
+        	            "See value '$bank_patient_id' for $excel_data_references.");
+        	        continue;
         	    }
         	    $misc_identifier_data = array(
         	        'identifier_value' => $bank_patient_id,
@@ -218,7 +223,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	    	
     	    $excel_field = "Consent Consenter";
     	    $consent_person = validateAndGetStructureDomainValue(
-    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie"), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau"), $excel_line_data[$excel_field]), 
+    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]), 
     	        'cusm_lung_bank_staff', 
     	        'Consent', 
     	        "See field '$excel_field'.", 
@@ -253,7 +258,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	    	
     	    $excel_field = "Consent Consenter";
     	    $consent_person = validateAndGetStructureDomainValue(
-    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie"), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau"), $excel_line_data[$excel_field]), 
+    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]), 
     	        'cusm_lung_bank_staff', 
     	        'Consent', 
     	        "See field '$excel_field'.", 
@@ -287,6 +292,17 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	// Create inventory
     	//-------------------------------------------------------------------------------------------
     	
+    	// Warning on stool data not imported
+    	for($tmpId = 1; $tmpId < 4; $tmpId++) {
+    	    if(strlen($excel_line_data["Stool $tmpId Date"].$excel_line_data["Stool $tmpId Aliquots"].$excel_line_data["Stool $tmpId Location"])) {
+    	        $stoolData = 'Date: ['.$excel_line_data["Stool $tmpId Date"].'], Aliquots: ['.$excel_line_data["Stool $tmpId Aliquots"].'] and location: ['.$excel_line_data["Stool $tmpId Location"].']';
+    	        recordErrorAndMessage('Collection',
+    	            '@@WARNING@@',
+    	            "Stool data won't be imported by the script. Please ccomplete data into ATiM after migration if required.",
+    	            "See stool data (#$tmpId) : $stoolData. See $excel_data_references.");
+    	    }
+    	}
+    	
     	$excel_line_data['D_OP'] = str_replace(array('Not scheduled yet', 'Cancelled'), array('', ''), $excel_line_data['D_OP']);
     	$excel_field = 'D_OP';
     	list($collection_date, $collection_date_accuracy) = validateAndGetDateAndAccuracy(
@@ -298,13 +314,17 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	    // Check collection has to be created
 	    
 	    $collection_notes = array();
-	    foreach(array('Tissue' => 'TISSUE Notes', 'Pre-Surgery' => 'Pre-Surgery Notes') as $note_title => $excel_field) {
+        $notesFields = array(
+            'Tissue' => 'TISSUE Notes',
+            'Pre-Surgery' => 'Pre-Surgery Notes',
+            'Pathology Acession #' => 'Pathology Acession #'
+        );
+	    foreach($notesFields as $note_title => $excel_field) {
 	        if(strlen($excel_line_data[$excel_field]) && $excel_line_data[$excel_field] != '-') {
 	            $collection_notes[] = "$note_title : <b>".$excel_line_data[$excel_field]."</b>.";
 	        }
 	    }
 	    if($excel_line_data['TISSUE Lymph Nodes'] == 'No') {
-	        $excel_line_data['TISSUE Lymph Nodes'] = '';
 	        $collection_notes[] = 'No lymph nodes.';
 	    }
 	    
@@ -312,8 +332,13 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	    $inventory_fields = array(
 	        'TISSUE Location', 'TISSUE Rack #', 'TISSUE Box #', 'TISSUE Normal', 'TISSUE Tumor', 'TISSUE Lymph Nodes',
             'Pre-Surgery Location', 
-                'Pre-Surgery Box #1', 'Pre-Surgery Serum1', 'Pre-Surgery Plasma1', 'Pre-Surgery WBC1',
-                'Pre-Surgery Box #2', 'Pre-Surgery Serum2', 'Pre-Surgery Plasma2', 'Pre-Surgery WBC2');
+	        'Pre-Surgery Box #1', 'Pre-Surgery Serum1', 'Pre-Surgery Plasma1', 'Pre-Surgery WBC1',
+	        'Pre-Surgery Box #2', 'Pre-Surgery Serum2', 'Pre-Surgery Plasma2', 'Pre-Surgery WBC2',
+            'Baseline blood Date of collection', 'Baseline blood Location', 'Baseline blood Box#', 'Baseline blood Serum', 'Baseline blood Plasma', 'Baseline blood WBC',
+	        'POST SURGERY BLOOD Location1','POST SURGERY BLOOD Box#1','POST SURGERY BLOOD Serum1','POST SURGERY BLOOD Plasma1','POST SURGERY BLOOD Date1',
+	        'POST SURGERY BLOOD Location2','POST SURGERY BLOOD Box#2','POST SURGERY BLOOD Serum2','POST SURGERY BLOOD Plasma2','POST SURGERY BLOOD Date2',
+	        'POST SURGERY BLOOD Location3','POST SURGERY BLOOD Box#3','POST SURGERY BLOOD Serum3','POST SURGERY BLOOD Plasma3','POST SURGERY BLOOD Date3'	        
+	    );
         
 	    foreach($inventory_fields as $new_excel_fields) {
 	        if($excel_line_data[$new_excel_fields] == '-') {
@@ -358,9 +383,14 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            }
     	    
 	   } else {  
-    	        
-    	    // Load tissue aliquots	   
-    	    
+	       $created_aliquots = false;
+	       
+    	    // Load tissue aliquots
+	       $ln_collection_notes = '';
+	       if($excel_line_data['TISSUE Lymph Nodes'] == 'No') {
+	           $excel_line_data['TISSUE Lymph Nodes'] = '';
+	           $ln_collection_notes = 'No lymph nodes. ';
+	       }
     	    $tissue_aliquots = getAliquots(
     	        $excel_data_references,
     	        'tissue', 
@@ -368,100 +398,177 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        $excel_line_data['TISSUE Box #'], 
                 array('normal' => $excel_line_data['TISSUE Normal'], 'tumor' => $excel_line_data['TISSUE Tumor'], 'lymph nodes' => $excel_line_data['TISSUE Lymph Nodes']), 
     	        $excel_line_data['TISSUE Rack #']);
-    	    if($tissue_aliquots) {
+    	    if($tissue_aliquots || strlen($excel_line_data['Pathology Acession #']) || strlen($excel_line_data['TISSUE Notes']) || $ln_collection_notes) {
+    	        $created_aliquots = true;
     	        $collection_data = array(
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
+    	            'cusm_collection_pathology_nbr' => $excel_line_data['Pathology Acession #'],
     	            'collection_datetime' => $collection_date,
     	            'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
     	            'consent_master_id' => $consent_master_id,
     	            'sop_master_id' => $sop_master_id,
     	            'collection_site' => "montreal general hospital",
-    	            'collection_notes' => str_replace(array('<b>', '</b>'), array('', ''), implode(' ', $collection_notes))
+    	            'collection_notes' => $ln_collection_notes . $excel_line_data['TISSUE Notes']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
+    	        $collection_date_label = getCollectionDateForLabel($collection_date);
     	        $created_collection_counter++;
-    	        $created_tissue_sample_master_ids = array();
-    	        $tube_label_counter = array(
-    	            'T' => 0,
-    	            'N' => 0,
-    	            'LN' => 0
-    	        );
-    	        foreach($tissue_aliquots as $new_tissue_aliquots) {
-    	            //WARNING :: positions x and y permuted
-    	            list($cusm_tissue_nature, $storage_master_id, $storage_coord_y, $storage_coord_x) = $new_tissue_aliquots;
-    	            if(!array_key_exists($cusm_tissue_nature, $created_tissue_sample_master_ids)) {
-    	                $created_sample_counter++;
-    	                $tissue_source = 'C34';
-    	                $cusm_tissue_nature_to_record = $cusm_tissue_nature;
-    	                if($cusm_tissue_nature_to_record == 'lymph nodes') {
-    	                    $cusm_tissue_nature_to_record = '';
-    	                    $tissue_source = 'C77';
-    	                }  	                
-    	                $sample_data = array(
-    	                    'sample_masters' => array(
-    	                        "sample_code" => 'tmp_tissue_'.$created_sample_counter,
-    	                        "sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
-    	                        "initial_specimen_sample_type" => 'tissue',
-    	                        "collection_id" => $collection_id),
-    	                    'specimen_details' => array(),
-    	                    $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
-    	                        'tissue_source' => $tissue_source,
-    	                        'cusm_tissue_nature' => $cusm_tissue_nature_to_record));
-    	                $created_tissue_sample_master_ids[$cusm_tissue_nature] = customInsertRecord($sample_data);
-    	            }
-    	            $sample_master_id = $created_tissue_sample_master_ids[$cusm_tissue_nature];
-    	            // Tissue tube   	            
-    	            $created_aliquot_counter++;
-    	            $tube_label = ($cusm_tissue_nature == 'lymph nodes') ? 'LN' : strtoupper($cusm_tissue_nature[0]);
-    	            $tube_label_counter[$tube_label]++;
-    	            $aliquot_data = array(
-    	                'aliquot_masters' => array(
-    	                    "barcode" => 'barcode_'.$created_aliquot_counter,
-    	                    'aliquot_label' => "$bank_patient_id OCT $tube_label ".$tube_label_counter[$tube_label],
-    	                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-tube']['id'],
-    	                    "collection_id" => $collection_id,
-    	                    "sample_master_id" => $sample_master_id,
-    	                    'storage_master_id' => $storage_master_id,
-    	                    'storage_coord_x' => $storage_coord_x,
-    	                    'storage_coord_y' => $storage_coord_y,
-    	                    'in_stock' => 'yes - available',
-    	                    'in_stock_detail' => ''),
-    	                $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
-    	                    'cusm_storage_solution' => 'OCT'
-    	                ));
-    	            customInsertRecord($aliquot_data);
-    	        }
+    	        if(!$tissue_aliquots) {
+    	            recordErrorAndMessage('Collection',
+    	                '@@WARNING@@',
+    	                "Created empty tissue collection to track either the pathology number or a note. No sample has been created. Please cleanup and complete data after migration if required.",
+    	                "See tissue collection for $excel_data_references.");
+    	        } else {
+        	        $created_tissue_sample_master_ids = array();
+        	        $tube_label_counter = array(
+        	            'T' => 0,
+        	            'N' => 0,
+        	            'LN' => 0
+        	        );
+        	        foreach($tissue_aliquots as $new_tissue_aliquots) {
+        	            //WARNING :: positions x and y permuted
+        	            list($cusm_tissue_nature, $storage_master_id, $storage_coord_y, $storage_coord_x) = $new_tissue_aliquots;
+        	            if(!array_key_exists($cusm_tissue_nature, $created_tissue_sample_master_ids)) {
+        	                $created_sample_counter++;
+        	                $tissue_source = 'C34';
+        	                $cusm_tissue_nature_to_record = $cusm_tissue_nature;
+        	                if($cusm_tissue_nature_to_record == 'lymph nodes') {
+        	                    $cusm_tissue_nature_to_record = '';
+        	                    $tissue_source = 'C77';
+        	                }  	                
+        	                $sample_data = array(
+        	                    'sample_masters' => array(
+        	                        "sample_code" => 'tmp_tissue_'.$created_sample_counter,
+        	                        "sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
+        	                        "initial_specimen_sample_type" => 'tissue',
+        	                        "collection_id" => $collection_id),
+        	                    'specimen_details' => array(),
+        	                    $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
+        	                        'tissue_source' => $tissue_source,
+        	                        'cusm_tissue_nature' => $cusm_tissue_nature_to_record));
+        	                $created_tissue_sample_master_ids[$cusm_tissue_nature] = customInsertRecord($sample_data);
+        	            }
+        	            $sample_master_id = $created_tissue_sample_master_ids[$cusm_tissue_nature];
+        	            // Tissue tube   	            
+        	            $created_aliquot_counter++;
+        	            $tube_label = ($cusm_tissue_nature == 'lymph nodes') ? 'LN' : strtoupper($cusm_tissue_nature[0]);
+        	            $tube_label_counter[$tube_label]++;
+        	            $aliquot_data = array(
+        	                'aliquot_masters' => array(
+        	                    "barcode" => 'barcode_'.$created_aliquot_counter,
+        	                    'aliquot_label' => "$bank_patient_id OCT $tube_label $collection_date_label ".$tube_label_counter[$tube_label],
+        	                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-tube']['id'],
+        	                    "collection_id" => $collection_id,
+        	                    "sample_master_id" => $sample_master_id,
+        	                    'storage_master_id' => $storage_master_id,
+        	                    'storage_coord_x' => $storage_coord_x,
+        	                    'storage_coord_y' => $storage_coord_y,
+        	                    'in_stock' => 'yes - available',
+        	                    'in_stock_detail' => ''),
+        	                $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
+        	                    'cusm_storage_solution' => 'OCT'
+        	                ));
+        	            customInsertRecord($aliquot_data);
+        	        }
+        	    }
     	    }
-    	    
-    	    // Load blood aliquots
-    	    
-    	    $blood_aliquots = getAliquots(
-    	        $excel_data_references,
-    	        'blood',
-    	        $excel_line_data['Pre-Surgery Location'],
-    	        $excel_line_data['Pre-Surgery Box #1'],
-    	        array('serum' => $excel_line_data['Pre-Surgery Serum1'], 'plasma' => $excel_line_data['Pre-Surgery Plasma1'], 'buffy coat' => $excel_line_data['Pre-Surgery WBC1']));
+                    
+            // Load pre surgery blood aliquots
+            $all_blood = array();
+            $blood_aliquots = getAliquots(
+                $excel_data_references, 
+                'blood', 
+                $excel_line_data['Pre-Surgery Location'],
+                $excel_line_data['Pre-Surgery Box #1'], 
+                array(
+                    'serum' => $excel_line_data['Pre-Surgery Serum1'],
+                    'plasma' => $excel_line_data['Pre-Surgery Plasma1'],
+                    'buffy coat' => $excel_line_data['Pre-Surgery WBC1']
+                )
+            );
     	    $blood_2_aliquots = getAliquots(
     	        $excel_data_references,
     	        'blood',
     	        $excel_line_data['Pre-Surgery Location'],
     	        $excel_line_data['Pre-Surgery Box #2'],
-    	        array('serum' => $excel_line_data['Pre-Surgery Serum2'], 'plasma' => $excel_line_data['Pre-Surgery Plasma2'], 'buffy coat' => $excel_line_data['Pre-Surgery WBC2']));
-    	    if($blood_aliquots || $blood_2_aliquots) {
+    	        array(
+    	            'serum' => $excel_line_data['Pre-Surgery Serum2'], 
+    	            'plasma' => $excel_line_data['Pre-Surgery Plasma2'], 
+    	            'buffy coat' => $excel_line_data['Pre-Surgery WBC2']
+    	        )
+	        );
+    	    
+    	    if($blood_aliquots || $blood_2_aliquots || $excel_line_data['Pre-Surgery Notes']) {
+    	        $all_blood[] = array(    	        
+    	            'collection_datetime' => $collection_date,
+        	        'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
+    	            'cusm_collection_type' => 'pre-surgery',
+        	        'collection_notes' => $excel_line_data['Pre-Surgery Notes'],
+    	            'aliquots' => array_merge($blood_aliquots, $blood_2_aliquots)    	            
+    	        );
+    	        if(empty($blood_aliquots) && empty($blood_2_aliquots)) {
+    	            recordErrorAndMessage('Collection',
+    	                '@@WARNING@@',
+    	                "Created empty re-surgery collection to track a notes. No sample has been created. Please cleanup and complete data after migration if required.",
+    	                "See re-surgery collection for $excel_data_references.");
+    	        }
+    	    }
+    	    
+    	    // Load other blood    
+    	    $arryOtherBlood = array(
+        	    array('Baseline blood Date of collection', 'Baseline blood Location', 'Baseline blood Box#', 'Baseline blood Serum', 'Baseline blood Plasma', 'Baseline blood WBC', 'baseline.'),
+        	    array('POST SURGERY BLOOD Date1', 'POST SURGERY BLOOD Location1', 'POST SURGERY BLOOD Box#1', 'POST SURGERY BLOOD Serum1', 'POST SURGERY BLOOD Plasma1', '', 'post-surgery'),
+        	    array('POST SURGERY BLOOD Date2', 'POST SURGERY BLOOD Location2', 'POST SURGERY BLOOD Box#2', 'POST SURGERY BLOOD Serum2', 'POST SURGERY BLOOD Plasma2', '', 'post-surgery'),
+        	    array('POST SURGERY BLOOD Date3', 'POST SURGERY BLOOD Location3', 'POST SURGERY BLOOD Box#3', 'POST SURGERY BLOOD Serum3', 'POST SURGERY BLOOD Plasma3', '', 'post-surgery'));
+            foreach($arryOtherBlood as $tmpFields) {
+                list($collection_date, $collection_date_accuracy) = validateAndGetDateAndAccuracy(
+                    $excel_line_data[$tmpFields[0]],
+                    'Collection',
+                    "See field '".$tmpFields[0]."'.",
+                    "See $excel_data_references");
+                $tmpExcelAliquotsData = array(
+                        'serum' => $excel_line_data[$tmpFields[3]],
+                        'plasma' => $excel_line_data[$tmpFields[4]],
+                        'buffy coat' => empty($tmpFields[5])? null: $excel_line_data[$tmpFields[5]]
+                    );
+                if(is_null($tmpExcelAliquotsData['buffy coat'])) {
+                    unset($tmpExcelAliquotsData['buffy coat']);
+                }
+                $blood_aliquots = getAliquots(
+                    $excel_data_references,
+                    'blood',
+                    $excel_line_data[$tmpFields[1]],
+                    $excel_line_data[$tmpFields[2]],
+                    $tmpExcelAliquotsData
+                );
+                if($blood_aliquots) {
+                    $all_blood[] = array(
+                        'collection_datetime' => $collection_date,
+                        'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
+                        'cusm_collection_type' => $tmpFields[6],
+                        'aliquots' => $blood_aliquots
+                    );
+                    $dis = true;
+                }
+            }
+
+    	    foreach($all_blood as $new_blood_collection) {
+    	        $created_aliquots = true;
     	        $collection_data = array(
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
-    	            'collection_datetime' => $collection_date,
-    	            'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
+    	            'collection_datetime' => $new_blood_collection['collection_datetime'],
+    	            'collection_datetime_accuracy' => $new_blood_collection['collection_datetime_accuracy'],
     	            'consent_master_id' => $consent_master_id,
     	            'sop_master_id' => $sop_master_id,
     	            'collection_site' => "montreal general hospital",
-    	            'collection_notes' => str_replace(array('<b>', '</b>'), array('', ''), implode(' ', $collection_notes))
+    	            'cusm_collection_type' => $new_blood_collection['cusm_collection_type']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
+    	        $collection_date_label = getCollectionDateForLabel($new_blood_collection['collection_datetime']);
     	        $created_collection_counter++;
     	        $created_blood_sample_master_ids = array();
     	        $tube_label_counter = array(
@@ -469,7 +576,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	            'S' => 0,
     	            'P' => 0
     	        );
-    	        foreach(array_merge($blood_aliquots, $blood_2_aliquots) as $new_blood_aliquots) {
+    	        foreach($new_blood_collection['aliquots'] as $new_blood_aliquots) {
     	            //WARNING :: positions x and y permuted
     	            list($cusm_derivative_sample_type, $storage_master_id, $storage_coord_y, $storage_coord_x) = $new_blood_aliquots;
     	            $blood_type = ($cusm_derivative_sample_type == 'serum')? 'serum' : 'edta';
@@ -510,7 +617,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	            $aliquot_data = array(
     	                'aliquot_masters' => array(
     	                    "barcode" => 'barcode_'.$created_aliquot_counter,
-    	                    'aliquot_label' => "$bank_patient_id $tube_label ".$tube_label_counter[$tube_label],
+    	                    'aliquot_label' => "$bank_patient_id $tube_label $collection_date_label ".$tube_label_counter[$tube_label],
     	                    "aliquot_control_id" => $atim_controls['aliquot_controls'][$cusm_derivative_sample_type.'-tube']['id'],
     	                    "collection_id" => $collection_id,
     	                    "sample_master_id" => $sample_master_id,
@@ -521,9 +628,9 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	                    'in_stock_detail' => ''),
     	                $atim_controls['aliquot_controls'][$cusm_derivative_sample_type.'-tube']['detail_tablename'] => array());
     	            customInsertRecord($aliquot_data);
-    	        }    	        
+    	        }
     	    }
-    	    if(!$tissue_aliquots && !$blood_aliquots && !$blood_2_aliquots) {
+    	    if(!$created_aliquots) {
     	        recordErrorAndMessage('Consent',
     	            '@@WARNING@@',
     	            "No collection has been created into ATiM for a participant who consented and with inventory information into ATiM. Please check no data has to be recorded into ATiM and complete/correct data after migration if required.",
@@ -645,11 +752,13 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
     // -- > Freezer & Nitrogen Locator
     $location = trim($location);
     if(strlen($location)) {
-        $location = str_replace('Borque Freezer', 'Borque', $location);
+        if(preg_match('/borque freezer/i', $location)) {
+            $location = 'Borque';
+        }
         $storage_controls = $atim_controls['storage_controls'][(($sample_type == 'tissue')? 'nitrogen locator': 'freezer')];
         $parent_storage_unique_key = $storage_unique_key = "((".$storage_controls['id']."))".$location.$storage_unique_key_separator_tmp;
         if(!array_key_exists($storage_unique_key, $atim_storage_key_to_storage_master_id)) {
-            if(strlen($location) > 10) die('ERR storage short label size : '.$location);
+            if(strlen($location) > 10) die('ERR storage short label size : ['.$location.']');
             $storage_data = array(
                 'storage_masters' => array(
                     "code" => 'tmp'.$created_storage_counter,
@@ -739,7 +848,7 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
     } else if(!(sizeof($created_box_storage_masters_ids) == sizeof($aliquots_positions) && array_keys($aliquots_positions) == array_keys($created_box_storage_masters_ids))) {
        recordErrorAndMessage('Collection',
            '@@ERROR@@',
-           "The number of boxes defined from the box(es) label(s) defintion does not match the number of boexs defined from the aliquots positions. Be sure than character ',' as not be used to separate positions of 2 aliquots of the same box (use '.' instead'). No aliquot will be created. Please validate and correct data directly into ATiM if required.",
+           "The number of boxes defined from the box(es) label(s) defintion does not match the number of boxes defined from the aliquots positions. Be sure than character ',' as not be used to separate positions of 2 aliquots of the same box (use '.' instead'). No aliquot will be created. Please validate and correct data directly into ATiM if required.",
            "See box(es) '$box_number' ".($position_defined? "and defined positions '".implode("' & '", $position_defined) : '')." for $excel_data_references.");
         return array();
     } else {
@@ -798,6 +907,16 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
         }
         return $final_aliquots_storage_information;
     }
+}
+
+function getCollectionDateForLabel($collection_datetime) {
+    $collection_datetime_label = '?';
+    if(preg_match('/^([0-9]{2})([0-9]{2})\-([0-9]{2})\-([0-9]{2})$/', $collection_datetime, $matches)) {
+        $collection_datetime_label = $matches[4].'-'.str_replace(
+            array('01', '02','03','04','05','06','07','08','09','10','11','12'), 
+            array('Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'), $matches[3]).'-'.$matches[2];
+    }  
+    return $collection_datetime_label;
 }
 	
 ?>

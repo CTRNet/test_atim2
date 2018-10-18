@@ -1,12 +1,14 @@
 <?php
-
-/**
- * Class ViewCollectionCustom
+/** **********************************************************************
+ * CUSM
+ * ***********************************************************************
  *
- * @author Nicolas Luc
- *
- * @package ATiM CUSM
+ * Clinical Annotation plugin custom code
+ * 
+ * @author N. Luc - CTRNet (nicol.luc@gmail.com)
+ * @since 2018-10-15
  */
+
 class ViewCollectionCustom extends ViewCollection
 {
 
@@ -22,6 +24,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -31,7 +34,8 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Bank.name AS cusm_collection_bank_name,
-MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number
+MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number,
+Collection.cusm_collection_type
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN banks As Bank 
