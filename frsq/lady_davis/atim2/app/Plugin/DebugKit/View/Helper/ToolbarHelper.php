@@ -224,12 +224,83 @@ class ToolbarHelper extends AppHelper {
 	}
 
     /**
+     * @param $date
+     * @return bool
+     */
+    private function isRecente($date){
+        $d=strip_tags($date);
+        $d= substr($d, -19);
+        $s=strtotime($d);
+        return (time()-$s<3600);
+    }
+
+    /**
      * @param $data
      */
-    public function showUserHistory($data){
+    public function showUserHistory(&$data){
+        $index=null;
         foreach (array_reverse($data) as $key => $value) {
-            printf($value[0], $value[1], $value[2]);            
+            if ($this->isRecente($value[1])){
+                printf($value[0], $value[1], $value[2]);            
+            }else{
+                $index=$key;
+                break;
+            }
         }
+       if ($index!==null){
+           $data=array_splice($data, -$index, $index);
+       }
     }        
-        
+
+    /**
+     * 
+     */
+    public function showLogFile(){
+        $path = APP."tmp/logs";
+        $s="";
+        $Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+        foreach($Iterator as $file){
+            $state=0;
+            if(substr($file,-4) === '.log'){
+                $content = fopen($file, "r");
+                $log=array();
+                if ($content) {
+                    $filename=pathinfo($file, PATHINFO_FILENAME);
+                    $log[$filename]="";
+					$currentLog="";
+                    while(!feof($content)) {
+                        $line = fgets($content);
+                        if (substr($line, 0, 11)===date('Y-m-d ') && $state===0){
+                            $t=strtotime(substr($line, 0, 19));
+                            if ((time()-$t<3600)){
+                                $state=1;
+                                $currentLog='<div class="cake-debug-output">'.
+                                             '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
+                                             '<span class="debug-kit-log-file-span">'.$line.'</span>';
+                            }
+                        }elseif(substr($line, 0, 11)===date('Y-m-d ') && $state===1){
+							$currentLog.='</div>';
+                            $log[$filename]=$currentLog.$log[$filename];
+							$currentLog='<div class="cake-debug-output">'.
+										'   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
+										'<span class="debug-kit-log-file-span">'.$line.'</span>';
+                        }elseif(substr($line, 0, 11)!==date('Y-m-d ') && $state===1){
+                            $currentLog.='<span class="debug-kit-log-file-span">'.$line.'</span>';
+                        }
+                    }
+                    if ($log[$filename]!==""){
+                        $currentLog.='</div>';
+						$log[$filename]=$currentLog.$log[$filename];
+                    }
+                    fclose($content);
+                    $s.='<div class="cake-debug-output">'.
+                        '<div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
+                        '<h1>'.$filename.'</h1>'.$log[$filename].'</div>';
+                }
+            }
+        }
+        return $s;
+    }
+    
+    
 }

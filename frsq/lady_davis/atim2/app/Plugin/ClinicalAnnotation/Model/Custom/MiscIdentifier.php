@@ -38,7 +38,7 @@ class MiscIdentifierCustom extends MiscIdentifier
                 'Collection.misc_identifier_id' => $id,
                 'Collection.deleted' => 0
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrLinkedCollection > 0) {
             $arrAllowDeletion['allow_deletion'] = false;

@@ -18,6 +18,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
     );
 
     /**
+     *
      * @return array
      */
     public function getActiveSamples()
@@ -44,6 +45,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $relations
      * @param $currentCheck
      * @return array
@@ -71,8 +73,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
      * Gets the lab book control id that can be use by a derivative
      *
      * @param int $parentSampleCtrlId
-     * @param int $childrenSampleCtrlId
-     *            return int lab book control id on success, false if it's not found
+     * @param int $childrenSampleCtrlId return int lab book control id on success, false if it's not found
      * @return bool
      */
     public function getLabBookControlId($parentSampleCtrlId, $childrenSampleCtrlId)

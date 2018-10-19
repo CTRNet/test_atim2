@@ -93,16 +93,15 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
             if (! empty($consentStatus)) {
                 if (! $collectionData['ViewCollection']['participant_id']) {
                     AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-                } else 
-                    if ($consentStatus[$variables['Collection.id']] == null) {
-                        $link = '';
-                        if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
-                            $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collectionData['ViewCollection']['participant_id'], $collectionData['ViewCollection']['collection_id'], __('click here to access it'));
-                        }
-                        AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
-                    } else {
-                        AppController::addWarningMsg(__('the linked consent status is [%s]', __($consentStatus[$variables['Collection.id']])));
+                } elseif ($consentStatus[$variables['Collection.id']] == null) {
+                    $link = '';
+                    if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
+                        $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collectionData['ViewCollection']['participant_id'], $collectionData['ViewCollection']['collection_id'], __('click here to access it'));
                     }
+                    AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
+                } else {
+                    AppController::addWarningMsg(__('the linked consent status is [%s]', __($consentStatus[$variables['Collection.id']])));
+                }
             }
         }
         

@@ -26,6 +26,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     public static $studyModel = null;
 
     /**
+     *
      * @param array $variables
      * @return bool
      */
@@ -49,6 +50,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $queryData
      * @return array
      */
@@ -69,6 +71,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param string $type
      * @param array $query
      * @return array|null
@@ -114,7 +117,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                 $orderBy = $query['order']['MiscIdentifier.identifier_value'];
                 $query['order'][] = "IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
                 unset($query['order']['MiscIdentifier.identifier_value']);
-            } else if (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
+            } elseif (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
                 $orderBy = $matches[1];
                 $query['order'] = "IF(concat('', REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
             }
@@ -124,6 +127,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
@@ -163,6 +167,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     }
 
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -227,8 +232,8 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
                 
                 // Set study summary id

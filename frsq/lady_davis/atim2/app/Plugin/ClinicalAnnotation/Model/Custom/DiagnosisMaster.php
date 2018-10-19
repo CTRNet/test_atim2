@@ -31,7 +31,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
         $dxToCheck = $this->find('all', array(
             'conditions' => $criteria,
             'joins' => $joins,
-            'recursive' => '0',
+            'recursive' => 0,
             'fields' => array(
                 'Participant.*, DiagnosisMaster.*'
             )
@@ -76,13 +76,12 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                 if ($newDx['Participant']['date_of_death_accuracy']) {
                     $survivalEndDate = $newDx['Participant']['date_of_death'];
                     $survivalEndDateAccuracy = $newDx['Participant']['date_of_death_accuracy'];
-                } else 
-                    if ($newDx['Participant']['qc_lady_last_contact_date']) {
-                        $survivalEndDate = $newDx['Participant']['qc_lady_last_contact_date'];
-                        $survivalEndDateAccuracy = 'c';
-                    } else {
-                        AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
+                } elseif ($newDx['Participant']['qc_lady_last_contact_date']) {
+                    $survivalEndDate = $newDx['Participant']['qc_lady_last_contact_date'];
+                    $survivalEndDateAccuracy = 'c';
+                } else {
+                    AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
                 if (($newDx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($survivalEndDateAccuracy != 'c'))
                     $warnings[1] = __('survival has been calculated with at least one unaccuracy date');
                 $startDate = new DateTime($newDx['DiagnosisMaster']['dx_date']);

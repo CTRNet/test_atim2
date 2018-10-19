@@ -1,1 +1,2 @@
-<?php echo ($result);
+<?php
+echo ($result);

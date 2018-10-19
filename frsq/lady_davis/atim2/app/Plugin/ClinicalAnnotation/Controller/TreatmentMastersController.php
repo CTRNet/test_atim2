@@ -23,6 +23,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     );
 
     /**
+     *
      * @param $participantId
      * @param null $treatmentControlId
      */
@@ -39,18 +40,37 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                     'TreatmentControl.flag_active' => '1'
                 )
             ));
+            $participantTreatmentControls = $this->TreatmentMaster->find('all', array(
+                'conditions' => array(
+                    'TreatmentMaster.participant_id' => $participantId,
+                    'TreatmentControl.flag_active' => '1'
+                ),
+                'fields' => array(
+                    "GROUP_CONCAT(DISTINCT TreatmentControl.id SEPARATOR ',') as ids"
+                )
+            ));
+            $participantTreatmentControlIds = explode(',', $participantTreatmentControls['0']['0']['ids']);
             $controlsForSubformDisplay = array();
-            foreach ($treatmentControls as $newCtrl) {
-                if ($newCtrl['TreatmentControl']['use_detail_form_for_index']) {
-                    // Controls that should be listed using detail form
-                    $controlsForSubformDisplay[$newCtrl['TreatmentControl']['id']] = $newCtrl;
-                    $controlsForSubformDisplay[$newCtrl['TreatmentControl']['id']]['TreatmentControl']['tx_header'] = __($newCtrl['TreatmentControl']['tx_method']) . (empty($treatmentControl['TreatmentControl']['disease_site']) ? '' : ' - ' . __($treatmentControl['TreatmentControl']['disease_site']));
-                } else {
-                    $controlsForSubformDisplay['-1']['TreatmentControl'] = array(
-                        'id' => '-1',
-                        'tx_header' => null
-                    );
+            if ($participantTreatmentControlIds) {
+                foreach ($treatmentControls as $newCtrl) {
+                    if (in_array($newCtrl['TreatmentControl']['id'], $participantTreatmentControlIds)) {
+                        if ($newCtrl['TreatmentControl']['use_detail_form_for_index']) {
+                            // Controls that should be listed using detail form
+                            $controlsForSubformDisplay[$newCtrl['TreatmentControl']['id']] = $newCtrl;
+                            $controlsForSubformDisplay[$newCtrl['TreatmentControl']['id']]['TreatmentControl']['tx_header'] = __($newCtrl['TreatmentControl']['tx_method']) . (empty($treatmentControl['TreatmentControl']['disease_site']) ? '' : ' - ' . __($treatmentControl['TreatmentControl']['disease_site']));
+                        } else {
+                            $controlsForSubformDisplay['-1']['TreatmentControl'] = array(
+                                'id' => '-1',
+                                'tx_header' => null
+                            );
+                        }
+                    }
                 }
+            } else {
+                $controlsForSubformDisplay['-1']['TreatmentControl'] = array(
+                    'id' => '-1',
+                    'tx_header' => null
+                );
             }
             ksort($controlsForSubformDisplay);
             $this->set('controlsForSubformDisplay', $controlsForSubformDisplay);
@@ -64,6 +84,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
             $searchCriteria['TreatmentMaster.participant_id'] = $participantId;
             $searchCriteria['TreatmentControl.use_detail_form_for_index'] = '0';
             // Set structure
+            $this->set('addLinks', array());
             $this->Structures->set('treatmentmasters');
         } else {
             // 3 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
@@ -73,6 +94,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
             // Set structure
             $controlData = $this->TreatmentControl->getOrRedirect($treatmentControlId);
             $this->Structures->set($controlData['TreatmentControl']['form_alias']);
+            $this->set('addLinks', array());
             self::buildDetailBinding($this->TreatmentMaster, $searchCriteria, $controlData['TreatmentControl']['form_alias']);
         }
         
@@ -92,6 +114,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */
@@ -145,6 +168,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */
@@ -234,6 +258,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txControlId
      * @param null $diagnosisMasterId
@@ -434,6 +459,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */

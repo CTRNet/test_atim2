@@ -26,16 +26,14 @@ class AliquotMasterCustom extends AliquotMaster
         // Check duplicated barcode into submited record
         if (empty($barcode)) {
             // Not studied
-        } else 
-            if (isset($this->barcodes[$controlId][$barcode])) {
-                $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
-            } else 
-                if (isset($this->barcodes['all'][$barcode])) {
-                    AppController::addWarningMsg(sprintf(__('barcode [%s] was created more than once'), $barcode));
-                } else {
-                    $this->barcodes['all'][$barcode] = '';
-                    $this->barcodes[$controlId][$barcode] = '';
-                }
+        } elseif (isset($this->barcodes[$controlId][$barcode])) {
+            $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
+        } elseif (isset($this->barcodes['all'][$barcode])) {
+            AppController::addWarningMsg(sprintf(__('barcode [%s] was created more than once'), $barcode));
+        } else {
+            $this->barcodes['all'][$barcode] = '';
+            $this->barcodes[$controlId][$barcode] = '';
+        }
         
         // Check duplicated barcode into db
         $aliquotsHavingDuplicatedBarcode = $this->find('all', array(

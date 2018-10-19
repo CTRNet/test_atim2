@@ -24,6 +24,7 @@ class StructuresController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $structureId
      */
     public function detail($structureId)
@@ -42,6 +43,7 @@ class StructuresController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $structureId
      */
     public function edit($structureId)

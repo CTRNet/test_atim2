@@ -43,7 +43,7 @@ class ReportsControllerCustom extends ReportsController
                 'fields' => array(
                     'Participant.id, MiscIdentifierControl.misc_identifier_name, MiscIdentifier.identifier_value'
                 ),
-                'recursive' => '1'
+                'recursive' => 1
             ));
             foreach ($res as $newRecord)
                 $participantSubsetIds[] = $newRecord['Participant']['id'];
@@ -173,7 +173,7 @@ class ReportsControllerCustom extends ReportsController
                 'fields' => array(
                     'Participant.id, MiscIdentifierControl.misc_identifier_name, MiscIdentifier.identifier_value'
                 ),
-                'recursive' => '1'
+                'recursive' => 1
             ));
             foreach ($res as $newRecord)
                 $participantSubsetIds[] = $newRecord['Participant']['id'];
@@ -345,7 +345,7 @@ class ReportsControllerCustom extends ReportsController
                 'fields' => array(
                     'Participant.id, MiscIdentifierControl.misc_identifier_name, MiscIdentifier.identifier_value'
                 ),
-                'recursive' => '1'
+                'recursive' => 1
             ));
             foreach ($res as $newRecord)
                 $participantSubsetIds[] = $newRecord['Participant']['id'];
@@ -711,63 +711,58 @@ class ReportsControllerCustom extends ReportsController
         if (array_key_exists('Participant', $parameters) && array_key_exists('id', $parameters['Participant'])) {
             // From databrowser or batchset
             $criteriaArray[] = "Participant.id IN ('" . implode("','", array_filter($parameters['Participant']['id'])) . "')";
-        } else 
-            if (array_key_exists('ViewAliquot', $parameters) && array_key_exists('aliquot_master_id', $parameters['ViewAliquot'])) {
-                // From databrowser or batchset
-                $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.id IN ('" . implode("','", array_filter($parameters['ViewAliquot']['aliquot_master_id'])) . "')";
-            } else 
-                if (array_key_exists('AliquotMaster', $parameters) && array_key_exists('id', $parameters['AliquotMaster'])) {
-                    // From databrowser or batchset
-                    $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.id IN ('" . implode("','", array_filter($parameters['AliquotMaster']['id'])) . "')";
-                } else {
-                    $criteriaArray = array();
-                    if (array_key_exists('ViewCollection', $parameters)) {
-                        if (array_key_exists('participant_identifier', $parameters['ViewCollection'])) {
-                            $participantIdentifiers = array_filter($parameters['ViewCollection']['participant_identifier']);
-                            if ($participantIdentifiers)
-                                $criteriaArray[] = "Participant.participant_identifier IN ('" . implode("','", $participantIdentifiers) . "')";
-                        } else 
-                            if (array_key_exists('participant_identifier_start', $parameters['ViewCollection'])) {
-                                $tmpConditions = array();
-                                if (strlen($parameters['ViewCollection']['participant_identifier_start']))
-                                    $tmpConditions[] = "Participant.participant_identifier >= '" . $parameters['ViewCollection']['participant_identifier_start'] . "'";
-                                if (strlen($parameters['ViewCollection']['participant_identifier_end']))
-                                    $tmpConditions[] = "Participant.participant_identifier <= '" . $parameters['ViewCollection']['participant_identifier_end'] . "'";
-                                if ($tmpConditions)
-                                    $criteriaArray[] = implode(" AND ", $tmpConditions);
-                            }
-                    }
-                    if (array_key_exists('ViewCollection', $parameters)) {
-                        if (array_key_exists('misc_identifier_value', $parameters['ViewCollection'])) {
-                            $miscIdentifierValues = array_filter($parameters['ViewCollection']['misc_identifier_value']);
-                            if ($miscIdentifierValues)
-                                $criteriaArray[] = "MiscIdentifier.identifier_value IN ('" . implode("','", $miscIdentifierValues) . "')";
-                        } else 
-                            if (array_key_exists('misc_identifier_value_start', $parameters['ViewCollection'])) {
-                                return array(
-                                    'header' => null,
-                                    'data' => null,
-                                    'columns_names' => null,
-                                    'error_msg' => 'no bank identifier search based on range defintion is supported'
-                                );
-                            }
-                    }
-                    if (array_key_exists('AliquotMaster', $parameters)) {
-                        if (array_key_exists('aliquot_label', $parameters['AliquotMaster'])) {
-                            $aliquotLabelValues = array_filter($parameters['AliquotMaster']['aliquot_label']);
-                            if ($aliquotLabelValues)
-                                $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.aliquot_label IN ('" . implode("','", $aliquotLabelValues) . "')";
-                        } else 
-                            if (array_key_exists('aliquot_label_start', $parameters['AliquotMaster'])) {
-                                return array(
-                                    'header' => null,
-                                    'data' => null,
-                                    'columns_names' => null,
-                                    'error_msg' => 'no aliquot label search based on range defintion is supported'
-                                );
-                            }
-                    }
+        } elseif (array_key_exists('ViewAliquot', $parameters) && array_key_exists('aliquot_master_id', $parameters['ViewAliquot'])) {
+            // From databrowser or batchset
+            $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.id IN ('" . implode("','", array_filter($parameters['ViewAliquot']['aliquot_master_id'])) . "')";
+        } elseif (array_key_exists('AliquotMaster', $parameters) && array_key_exists('id', $parameters['AliquotMaster'])) {
+            // From databrowser or batchset
+            $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.id IN ('" . implode("','", array_filter($parameters['AliquotMaster']['id'])) . "')";
+        } else {
+            $criteriaArray = array();
+            if (array_key_exists('ViewCollection', $parameters)) {
+                if (array_key_exists('participant_identifier', $parameters['ViewCollection'])) {
+                    $participantIdentifiers = array_filter($parameters['ViewCollection']['participant_identifier']);
+                    if ($participantIdentifiers)
+                        $criteriaArray[] = "Participant.participant_identifier IN ('" . implode("','", $participantIdentifiers) . "')";
+                } elseif (array_key_exists('participant_identifier_start', $parameters['ViewCollection'])) {
+                    $tmpConditions = array();
+                    if (strlen($parameters['ViewCollection']['participant_identifier_start']))
+                        $tmpConditions[] = "Participant.participant_identifier >= '" . $parameters['ViewCollection']['participant_identifier_start'] . "'";
+                    if (strlen($parameters['ViewCollection']['participant_identifier_end']))
+                        $tmpConditions[] = "Participant.participant_identifier <= '" . $parameters['ViewCollection']['participant_identifier_end'] . "'";
+                    if ($tmpConditions)
+                        $criteriaArray[] = implode(" AND ", $tmpConditions);
                 }
+            }
+            if (array_key_exists('ViewCollection', $parameters)) {
+                if (array_key_exists('misc_identifier_value', $parameters['ViewCollection'])) {
+                    $miscIdentifierValues = array_filter($parameters['ViewCollection']['misc_identifier_value']);
+                    if ($miscIdentifierValues)
+                        $criteriaArray[] = "MiscIdentifier.identifier_value IN ('" . implode("','", $miscIdentifierValues) . "')";
+                } elseif (array_key_exists('misc_identifier_value_start', $parameters['ViewCollection'])) {
+                    return array(
+                        'header' => null,
+                        'data' => null,
+                        'columns_names' => null,
+                        'error_msg' => 'no bank identifier search based on range defintion is supported'
+                    );
+                }
+            }
+            if (array_key_exists('AliquotMaster', $parameters)) {
+                if (array_key_exists('aliquot_label', $parameters['AliquotMaster'])) {
+                    $aliquotLabelValues = array_filter($parameters['AliquotMaster']['aliquot_label']);
+                    if ($aliquotLabelValues)
+                        $criteriaArray[] = "AliquotMaster_TissueBlock_BcTube.aliquot_label IN ('" . implode("','", $aliquotLabelValues) . "')";
+                } elseif (array_key_exists('aliquot_label_start', $parameters['AliquotMaster'])) {
+                    return array(
+                        'header' => null,
+                        'data' => null,
+                        'columns_names' => null,
+                        'error_msg' => 'no aliquot label search based on range defintion is supported'
+                    );
+                }
+            }
+        }
         if (empty($criteriaArray)) {
             return array(
                 'header' => null,
@@ -915,10 +910,9 @@ class ReportsControllerCustom extends ReportsController
                         'qc_lady_storage_solution' => $newRow['AliquotDetail_TissueTube']['qc_lady_storage_solution'],
                         'qc_lady_storage_method' => $newRow['AliquotDetail_TissueTube']['qc_lady_storage_method']
                     );
-                } else 
-                    if ($tissuesBlocksAndBuffyCoatData[$blockAliquotMasterId]['AliquotDetail']['tissue_tube_aliquot_master_id'] != $newRow['AliquotDetail_TissueTube']['tissue_tube_aliquot_master_id']) {
-                        $tissueBlocksHavingManyAliquotsSource[] = $newRow['AliquotMaster_TissueBlock_BcTube']['block_aliquot_label'];
-                    }
+                } elseif ($tissuesBlocksAndBuffyCoatData[$blockAliquotMasterId]['AliquotDetail']['tissue_tube_aliquot_master_id'] != $newRow['AliquotDetail_TissueTube']['tissue_tube_aliquot_master_id']) {
+                    $tissueBlocksHavingManyAliquotsSource[] = $newRow['AliquotMaster_TissueBlock_BcTube']['block_aliquot_label'];
+                }
             }
             
             if ($newRow['AliquotReviewDetail']['aliquot_review_master_id']) {
@@ -930,10 +924,9 @@ class ReportsControllerCustom extends ReportsController
                         'cellularity_percentage_itz' => $newRow['AliquotReviewDetail']['cellularity_percentage_itz'],
                         'stroma_percentage_itz' => $newRow['AliquotReviewDetail']['stroma_percentage_itz']
                     );
-                } else 
-                    if ($tissuesBlocksAndBuffyCoatData[$blockAliquotMasterId]['AliquotReviewDetail']['aliquot_review_master_id'] != $newRow['AliquotReviewDetail']['aliquot_review_master_id']) {
-                        $tissueBlocksHavingManyReviews[] = $newRow['AliquotMaster_TissueBlock_BcTube']['block_aliquot_label'];
-                    }
+                } elseif ($tissuesBlocksAndBuffyCoatData[$blockAliquotMasterId]['AliquotReviewDetail']['aliquot_review_master_id'] != $newRow['AliquotReviewDetail']['aliquot_review_master_id']) {
+                    $tissueBlocksHavingManyReviews[] = $newRow['AliquotMaster_TissueBlock_BcTube']['block_aliquot_label'];
+                }
             }
         }
         if ($tissueBlocksHavingManyReviews)
@@ -1069,13 +1062,12 @@ class ReportsControllerCustom extends ReportsController
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_dna_260_280'] = $newQcData['QualityCtrl_DnaRna']['qc_lady_260_280_score'];
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_dna_yield_ug'] = $calculatedQuantity;
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_tested_dna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
-                    } else 
-                        if ($dnaRnaSampleType == 'rna') {
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_rna_sample_code'] = $newQcData['SampleMaster_DnaRna']['sample_code'];
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_rna_260_280'] = $newQcData['QualityCtrl_DnaRna']['qc_lady_260_280_score'];
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_rna_yield_ug'] = $calculatedQuantity;
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_tested_rna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
-                        }
+                    } elseif ($dnaRnaSampleType == 'rna') {
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_rna_sample_code'] = $newQcData['SampleMaster_DnaRna']['sample_code'];
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_rna_260_280'] = $newQcData['QualityCtrl_DnaRna']['qc_lady_260_280_score'];
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_rna_yield_ug'] = $calculatedQuantity;
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextNanoDropKey]['qc_lady_qc_nano_drop_tested_rna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
+                    }
                     break;
                 case 'PicoGreen':
                 case 'bioanalyzer':
@@ -1085,13 +1077,12 @@ class ReportsControllerCustom extends ReportsController
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_dna_sample_code'] = $newQcData['SampleMaster_DnaRna']['sample_code'];
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_pico_green_dna_yield_ug'] = $calculatedQuantity;
                         $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_pico_green_tested_dna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
-                    } else 
-                        if ($dnaRnaSampleType == 'rna' && $newQcData['QualityCtrl_DnaRna']['type'] == 'bioanalyzer') {
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_rna_sample_code'] = $newQcData['SampleMaster_DnaRna']['sample_code'];
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_rna_rin'] = $newQcData['QualityCtrl_DnaRna']['qc_lady_rin_score'];
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_rna_yield_ug'] = $calculatedQuantity;
-                            $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_tested_rna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
-                        }
+                    } elseif ($dnaRnaSampleType == 'rna' && $newQcData['QualityCtrl_DnaRna']['type'] == 'bioanalyzer') {
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_rna_sample_code'] = $newQcData['SampleMaster_DnaRna']['sample_code'];
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_rna_rin'] = $newQcData['QualityCtrl_DnaRna']['qc_lady_rin_score'];
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_rna_yield_ug'] = $calculatedQuantity;
+                        $allBlockAndBuffyCoatDnaRnaQcs[$sourceAliquotMasterId][$dnaRnaSampleType][$dnaRnaSampleMasterId]['data'][$nextPicoGreenBioanalyzerKey]['qc_lady_qc_bioanalyzer_tested_rna_yield_ug'] = $calculatedQuantityOfTestedAliquot;
+                    }
                     break;
             }
         }
@@ -1180,22 +1171,20 @@ class ReportsControllerCustom extends ReportsController
             $participantIds = array_filter($parameters['Participant']['id']);
             if ($participantIds)
                 $conditions['Participant.id'] = $participantIds;
-        } else 
-            if (isset($parameters['Participant']['participant_identifier_start'])) {
-                $participantIdentifierStart = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
-                $participantIdentifierEnd = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
-                if ($participantIdentifierStart)
-                    $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
-                if ($participantIdentifierEnd)
-                    $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
-            } else 
-                if (isset($parameters['Participant']['participant_identifier'])) {
-                    $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
-                    if ($participantIdentifiers)
-                        $conditions['Participant.participant_identifier'] = $participantIdentifiers;
-                } else {
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
+        } elseif (isset($parameters['Participant']['participant_identifier_start'])) {
+            $participantIdentifierStart = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
+            $participantIdentifierEnd = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
+            if ($participantIdentifierStart)
+                $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
+            if ($participantIdentifierEnd)
+                $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
+        } elseif (isset($parameters['Participant']['participant_identifier'])) {
+            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participantIdentifiers)
+                $conditions['Participant.participant_identifier'] = $participantIdentifiers;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
         $miscIdentifierModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
         $tmpResCount = $miscIdentifierModel->find('count', array(

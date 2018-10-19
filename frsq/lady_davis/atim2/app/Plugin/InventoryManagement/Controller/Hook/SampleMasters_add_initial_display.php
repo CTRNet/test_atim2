@@ -68,31 +68,30 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
     // }
     
     // *********** PBMC, SERUM, PLASMA ***********
-} else 
-    if (in_array($sampleControlData['SampleControl']['sample_type'], array(
-        'pbmc',
-        'serum',
-        'plasma'
-    ))) {
-        $existingBloodDerivative = $this->SampleMaster->find('first', array(
-            'conditions' => array(
-                'SampleMaster.collection_id' => $collectionId,
-                'SampleControl.sample_type' => array(
-                    'pbmc',
-                    'serum',
-                    'plasma'
-                )
-            ),
-            'order' => 'SampleMaster.id DESC',
-            'recursive' => 0
-        ));
-        if ($existingBloodDerivative) {
-            $this->request->data['DerivativeDetail']['creation_by'] = $existingBloodDerivative['DerivativeDetail']['creation_by'];
-            $this->request->data['DerivativeDetail']['creation_datetime'] = $existingBloodDerivative['DerivativeDetail']['creation_datetime'];
-            $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $existingBloodDerivative['DerivativeDetail']['creation_datetime_accuracy'];
-        } else {
-            $this->request->data['DerivativeDetail']['creation_by'] = $parentSampleData['SpecimenDetail']['reception_by'];
-            $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
-            $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
-        }
+} elseif (in_array($sampleControlData['SampleControl']['sample_type'], array(
+    'pbmc',
+    'serum',
+    'plasma'
+))) {
+    $existingBloodDerivative = $this->SampleMaster->find('first', array(
+        'conditions' => array(
+            'SampleMaster.collection_id' => $collectionId,
+            'SampleControl.sample_type' => array(
+                'pbmc',
+                'serum',
+                'plasma'
+            )
+        ),
+        'order' => 'SampleMaster.id DESC',
+        'recursive' => 0
+    ));
+    if ($existingBloodDerivative) {
+        $this->request->data['DerivativeDetail']['creation_by'] = $existingBloodDerivative['DerivativeDetail']['creation_by'];
+        $this->request->data['DerivativeDetail']['creation_datetime'] = $existingBloodDerivative['DerivativeDetail']['creation_datetime'];
+        $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $existingBloodDerivative['DerivativeDetail']['creation_datetime_accuracy'];
+    } else {
+        $this->request->data['DerivativeDetail']['creation_by'] = $parentSampleData['SpecimenDetail']['reception_by'];
+        $this->request->data['DerivativeDetail']['creation_datetime'] = $parentSampleData['SpecimenDetail']['reception_datetime'];
+        $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $parentSampleData['SpecimenDetail']['reception_datetime_accuracy'];
     }
+}

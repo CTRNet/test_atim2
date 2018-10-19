@@ -34,6 +34,7 @@ class RealiquotingControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $sampleControlId
      * @param $parentAliquotControlId
      * @return array
@@ -61,6 +62,7 @@ class RealiquotingControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $parentSampleCtrlId
      * @param $parentAliquotCtrlId
      * @param $childAliquotCtrlId

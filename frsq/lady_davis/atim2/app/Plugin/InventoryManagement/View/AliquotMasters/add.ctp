@@ -22,9 +22,19 @@ $optionsParent = array_merge($options, array(
     )
 ));
 
+if (isset($templateNodeDefaultValues)) {
+    $templateNodeDefaultValues = array_filter($templateNodeDefaultValues, function ($var) {
+        return (! ($var == '' || is_null($var)));
+    });
+    $structureOverride = array_merge($structureOverride, $templateNodeDefaultValues);
+}
 $args = AppController::getInstance()->passedArgs;
 if (isset($args['templateInitId'])) {
-    $overrideData = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId'])), $overrideData);
+    $templateInitDefaultValues = Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId']));
+    $templateInitDefaultValues = array_filter($templateInitDefaultValues, function ($var) {
+        return (! ($var == '' || is_null($var)));
+    });
+    $structureOverride = array_merge($structureOverride, $templateInitDefaultValues);
 }
 
 $optionsChildren = array_merge($options, array(
@@ -37,7 +47,7 @@ $optionsChildren = array_merge($options, array(
         "form_bottom" => false,
         'section_end' => $isBatchProcess
     ),
-    "override" => $overrideData
+    "override" => $structureOverride
 ));
 
 // CUSTOM CODE
