@@ -151,7 +151,7 @@ AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_co
 UPDATE storage_controls SET flag_active = 1 WHERE storage_type = 'TMA-blc 29X21';
 UPDATE structure_permissible_values_customs 
 SET `en` = 'TMA-block', `fr` = 'TMA-bloc', `use_as_input` = '1'
-WHERE `ldbreast270`.`structure_permissible_values_customs`.`id` = '283';
+WHERE `structure_permissible_values_customs`.`id` = '283';
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
 UPDATE`structure_permissible_values_customs` 
@@ -160,6 +160,12 @@ WHERE control_id = @control_id
 AND value = 'TMA-blc 29X21';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Templates	
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '685x' WHERE version_number = '2.7.0';
+UPDATE templates SET user_id = 1, group_id = 1 WHERE user_id = 0 OR user_id IS NULL;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '' WHERE version_number = '2.7.0';
