@@ -11,8 +11,7 @@ class UserLoginAttempt extends AppModel
     /**
      * Save successful Login
      *
-     * @param string $username
-     *            Username
+     * @param string $username Username
      * @return mixed On success Model::$data if its not empty or true, false on failure
      */
     public function saveSuccessfulLogin($username)
@@ -30,8 +29,7 @@ class UserLoginAttempt extends AppModel
     /**
      * Save failed Login
      *
-     * @param string $username
-     *            Username
+     * @param string $username Username
      * @return mixed On success Model::$data if its not empty or true, false on failure
      */
     public function saveFailedLogin($username)

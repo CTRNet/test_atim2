@@ -1,21 +1,21 @@
 <?php
 $structureLinks = array(
-    'top' => '/Order/OrderItems/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderItem.id'],
-    'bottom' => array(
-        'cancel' => $urlToCancel
-    )
+    'top' => "/Tools/Template/edit/$nodeId"
 );
 
 $structureOverride = array();
+$dropdownOptions = array();
 
-$finalAtimStructure = $atimStructure;
+$finalAtimStructure = $structure;
+
 $finalOptions = array(
+    'type' => 'add',
     'links' => $structureLinks,
     'override' => $structureOverride,
     'settings' => array(
-        'header' => __('order item')
+        'header' => __('set default values', null)
     ),
-    'extras' => '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>'
+    'dropdown_options' => $dropdownOptions
 );
 
 // CUSTOM CODE
@@ -24,5 +24,4 @@ if ($hookLink) {
     require ($hookLink);
 }
 
-// BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);

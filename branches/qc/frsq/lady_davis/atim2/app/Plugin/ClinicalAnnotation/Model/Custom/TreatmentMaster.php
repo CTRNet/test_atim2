@@ -17,10 +17,9 @@ class TreatmentMasterCustom extends TreatmentMaster
             $tripleNegativeCcl = '';
             if ($erReceptorCcl == 'negative' && $prReceptorCcl == 'negative' && ($her2ReceptorCcl == 'negative' || $fishCcl == 'negative')) {
                 $tripleNegativeCcl = 'y';
-            } else 
-                if ((strlen($erReceptorCcl) && $erReceptorCcl != 'negative') || (strlen($prReceptorCcl) && $prReceptorCcl != 'negative') || (strlen($her2ReceptorCcl . $fishCcl) && ! preg_match('/negative/', $her2ReceptorCcl . $fishCcl))) {
-                    $tripleNegativeCcl = 'n';
-                }
+            } elseif ((strlen($erReceptorCcl) && $erReceptorCcl != 'negative') || (strlen($prReceptorCcl) && $prReceptorCcl != 'negative') || (strlen($her2ReceptorCcl . $fishCcl) && ! preg_match('/negative/', $her2ReceptorCcl . $fishCcl))) {
+                $tripleNegativeCcl = 'n';
+            }
             $this->data['TreatmentDetail']['triple_negative_ccl'] = $tripleNegativeCcl;
             $this->addWritableField(array(
                 'triple_negative_ccl'

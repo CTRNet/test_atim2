@@ -20,14 +20,14 @@ foreach ($this->request->data as $newDataSet) {
                     'conditions' => array(
                         'SampleMaster.id' => $newDataSet['parent']['ViewSample']['initial_specimen_sample_id']
                     ),
-                    'recursive' => '0'
+                    'recursive' => 0
                 ));
                 if ($bloodData['SampleDetail']['blood_type'] == 'EDTA') {
                     $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'EDTA';
-                } else 
-                    if ($bloodData['SampleDetail']['blood_type'] == 'CTAD') {
-                        $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'CTAD';
-                    }
+                } elseif ($bloodData['SampleDetail']['blood_type'] == 'CTAD') {
+                    $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'CTAD';
+                }
+                break;
         }
         $existingBloodDerivativeAliquot = $this->AliquotMaster->find('first', array(
             'conditions' => array(
@@ -38,7 +38,7 @@ foreach ($this->request->data as $newDataSet) {
                     'plasma'
                 )
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if ($existingBloodDerivativeAliquot) {
             $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = $existingBloodDerivativeAliquot['AliquotMaster']['storage_datetime'];

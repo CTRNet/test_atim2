@@ -18,6 +18,7 @@ class MenusComponent extends Component
     );
 
     /**
+     *
      * @param Controller $controller
      */
     public function initialize(Controller $controller)
@@ -26,6 +27,7 @@ class MenusComponent extends Component
     }
 
     /**
+     *
      * @param null $alias
      * @param array $replace
      * @return array|bool|mixed

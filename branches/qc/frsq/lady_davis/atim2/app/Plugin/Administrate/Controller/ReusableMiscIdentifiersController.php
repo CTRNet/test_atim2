@@ -62,6 +62,7 @@ class ReusableMiscIdentifiersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $miCtrlId
      */
     public function manage($miCtrlId)
@@ -109,7 +110,7 @@ class ReusableMiscIdentifiersController extends AdministrateAppController
                         'MiscIdentifier.tmp_deleted' => 1,
                         'MiscIdentifier.deleted' => 1
                     ),
-                    'recursive' => -1
+                    'recursive' => - 1
                 ));
                 if (empty($mis)) {
                     AppController::addWarningMsg(__('you need to select at least one item'));

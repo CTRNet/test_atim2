@@ -17,6 +17,7 @@ class Group extends AppModel
     );
 
     /**
+     *
      * @return null
      */
     public function parentNode()
@@ -25,6 +26,7 @@ class Group extends AppModel
     }
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -86,8 +88,7 @@ class Group extends AppModel
     /**
      * Checks if at least one permission for that group is granted
      *
-     * @param
-     *            $groupId
+     * @param $groupId
      * @return bool
      */
     public function hasPermissions($groupId)
@@ -126,6 +127,7 @@ class Group extends AppModel
     }
 
     /**
+     *
      * @return array|null
      */
     public function getList()

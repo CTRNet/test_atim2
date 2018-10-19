@@ -37,11 +37,18 @@ class OrderItemsController extends OrderAppController
     );
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->OrderItem, 'orderitems', '/InventoryManagement/OrderItems/search');
         
         $hookLink = $this->hook('format');
@@ -56,6 +63,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param string $status
      * @param null $orderLineId
@@ -75,7 +83,7 @@ class OrderItemsController extends OrderAppController
                     'OrderLine.id' => $orderLineId,
                     'OrderLine.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($orderLineData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -87,7 +95,7 @@ class OrderItemsController extends OrderAppController
                     'Shipment.id' => $shipmentId,
                     'Shipment.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($shipmentData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -98,7 +106,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'Order.id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             ));
             if (empty($orderData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -118,7 +126,7 @@ class OrderItemsController extends OrderAppController
             'pending',
             'shipped',
             'shipped & returned'
-        ))){
+        ))) {
             $conditions['OrderItem.status'] = $status;
         }
         $this->request->data = $this->paginate($this->OrderItem, $conditions);
@@ -155,10 +163,8 @@ class OrderItemsController extends OrderAppController
     /**
      * Liste all order items linked to the same object (AliquotMaster or TmaSlide)
      *
-     * @param unknown $objectModelName
-     *            Name of the model of the studied object (AliquotMaster, TmaSlide)
-     * @param unknown $objectId
-     *            Id of the boject
+     * @param unknown $objectModelName Name of the model of the studied object (AliquotMaster, TmaSlide)
+     * @param unknown $objectId Id of the boject
      */
     public function listAllOrderItemsLinkedToOneObject($objectModelName, $objectId)
     {
@@ -206,6 +212,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param int $orderLineId
      * @param string $objectModelName
@@ -277,7 +284,7 @@ class OrderItemsController extends OrderAppController
             
             $displayLimit = Configure::read('AddToOrder_processed_items_limit');
             if (sizeof($this->request->data) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", ($orderLineId ? '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId . '/' : '/Order/Orders/detail/' . $orderId), 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", ($orderLineId ? '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId . '/' : '/Order/Orders/detail/' . $orderId));
                 return;
             }
             
@@ -303,7 +310,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'AliquotMaster.barcode' => $dataUnit['AliquotMaster']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if (! $aliquotData) {
                         $errorsTracking['barcode']['barcode is required and should exist'][] = $rowCounter;
@@ -324,7 +331,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'TmaSlide.barcode' => $dataUnit['TmaSlide']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if (! $slideData) {
                         $errorsTracking['barcode']['a tma slide barcode is required and should exist'][] = $rowCounter;
@@ -379,7 +386,7 @@ class OrderItemsController extends OrderAppController
                     $newDataToSave['OrderItem']['order_id'] = $orderId;
                     if ($orderLineId)
                         $newDataToSave['OrderItem']['order_line_id'] = $orderLineId;
-                    // Save new recrod
+                        // Save new recrod
                     $this->OrderItem->id = null;
                     $this->OrderItem->data = array();
                     if (! $this->OrderItem->save($newDataToSave, false))
@@ -445,6 +452,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $objectModelName
      * @param null $objectId
      */
@@ -498,7 +506,7 @@ class OrderItemsController extends OrderAppController
             $objectIdsToAdd = explode(',', $this->request->data['object_ids_to_add']);
             unset($this->request->data['object_ids_to_add']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         
@@ -510,10 +518,10 @@ class OrderItemsController extends OrderAppController
         ));
         $displayLimit = Configure::read('AddToOrder_processed_items_limit');
         if (empty($newItemsData)) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         } elseif (sizeof($newItemsData) > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
             return;
         }
         if (sizeof($newItemsData) != sizeof($objectIdsToAdd)) {
@@ -524,12 +532,12 @@ class OrderItemsController extends OrderAppController
         foreach ($newItemsData as $newItem) {
             if ($objectModelName == 'AliquotMaster') {
                 if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('aliquot_master_id', $newItem['AliquotMaster']['id'])) {
-                    $this->atimFlashWarning(__("an aliquot cannot be added twice to orders as long as this one has not been first returned"), $urlToCancel, 5);
+                    $this->atimFlashWarning(__("an aliquot cannot be added twice to orders as long as this one has not been first returned"), $urlToCancel);
                     return;
                 }
             } else {
                 if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $newItem['TmaSlide']['id'])) {
-                    $this->atimFlashWarning(__("a tma slide cannot be added twice to orders as long as this one has not been first returned"), $urlToCancel, 5);
+                    $this->atimFlashWarning(__("a tma slide cannot be added twice to orders as long as this one has not been first returned"), $urlToCancel);
                     return;
                 }
             }
@@ -659,7 +667,7 @@ class OrderItemsController extends OrderAppController
                             'OrderLine.order_id' => $orderId,
                             'OrderLine.id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -669,7 +677,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'Order.id' => $orderId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -766,19 +774,18 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
+     *
+     * @deprecated Replaced by editInBatch function on 2018-07-09
      */
     public function edit($orderId, $orderItemId, $mainFormModel = null)
     {
         if ((! $orderId) || (! $orderItemId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        
-        $this->setUrlToCancel();
-        $urlToCancel = $this->request->data['url_to_cancel'];
-        unset($this->request->data['url_to_cancel']);
         
         // MANAGE DATA
         
@@ -791,63 +798,19 @@ class OrderItemsController extends OrderAppController
         if (empty($orderItemData))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         
-        if ($orderItemData['OrderItem']['status'] == 'shipped')
-            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        
+        $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/0/0/' . $orderItemId;
         switch ($mainFormModel) {
-            case 'Order':
-                $urlToCancel = '/Order/Orders/detail/' . $orderItemData['OrderItem']['order_id'] . '/';
-                break;
             case 'OrderLine':
-                $urlToCancel = '/Order/OrderLines/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['order_line_id'] . '/';
+                $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['order_line_id'] . '/0/' . $orderItemId;
                 break;
             case 'Shipment':
-                $urlToCancel = '/Order/Shipments/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['shipment_id'] . '/';
+                $urlToRedirect = '/Order/OrderItems/editInBatch/' . $orderItemData['OrderItem']['order_id'] . '/0/' . $orderItemData['OrderItem']['shipment_id'] . '/' . $orderItemId;
                 break;
         }
-        $this->set('urlToCancel', $urlToCancel);
-        
-        // MANAGE FORM, MENU AND ACTION BUTTONS
-        
-        $this->set('atimMenu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
-        $this->set('atimMenuVariables', array(
-            'Order.id' => $orderId,
-            'OrderItem.id' => $orderItemId
-        ));
-        
-        $this->Structures->set(($orderItemData['OrderItem']['status'] == 'pending' ? 'orderitems' : 'orderitems_returned'));
-        
-        // SAVE PROCESS
-        
-        $hookLink = $this->hook('format');
-        if ($hookLink) {
-            require ($hookLink);
-        }
-        
-        if (empty($this->request->data)) {
-            $this->request->data = $orderItemData;
-        } else {
-            $submittedDataValidates = true;
-            
-            $hookLink = $this->hook('presave_process');
-            if ($hookLink) {
-                require ($hookLink);
-            }
-            
-            if ($submittedDataValidates) {
-                $this->OrderItem->id = $orderItemId;
-                if ($this->OrderItem->save($this->request->data)) {
-                    $hookLink = $this->hook('postsave_process');
-                    if ($hookLink) {
-                        require ($hookLink);
-                    }
-                    $this->atimFlash(__('your data has been updated'), $urlToCancel);
-                }
-            }
-        }
+        $this->redirect($urlToRedirect, null, true);
     }
 
-    public function editInBatch()
+    public function editInBatch($orderId = 0, $orderLineId = 0, $shipmentId = 0, $orderItemId = 0, $orderItemStatus = '')
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -883,8 +846,33 @@ class OrderItemsController extends OrderAppController
             $criteria = array(
                 'OrderItem.id' => $orderItemIds
             );
+        } elseif ($orderId) {
+            // User is working on an order
+            $this->Order->getOrRedirect($orderId);
+            $criteria = array(
+                'OrderItem.order_id' => $orderId
+            );
+            if ($orderItemStatus) {
+                $criteria[] = array(
+                    'OrderItem.status' => $orderItemStatus
+                );
+            }
+            $urlToCancel = '/Order/Orders/detail/' . $orderId;
+            if ($orderLineId) {
+                $criteria['OrderItem.order_line_id'] = $orderLineId;
+                $urlToCancel = '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId;
+            }
+            if ($shipmentId) {
+                $criteria['OrderItem.shipment_id'] = $shipmentId;
+                $urlToCancel = '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId;
+            }
+            if ($orderItemId) {
+                $criteria['OrderItem.id'] = $orderItemId;
+            }
+            if (empty($this->request->data))
+                $initialDisplay = true;
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['order_item_ids']);
@@ -902,41 +890,50 @@ class OrderItemsController extends OrderAppController
                 $this->OrderItem->sortForDisplay($intialOrderItemsData, $orderItemIds);
             $displayLimit = Configure::read('edit_processed_items_limit');
             if (sizeof($intialOrderItemsData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel);
                 return;
             }
         }
         
-        $statuses = $this->OrderItem->find('all', array(
-            'conditions' => $criteria,
-            'fields' => array(
-                'DISTINCT OrderItem.status'
-            ),
-            'recursive' => -1
-        ));
-        if (empty($statuses)) {
-            // All order items have probably been deleted by another user before we submitted updated data
-            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } elseif (sizeof($statuses) != 1) {
-            $this->atimFlashWarning(__('items should have the same status to be updated in batch'), $urlToCancel);
-            return;
-        } elseif ($statuses[0]['OrderItem']['status'] == 'shipped') {
-            $this->atimFlashWarning(__('items should have a status different than shipped to be updated in batch'), $urlToCancel);
-            return;
-        }
-        $status = $statuses[0]['OrderItem']['status'];
-        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         $this->set('urlToCancel', $urlToCancel);
+        $this->set('orderId', $orderId);
+        $this->set('orderLineId', $orderLineId);
+        $this->set('shipmentId', $shipmentId);
         $this->set('orderItemIds', implode(',', $orderItemIds));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->Structures->set(($status != 'pending') ? 'orderitems_returned' : 'orderitems');
+        $this->Structures->set('orderitems');
         
-        $this->set('atimMenu', $this->Menus->get('/Order/Orders/search/'));
-        $this->set('atimMenuVariables', array());
+        if ($shipmentId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/Shipments/detail/%%Shipment.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId,
+                'Shipment.id' => $shipmentId
+            ));
+        } elseif ($orderLineId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/OrderLines/detail/%%OrderLine.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId,
+                'OrderLine.id' => $orderLineId
+            ));
+        } elseif ($orderId) {
+            // Get the current menu object
+            $this->set('atimMenu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
+            // Variables
+            $this->set('atimMenuVariables', array(
+                'Order.id' => $orderId
+            ));
+        } else {
+            $this->set('atimMenu', $this->Menus->get('/Order/Orders/search/'));
+            $this->set('atimMenuVariables', array());
+        }
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -956,6 +953,12 @@ class OrderItemsController extends OrderAppController
             
             // Launch validation
             $submittedDataValidates = true;
+            
+            $fieldsReservedForReturnedItems = array(
+                'OrderItem.date_returned',
+                'OrderItem.reason_returned',
+                'OrderItem.reception_by'
+            );
             
             $errors = array();
             $recordCounter = 0;
@@ -979,13 +982,26 @@ class OrderItemsController extends OrderAppController
                 }
                 // Reset data
                 $newStudiedItem = $this->OrderItem->data;
+                // Check returned fields
+                if (! $newStudiedItem['OrderItem']['status']) {
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+                if ($newStudiedItem['OrderItem']['status'] != 'shipped & returned') {
+                    foreach ($fieldsReservedForReturnedItems as $returnedItemModelField) {
+                        list ($returnedItemModel, $returnedItemField) = explode('.', $returnedItemModelField);
+                        if (isset($newStudiedItem[$returnedItemModel][$returnedItemField]) && strlen($newStudiedItem[$returnedItemModel][$returnedItemField])) {
+                            $errors['OrderItem'][$returnedItemField][__('fields defined for returned items can not be completed for items with status different than shipped & returned')][] = $recordCounter;
+                            $submittedDataValidates = false;
+                        }
+                    }
+                }
             }
             
             if ($this->OrderItem->find('count', array(
                 'conditions' => array(
                     'OrderItem.id' => $updatedItemIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($updatedItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1019,20 +1035,29 @@ class OrderItemsController extends OrderAppController
                 
                 AppModel::releaseBatchViewsUpdateLock();
                 
-                // Creat Batchset then redirect
+                // Redirect
                 
-                $batchIds = $orderItemIds;
-                $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-                $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
-                $batchSetData = array(
-                    'BatchSet' => array(
-                        'datamart_structure_id' => $datamartStructure->getIdByModelName('OrderItem'),
-                        'flag_tmp' => true
-                    )
-                );
-                $batchSetModel->checkWritableFields = false;
-                $batchSetModel->saveWithIds($batchSetData, $batchIds);
-                $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
+                if ($shipmentId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
+                } elseif ($orderLineId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/' . $orderId . '/' . $orderLineId);
+                } elseif ($orderId) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/' . $orderId);
+                } else {
+                    // Creat Batchset then redirect
+                    $batchIds = $orderItemIds;
+                    $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+                    $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
+                    $batchSetData = array(
+                        'BatchSet' => array(
+                            'datamart_structure_id' => $datamartStructure->getIdByModelName('OrderItem'),
+                            'flag_tmp' => true
+                        )
+                    );
+                    $batchSetModel->checkWritableFields = false;
+                    $batchSetModel->saveWithIds($batchSetData, $batchIds);
+                    $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
+                }
             } else {
                 // Set error message
                 foreach ($errors as $model => $fieldMessages) {
@@ -1053,6 +1078,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
@@ -1142,7 +1168,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'OrderItem.order_line_id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => - 1
                     ));
                     if ($orderItemCount != 0) {
                         $orderItemNotShippedCount = $this->OrderItem->find('count', array(
@@ -1151,7 +1177,7 @@ class OrderItemsController extends OrderAppController
                                 'OrderItem.order_line_id' => $orderLineId,
                                 'OrderItem.deleted != 1'
                             ),
-                            'recursive' => -1
+                            'recursive' => - 1
                         ));
                         if ($orderItemNotShippedCount == 0) {
                             $newStatus = 'shipped';
@@ -1184,6 +1210,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param int $orderId
      * @param int $orderLineId
      * @param int $shipmentId
@@ -1244,7 +1271,7 @@ class OrderItemsController extends OrderAppController
             if (empty($this->request->data))
                 $initialDisplay = true;
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel);
             return;
         }
         unset($this->request->data['order_item_ids']);
@@ -1263,7 +1290,7 @@ class OrderItemsController extends OrderAppController
             }
             $displayLimit = Configure::read('defineOrderItemsReturned_processed_items_limit');
             if (sizeof($initialOrderItemsData) > $displayLimit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit). " . __('use databrowser to submit a sub set of data'), $urlToCancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit). " . __('use databrowser to submit a sub set of data'), $urlToCancel);
                 return;
             }
             if ($orderItemIds) {
@@ -1323,7 +1350,7 @@ class OrderItemsController extends OrderAppController
         }
         
         // Set structure
-        $this->Structures->set('orderitems_returned,orderitems_returned_flag');
+        $this->Structures->set('orderitems,orderitems_returned_flag');
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -1333,6 +1360,8 @@ class OrderItemsController extends OrderAppController
         // SAVE DATA
         
         if ($initialDisplay) {
+            
+            AppController::addWarningMsg(__('order items data update will be limited to the item defined as returned'));
             
             $this->request->data = $initialOrderItemsData;
             
@@ -1383,7 +1412,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'OrderItem.id' => $orderItemIds
                 ),
-                'recursive' => -1
+                'recursive' => - 1
             )) != sizeof($orderItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1483,6 +1512,9 @@ class OrderItemsController extends OrderAppController
                     $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
                 }
             } else {
+                
+                AppController::addWarningMsg(__('order items data update will be limited to the item defined as returned'));
+                
                 // Set error message
                 foreach ($errors as $model => $fieldMessages) {
                     $this->{$model}->validationErrors = array();
@@ -1502,6 +1534,7 @@ class OrderItemsController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderItemId
      * @param null $mainFormModel
@@ -1604,6 +1637,8 @@ class OrderItemsController extends OrderAppController
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
             }
+            
+            AppController::addWarningMsg(__('the return information was deleted'));
             
             $hookLink = $this->hook('postsave_process');
             if ($hookLink) {

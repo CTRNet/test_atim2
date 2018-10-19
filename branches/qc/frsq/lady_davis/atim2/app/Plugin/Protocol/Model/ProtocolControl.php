@@ -57,6 +57,7 @@ class ProtocolControl extends ProtocolAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

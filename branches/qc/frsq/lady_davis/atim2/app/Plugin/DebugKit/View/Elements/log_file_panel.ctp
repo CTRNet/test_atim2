@@ -15,7 +15,7 @@
  * @since         DebugKit 0.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-
-if (!empty($_SESSION['debug']['dl'])){
-    $this->Toolbar->showUserHistory($_SESSION['debug']['dl']);
-}
+?>
+<h2> <?php echo __d('debug_kit', 'Log File'); ?></h2>
+<?php
+    echo $this->Toolbar->showLogFile();

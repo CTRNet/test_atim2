@@ -3,6 +3,8 @@
 /**
  * Class ProfilesController
  */
+App::uses('CustomizeAppController', 'Customize.Controller');
+
 class ProfilesController extends CustomizeAppController
 {
 

@@ -1,7 +1,9 @@
 <?php
 $structureLinks = array(
     'index' => array(
-        'detail' => '/Administrate/Groups/detail/%%Group.id%%'
+        'detail' => '/Administrate/Groups/detail/%%Group.id%%',
+        'edit' => '/Administrate/Groups/edit/%%Group.id%%',
+        'delete' => '/Administrate/Groups/delete/%%Group.id%%'
     ),
     'bottom' => array(
         'add' => '/Administrate/Groups/add/',

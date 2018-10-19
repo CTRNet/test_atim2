@@ -15,6 +15,7 @@ class Drug extends DrugAppModel
     public $drugDataAndCodeForDisplayAlreadySet = array();
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -70,9 +71,8 @@ class Drug extends DrugAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $drugId Id
-     *            of the studied record.
-     *            
+     * @param $drugId Id of the studied record.
+     *       
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
@@ -117,6 +117,7 @@ class Drug extends DrugAppModel
     }
 
     /**
+     *
      * @param $drugData
      * @return mixed|string
      */
@@ -152,6 +153,7 @@ class Drug extends DrugAppModel
     }
 
     /**
+     *
      * @param $drugDataAndCode
      * @return mixed
      */
@@ -172,7 +174,15 @@ class Drug extends DrugAppModel
         if (! isset($this->drugTitlesAlreadyChecked[$drugDataAndCode])) {
             $matches = array();
             $selectedDrugs = array();
-            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $drugDataAndCode);
+            $term = str_replace(array(
+                "\\",
+                '%',
+                '_'
+            ), array(
+                "\\\\",
+                '\%',
+                '\_'
+            ), $drugDataAndCode);
             if (preg_match("/(.+)\ \[([0-9]+)\]$/", $term, $matches) > 0) {
                 // Auto complete tool has been used
                 $selectedDrugs = $this->find('all', array(
@@ -185,7 +195,9 @@ class Drug extends DrugAppModel
                 // consider $drugDataAndCode contains just drug title
                 $terms = array();
                 foreach (explode(' ', $term) as $keyWord) {
-                    $terms[] = array("Drug.generic_name LIKE" => '%' . $keyWord . '%');
+                    $terms[] = array(
+                        "Drug.generic_name LIKE" => '%' . $keyWord . '%'
+                    );
                 }
                 $conditions = array(
                     'AND' => $terms
