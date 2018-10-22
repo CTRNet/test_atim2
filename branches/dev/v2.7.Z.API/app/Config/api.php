@@ -7,7 +7,6 @@ define("CONTROLLER_NAME", "controller");
 define("REST_API_MODE", "APIMode");
 define("REST_API_ACTION", "APIAction");
 define("REST_API_MODE_STRUCTURE", "APISModeStructure");
-define("ATIM_API_KEY", "atimApiKey");
 
 define("RECEIVE", "receive");
 
@@ -38,10 +37,13 @@ class API {
     public static $structures = 'structure';
     public static $redirect = 'redirect';
     private static $stop = 'stop';
+    
+    private static $apiKey;
 
-    public static function d_api_app($data) {
-        if (self::isAPIMode()) {
-            if (self::getAction()!='initialAPI') {
+    public static function d_api_app($data) 
+    {
+        if (static::isAPIMode()) {
+            if (static::getAction()!='initialAPI') {
                 ob_clean();
 
                 $response = json_encode($data);
@@ -65,16 +67,18 @@ class API {
      * @param int $counter after $counter time that this function run, it send $message to API
      * @param array $message the message that will be send to API after $counter time of execution of this function
      */
-    public static function stop($counter = 1, $message = array('message')) {
-        self::stopCondition(self::$counter, '==', $counter, $message);
-        self::$counter++;
+    public static function stop($counter = 1, $message = array('message')) 
+    {
+        static::stopCondition(static::$counter, '==', $counter, $message);
+        static::$counter++;
     }
 
     /**
      * @param int $counter after $counter time that this function run, it send $message to API
      * @param array $message the message that will be send to API after $counter time of execution of this function
      */
-    public static function stopCondition($var1, $con, $var2, $message = array()) {
+    public static function stopCondition($var1, $con, $var2, $message = array())
+    {
         $condition = false;
         $condition = ($var1 == $var2 && $con == "==") ? true : $condition;
         $condition = ($var1 != $var2 && $con == "!=") ? true : $condition;
@@ -83,8 +87,8 @@ class API {
         $condition = ($var1 > $var2 && $con == ">") ? true : $condition;
         $condition = ($var1 >= $var2 && $con == ">=") ? true : $condition;
         if ($condition) {
-            self::addToBundle($message, self::$stop);
-            self::sendDataAndClear();
+            static::addToBundle($message, static::$stop);
+            static::sendDataAndClear();
         }
     }
 
@@ -92,15 +96,16 @@ class API {
      * @param array $message
      * @param null $type
      */
-    public static function addToBundle($message, $type = null) {
-        $modelName = self::getModelName();
+    public static function addToBundle($message, $type = null)
+    {
+        $modelName = static::getModelName();
         if ($modelName == 'missingtranslation' || $modelName == 'userlog') {
             return;
         }
         if (empty($type)) {
             $type = 'informations';
         }
-        if (self::isAPIMode() && $type !=self::$structures) {
+        if (static::isAPIMode() && $type !=static::$structures) {
             $bundle = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             if (!isset($bundle[$type]) || !is_array($bundle[$type])) {
                 $bundle[$type] = array();
@@ -108,7 +113,7 @@ class API {
 
             $bundle[$type][] = $message;
             $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = $bundle;
-        }elseif(self::isAPIMode() && $type == self::$structures){
+        }elseif(static::isAPIMode() && $type == static::$structures){
             $bundle = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             if (!isset($bundle[$type]) || !is_array($bundle[$type])) {
                 $bundle[$type] = $message;
@@ -140,8 +145,9 @@ class API {
     /**
      * @param $data
      */
-    public static function sendTo($data, $internal = false) {
-        if (self::isAPIMode() && (self::getAction() != 'initialAPI' || $internal)) {
+    public static function sendTo($data, $internal = false) 
+    {
+        if (static::isAPIMode() && (static::getAction() != 'initialAPI' || $internal)) {
             if (ob_get_contents()) {
                 ob_end_clean();
             }
@@ -150,33 +156,37 @@ class API {
         }
     }
 
-    public static function sendDataAndClear() {
-        if (self::isAPIMode()) {
+    public static function sendDataAndClear() 
+    {
+        if (static::isAPIMode()) {
             $return = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             unset($_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE]);
-            self::sendTo($return, true);
+            static::sendTo($return, true);
         }
     }
 
     /**
      * @return bool
      */
-    public static function isAPIMode() {
+    public static function isAPIMode() 
+    {
         return (isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) && $_SESSION[REST_API][CONFIG_API][REST_API_MODE]);
     }
 
     /**
      * @return bool
      */
-    public static function isStructMode() {
+    public static function isStructMode() 
+    {
         return (isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE]) && $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE]);
     }
 
     /**
      * @return mixed
      */
-    public static function getModelName() {
-        if (self::isAPIMode()) {
+    public static function getModelName() 
+    {
+        if (static::isAPIMode()) {
             return $_SESSION[REST_API][CONFIG_API][MODEL_NAME];
         }
     }
@@ -184,8 +194,9 @@ class API {
     /**
      * @return mixed
      */
-    public static function getAction() {
-        if (self::isAPIMode()) {
+    public static function getAction() 
+    {
+        if (static::isAPIMode()) {
             return $_SESSION[REST_API][CONFIG_API][REST_API_ACTION];
         }
     }
@@ -193,8 +204,9 @@ class API {
     /**
      * @return mixed
      */
-    public static function getController() {
-        if (self::isAPIMode()) {
+    public static function getController()
+    {
+        if (static::isAPIMode()) {
             return $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME];
         }
     }
@@ -202,26 +214,29 @@ class API {
     /**
      * @param $message
      */
-    public static function addToQueue($message) {
+    public static function addToQueue($message) 
+    {
         global $APIGlobalVariable;
         $APIGlobalVariable++;
 
-        if (self::isAPIMode()) {
-            $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE][QUEUE][] = $APIGlobalVariable . ': ' . $message;
+        if (static::isAPIMode()) {
+            $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE][QUEUE][] = $APIGlobalVariable . ': ' . json_encode($message);
         }
     }
 
     /**
      * @return null
      */
-    public static function getApiKey() {
-        if (self::isAPIMode()) {
-            return $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY];
+    public static function getApiKey() 
+    {
+        if (static::isAPIMode()) {
+            return static::$apiKey;
         }
         return null;
     }
 
-    public static function checkExtradata($data){
+    public static function checkExtradata($data)
+    {
         if (isset($data['extraData'])){
             foreach ($data['extraData'][0] as $model=>$values){
                 if (is_array($values)){
@@ -240,7 +255,8 @@ class API {
      * @internal param array $data
      * @internal param string $model
      */
-    public static function checkData(&$controller) {
+    public static function checkData(&$controller) 
+    {
         if (is_string($controller->request->data)) {
             $data = json_decode($controller->request->data, true);
         } elseif (is_array($controller->request->data)) {
@@ -249,7 +265,7 @@ class API {
             return false;
         }
         
-        $data = self::checkExtradata($data);
+        $data = static::checkExtradata($data);
 
 //if ($data['data_put_options']['action']!="initialAPI"){
 //print_r($controller->request->data);
@@ -265,7 +281,7 @@ class API {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
                 $controller->request->data = $data;
                 Configure::write('debug', 0);
-                $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY] = $data['data_put_options']['atimApiKey'];
+                static::$apiKey = $data['data_put_options']['atimApiKey'];
                 $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = $data['data_put_options']['model'];
                 $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME] = $data['data_put_options']['controller'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
@@ -281,24 +297,25 @@ class API {
     /**
      * @param $data
      */
-    public static function sendDataToAPI($data) {
-        if (self::isAPIMode()) {
-            $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug', 'browse');
-            if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), $actionsList)) {
-                if (!self::showConfidential()) {
-                    $Sfs = self::$structure['Sfs'];
+    public static function sendDataToAPI($data)
+    {
+        if (static::isAPIMode()) {
+            $actionsList = array('view', 'profile', 'detail', 'listall', 'search', 'index', 'autocompletedrug', 'browse', 'searchById');
+            if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(static::getAction(), $actionsList)) {
+                if (!static::showConfidential()) {
+                    $Sfs = static::$structure['Sfs'];
                     foreach ($Sfs as $value) {
                         if ($value['flag_confidential']) {
                             for ($i = 0; $i < count($data); $i++) {
-                                unset($data[$i][ucfirst(self::getModelName())][$value['field']]);
+                                unset($data[$i][ucfirst(static::getModelName())][$value['field']]);
                             }
                         }
                     }
                 }
-//                self::addToBundle(array('Model, Action' => self::getModelName() . ', ' . self::getAction(), $data), 'data');
-                self::addToBundle($data, self::$data);
+//                static::addToBundle(array('Model, Action' => static::getModelName() . ', ' . static::getAction(), $data), 'data');
+                static::addToBundle($data, static::$data);
             }
-            self::sendDataAndClear();
+            static::sendDataAndClear();
         }
     }
 
@@ -306,23 +323,26 @@ class API {
      * @param $user
      * @return mixed
      */
-    public static function setUser(&$user) {
+    public static function setUser(&$user) 
+    {
         unset($user['UserApiKey']);
         unset($user['User']['password']);
-        self::$user = $user;
+        static::$user = $user;
         return $user;
     }
 
-    public static function getUser() {
-        return self::$user;
+    public static function getUser() 
+    {
+        return static::$user;
     }
 
     /**
      * @param $structure
      */
-    public static function setStructure($structure) {
-        self::$structure = $structure;
-        if (!self::allowModifyConfidentialData()) {
+    public static function setStructure($structure) 
+    {
+        static::$structure = $structure;
+        if (!static::allowModifyConfidentialData()) {
             AppController::getInstance()->atimFlashError(__('you are not authorized to reach that page because you cannot input data into confidential fields'), '/Menus');
         }
     }
@@ -330,12 +350,13 @@ class API {
     /**
      * @return bool
      */
-    private static function allowModifyConfidentialData() {
+    private static function allowModifyConfidentialData() 
+    {
         $allow = true;
-        if (!self::showConfidential()) {
-            $Sfs = self::$structure['Sfs'];
+        if (!static::showConfidential()) {
+            $Sfs = static::$structure['Sfs'];
             foreach ($Sfs as $value) {
-                if ($value['flag_confidential'] && (strpos(self::getAction(), 'edit') !== false || strpos(self::getAction(), 'add') !== false)) {
+                if ($value['flag_confidential'] && (strpos(static::getAction(), 'edit') !== false || strpos(static::getAction(), 'add') !== false)) {
                     $allow = false;
                 }
             }
@@ -346,8 +367,9 @@ class API {
     /**
      * @return mixed
      */
-    public static function showConfidential() {
-        return self::getUser()['Group']['flag_show_confidential'];
+    public static function showConfidential() 
+    {
+        return static::getUser()['Group']['flag_show_confidential'];
     }
 
     /**
@@ -356,7 +378,8 @@ class API {
      * @param $suffixes
      * @param $options
      */
-    private static function setField(&$response, $item, $suffixes, $options) {
+    private static function setField(&$response, $item, $suffixes, $options) 
+    {
         $optionType = $options['type'];
         $type = $item['type'];
         $field = null;
@@ -440,7 +463,8 @@ class API {
      * @param $options
      * @internal param string $type
      */
-    private static function setDate(&$response, $item, $suffixes, $options) {
+    private static function setDate(&$response, $item, $suffixes, $options) 
+    {
         $optionType = $options['type'];
         $type = $item['type'];
         if (!$suffixes) {
@@ -522,7 +546,8 @@ class API {
      * @param $options
      * @return array
      */
-    private static function createStructure($tableIndex, $structures, $options, $data) {
+    private static function createStructure($tableIndex, $structures, $options, $data) 
+    {
         if (empty($tableIndex) && $options['type'] != 'index') {
             return null;
         }
@@ -532,7 +557,7 @@ class API {
             foreach ($data as $dataVal) {
                 foreach($dataVal as $modelName => $modelArray) {
                     if (isset($options['links']['tree'][$modelName]['radiolist'])) {
-                        self::createTreeRadioButtonStructure($response, $data, $modelName, $options, 'radiolist');
+                        static::createTreeRadioButtonStructure($response, $data, $modelName, $options, 'radiolist');
                     }
                 }
             }
@@ -540,18 +565,18 @@ class API {
             foreach ($tableIndex as $columns) {
                 foreach ($columns as $column) {
                     foreach ($column as $item) {
-                        if (!$item['flag_confidential'] || self::$user['Group']['flag_show_confidential']) {
+                        if (!$item['flag_confidential'] || static::$user['Group']['flag_show_confidential']) {
                             $suffixes = null;
-                            if (API::getAction() == "search") {
+                            if (API::getAction() == "browse" && API::isStructMode()) {
                                 $suffixes = in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
                             }
                             if (in_array($item['type'], array('date', 'datetime'))) {
-                                self::setDate($response, $item, $suffixes, $options);
+                                static::setDate($response, $item, $suffixes, $options);
                             } elseif (in_array($item['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"))) {
-                                self::setField($response, $item, $suffixes, $options);
+                                static::setField($response, $item, $suffixes, $options);
                                 if ($suffixes && strpos($item['setting'], 'range') && $item['type'] == 'input') {
                                     $suffixes = array("_start", "_end");
-                                    self::setField($response, $item, $suffixes, $options);
+                                    static::setField($response, $item, $suffixes, $options);
                                 }
                             } else {
                                 continue;
@@ -578,15 +603,16 @@ class API {
                 break;
             }
         }
-        $values = self::getAllPossibleValue($data, $modelName, $field);
+        $values = static::getAllPossibleValue($data, $modelName, $field);
         $response['fields'][$tmpField]=array(
             'field' => $tmpField,
             'name' => $tmpModel."[".$tmpField."]",
             'type' =>'radiobutton',
-            'defined' => $values,
-            'note' =>"(IMPORTANT) ".$tmpModel."[".$tmpField."] is a dynamic field related to your model, to have more information about it should use the related functions in your API model."
+            'note' =>"(IMPORTANT) ".$tmpModel."[".$tmpField."] is a dynamic field related to your model, to have more information about it, should use the related functions in your API model.",
+            'defined' => $values
         );
-        $response['example'][$tmpModel][$tmpField] = count($values)>0?array_keys($values)[1]:0;
+//        $response['example'][$tmpModel][$tmpField] = count($values)>0?array_keys($values)[1]:0;
+        $response['example'][$tmpModel][$tmpField] = null;
     }
     
     private static function getAllPossibleValue($data, $modelName, $field=null)
@@ -594,13 +620,13 @@ class API {
         $ids = array("0" => "N/A");
         if (isset($data[0])){
             for ($i=0; $i<count($data); $i++){
-                $ids += self::getAllPossibleValue($data[$i], $modelName, $field);
+                $ids += static::getAllPossibleValue($data[$i], $modelName, $field);
             }
         }else
             if (!empty($field) && isset($data[$modelName][$field])) {
             $ids += array($data[$modelName][$field] => $modelName . ".$field: " . $data[$modelName][$field]);
             if (!empty($data['children'])) {
-                $ids += self::getAllPossibleValue($data['children'], $modelName, $field);
+                $ids += static::getAllPossibleValue($data['children'], $modelName, $field);
             }
         }
         return $ids;
@@ -612,9 +638,10 @@ class API {
      * @param $options
      * @return array|null
      */
-    public static function getStructure($tableIndex, $structure, $options, $data = array()) {
+    public static function getStructure($tableIndex, $structure, $options, $data = array())
+    {
         if (API::isStructMode()) {
-            $result = self::createStructure($tableIndex, $structure, $options, $data);
+            $result = static::createStructure($tableIndex, $structure, $options, $data);
             return $result;
         } else {
             return null;

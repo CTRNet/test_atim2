@@ -42,6 +42,7 @@ CREATE TABLE `api_cmalps`
   ) 
 engine = innodb 
 comment = 'Controllers, models, actions, link and parameters that can be used by ATiM_API'; 
+
 -- -------------------------------------------------------------------------------------
 -- Insert the data in the cmalps-api table (Controller-Model-Action-link-parameters api table)
 -- -------------------------------------------------------------------------------------
@@ -76,8 +77,9 @@ values
 	('Banks', 'Bank', 'detail', 'Administrate/Banks/detail', 'bank_id'), 
 	('Banks', 'Bank', 'edit', 'Administrate/Banks/edit', 'bank_id'), 
 	('Banks', 'Bank', 'index', 'Administrate/Banks/index', ''), 
-	('Browser', 'Browser', 'browse', 'Datamart/Browser/browse', '$nodeId = 0, $controlId = 0, $mergeTo = 0'),
+	('Browser', 'Browser', 'browse', 'Datamart/Browser/browse', 'nodeId = 0, controlId = 0, mergeTo = 0'),
 	('Browser', 'Browser', 'initialAPI', 'Datamart/Browser/initialAPI', ''),
+	('Browser', 'Browser', 'searchById', 'Datamart/Browser/searchById', 'model, id'),
 	('ClinicalCollectionLinks', 'Collection', 'add', 'ClinicalAnnotation/ClinicalCollectionLinks/add', 'participant_id'),
 	('ClinicalCollectionLinks', 'Collection', 'delete', 'ClinicalAnnotation/ClinicalCollectionLinks/delete', 'participant_id, collection_id'),
 	('ClinicalCollectionLinks', 'Collection', 'detail', 'ClinicalAnnotation/ClinicalCollectionLinks/detail', 'participant_id, collection_id'),
@@ -247,5 +249,15 @@ values
 	('TreatmentMasters', 'TreatmentMaster', 'listall', 'ClinicalAnnotation/TreatmentMasters/listall', 'participant_id, treatment_control_id = null')
 ;
 
+-- -------------------------------------------------------------------------------------
+-- Insert to the Dictionary
+-- -------------------------------------------------------------------------------------
+INSERT IGNORE INTO 
+i18n (id, en, fr)
+values
+('error_there is no id field.', 'error_There is no ID field.', 'erreur_Il n\'y a pas de champ ID.');
+
+
 
 UPDATE versions SET trunk_build_number = 'XXXX' WHERE version_number = '2.7.2';
+

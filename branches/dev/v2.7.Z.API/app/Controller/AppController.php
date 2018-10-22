@@ -235,9 +235,9 @@ class AppController extends Controller
 //API::addToBundle($this->request->data, API::$warnings);
 //API::sendTo("TEste");
 //API::addToBundle($d, API::$warnings);
-//if (API::getAction() != 'getApiCmalp' && API::getAction() != 'getBrowserSearchlist'){
+//if (API::getAction() != 'initialAPI'){
 //API::sendTo('TestTESTtest123123');
-//die(!API::isAPIMode());
+//die("wdiofusiodfjlsdflksd");
 //}
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
@@ -999,7 +999,7 @@ class AppController extends Controller
     public static function addInfoMsg($msg)
     {
         if (API::isAPIMode()){
-            API::addToBundle($msg, API::$warnings);
+            API::addToBundle($msg, API::$informations);
         }
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
@@ -1015,7 +1015,7 @@ class AppController extends Controller
     public static function addErrorMsg($msg)
     {
         if (API::isAPIMode()){
-            API::addToBundle($msg, API::$warnings);
+            API::addToBundle($msg, API::$errors);
         }
         $_SESSION['ctrapp_core']['error_msg'][] = $msg;
     }
@@ -1334,8 +1334,8 @@ class AppController extends Controller
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
                 if (!API::isAPIMode()){
-                self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                $this->redirect('/menus');
+                    self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
+                    $this->redirect('/Menus');
                 exit();
                 }else{
                     $_SESSION['ctrapp_core']['search'][$searchId]['criteria']=array();

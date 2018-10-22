@@ -162,7 +162,7 @@ class BrowserController extends DatamartAppController
             $controller = $this->request->params['controller'];
             $action = $this->request->params['action'];
             $param = $controlId . "";
-            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$param])) {
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$param]) && !empty($controlId)) {
                 convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action][$param], 'jsPostData');
             }
         }
@@ -182,7 +182,7 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        
+
         if(API::isAPIMode() && !API::isStructMode()){
             if (strpos($controlId, '-')!==false){
                 list ($controlId, $subStructCtrlId) = explode("-", $controlId);
@@ -193,6 +193,20 @@ class BrowserController extends DatamartAppController
             $data = $this->request->data;
             foreach ($data as $modelName => $values) {
                 $browsingData = $this->DatamartStructure->findByModel($modelName);
+
+                if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])) {
+                    foreach ($values['id'] as $index=>$id) {
+                        $modelInstance = AppModel::getInstance($browsingData['DatamartStructure']['plugin'], $modelName);
+                        $resultat=$modelInstance->find('first', array("conditions"=>array($modelName.".id" => $id)));
+                        if (empty($resultat)){
+                            unset($values['id'][$index]);
+                        }
+                    }
+                }
+                if (!empty($values) && is_array($values['id']) && empty($values['id'])){
+                    API::sendDataToAPI(array("errors"=>array("No data matches your search parameters!<br><i>Note the system used the shortest way to browse from the previous data type to the selected one. Be sure no other appropriate way exists to browse your data checking the 'Data Types Relationship Diagram'.<\/i>")));
+                }
+
                 $save = null;
                 if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])) {
                     $saveIds = implode(",", array_unique(array_filter($values['id'])));
@@ -303,9 +317,7 @@ class BrowserController extends DatamartAppController
                 if (!$this->Browser->validPermission) {
                     $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 }
-
                 $this->request->data = $this->Browser->getDataChunk(0, $this->passedArgs);
-
                 API::sendDataToAPI($this->request->data);
             }
             // all nodes saved, now load the proper form
@@ -1009,5 +1021,19 @@ class BrowserController extends DatamartAppController
          }
     }
 
+    public function searchById($plugin, $model, $id)
+    {
+        if (API::isAPIMode()){
+            $modelClass = AppModel::getInstance($plugin, $model);
+            $data = $modelClass->find('first', array(
+                "conditions" => array(
+                    $model . '.id' => $id
+                )));
+            API::sendDataToAPI($data);            
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+        
+    }
     
 }
