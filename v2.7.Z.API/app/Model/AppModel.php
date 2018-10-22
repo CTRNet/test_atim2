@@ -1596,7 +1596,11 @@ class AppModel extends Model
         AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
         }else{
             $message['method']=$bt[1]['function'];
-            $message['action']=__('error_There are no fields matching ID').': '.$id;
+            if (!empty($id)){
+                $message['action']=__('error_There are no fields matching ID').': '.$id;
+            }else{
+                $message['action']=__('error_there is no id field.');
+            }
             AppController::getInstance()->atimFlashError($message, '/');            
         }
         return null;
