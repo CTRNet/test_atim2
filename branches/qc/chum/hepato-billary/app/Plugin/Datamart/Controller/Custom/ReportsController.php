@@ -1208,7 +1208,8 @@ class ReportsControllerCustom extends ReportsController
             EventMaster.event_date,
             EventMaster.event_date_accuracy,
             EventMaster.event_control_id,
-            EventDetail.request_nbr
+            EventDetail.request_nbr,
+            EventDetail.external
             FROM event_masters EventMaster INNER JOIN qc_hb_ed_hepatobilary_medical_imagings EventDetail ON id = event_master_id
             WHERE EventMaster.deleted <> 1
             AND EventMaster.participant_id IN('".implode("','", array_keys($participantIdsToDataKeys))."')
@@ -1229,6 +1230,9 @@ class ReportsControllerCustom extends ReportsController
                     if (strlen($newImagery['EventDetail']['request_nbr']) > 3) {
                         $displayedImageryWithRrnCounter ++;
                         $participantsWithRrnCounter[$participant_id] = '-';
+                    }
+                    if ($newImagery['EventDetail']['external']) {
+                        $newImagery['EventDetail']['request_nbr'] = '[' . __('external') . '] ' . $newImagery['EventDetail']['request_nbr'];
                     }
                     if ($data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date'] && $newImagery['EventMaster']['event_date'] <= $data[$key][0]['qc_hb_liver_chemo_1_pre_surg_first_step_start_date']) {
                         $data[$key][0]['qc_hb_liver_imagery_1_pre_surg_first_step_counter']++;

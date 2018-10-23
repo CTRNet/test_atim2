@@ -25,7 +25,7 @@ $csvHeaders = fgetcsv($handle, 1000, ",");
 if(!validateHeaders($csvHeaders)) {
     die('ERR Wrong CSV file headers - '.$csv_files_paths.$csv_file_name);
 }
-
+    
 // ==============================================================================================================
 // Reade Excel File
 // ==============================================================================================================
@@ -230,9 +230,10 @@ while (($newCsvLineData = fgetcsv($handle, 1000, ",")) !== FALSE) {
                                 $event_summary = $newAtimImageToUpdate['event_summary'];
                             } else {
                                 $event_summary = str_replace('..', '.',
-                                    (strlen($newAtimImageToUpdate['event_summary'])? $newAtimImageToUpdate['event_summary'].'. ' : '').
-                                    "
-                                    Accession number updated by IVADO'S script on '$import_date_for_summary'.");
+                                    (strlen($newAtimImageToUpdate['event_summary'])? 
+                                        $newAtimImageToUpdate['event_summary'].". 
+                                        " : '').
+                                    "Accession number updated by IVADO'S script on '$import_date_for_summary'.");
                             }
                             $data_to_update = array(
                                 'event_masters' => array(
