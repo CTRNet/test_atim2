@@ -25,26 +25,132 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collectio
 
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add tma slide use';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Sop
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_sop_master_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_value_domains (`domain_name`, `source`) VALUES('qc_lady_collection_sop_list_add', 'Sop.SopMaster::getActiveCollectionSopPermissibleValues');
+INSERT INTO structure_value_domains (`domain_name`, `source`) VALUES('qc_lady_sample_sop_list_add', 'Sop.SopMaster::getAciveSampleSopPermissibleValues');
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'sop_master_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_sop_list_add') , '0', '', '', '', 'collection sop', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_sop_list_add')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='collection sop' AND `language_tag`=''), '1', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_sop_list_add')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='collection sop' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_default`='0', `default`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_follow_up' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_coll_follow_up') AND `flag_confidential`='0');
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'sop_master_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_sample_sop_list_add') , '0', '', '', '', 'sample sop', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_derivative_sop'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_sample_sop_list_add')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample sop' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_derivative_sop') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_derivative_sop') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_lady_sop_deviations' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_sample_sop_list_add')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample sop' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_xenografts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_xenografts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_lady_sop_deviations' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Aliquot Instock Detail
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('Aliquot Stock Detail', 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Stock Detail');
+SET @user_id = 1;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("empty", "Empty", "Vide", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("reserved for order", "Reserved For Order", "Réservé pour une commande", "6", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("lost", "Lost", "Perdu", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("used", "Used", "Utilisé", "8", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("on loan", "On Loan", "Prêté", "4", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("shipped", "Shipped", "Envoyé", "7", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("contaminated", "Contaminated", "Contaminé", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("reserved for study", "Reserved For Study/Project", "Réservé pour une Étude/Projet", "5", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("shipped &amp; returned", "Shipped and Returned", "Enovyé et Retourné", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
-Ne voire que les SOP actif....
-Voire précision de treatment hormonotherapy dans histoire
-Imagerie reponse.... il faut pouvoir lister tous les sites positifis dans extension...
+UPDATE structure_permissible_values_custom_controls 
+ SET values_used_as_input_counter = 9, values_counter = 9 WHERE name = 'Aliquot Stock Detail';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Aliquot Stock Detail\')' WHERE domain_name = 'aliquot_in_stock_detail';
+SET @id = (SELECT id FROM structure_value_domains WHERE domain_name = 'aliquot_in_stock_detail');
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = @id;
 
-Creer metastase generalisé
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Stock Detail');
+SET @user_id = 1;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("destroyed - biological hazard", "Destroyed (Biological Hazard)", "Détruit (risque biologique)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("destroyed - unconsented", "Destroyed (No consent)", "Détruit (Aucun consentement)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("destroyed - withdrawn", "Destroyed (Participant Withdrawn)", "Détruit (participant retiré)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
-être capable de définir les aliquot comme detruit... car pas consentement / Ou hiv, etc
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Change Participant# : Manage by user
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_add`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM key_increments WHERE key_name = 'main_participant_id';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Imaging
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_addgrid`=`flag_add` WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_imagings');
+UPDATE event_controls SET use_addgrid = 1 WHERE event_type = 'imaging' AND flag_active = 1;
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='cols=40,rows=2' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_imagings' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_imagings_types') AND `flag_confidential`='0');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES 
+(NULL, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_imagings' AND `field`='type'), 'notBlank', '', '');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_imagings', 'qc_lady_tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_site') , '0', '', '', '', 'site', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_imagings' AND `field`='qc_lady_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site' AND `language_tag`=''), '2', '104', 'response', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE qc_lady_imagings
+  ADD COLUMN `qc_lady_tumor_site` varchar(100) NOT NULL DEFAULT '';
+ALTER TABLE qc_lady_imagings_revs
+  ADD COLUMN `qc_lady_tumor_site` varchar(100) NOT NULL DEFAULT '';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('site', 'Site', 'Site');
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_lady_tumor_participant_diagnosis_selection', 'ClinicalAnnotation.DiagnosisMaster::getParticipantDiagnosisList');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FunctionManagement', '', 'diagnosis_master_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_participant_diagnosis_selection') , '0', '', '', '', 'related diagnosis', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='diagnosis_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_participant_diagnosis_selection')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='related diagnosis' AND `language_tag`=''), '2', '131', 'diagnosis', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("mixte", "mixte");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="mixte" AND language_alias="mixte"), "5", "1");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('mixed', 'Mixed', 'Mixte');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- Diagnosis Control
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE diagnosis_controls SET controls_type = 'n/d' WHERE category IN ('remission', 'progression - locoregional', 'recurrence - locoregional') AND controls_type = 'undetailed';
+UPDATE diagnosis_controls SET controls_type = 'localized' WHERE category IN ('secondary - distant') AND controls_type = 'undetailed';
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'secondary - distant', 'widespread', 1, 'dx_secondary', 'dxd_secondaries', 0, 'secondary - distant|widespread', 0);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+(''n/d', 'N/D', 'N/D),
+('widespread', 'Widespread', 'Généralisé'),
+('localized', 'Localized', 'Localisé');
+UPDATE diagnosis_controls SET databrowser_label = CONCAT(category, '|', controls_type);
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '7459' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7467' WHERE version_number = '2.7.1';
