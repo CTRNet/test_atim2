@@ -191,4 +191,59 @@ class DiagnosisMasterCustom extends DiagnosisMaster
         }
         return $results;
     }
+
+    function getParticipantDiagnosisList($participantId = null)
+    {
+        if ($participantId) {
+            $participantDiagnosis = $this->find('all', array(
+                'conditions' => array(
+                    'DiagnosisMaster.participant_id' => $participantId
+                ),
+                'order' => array(
+                    'DiagnosisMaster.id ASC'
+                )
+            ));
+            $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+            $qcLadyTumorSite = $structurePermissibleValuesCustom->getCustomDropdown(array(
+                'Tumor Sites'
+            ));
+            $qcLadyTumorSite = array_merge($qcLadyTumorSite['defined'], $qcLadyTumorSite['previously_defined']);
+            $participantDiagnosisList = array();
+            $rowToDisplay = '';
+            foreach ($participantDiagnosis as $newDx) {
+                if (empty($newDx['DiagnosisMaster']['parent_id'])) {
+                    $rowToDisplay = '';
+                } else {
+                    if (! isset($participantDiagnosisList[$newDx['DiagnosisMaster']['parent_id']])) {
+                        $rowToDisplay = '? ';
+                    } else {
+                        if ($newDx['DiagnosisMaster']['parent_id'] == $newDx['DiagnosisMaster']['primary_id']) {
+                            $rowToDisplay = '... ';
+                        } else {
+                            $rowToDisplay = '...... ';
+                        }
+                    }
+                }
+                $category = __($newDx['DiagnosisControl']['category']);
+                $controlsType = ($newDx['DiagnosisControl']['controls_type'] != 'undetailed') ? __($newDx['DiagnosisControl']['controls_type']) : '';
+                $date = $newDx['DiagnosisMaster']['dx_date'];
+                $accuracy = $newDx['DiagnosisMaster']['dx_date_accuracy'];
+                if ($accuracy == 'd') {
+                    $date = substr($date, 0, 7);
+                } elseif ($accuracy == 'm') {
+                    $date = substr($date, 0, 4);
+                } elseif ($accuracy == 'y') {
+                    $date = '±' . substr($date, 0, 4);
+                }
+                $date = empty($date) ? '?' : $date;
+                $precision = '';
+                if (isset($newDx['DiagnosisDetail']['qc_lady_tumor_site'])) {
+                    $precision = ' : ' . $qcLadyTumorSite[$newDx['DiagnosisDetail']['qc_lady_tumor_site']];
+                }
+                $participantDiagnosisList[$newDx['DiagnosisMaster']['id']] = "$rowToDisplay$category-$controlsType ($date)$precision";
+            }
+            return $participantDiagnosisList;
+        }
+        return array();
+    }
 }
