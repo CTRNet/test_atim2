@@ -3,7 +3,7 @@
  * CUSM
  * ***********************************************************************
  *
- * Clinical Annotation plugin custom code
+ * Inventory Management plugin custom code
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
@@ -19,16 +19,16 @@ class ViewSampleCustom extends ViewSample
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-    
-		Collection.bank_id,
-		Collection.sop_master_id,
-		Collection.participant_id,
+		
+		Collection.bank_id, 
+		Collection.sop_master_id, 
+		Collection.participant_id, 
 		Collection.collection_protocol_id AS collection_protocol_id,
-    
-		Participant.participant_identifier,
-    
+		
+		Participant.participant_identifier, 
+		
 		Collection.acquisition_label,
-    
+		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -37,23 +37,21 @@ class ViewSampleCustom extends ViewSample
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-    
+		
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-		
+		 
 		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
-
-Bank.name AS cusm_collection_bank_name,
-MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number,
-Collection.cusm_collection_type
-    
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg ,
+Collection.cusm_collection_type,
+MiscIdentifier.identifier_value
+		
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -64,10 +62,7 @@ Collection.cusm_collection_type
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-LEFT JOIN banks As Bank 
-    ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier 
-    ON Collection.bank_id = MiscIdentifier.cusm_bank_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.cusm_is_main_bank_participant_identifier = 1 AND MiscIdentifier.deleted <> 1
-        WHERE SampleMaster.deleted != 1 %%WHERE%%';
-
+LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
+        WHERE SampleMaster.deleted != 1 %%WHERE%%';       
+    
 }

@@ -84,7 +84,8 @@ if(true) {
     
     foreach($queries as $new_truncate_query) {
         customQuery($new_truncate_query);
-    }    
+    } 
+    mysqli_commit($db_connection);pr('done');exit;
 }
 $data_counter = getSelectQueryResult("SELECT count(*) as res FROM participants WHERE deleted <> 1");
 if($data_counter[0]['res']) {
@@ -104,7 +105,6 @@ if($data_counter[0]['res']) {
 $data_bank_id = getSelectQueryResult("SELECT id FROM banks WHERE name = 'Lung/Poumon' AND deleted <> 1");
 $data_bank_id = $data_bank_id[0]['id'];
 if(!$data_bank_id) die('ERR Bank Id Unknwon');
-if($data_bank_id != $atim_controls['misc_identifier_controls']['lung bank participant number']['id']) die('ERR Bank Id != MiscIdentifier');
 
 $sop_master_id = customInsertRecord(array(
     'sop_masters' => array('code' => 'Inventory/Inventaire', 'version' => '2016-08-20', 'sop_control_id' => '1', 'status' => 'activated'),
@@ -113,8 +113,8 @@ $sop_master_id = customInsertRecord(array(
 global $atim_storage_key_to_storage_master_id;
 $atim_storage_key_to_storage_master_id = array();
 
-$cusm_bank_patient_id_check = array();
-$cusm_mrn_check = array();
+$cusm_mrn_to_participant_id = array();
+$cusm_bank_nbr_check = array();
 
 $created_participant_counter = 0;
 $created_consent_counter = 0;
@@ -124,38 +124,27 @@ $created_aliquot_counter = 0;
 global $created_storage_counter;
 $created_storage_counter = 0;
 
-$last_lung_bank_key_value_used = 1;
 $worksheet_name = 'DATABASE';
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2,  $windows_xls_offset)) {   
     
-	$bank_patient_id = str_replace(' ', '', $excel_line_data['Patient ID']);
-	if($bank_patient_id) {
-	    
-	    // Chek it's a new participant
-	    
-	    $continue = true;
-    	if(isset($cusm_bank_patient_id_check[$bank_patient_id])) {
-    	    recordErrorAndMessage('Participant', 
-    	        '@@ERROR@@', 
-    	        "Patient Id Defined Twice - No participant data of this row will be migrated.", 
-    	        "See PatientID '$bank_patient_id' and MRN '$bank_patient_mrn' on line $line_number.");
-    	    $continue = false;
-    	}
-    	$cusm_bank_patient_id_check[$bank_patient_id] = '1';
-    	
-    	$bank_patient_mrn = $excel_line_data['Patient Information MRN'];
-    	if($bank_patient_mrn && isset($cusm_mrn_check[$bank_patient_mrn])) {
-            recordErrorAndMessage('Participant', 
-                '@@ERROR@@', 
-                "Patient MRN Defined Twice - No participant data of this row  will be migrated.", 
-                "See PatientID '$bank_patient_id' and MRN '$bank_patient_mrn' on line $line_number.");
-    	    $continue = false;
-    	}
-    	$cusm_mrn_check[$bank_patient_mrn] = '1';
-    	
-    	if($continue) {
-    	
-        	$excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
+	$bank_patient_id = str_replace(' ', '', $excel_line_data['Patient ID']);   // JS-17-0000
+	$bank_patient_mrn = $excel_line_data['Patient Information MRN'];
+	if(!$bank_patient_id) {
+        recordErrorAndMessage('Participant', '@@ERROR@@', "PatientId Not Defined - No participant data of the line will be migrated.", "See line : $line_number.");
+	} elseif(!$bank_patient_mrn) {
+        recordErrorAndMessage('Participant', '@@ERROR@@', "Patient MRN Not Defined - No participant data of the line will be migrated.", "See Patient ID $bank_patient_id line : $line_number.");
+	} else {
+	    $excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
+	    	    
+	    // Check bank number format
+	    if(!preg_match('/^[A-Z]+\-[0-9]{2}\-[0-9]{4}$/', $bank_patient_id, $matches)) {
+	        recordErrorAndMessage('Participant',
+	            '@@ERROR@@',
+	            "Wrong bank number format. Participant will be created with this bank number but please confirm and complete data into ATiM if required.",
+	            "See value '$bank_patient_id' for $excel_data_references.");
+	    }
+	        	
+    	if(!isset($cusm_mrn_to_participant_id[$bank_patient_mrn])) {
         	
     	   // Create participant
     	   //-------------------------------------------------------------------------------------------
@@ -168,38 +157,52 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	$participant_id = customInsertRecord(array('participants' => $excel_participant_data));
         	addCreatedDataToSummary('New Participant', "Participant '".$excel_line_data['Patient Information First_Name']." ".$excel_line_data['Patient Information Last_Name']."'.", $excel_data_references);
         	$created_participant_counter++;
-        	
-        	if($bank_patient_id) {
-        	    if(preg_match('/^JS\-[0-9]{2}\-([0-9]+)$/', $bank_patient_id, $matches)) {
-        	        $matches[1] = $matches[1]*1;
-        	        if($last_lung_bank_key_value_used < $matches[1]) $last_lung_bank_key_value_used = $matches[1];
-        	    }  else {
-        	        recordErrorAndMessage('Participant',
-        	            '@@ERROR@@',
-        	            "Wrong bank number format. Particiapnt will be created without consent and invetory. Please confirm and complete data into ATiM if required.",
-        	            "See value '$bank_patient_id' for $excel_data_references.");
-        	        continue;
-        	    }
-        	    $misc_identifier_data = array(
-        	        'identifier_value' => $bank_patient_id,
-        	        'participant_id' => $participant_id,
-        	        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
-        	        'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique'],
-        	        'cusm_bank_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['cusm_bank_id'],
-        	        'cusm_is_main_bank_participant_identifier' => $atim_controls['misc_identifier_controls']['lung bank participant number']['cusm_is_main_bank_participant_identifier']
-        	    );
-        	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        	$misc_identifier_data = array(
+    	        'identifier_value' => $bank_patient_mrn,
+    	        'participant_id' => $participant_id,
+    	        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['MGH-MRN']['id'],
+    	        'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
+    	    );
+    	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    $cusm_mrn_to_participant_id[$bank_patient_mrn] = array(
+    	        'participant_id' => $participant_id,
+        	    'first_name' => $excel_line_data['Patient Information First_Name'],
+        	    'last_name' => $excel_line_data['Patient Information Last_Name'],
+    	        'js_nbrs' => array($bank_patient_id => $bank_patient_id)
+    	    );
+    	} else {
+    	    if($cusm_mrn_to_participant_id[$bank_patient_mrn]['first_name']  != $excel_line_data['Patient Information First_Name']) {
+    	        recordErrorAndMessage('Participant',
+    	            '@@ERROR@@',
+    	            "Participant identified by the same MRN is defined into excel file by 2 different first names.",
+    	            "See values '".$cusm_mrn_to_participant_id[$bank_patient_mrn]['first_name']."' & '".$excel_line_data['Patient Information First_Name']."' for $excel_data_references.");
+    	    }
+    	    if($cusm_mrn_to_participant_id[$bank_patient_mrn]['last_name']  != $excel_line_data['Patient Information Last_Name']) {
+    	        recordErrorAndMessage('Participant',
+    	            '@@ERROR@@',
+    	            "Participant identified by the same MRN is defined into excel file by 2 different last names.",
+    	            "See values '".$cusm_mrn_to_participant_id[$bank_patient_mrn]['last_name']."' & '".$excel_line_data['Patient Information Last_Name']."' for $excel_data_references.");
+    	    }
+    	    $cusm_mrn_to_participant_id[$bank_patient_mrn]['js_nbrs'][$bank_patient_id] = $bank_patient_id;
+    	    recordErrorAndMessage('Consent',
+    	        '@@WARNING@@',
+    	        "Participant identified more than once into file. Probably more than one consent has been created into ATiM. Please clean up data into ATim after migration",
+    	        "See patient '".implode("' - '", $cusm_mrn_to_participant_id[$bank_patient_mrn]['js_nbrs'])."' for $excel_data_references.");
+    	}
+    	$participant_id = $cusm_mrn_to_participant_id[$bank_patient_mrn]['participant_id'];
+    	
+    	if(isset($cusm_bank_nbr_check[$bank_patient_id])) {
+    	    if($cusm_bank_nbr_check[$bank_patient_id]['participant_id'] != $participant_id) {
+    	        recordErrorAndMessage('Participant',
+        	        '@@ERROR@@',
+        	        "A JS number is linked to 2 different participants (with same MRN number). 2 participants will be created. Please validate and correct data after migration.",
+        	        "See $bank_patient_id and their MRN for $excel_data_references.");
         	}
-        	
-        	if($bank_patient_mrn) {
-        	    $misc_identifier_data = array(
-        	        'identifier_value' => $bank_patient_mrn,
-        	        'participant_id' => $participant_id,
-        	        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['MGH-MRN']['id'],
-        	        'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
-        	    );
-        	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
-        	}
+    	} else {
+    	    $cusm_bank_nbr_check[$bank_patient_id] = array(
+    	        'participant_id' => $participant_id,
+    	        'collections' => array()
+    	    );
     	}
     	
     	// Create consent
@@ -281,6 +284,10 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            "Consent is not defined as either 'obtained' or 'denied'. No consent will be created into ATiM. Please confirm.", 
 	            strlen($excel_line_data['Consent Consented (Y/N)'])? "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references." : "See $excel_data_references.");
     	}
+    	
+    	// Unused data
+    	//-------------------------------------------------------------------------------------------
+    	   
     	if(strlen($excel_line_data['D_OPB'])) {
     	    recordErrorAndMessage('Consent',
     	        '@@WARNING@@',
@@ -298,7 +305,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        $stoolData = 'Date: ['.$excel_line_data["Stool $tmpId Date"].'], Aliquots: ['.$excel_line_data["Stool $tmpId Aliquots"].'] and location: ['.$excel_line_data["Stool $tmpId Location"].']';
     	        recordErrorAndMessage('Collection',
     	            '@@WARNING@@',
-    	            "Stool data won't be imported by the script. Please ccomplete data into ATiM after migration if required.",
+    	            "Stool data won't be imported by the script. Please complete data into ATiM after migration if required.",
     	            "See stool data (#$tmpId) : $stoolData. See $excel_data_references.");
     	    }
     	}
@@ -313,27 +320,12 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	
 	    // Check collection has to be created
 	    
-	    $collection_notes = array();
-        $notesFields = array(
-            'Tissue' => 'TISSUE Notes',
-            'Pre-Surgery' => 'Pre-Surgery Notes',
-            'Pathology Acession #' => 'Pathology Acession #'
-        );
-	    foreach($notesFields as $note_title => $excel_field) {
-	        if(strlen($excel_line_data[$excel_field]) && $excel_line_data[$excel_field] != '-') {
-	            $collection_notes[] = "$note_title : <b>".$excel_line_data[$excel_field]."</b>.";
-	        }
-	    }
-	    if($excel_line_data['TISSUE Lymph Nodes'] == 'No') {
-	        $collection_notes[] = 'No lymph nodes.';
-	    }
-	    
 	    $inventory_data_found = false;
 	    $inventory_fields = array(
-	        'TISSUE Location', 'TISSUE Rack #', 'TISSUE Box #', 'TISSUE Normal', 'TISSUE Tumor', 'TISSUE Lymph Nodes',
+	        'TISSUE Location', 'TISSUE Rack #', 'TISSUE Box #', 'TISSUE Normal', 'TISSUE Tumor', 'TISSUE Lymph Nodes', 'TISSUE Notes', 'Pathology Acession #',
             'Pre-Surgery Location', 
 	        'Pre-Surgery Box #1', 'Pre-Surgery Serum1', 'Pre-Surgery Plasma1', 'Pre-Surgery WBC1',
-	        'Pre-Surgery Box #2', 'Pre-Surgery Serum2', 'Pre-Surgery Plasma2', 'Pre-Surgery WBC2',
+	        'Pre-Surgery Box #2', 'Pre-Surgery Serum2', 'Pre-Surgery Plasma2', 'Pre-Surgery WBC2', 'Pre-Surgery Notes',
             'Baseline blood Date of collection', 'Baseline blood Location', 'Baseline blood Box#', 'Baseline blood Serum', 'Baseline blood Plasma', 'Baseline blood WBC',
 	        'POST SURGERY BLOOD Location1','POST SURGERY BLOOD Box#1','POST SURGERY BLOOD Serum1','POST SURGERY BLOOD Plasma1','POST SURGERY BLOOD Date1',
 	        'POST SURGERY BLOOD Location2','POST SURGERY BLOOD Box#2','POST SURGERY BLOOD Serum2','POST SURGERY BLOOD Plasma2','POST SURGERY BLOOD Date2',
@@ -348,41 +340,28 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            $inventory_data_found = true;
 	        }    	        
 	    }
-        
-	    if(!$consent_master_id) {
-	        
-	        // Participant did not consent
-	        if(!$inventory_data_found) {
-	            recordErrorAndMessage('Consent',
-	                '@@WARNING@@',
-	                "Participant did not consent and no collection exists. Collection won't be created into ATiM but participant will. Please check no data has to be corrected into ATiM and complete data after migration if required.",
-	                "See $excel_data_references.");
-	        } else {
-    	        recordErrorAndMessage('Consent',
-    	            '@@ERROR@@',
-    	            "Participant did not consent but collection data exists. Collection won't be created into ATiM but participant will. Please check no data has to be corrected into ATiM and complete data after migration if required.",
-    	            "See $excel_data_references.");
-	        }
-	    
-	    } else if(!$inventory_data_found) {
-	               
-	           // No collection to create
-                $tmp_data = $collection_notes;
-//	            if(!strlen($collection_date) && strlen( $excel_line_data['D_OP'])) $collection_date =  $excel_line_data['D_OP'];
-//	            if($collection_date) $tmp_data[] = "Collection date = <b>$collection_date</b>";
-	            if($tmp_data) {
-	                recordErrorAndMessage('Consent',
-	                    '@@WARNING@@',
-	                    "Particicipant consented but no collection has to be created into ATiM based on excel data. Collection won't be created into ATiM but some notes and/or collection date exist. This information won't be mirgated. Please check no data has to be recorded into ATiM and complete data after migration if required.",
-	                    "See note(s) '".implode("' & '", $tmp_data)."' for $excel_data_references.");
-	            } else {
-	                recordErrorAndMessage('Consent',
-	                    '@@MESSAGE@@',
-	                    "Particicipant consented but no collection has to be created into ATiM based on excel data. Please check no data has to be recorded into ATiM and complete data after migration if required.",
-	                    "See $excel_data_references.");
-	            }
-    	    
-	   } else {  
+	   
+	   if(!$inventory_data_found) { 
+	       if(!$consent_master_id) {
+    	       recordErrorAndMessage('Consent',
+    	           '@@WARNING@@',
+    	           "Participant did not consent and no collection exists. Collection won't be created into ATiM but participant will. Please check no data has to be corrected into ATiM and complete data after migration if required.",
+    	           "See $excel_data_references.");
+	       } else {
+	           recordErrorAndMessage('Consent',
+	               '@@MESSAGE@@',
+	               "Particicipant consented but no collection has been created into ATiM based on excel data. Please check no data has to be recorded into ATiM and complete data after migration if required.",
+	               "See $excel_data_references.");
+	       }
+	       
+	   } else {
+	       if(!$consent_master_id) {
+               recordErrorAndMessage('Consent',
+                   '@@ERROR@@',
+                   "Participant did not consent but collection data exists and collection will be created. Please check no data has to be corrected into ATiM and complete data after migration if required.",
+                   "See $excel_data_references.");
+           }
+           
 	       $created_aliquots = false;
 	       
     	    // Load tissue aliquots
@@ -391,7 +370,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	           $excel_line_data['TISSUE Lymph Nodes'] = '';
 	           $ln_collection_notes = 'No lymph nodes. ';
 	       }
-    	    $tissue_aliquots = getAliquots(
+	       $tissue_aliquots = getAliquots(
     	        $excel_data_references,
     	        'tissue', 
     	        $excel_line_data['TISSUE Location'], 
@@ -399,26 +378,28 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 array('normal' => $excel_line_data['TISSUE Normal'], 'tumor' => $excel_line_data['TISSUE Tumor'], 'lymph nodes' => $excel_line_data['TISSUE Lymph Nodes']), 
     	        $excel_line_data['TISSUE Rack #']);
     	    if($tissue_aliquots || strlen($excel_line_data['Pathology Acession #']) || strlen($excel_line_data['TISSUE Notes']) || $ln_collection_notes) {
-    	        $created_aliquots = true;
     	        $collection_data = array(
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
+    	            'acquisition_label' => $bank_patient_id,
     	            'cusm_collection_pathology_nbr' => $excel_line_data['Pathology Acession #'],
     	            'collection_datetime' => $collection_date,
     	            'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
     	            'consent_master_id' => $consent_master_id,
     	            'sop_master_id' => $sop_master_id,
+    	            'cusm_collection_type' => 'surgery',
     	            'collection_site' => "montreal general hospital",
     	            'collection_notes' => $ln_collection_notes . $excel_line_data['TISSUE Notes']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
+    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id], 'surgery', $excel_data_references);
     	        $collection_date_label = getCollectionDateForLabel($collection_date);
     	        $created_collection_counter++;
     	        if(!$tissue_aliquots) {
     	            recordErrorAndMessage('Collection',
     	                '@@WARNING@@',
-    	                "Created empty tissue collection to track either the pathology number or a note. No sample has been created. Please cleanup and complete data after migration if required.",
+    	                "Created an empty tissue collection to track either the pathology number or a note. No sample has been created. Please cleanup and complete data after migration if required.",
     	                "See tissue collection for $excel_data_references.");
     	        } else {
         	        $created_tissue_sample_master_ids = array();
@@ -471,6 +452,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	                    'cusm_storage_solution' => 'OCT'
         	                ));
         	            customInsertRecord($aliquot_data);
+                        $created_aliquots = true;
         	        }
         	    }
     	    }
@@ -506,22 +488,23 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	        'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
     	            'cusm_collection_type' => 'pre-surgery',
         	        'collection_notes' => $excel_line_data['Pre-Surgery Notes'],
-    	            'aliquots' => array_merge($blood_aliquots, $blood_2_aliquots)    	            
+    	            'aliquots' => array_merge($blood_aliquots, $blood_2_aliquots)   ,
+                    'tmp_counter' =>  '' 	            
     	        );
     	        if(empty($blood_aliquots) && empty($blood_2_aliquots)) {
     	            recordErrorAndMessage('Collection',
     	                '@@WARNING@@',
-    	                "Created empty re-surgery collection to track a notes. No sample has been created. Please cleanup and complete data after migration if required.",
-    	                "See re-surgery collection for $excel_data_references.");
+    	                "Created an empty pre-surgery collection to track a notes. No sample has been created. Please cleanup and complete data after migration if required.",
+    	                "See pre-surgery collection for $excel_data_references.");
     	        }
     	    }
     	    
     	    // Load other blood    
     	    $arryOtherBlood = array(
-        	    array('Baseline blood Date of collection', 'Baseline blood Location', 'Baseline blood Box#', 'Baseline blood Serum', 'Baseline blood Plasma', 'Baseline blood WBC', 'baseline.'),
-        	    array('POST SURGERY BLOOD Date1', 'POST SURGERY BLOOD Location1', 'POST SURGERY BLOOD Box#1', 'POST SURGERY BLOOD Serum1', 'POST SURGERY BLOOD Plasma1', '', 'post-surgery'),
-        	    array('POST SURGERY BLOOD Date2', 'POST SURGERY BLOOD Location2', 'POST SURGERY BLOOD Box#2', 'POST SURGERY BLOOD Serum2', 'POST SURGERY BLOOD Plasma2', '', 'post-surgery'),
-        	    array('POST SURGERY BLOOD Date3', 'POST SURGERY BLOOD Location3', 'POST SURGERY BLOOD Box#3', 'POST SURGERY BLOOD Serum3', 'POST SURGERY BLOOD Plasma3', '', 'post-surgery'));
+        	    array('Baseline blood Date of collection', 'Baseline blood Location', 'Baseline blood Box#', 'Baseline blood Serum', 'Baseline blood Plasma', 'Baseline blood WBC', 'baseline', ''),
+        	    array('POST SURGERY BLOOD Date1', 'POST SURGERY BLOOD Location1', 'POST SURGERY BLOOD Box#1', 'POST SURGERY BLOOD Serum1', 'POST SURGERY BLOOD Plasma1', '', 'post-surgery', '1'),
+        	    array('POST SURGERY BLOOD Date2', 'POST SURGERY BLOOD Location2', 'POST SURGERY BLOOD Box#2', 'POST SURGERY BLOOD Serum2', 'POST SURGERY BLOOD Plasma2', '', 'post-surgery', '2'),
+        	    array('POST SURGERY BLOOD Date3', 'POST SURGERY BLOOD Location3', 'POST SURGERY BLOOD Box#3', 'POST SURGERY BLOOD Serum3', 'POST SURGERY BLOOD Plasma3', '', 'post-surgery', '3'));
             foreach($arryOtherBlood as $tmpFields) {
                 list($collection_date, $collection_date_accuracy) = validateAndGetDateAndAccuracy(
                     $excel_line_data[$tmpFields[0]],
@@ -548,26 +531,29 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                         'collection_datetime' => $collection_date,
                         'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
                         'cusm_collection_type' => $tmpFields[6],
-                        'aliquots' => $blood_aliquots
+                        'collection_notes' => '',
+                        'aliquots' => $blood_aliquots,
+                        'tmp_counter' =>  $tmpFields[7]
                     );
                     $dis = true;
                 }
             }
-
     	    foreach($all_blood as $new_blood_collection) {
-    	        $created_aliquots = true;
     	        $collection_data = array(
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
+    	            'acquisition_label' => $bank_patient_id,
     	            'collection_datetime' => $new_blood_collection['collection_datetime'],
     	            'collection_datetime_accuracy' => $new_blood_collection['collection_datetime_accuracy'],
     	            'consent_master_id' => $consent_master_id,
     	            'sop_master_id' => $sop_master_id,
+    	            'collection_notes' => $new_blood_collection['collection_notes'],
     	            'collection_site' => "montreal general hospital",
     	            'cusm_collection_type' => $new_blood_collection['cusm_collection_type']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
+    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id], $new_blood_collection['cusm_collection_type'].($new_blood_collection['tmp_counter']? " (".$new_blood_collection['tmp_counter'].")" : ''), $excel_data_references);
     	        $collection_date_label = getCollectionDateForLabel($new_blood_collection['collection_datetime']);
     	        $created_collection_counter++;
     	        $created_blood_sample_master_ids = array();
@@ -628,17 +614,16 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	                    'in_stock_detail' => ''),
     	                $atim_controls['aliquot_controls'][$cusm_derivative_sample_type.'-tube']['detail_tablename'] => array());
     	            customInsertRecord($aliquot_data);
+                    $created_aliquots = true;
     	        }
     	    }
     	    if(!$created_aliquots) {
-    	        recordErrorAndMessage('Consent',
+    	        recordErrorAndMessage('Collection',
     	            '@@WARNING@@',
-    	            "No collection has been created into ATiM for a participant who consented and with inventory information into ATiM. Please check no data has to be recorded into ATiM and complete/correct data after migration if required.",
+    	            "No collection created for the participant will gather aliquots. Collection(s) has(ve) probably be created to keep notes or pathology #. Please check no data has to be recorded into ATiM and complete/correct data after migration if required.",
     	            "See ".($collection_date? " collection on $collection_date for " : '')." $excel_data_references.");
     	    }
     	}
-	} else {
-        recordErrorAndMessage('Participant', '@@ERROR@@', "PatientId Not Defined - No participant data will be migrated.", "See line : $line_number.");
 	}
 }  //End new line
 
@@ -658,9 +643,6 @@ $last_queries_to_execute = array(
 	"UPDATE versions SET permissions_regenerated = 0;"
 );
 foreach($last_queries_to_execute as $query)	customQuery($query);
-
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Next Lung Bank Patient Id", "Will be ".($last_lung_bank_key_value_used+1).".");
-customQuery("UPDATE key_increments SET key_value = '$last_lung_bank_key_value_used' WHERE key_name = 'lung bank participant number';");
 
 insertIntoRevsBasedOnModifiedValues();
 
@@ -917,6 +899,16 @@ function getCollectionDateForLabel($collection_datetime) {
             array('Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'), $matches[3]).'-'.$matches[2];
     }  
     return $collection_datetime_label;
+}
+
+function addCollectionTypeToJsNbr(&$cusm_bank_nbr_check, $collectiontype, $excel_data_references) {
+    if(isset($cusm_bank_nbr_check['collections'][$collectiontype])) {
+        recordErrorAndMessage('Participant',
+            '@@ERROR@@',
+            "Participant collection type recorded twice for the same JS number. Please validate and correct data after migration.",
+            "See create '$collectiontype' collections for '".implode("' & '", $cusm_bank_nbr_check['collections'][$collectiontype]).".");
+    }
+    $cusm_bank_nbr_check['collections'][$collectiontype][] = $excel_data_references;
 }
 	
 ?>

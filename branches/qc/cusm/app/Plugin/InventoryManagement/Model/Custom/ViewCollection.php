@@ -1,14 +1,14 @@
 <?php
+
 /** **********************************************************************
  * CUSM
  * ***********************************************************************
  *
- * Clinical Annotation plugin custom code
+ * Inventory Management plugin custom code
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
-
 class ViewCollectionCustom extends ViewCollection
 {
 
@@ -33,15 +33,11 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
-Bank.name AS cusm_collection_bank_name,
-MiscIdentifier.identifier_value AS cusm_collection_participant_bank_number,
-Collection.cusm_collection_type
+Collection.cusm_collection_type,
+MiscIdentifier.identifier_value    
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN banks As Bank 
-    ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier 
-    ON Collection.bank_id = MiscIdentifier.cusm_bank_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.cusm_is_main_bank_participant_identifier = 1 AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
         WHERE Collection.deleted <> 1 %%WHERE%%';
 
     public function summary($variables = array())
@@ -55,8 +51,9 @@ LEFT JOIN misc_identifiers AS MiscIdentifier
                 ),
                 'recursive' => - 1
             ));
-            
-            $summaryLabel = $collectionData['ViewCollection']['cusm_collection_participant_bank_number'] . ' (' . $collectionData['ViewCollection']['cusm_collection_bank_name'] . ')';
+            $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+            $translatedCollectionType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Collection Types', $collectionData['ViewCollection']['cusm_collection_type']);
+            $summaryLabel = $collectionData['ViewCollection']['identifier_value'] . ($translatedCollectionType ? " - $translatedCollectionType '');
             
             $return = array(
                 'menu' => array(

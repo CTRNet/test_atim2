@@ -3,7 +3,7 @@
  * CUSM
  * ***********************************************************************
  *
- * Clinical Annotation plugin custom code
+ * Inventory Management plugin custom code
  * 
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
