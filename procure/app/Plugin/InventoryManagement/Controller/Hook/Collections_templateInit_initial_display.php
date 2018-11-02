@@ -8,7 +8,7 @@ $viewCollectionData = $this->ViewCollection->find('first', array(
 $tmpCollectionDateTime = $viewCollectionData['ViewCollection']['collection_datetime'];
 $tmpCollectionDateTimeAccuracy = in_array($viewCollectionData['ViewCollection']['collection_datetime_accuracy'], array(
     'c',
-    'h'
+    'i'
 )) ? 'h' : $viewCollectionData['ViewCollection']['collection_datetime_accuracy'];
 
 $this->request->data['SpecimenDetail']['reception_datetime'] = $tmpCollectionDateTime;
