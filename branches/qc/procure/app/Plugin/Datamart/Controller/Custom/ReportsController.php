@@ -2346,7 +2346,7 @@ class ReportsControllerCustom extends ReportsController
         
         // Get number of participants with visit collection pre bcr
         
-        foreach ($data['procure_nbr_of_participants_with_collection_and_visit'] as $keyYearMonth => $recordNbrs) {
+        foreach ($data['procure_nbr_of_participants_with_collection'] as $keyYearMonth => $recordNbrs) {
             if (! array_key_exists($keyYearMonth, $data['procure_nbr_of_participants_with_collection_post_bcr'])) {
                 $data['procure_nbr_of_participants_with_collection_pre_bcr'][$keyYearMonth] = $recordNbrs;
             } else {
