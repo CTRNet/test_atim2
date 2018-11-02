@@ -22,7 +22,7 @@ if(isset($argv[1])) {
     }
 }
 
-$tmp_files_names_list = array($excel_file_name);
+$tmp_files_names_list = array($excel_file_name, $consent_excel_file_name);
 
 displayMigrationTitle('CUSM Lung Bank : Initial Data Import', $tmp_files_names_list);
 
@@ -73,19 +73,19 @@ if(true) {
     $queries[] = "TRUNCATE cusm_cd_lungs;";
     $queries[] = "DELETE FROM consent_masters;";
     
-    $queries[] = "TRUNCATE misc_identifiers;";
+    $queries[] = "DELETE FROM misc_identifiers;";
     
     $queries[] = "DELETE FROM participants;";
     
     // Revs
     //.................................................................................
     
-    
-    
     foreach($queries as $new_truncate_query) {
         customQuery($new_truncate_query);
-    } 
-    mysqli_commit($db_connection);pr('done');exit;
+    }
+    
+//  dislayErrorAndMessage(true);
+//  exit;
 }
 $data_counter = getSelectQueryResult("SELECT count(*) as res FROM participants WHERE deleted <> 1");
 if($data_counter[0]['res']) {
@@ -100,7 +100,188 @@ if($data_counter[0]['res']) {
     die('ERR3');
 }
 
-// *** PARSE EXCEL FILES ***
+pr('TODO : Valider avec Nick que Consented (Y/N) = n doit être interprété comme denied. Pas certain. Peut avoir un impact sur "Consent linked to a participant is only defined into excel collection file. Will create a new consent from file data but please validate"');
+
+// *** PARSE CONSENT EXCEL FILES ***
+
+$worksheet_name = 'Enrolled';
+$allConsentsFromConsentFile = array();
+$previousExcelLine = array();
+while(list($line_number, $excel_line_data) = getNextExcelLineData($consent_excel_file_name, $worksheet_name, 2,  $windows_xls_offset)) {
+    // Erase N/A value
+    foreach($excel_line_data as &$value) {
+        if($value== 'N/A' || $value== 'NA' ) {
+            $value = '';
+        }
+    }
+    // Import data when consent status defined
+    $consent_status = '';
+    if (strtolower($excel_line_data['Consent Consented (Y/N)']) == 'y') {
+        $consent_status = 'obtained';
+    } else if (strtolower($excel_line_data['Consent Consented (Y/N)']) == 'n') {
+        $consent_status = 'denied';
+        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@WARNING@@', "Patient consent flagged as denied. Please validate and correct/erase data after the migration if required.", "See line : $line_number.");
+    } else if(strlen($excel_line_data['Consent Consented (Y/N)'])) {
+        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not supported. Data of the line including nominal information won't be migrated. Please validate and correct data after the migration if required.", "See valeu '".$excel_line_data['Consent Consented (Y/N)']."' on line : $line_number.");
+    } else {
+        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not set. Data of the line including nominal information won't be migrated. Please validate and correct data after the migration if required.", "See line : $line_number.");
+    }
+    if(!strlen($consent_status)) {
+        $previousExcelLine = $excel_line_data;
+    } else {
+        // Check patient information of the previous line has to be reapplied
+        $excel_line_data['Patient ID'] = str_replace(' ', '', $excel_line_data['Patient ID']);   // JS-17-0000
+        if(!$excel_line_data['Patient ID']) {
+            if($previousExcelLine) {
+                $excelPatientInfoToCopy = array(
+                    'Patient ID',
+                    'Patient Information MRN',
+                    'Patient Information Last_Name',
+                    'Patient Information First_Name',
+                    'Patient Information RAMQ',
+                    'Patient Information DOB');
+                $copyField = true;
+                foreach($excelPatientInfoToCopy as $tmpField) {
+                    if(strlen($excel_line_data[$tmpField])) {
+                        $copyField = false;
+                    }
+                }
+                if($copyField) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', 
+                        '@@WARNING@@', 
+                        "PatientId and patient information are not set on the current line. This information will be replaced by the information of the previous line. Please validate. (Re-used previous line information : ".implode(' & ', $excelPatientInfoToCopy).']', 
+                        "See data for participant '".$previousExcelLine['Patient ID']."' on line : $line_number.");
+                    foreach($excelPatientInfoToCopy as $excelfield) {
+                        $excel_line_data[$excelfield] = $previousExcelLine[$excelfield];
+                    }
+                }
+            } else {
+                recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "PatientId not defined and previous data line seams to not exist. No data of the line will be migrated. Please validate.", "See line : $line_number.");
+            }
+        }
+        $previousExcelLine = $excel_line_data;
+        // Check patient is defined
+        $bank_patient_id = $excel_line_data['Patient ID'];   // JS-17-0000
+        $bank_patient_mrn = $excel_line_data['Patient Information MRN'];
+        if(strlen($bank_patient_mrn) == 6) {
+            recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@WARNING@@', "MRN nbr size is too small. Added '0' first. Pelase validate.", "Changed '$bank_patient_mrn' to '".'0'.$bank_patient_mrn."' : $line_number.");
+            $bank_patient_mrn = '0'.$bank_patient_mrn;
+        }
+        $excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
+        if(!$bank_patient_id) {
+            recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "PatientId not set. No consent data and nominal information of the line will be migrated.", "See line : $line_number.");
+        } elseif(!$bank_patient_mrn) {
+            recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient MRN not set. No consent data and nominal information of the line will be migrated.", "See Patient ID $bank_patient_id on line : $line_number.");
+        } else {
+            // Record consent data
+            $excel_field = "Consent Consenter";
+            $consent_person = validateAndGetStructureDomainValue(
+                str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]),
+                'custom_laboratory_staff',
+                'Consent File ('.$consent_excel_file_name.')',
+                "See field '$excel_field'.",
+                "The consenter value won't be migrated for $excel_data_references");
+            $excel_field = "Consent Date Consented";
+            list($consent_date, $consent_date_accuracy) = validateAndGetDateAndAccuracy(
+                $excel_line_data[$excel_field],
+                'Consent File ('.$consent_excel_file_name.')',
+                "See field '$excel_field'.",
+                "See $excel_data_references");
+            $consent_data = array(
+                'consent_masters' => array(
+                    "participant_id" => null,
+                    "consent_control_id" =>  $atim_controls['consent_controls']['lung bank consent']['id'],
+                    "consent_status" => $consent_status,
+                    "consent_person" => $consent_person,
+                    'consent_signed_date' => $consent_date,
+                    'consent_signed_date_accuracy' => $consent_date_accuracy,
+                    'form_version' => '',
+                    'notes' => $excel_line_data['Comments']),
+                $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
+            $quertionArray = array(
+                'questionnaires' => 'Consented components QOL',
+                'blood_sampling' => 'Consented components Blood_1',
+                'tissue_sampling' => 'Consented components Tissue',
+                'muscle_biopsy' => 'Consented components Muscle',
+                'access_dossier' => 'Consented components Medical file',
+                'additional_sampling_followup' => 'Consented components Blood_2',
+                'future_specific_research' => 'Consented components Future projects',
+                'any_relevant_information' => 'Consented components Relevant Info',
+                'stool_sampling' => 'Consented components Stool',
+                'pericardial_fat_sampling' => 'Consented components Pericardial Fat');
+            foreach($quertionArray as $atim_field => $excel_field) {
+                $cst_value = '';
+                if (strtolower($excel_line_data[$excel_field]) == 'y') {
+                    $cst_value = 'y';
+                } else if (strtolower($excel_line_data[$excel_field]) == 'n') {
+                    $cst_value = 'n';
+                } else if(strlen($excel_line_data[$excel_field])) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent value for field '$excel_field' is not supported. Value won't be migrated. Please validate and correct data after the migration if required.", "See '".$excel_line_data[$excel_field]."' for $excel_data_references");
+                }
+                $consent_data[$atim_controls['consent_controls']['lung bank consent']['detail_tablename']][$atim_field] = $cst_value;
+            }
+            // Record participant data
+            $excel_field = 'Patient Information DOB';
+            list($date_of_birth, $date_of_birth_accuracy) = validateAndGetDateAndAccuracy(
+                $excel_line_data[$excel_field],
+                'Consent File ('.$consent_excel_file_name.')',
+                "See field '$excel_field'.",
+                "See $excel_data_references");
+            // Manage record
+            if(!isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
+                $allConsentsFromConsentFile[$bank_patient_mrn] = array(
+                    'first_name' => $excel_line_data['Patient Information First_Name'],
+                    'last_name' => $excel_line_data['Patient Information Last_Name'],
+                    'ramq' => $excel_line_data['Patient Information RAMQ'],
+                    'date_of_birth' => $date_of_birth,
+                    'date_of_birth_accuracy' => $date_of_birth_accuracy,
+                    'atim_participant_id' => null,
+                    'consents' => array(
+                        $bank_patient_id => array(
+                           $consent_date  => $consent_data
+                        )
+                    )
+                );
+            } else {
+                if($allConsentsFromConsentFile[$bank_patient_mrn]['first_name'] != $excel_line_data['Patient Information First_Name']) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')',
+                        '@@ERROR@@',
+                        "Participant (identified by the same MRN into consent excel file) is identified by 2 different first names.",
+                        "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['first_name']."' & '".$excel_line_data['Patient Information First_Name']."' for $excel_data_references.");
+                }
+                if($allConsentsFromConsentFile[$bank_patient_mrn]['last_name'] != $excel_line_data['Patient Information Last_Name']) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')',
+                        '@@ERROR@@',
+                        "Participant (identified by the same MRN into consent excel file) is identified by 2 different last names.",
+                        "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['last_name']."' & '".$excel_line_data['Patient Information Last_Name']."' for $excel_data_references.");
+                }
+                if($allConsentsFromConsentFile[$bank_patient_mrn]['ramq'] != $excel_line_data['Patient Information RAMQ']) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')',
+                        '@@ERROR@@',
+                        "Participant (identified by the same MRN into consent excel file) is identified by 2 different ramq.",
+                        "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['ramq']."' & '".$excel_line_data['Patient Information RAMQ']."' for $excel_data_references.");
+                }
+                if($allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth'] != $date_of_birth) {
+                    recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')',
+                        '@@ERROR@@',
+                        "Participant (identified by the same MRN into consent excel file) is identified by 2 different date of birth.",
+                        "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth']."' & '".$date_of_birth."' for $excel_data_references.");
+                }
+                if(isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_date])) {
+                    //Consent defined twice
+                    pr($excel_line_data);
+                    pr($allConsentsFromConsentFile[$bank_patient_mrn]);
+                    pr("==> $consent_date");
+                    die('ERR 7836863');
+                } else {
+                    $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_date] = $consent_data;
+                }
+            }
+        }
+    }
+}
+
+// *** PARSE COLLECTION EXCEL FILES ***
 
 $data_bank_id = getSelectQueryResult("SELECT id FROM banks WHERE name = 'Lung/Poumon' AND deleted <> 1");
 $data_bank_id = $data_bank_id[0]['id'];
@@ -125,38 +306,62 @@ global $created_storage_counter;
 $created_storage_counter = 0;
 
 $worksheet_name = 'DATABASE';
+$duplicatedJsNbrCounter = 0;
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2,  $windows_xls_offset)) {   
     
 	$bank_patient_id = str_replace(' ', '', $excel_line_data['Patient ID']);   // JS-17-0000
 	$bank_patient_mrn = $excel_line_data['Patient Information MRN'];
 	if(!$bank_patient_id) {
-        recordErrorAndMessage('Participant', '@@ERROR@@', "PatientId Not Defined - No participant data of the line will be migrated.", "See line : $line_number.");
+        recordErrorAndMessage('Participant (file : '.$excel_file_name.')', '@@ERROR@@', "PatientId not defined - No participant data of the line will be migrated.", "See line : $line_number.");
 	} elseif(!$bank_patient_mrn) {
-        recordErrorAndMessage('Participant', '@@ERROR@@', "Patient MRN Not Defined - No participant data of the line will be migrated.", "See Patient ID $bank_patient_id line : $line_number.");
+        recordErrorAndMessage('Participant (file : '.$excel_file_name.')', '@@ERROR@@', "Patient MRN not defined - No participant data of the line will be migrated.", "See Patient ID $bank_patient_id line : $line_number.");
 	} else {
 	    $excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
 	    	    
 	    // Check bank number format
 	    if(!preg_match('/^[A-Z]+\-[0-9]{2}\-[0-9]{4}$/', $bank_patient_id, $matches)) {
-	        recordErrorAndMessage('Participant',
+	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
 	            '@@ERROR@@',
 	            "Wrong bank number format. Participant will be created with this bank number but please confirm and complete data into ATiM if required.",
 	            "See value '$bank_patient_id' for $excel_data_references.");
 	    }
 	        	
     	if(!isset($cusm_mrn_to_participant_id[$bank_patient_mrn])) {
-        	
+    	    
     	   // Create participant
     	   //-------------------------------------------------------------------------------------------
     	   
         	$excel_participant_data = array(
         	    'first_name' => $excel_line_data['Patient Information First_Name'],
         	    'last_name' => $excel_line_data['Patient Information Last_Name'],
-        	    'last_modification' => $import_date);    	
+        	    'last_modification' => $import_date);  
         	
+        	$ramq_to_create = '';
+        	if(isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
+        	    // Compare participant data to excel consent file data
+        	    // Add ramq and date of birth to partiicpant data set
+        	    if($allConsentsFromConsentFile[$bank_patient_mrn]['first_name']  != $excel_line_data['Patient Information First_Name']) {
+        	        recordErrorAndMessage('Participant (both files)',
+        	            '@@ERROR@@',
+        	            "First name is different for a participant identified by the same MRN in both collection and consent excel files.",
+        	            "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['first_name']."' & '".$excel_line_data['Patient Information First_Name']."' for $excel_data_references.");
+        	    }
+        	    
+        	    if($allConsentsFromConsentFile[$bank_patient_mrn]['last_name']  != $excel_line_data['Patient Information Last_Name']) {
+        	        recordErrorAndMessage('Participant (both files)',
+        	            '@@ERROR@@',
+        	            "Last name is different for a participant identified by the same MRN in both collection and consent excel files.",
+        	            "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['last_name']."' & '".$excel_line_data['Patient Information Last_Name']."' for $excel_data_references.");
+        	    }
+        	    $excel_participant_data['date_of_birth'] = $allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth'];
+        	    $excel_participant_data['date_of_birth_accuracy'] = $allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth_accuracy'];
+        	    $ramq_to_create = $allConsentsFromConsentFile[$bank_patient_mrn]['ramq'];
+        	}
         	$participant_id = customInsertRecord(array('participants' => $excel_participant_data));
-        	addCreatedDataToSummary('New Participant', "Participant '".$excel_line_data['Patient Information First_Name']." ".$excel_line_data['Patient Information Last_Name']."'.", $excel_data_references);
         	$created_participant_counter++;
+        	if(isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
+        	    $allConsentsFromConsentFile[$bank_patient_mrn]['atim_participant_id'] = $participant_id;
+        	}
         	$misc_identifier_data = array(
     	        'identifier_value' => $bank_patient_mrn,
     	        'participant_id' => $participant_id,
@@ -164,6 +369,15 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
     	    );
     	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    if($ramq_to_create) {
+        	    $misc_identifier_data = array(
+        	        'identifier_value' => $ramq_to_create,
+        	        'participant_id' => $participant_id,
+        	        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['ramq nbr']['id'],
+        	        'flag_unique' => $atim_controls['misc_identifier_controls']['ramq nbr']['flag_unique']
+        	    );
+        	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    }
     	    $cusm_mrn_to_participant_id[$bank_patient_mrn] = array(
     	        'participant_id' => $participant_id,
         	    'first_name' => $excel_line_data['Patient Information First_Name'],
@@ -172,35 +386,62 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	    );
     	} else {
     	    if($cusm_mrn_to_participant_id[$bank_patient_mrn]['first_name']  != $excel_line_data['Patient Information First_Name']) {
-    	        recordErrorAndMessage('Participant',
+    	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
     	            '@@ERROR@@',
-    	            "Participant identified by the same MRN is defined into excel file by 2 different first names.",
+    	            "Participant identified by the same MRN is defined into collection excel file by 2 different first names.",
     	            "See values '".$cusm_mrn_to_participant_id[$bank_patient_mrn]['first_name']."' & '".$excel_line_data['Patient Information First_Name']."' for $excel_data_references.");
     	    }
     	    if($cusm_mrn_to_participant_id[$bank_patient_mrn]['last_name']  != $excel_line_data['Patient Information Last_Name']) {
-    	        recordErrorAndMessage('Participant',
+    	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
     	            '@@ERROR@@',
-    	            "Participant identified by the same MRN is defined into excel file by 2 different last names.",
+    	            "Participant identified by the same MRN is defined into collection  excel file by 2 different last names.",
     	            "See values '".$cusm_mrn_to_participant_id[$bank_patient_mrn]['last_name']."' & '".$excel_line_data['Patient Information Last_Name']."' for $excel_data_references.");
     	    }
     	    $cusm_mrn_to_participant_id[$bank_patient_mrn]['js_nbrs'][$bank_patient_id] = $bank_patient_id;
-    	    recordErrorAndMessage('Consent',
+    	    recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
     	        '@@WARNING@@',
-    	        "Participant identified more than once into file. Probably more than one consent has been created into ATiM. Please clean up data into ATim after migration",
+    	        "Participant identified more than once into excel collection file. Probably more than one consent has been created into ATiM. Please clean up data into ATim after migration",
     	        "See patient '".implode("' - '", $cusm_mrn_to_participant_id[$bank_patient_mrn]['js_nbrs'])."' for $excel_data_references.");
     	}
     	$participant_id = $cusm_mrn_to_participant_id[$bank_patient_mrn]['participant_id'];
     	
+    	// Manage Bank Participant Identifier
+    	//-------------------------------------------------------------------------------------------
+    	
+    	$bank_patient_misc_identifier_id = null;
     	if(isset($cusm_bank_nbr_check[$bank_patient_id])) {
-    	    if($cusm_bank_nbr_check[$bank_patient_id]['participant_id'] != $participant_id) {
-    	        recordErrorAndMessage('Participant',
+    	    if(!isset($cusm_bank_nbr_check[$bank_patient_id][$participant_id])) {
+                $duplicatedJsNbrCounter++;
+    	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
         	        '@@ERROR@@',
-        	        "A JS number is linked to 2 different participants (with same MRN number). 2 participants will be created. Please validate and correct data after migration.",
-        	        "See $bank_patient_id and their MRN for $excel_data_references.");
+        	        "A JS number is linked to 2 different participants (with different MRN number) into the excel collection file. 2 participants will be created with same JS nbr but ATiM does not support this. Please validate and correct data after migration.",
+        	        "See participants linked to $bank_patient_id.");
+        	   $misc_identifier_data = array(
+        	       'identifier_value' => "$bank_patient_id ($duplicatedJsNbrCounter)",
+        	       'participant_id' => $participant_id,
+        	       'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
+        	       'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
+        	   );
+        	   $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        	   $cusm_bank_nbr_check[$bank_patient_id][$participant_id] = array(
+        	       'participant_id' => $participant_id,
+        	       'bank_patient_misc_identifier_id' => $bank_patient_misc_identifier_id,
+        	       'collections' => array()
+        	   );
+    	    } else {
+        	    $bank_patient_misc_identifier_id = $cusm_bank_nbr_check[$bank_patient_id][$participant_id]['bank_patient_misc_identifier_id'];
         	}
     	} else {
-    	    $cusm_bank_nbr_check[$bank_patient_id] = array(
+    	    $misc_identifier_data = array(
+    	        'identifier_value' => $bank_patient_id,
     	        'participant_id' => $participant_id,
+    	        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
+    	        'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
+    	    );
+    	    $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    $cusm_bank_nbr_check[$bank_patient_id][$participant_id] = array(
+    	        'participant_id' => $participant_id,
+    	        'bank_patient_misc_identifier_id' => $bank_patient_misc_identifier_id,
     	        'collections' => array()
     	    );
     	}
@@ -208,90 +449,138 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	// Create consent
     	//-------------------------------------------------------------------------------------------
     	
-    	$consent_master_id = null;
-    	if(preg_match('/^[Yy]/', $excel_line_data['Consent Consented (Y/N)'])){
-    	    if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
-    	        recordErrorAndMessage('Consent', 
-    	            '@@WARNING@@', 
-    	            "Created 'Obtained' consent but the 'Consented' value is different than 'Y'. Please confirm and check no additional information has to be recorded.", 
-    	            "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
-    	    }
-    	    
-    	    $excel_field = 'Consent Date Consented';
-    	    list($consent_date, $consent_date_accuracy) = validateAndGetDateAndAccuracy(
-    	        $excel_line_data[$excel_field], 
-    	        'Consent', 
-    	        "See field '$excel_field'.", 
-    	        "See $excel_data_references");
-    	    	
-    	    $excel_field = "Consent Consenter";
-    	    $consent_person = validateAndGetStructureDomainValue(
-    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]), 
-    	        'cusm_lung_bank_staff', 
-    	        'Consent', 
-    	        "See field '$excel_field'.", 
-    	        "The consenter value won't be migrated for $excel_data_references");
-
-    	    $consent_data = array(
-    	        'consent_masters' => array(
-    	            "participant_id" => $participant_id,
-    	            "consent_control_id" =>  $atim_controls['consent_controls']['lung bank consent']['id'],
-    	            "consent_status" => 'obtained',
-    	            "consent_person" => $consent_person,
-    	            'consent_signed_date' => $consent_date,
-    	            'consent_signed_date_accuracy' => $consent_date_accuracy,
-                    'form_version' => ''),
-    	        $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
-            $consent_master_id = customInsertRecord($consent_data);   
-            $created_consent_counter++;
-    	} else if(preg_match('/^[Nn]/', $excel_line_data['Consent Consented (Y/N)'])){
-    	    if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
-    	        recordErrorAndMessage('Consent', 
-    	            '@@WARNING@@', 
-    	            "Created 'Denied' consent but the 'Consented' value is different than 'N'. Please confirm and check no additional information has to be recorded.", 
-    	            "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
-    	    }
-    	    
-    	    $excel_field = 'Consent Date Consented';
-    	    list($consent_date, $consent_date_accuracy) = validateAndGetDateAndAccuracy(
-    	        $excel_line_data[$excel_field], 
-    	        'Consent', 
-    	        "See field '$excel_field'.", 
-    	        "See $excel_data_references");
-    	    	
-    	    $excel_field = "Consent Consenter";
-    	    $consent_person = validateAndGetStructureDomainValue(
-    	        str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]), 
-    	        'cusm_lung_bank_staff', 
-    	        'Consent', 
-    	        "See field '$excel_field'.", 
-    	        "The consenter value won't be migrated for $excel_data_references");
-
-    	    $consent_data = array(
-    	        'consent_masters' => array(
-    	            "participant_id" => $participant_id,
-    	            "consent_control_id" =>  $atim_controls['consent_controls']['lung bank consent']['id'],
-    	            "consent_status" => 'denied',
-    	            "consent_person" => $consent_person,
-    	            'consent_signed_date' => $consent_date,
-    	            'consent_signed_date_accuracy' => $consent_date_accuracy),
-    	        $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
-            customInsertRecord($consent_data);   
-            $created_consent_counter++;
+    	// Get data of the collection file
+    	
+    	$collection_file_consent_data = array();
+    	if(preg_match('/^[NnYy]/', $excel_line_data['Consent Consented (Y/N)'])){
+	        $consent_status = '';
+	        if(preg_match('/^[Yy]/', $excel_line_data['Consent Consented (Y/N)'])){
+	            if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
+	                recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
+	                    '@@WARNING@@',
+	                    "Listed an 'Obtained' consent from excel collection file but the 'Consented' value is different than 'Y'. Please confirm and check no additional information has to be recorded.",
+	                    "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
+	            }
+	            $consent_status = 'obtained';
+	        } else {
+	            if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
+	                recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
+	                    '@@WARNING@@',
+	                    "Listed an  'Denied' consent from excel collection file but the 'Consented' value is different than 'N'. Please confirm and check no additional information has to be recorded.",
+	                    "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
+	            }
+	            $consent_status = 'denied';
+	        }
+	        $excel_field = 'Consent Date Consented';
+	        list($consent_date, $consent_date_accuracy) = validateAndGetDateAndAccuracy(
+	            $excel_line_data[$excel_field],
+	            'Consent (file : '.$excel_file_name.')',
+	            "See field '$excel_field'.",
+	            "See $excel_data_references");
+	        $excel_field = "Consent Consenter";
+	        $consent_person = validateAndGetStructureDomainValue(
+	            str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]),
+	            'custom_laboratory_staff',
+	            'Consent (file : '.$excel_file_name.')',
+	            "See field '$excel_field'.",
+	            "The consenter value won't be migrated for $excel_data_references");
+	        $collection_file_consent_data = array(
+	            "consent_status" => 'obtained',
+	            "consent_person" => $consent_person,
+	            'consent_signed_date' => $consent_date,
+	            'consent_signed_date_accuracy' => $consent_date_accuracy);
     	} else {
-            recordErrorAndMessage('Consent', 
+            recordErrorAndMessage('Consent (file : '.$excel_file_name.')', 
 	            '@@MESSAGE@@', 
-	            "Consent is not defined as either 'obtained' or 'denied'. No consent will be created into ATiM. Please confirm.", 
+	            "Consent is not defined as either 'obtained' or 'denied' into excel collection file. No consent info from excel collection file will be used to create ATiM consent. Please confirm.", 
 	            strlen($excel_line_data['Consent Consented (Y/N)'])? "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references." : "See $excel_data_references.");
+    	}
+    	
+    	// Manage consent creation
+    	$consent_signed_date_to_consider = '-1';
+	    if($collection_file_consent_data && !isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+    	    if(isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
+                $js_nbrs = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents']);
+    	        $js_nbrs = implode(' & ', $js_nbrs);
+    	        recordErrorAndMessage('Consent (both files)',
+    	            '@@WARNING@@',
+    	            "Participant consent linked to a collection JS number is only defined into excel collection file but participant consents defined into excel consent file are assigned to other JS numbers. Will create a new consent from excel collection file data but please validate.", 
+    	            "See new consent created from excel collection file data for the JS number $bank_patient_id and consents defined into excel consent file for JS number $js_nbrs of the patient with MRN $bank_patient_mrn. See $excel_data_references.");      
+    	    } else {
+    	        recordErrorAndMessage('Consent (both files)',
+    	            '@@WARNING@@',
+    	            "Consent linked to a participant is only defined into excel collection file. Will create a new consent from file data but please validate.",
+    	            "See $excel_data_references."); 
+    	    }
+	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']] = array(
+	            'consent_masters' => array_merge($collection_file_consent_data, array("participant_id" => $participant_id, "consent_control_id" =>  $atim_controls['consent_controls']['lung bank consent']['id'])),
+	            $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
+	        $consent_signed_date_to_consider = $collection_file_consent_data['consent_signed_date'];
+	    } elseif(!$collection_file_consent_data && isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+    	    $consentDates = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id]);
+    	    if(sizeof($consentDate) == 1) {
+    	        $consent_signed_date_to_consider = array_shift($consentDates);
+    	    } else {
+    	        recordErrorAndMessage('Consent (both files)',
+    	            '@@WARNING@@',
+    	            "Consent linked to a participant is only defined into excel consent file but more than one consent is linked to the JS number. Script won't be able to assign the right consent to the collection. Link should be done manually into ATiM after the migration.",
+    	            "See new consent created from excel collection file data for the JS number $bank_patient_id of the patient with MRN $bank_patient_mrn. See $excel_data_references.");
+    	    }   	    
+    	} elseif($collection_file_consent_data && isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+    	    if(!isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']])) {
+    	        $csfFileDates = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id]);
+    	        recordErrorAndMessage('Consent (both files)',
+    	            '@@WARNING@@',
+    	            "Participant consent linked to a collection JS number and a specific date is only defined into excel collection file but participant consents defined into excel consent file and assigned to the same JS numbers exist but are linked to different consent dates. Will create a new consent from excel collection file data but please validate.",
+    	            "See new consent created from excel collection file data for the JS number $bank_patient_id and date [".$collection_file_consent_data['consent_signed_date']."] and consents defined into excel consent file for the same JS number and different date (".implode(' & ', $csfFileDates).") for the patient with MRN $bank_patient_mrn. See $excel_data_references."); 
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']] = array(
+    	            'consent_masters' => array_merge($collection_file_consent_data, array("participant_id" => $participant_id, "consent_control_id" =>  $atim_controls['consent_controls']['lung bank consent']['id'])),
+    	            $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
+    	    } else {
+    	        $diff = array();
+    	        foreach(array('consent_status', 'consent_person', 'consent_signed_date', 'consent_signed_date_accuracy') as $fieldToCompare) {
+    	            $valueFromConsentFile = $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_masters'][$fieldToCompare];
+    	            if($valueFromConsentFile != $collection_file_consent_data[$fieldToCompare]){
+    	                if($collection_file_consent_data[$fieldToCompare]) {
+    	                   $diff[] = "on $fieldToCompare (collection file [".$collection_file_consent_data[$fieldToCompare]."] != consent file [$valueFromConsentFile])";
+    	                }
+    	            }
+    	        }
+    	        if($diff) {
+    	            recordErrorAndMessage('Consent (both files)',
+    	                '@@WARNING@@',
+    	                "Consent data are different from excel collection file and excel consent file. Will create a new consent from consent file data but the collection will be linked to a second consent created from excel collection file data. Please validate.",
+    	                "Diff ".implode(' & ', $diff)." for consent on [".$collection_file_consent_data['consent_signed_date']."] linked to $excel_data_references.");    	             
+    	        }
+    	    }
+    	    $consent_signed_date_to_consider = $collection_file_consent_data['consent_signed_date'];    
+    	}
+    	
+    	$final_consent_master_id = null;
+    	if($consent_signed_date_to_consider == '-1') {
+    	    recordErrorAndMessage('Consent (both files)',
+    	        '@@WARNING@@',
+    	        "Script is unable to link a consent to a collection. Please check data and correct data manually into ATiM.",
+    	        "See new collection created for $excel_data_references.");
+    	} else {
+    	    if(!isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'])) {
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['atim_participant_id'] = $participant_id;
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_masters']["participant_id"] = $participant_id;
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_masters']["consent_control_id"] = $atim_controls['consent_controls']['lung bank consent']['id'];
+    	        $final_consent_master_id = customInsertRecord($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]);
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'] = $final_consent_master_id;
+    	        $created_consent_counter++;
+    	    }
+    	    $final_consent_master_id = $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'];
     	}
     	
     	// Unused data
     	//-------------------------------------------------------------------------------------------
     	   
     	if(strlen($excel_line_data['D_OPB'])) {
-    	    recordErrorAndMessage('Consent',
+    	    recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
     	        '@@WARNING@@',
-    	        "'D_OPB' field is not empty but the data of this field is not a data migrated into ATiM. Please check no data has to be completed into ATiM.",
+    	        "'D_OPB' field of the excel collection file is not empty but the data of this field is not a data migrated into ATiM. Please check no data has to be completed into ATiM.",
     	        "See value '".$excel_line_data['D_OPB']."' for $excel_data_references.");
     	    
     	}
@@ -303,7 +592,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	for($tmpId = 1; $tmpId < 4; $tmpId++) {
     	    if(strlen($excel_line_data["Stool $tmpId Date"].$excel_line_data["Stool $tmpId Aliquots"].$excel_line_data["Stool $tmpId Location"])) {
     	        $stoolData = 'Date: ['.$excel_line_data["Stool $tmpId Date"].'], Aliquots: ['.$excel_line_data["Stool $tmpId Aliquots"].'] and location: ['.$excel_line_data["Stool $tmpId Location"].']';
-    	        recordErrorAndMessage('Collection',
+    	        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
     	            '@@WARNING@@',
     	            "Stool data won't be imported by the script. Please complete data into ATiM after migration if required.",
     	            "See stool data (#$tmpId) : $stoolData. See $excel_data_references.");
@@ -314,7 +603,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	$excel_field = 'D_OP';
     	list($collection_date, $collection_date_accuracy) = validateAndGetDateAndAccuracy(
     	    $excel_line_data[$excel_field],
-    	    'Inventory',
+    	    'Collection File :: Inventory',
     	    "See field '$excel_field'.",
     	    "See $excel_data_references");
     	
@@ -342,21 +631,21 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	    }
 	   
 	   if(!$inventory_data_found) { 
-	       if(!$consent_master_id) {
-    	       recordErrorAndMessage('Consent',
+	       if(!$final_consent_master_id) {
+    	       recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
     	           '@@WARNING@@',
     	           "Participant did not consent and no collection exists. Collection won't be created into ATiM but participant will. Please check no data has to be corrected into ATiM and complete data after migration if required.",
     	           "See $excel_data_references.");
 	       } else {
-	           recordErrorAndMessage('Consent',
+	           recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
 	               '@@MESSAGE@@',
 	               "Particicipant consented but no collection has been created into ATiM based on excel data. Please check no data has to be recorded into ATiM and complete data after migration if required.",
 	               "See $excel_data_references.");
 	       }
 	       
 	   } else {
-	       if(!$consent_master_id) {
-               recordErrorAndMessage('Consent',
+	       if(!$final_consent_master_id) {
+               recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
                    '@@ERROR@@',
                    "Participant did not consent but collection data exists and collection will be created. Please check no data has to be corrected into ATiM and complete data after migration if required.",
                    "See $excel_data_references.");
@@ -371,7 +660,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	           $ln_collection_notes = 'No lymph nodes. ';
 	       }
 	       $tissue_aliquots = getAliquots(
-    	        $excel_data_references,
+    	        $excel_data_references, $excel_file_name,
     	        'tissue', 
     	        $excel_line_data['TISSUE Location'], 
     	        $excel_line_data['TISSUE Box #'], 
@@ -382,22 +671,22 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
-    	            'acquisition_label' => $bank_patient_id,
+                    'misc_identifier_id' => $bank_patient_misc_identifier_id,
     	            'cusm_collection_pathology_nbr' => $excel_line_data['Pathology Acession #'],
     	            'collection_datetime' => $collection_date,
     	            'collection_datetime_accuracy' => str_replace('c', 'h', $collection_date_accuracy),
-    	            'consent_master_id' => $consent_master_id,
+    	            'consent_master_id' => $final_consent_master_id,
     	            'sop_master_id' => $sop_master_id,
     	            'cusm_collection_type' => 'surgery',
     	            'collection_site' => "montreal general hospital",
     	            'collection_notes' => $ln_collection_notes . $excel_line_data['TISSUE Notes']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
-    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id], 'surgery', $excel_data_references);
+    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id][$participant_id], 'surgery', $bank_patient_id, $excel_file_name);
     	        $collection_date_label = getCollectionDateForLabel($collection_date);
     	        $created_collection_counter++;
     	        if(!$tissue_aliquots) {
-    	            recordErrorAndMessage('Collection',
+    	            recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
     	                '@@WARNING@@',
     	                "Created an empty tissue collection to track either the pathology number or a note. No sample has been created. Please cleanup and complete data after migration if required.",
     	                "See tissue collection for $excel_data_references.");
@@ -428,7 +717,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	                    'specimen_details' => array(),
         	                    $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
         	                        'tissue_source' => $tissue_source,
-        	                        'cusm_tissue_nature' => $cusm_tissue_nature_to_record));
+        	                        'tissue_nature' => $cusm_tissue_nature_to_record));
         	                $created_tissue_sample_master_ids[$cusm_tissue_nature] = customInsertRecord($sample_data);
         	            }
         	            $sample_master_id = $created_tissue_sample_master_ids[$cusm_tissue_nature];
@@ -460,7 +749,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
             // Load pre surgery blood aliquots
             $all_blood = array();
             $blood_aliquots = getAliquots(
-                $excel_data_references, 
+                $excel_data_references, $excel_file_name,
                 'blood', 
                 $excel_line_data['Pre-Surgery Location'],
                 $excel_line_data['Pre-Surgery Box #1'], 
@@ -471,7 +760,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 )
             );
     	    $blood_2_aliquots = getAliquots(
-    	        $excel_data_references,
+    	        $excel_data_references, $excel_file_name,
     	        'blood',
     	        $excel_line_data['Pre-Surgery Location'],
     	        $excel_line_data['Pre-Surgery Box #2'],
@@ -492,7 +781,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                     'tmp_counter' =>  '' 	            
     	        );
     	        if(empty($blood_aliquots) && empty($blood_2_aliquots)) {
-    	            recordErrorAndMessage('Collection',
+    	            recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
     	                '@@WARNING@@',
     	                "Created an empty pre-surgery collection to track a notes. No sample has been created. Please cleanup and complete data after migration if required.",
     	                "See pre-surgery collection for $excel_data_references.");
@@ -520,7 +809,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                     unset($tmpExcelAliquotsData['buffy coat']);
                 }
                 $blood_aliquots = getAliquots(
-                    $excel_data_references,
+                    $excel_data_references, $excel_file_name,
                     'blood',
                     $excel_line_data[$tmpFields[1]],
                     $excel_line_data[$tmpFields[2]],
@@ -543,17 +832,17 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
     	            'bank_id' => $data_bank_id,
-    	            'acquisition_label' => $bank_patient_id,
+                    'misc_identifier_id' => $bank_patient_misc_identifier_id,
     	            'collection_datetime' => $new_blood_collection['collection_datetime'],
     	            'collection_datetime_accuracy' => $new_blood_collection['collection_datetime_accuracy'],
-    	            'consent_master_id' => $consent_master_id,
+    	            'consent_master_id' => $final_consent_master_id,
     	            'sop_master_id' => $sop_master_id,
     	            'collection_notes' => $new_blood_collection['collection_notes'],
     	            'collection_site' => "montreal general hospital",
     	            'cusm_collection_type' => $new_blood_collection['cusm_collection_type']
     	        );
     	        $collection_id = customInsertRecord(array('collections' => $collection_data));
-    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id], $new_blood_collection['cusm_collection_type'].($new_blood_collection['tmp_counter']? " (".$new_blood_collection['tmp_counter'].")" : ''), $excel_data_references);
+    	        addCollectionTypeToJsNbr($cusm_bank_nbr_check[$bank_patient_id], $new_blood_collection['cusm_collection_type'].($new_blood_collection['tmp_counter']? " (".$new_blood_collection['tmp_counter'].")" : ''), $bank_patient_id, $excel_file_name);
     	        $collection_date_label = getCollectionDateForLabel($new_blood_collection['collection_datetime']);
     	        $created_collection_counter++;
     	        $created_blood_sample_master_ids = array();
@@ -618,21 +907,42 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        }
     	    }
     	    if(!$created_aliquots) {
-    	        recordErrorAndMessage('Collection',
+    	        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
     	            '@@WARNING@@',
-    	            "No collection created for the participant will gather aliquots. Collection(s) has(ve) probably be created to keep notes or pathology #. Please check no data has to be recorded into ATiM and complete/correct data after migration if required.",
+    	            "No aliquot exists into a collection created for the participant. Collection has probably been created to track notes or pathology #. Please check no data has to be recorded into ATiM and complete/correct data after migration if required.",
     	            "See ".($collection_date? " collection on $collection_date for " : '')." $excel_data_references.");
     	    }
     	}
 	}
 }  //End new line
 
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Participants : '.$created_participant_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Obtained Consents : '.$created_consent_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Collections : '.$created_collection_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Samples : '.$created_sample_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Aliquots : '.$created_aliquot_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Storages : '.$created_storage_counter);
+foreach($allConsentsFromConsentFile as $bank_patient_mrn => $allJsConsentData) {
+    if(!$allJsConsentData['atim_participant_id']) {
+        recordErrorAndMessage('Consent File (both files)',
+            '@@ERROR@@',
+            "Participant of the excel consent file is not defined into excel collection file. Consent data won't be migrated into ATiM.",
+            "See patient with MRN $bank_patient_mrn in excel consent file.");
+    } else {
+        foreach($allJsConsentData['consents'] as $bank_patient_id => $consentsData) {
+            foreach($consentsData as $dateConsent => $consentData) {
+                if(!isset($consentData['consent_master_id'])) {
+                    $consentData['consent_masters']['participant_id'] = $allJsConsentData['atim_participant_id'];
+                    customInsertRecord($consentData);
+                    recordErrorAndMessage('Consent (both files)',
+                        '@@WARNING@@',
+                        "Created a consent defined into consent excel file that has not been linked to a collection by the script. Please validate data and complete/correct data after migration if required.",
+                        "See consent created for participant (MRN '$bank_patient_mrn' / Js Nbr '$bank_patient_id') and date '$dateConsent'.");
+                }
+            }
+        }   
+    }
+}
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Participants : '.$created_participant_counter);
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Obtained Consents : '.$created_consent_counter);
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Collections : '.$created_collection_counter);
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Samples : '.$created_sample_counter);
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Aliquots : '.$created_aliquot_counter);
+recordErrorAndMessage('Collection File :: Migration Summary', '@@MESSAGE@@', "Number of created records", 'Storages : '.$created_storage_counter);
 
 $last_queries_to_execute = array(
 	"UPDATE participants SET participant_identifier = id WHERE participant_identifier = '' OR participant_identifier IS NULL;",
@@ -678,18 +988,18 @@ function getDataToUpdate($atim_data, $excel_data) {
 }
 
 function addCreatedDataToSummary($creation_type, $detail, $excel_data_references) {
-	recordErrorAndMessage('Data Creation Summary', '@@MESSAGE@@', $creation_type, "$detail. See $excel_data_references.");
+	recordErrorAndMessage('Collection File :: Data Creation Summary', '@@MESSAGE@@', $creation_type, "$detail. See $excel_data_references.");
 }
 
 function addUpdatedDataToSummary($update_type, $updated_data, $excel_data_references) {
 	if($updated_data) {
 		$updates = array();
 		foreach($updated_data as $field => $value) $updates[] = "[$field = $value]";
-		recordErrorAndMessage('Data Update Summary', '@@MESSAGE@@', $update_type, "Updated field(s) : ".implode(' + ', $updates).". See $excel_data_references.");
+		recordErrorAndMessage('Collection File :: Data Update Summary', '@@MESSAGE@@', $update_type, "Updated field(s) : ".implode(' + ', $updates).". See $excel_data_references.");
 	}
 }
 
-function getAliquots($excel_data_references, $sample_type, $location, $box_number, $positions, $rack_number = '') {
+function getAliquots($excel_data_references, $excel_file_name, $sample_type, $location, $box_number, $positions, $rack_number = '') {
 	global $atim_controls;
 	global $atim_storage_key_to_storage_master_id;
 	global $created_storage_counter;
@@ -716,7 +1026,7 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
 	
 	if(!strlen($box_number)) {
     	if($position_defined) {
-    	    recordErrorAndMessage('Collection',
+    	    recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
     	        '@@ERROR@@',
     	        "No box is defined into the excel field with positions is not empty. No aliquot will be created. Please validate and correct data directly into ATiM if required.",
     	        "See $sample_type positions ".implode(' & ', $position_defined)." for $excel_data_references.");
@@ -777,7 +1087,7 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
     // --> Box
     $box_number = trim(str_replace(' ', '', $box_number));
     if(!preg_match('/^[0-9]+(,[0-9]+){0,1}$/', $box_number)) {
-        recordErrorAndMessage('Collection',
+        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
             '@@WARNING@@',
             "Box# value does not match the expected format. Please validate data after migration.",
             "See Box# '$box_number' for $excel_data_references.");
@@ -822,13 +1132,13 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
     // Create results (aliquots storage information)
     
     if(!$aliquots_positions) {
-        recordErrorAndMessage('Collection',
+        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
             '@@ERROR@@',
             "A box is defined into the excel file but no position has been extracted from the excel file. No aliquot will be created. Please validate and correct data directly into ATiM if required.",
             "See box(es) '$box_number' ".($position_defined? "and defined positions '".implode("' & '", $position_defined) : '')." for $excel_data_references.");
         return array();
     } else if(!(sizeof($created_box_storage_masters_ids) == sizeof($aliquots_positions) && array_keys($aliquots_positions) == array_keys($created_box_storage_masters_ids))) {
-       recordErrorAndMessage('Collection',
+       recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
            '@@ERROR@@',
            "The number of boxes defined from the box(es) label(s) defintion does not match the number of boxes defined from the aliquots positions. Be sure than character ',' as not be used to separate positions of 2 aliquots of the same box (use '.' instead'). No aliquot will be created. Please validate and correct data directly into ATiM if required.",
            "See box(es) '$box_number' ".($position_defined? "and defined positions '".implode("' & '", $position_defined) : '')." for $excel_data_references.");
@@ -852,7 +1162,7 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
                         $to_x = $matches[3];
                         $to_y = $matches[4];
                         if(($from_x.$from_y) >= ($to_x.$to_y)) {
-                            recordErrorAndMessage('Collection',
+                            recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
                                 '@@ERROR@@',
                                 "Wrong aliquots positions definition (1). The aliquots matching these postions won't be migrated. Please validate and correct data directly into ATiM if required.",
                                 "See positions value '$aliquot_positions' in the box(es) '$box_number' for $excel_data_references.");
@@ -879,7 +1189,7 @@ function getAliquots($excel_data_references, $sample_type, $location, $box_numbe
                             }
                         }
                     } else {
-                        recordErrorAndMessage('Collection',
+                        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
                             '@@ERROR@@',
                             "Wrong aliquots positions definition (2). The aliquots matching these postions won't be migrated. Please validate and correct data directly into ATiM if required.",
                             "See positions value '$aliquot_positions' in the box(es) '$box_number' for $excel_data_references.");
@@ -901,14 +1211,14 @@ function getCollectionDateForLabel($collection_datetime) {
     return $collection_datetime_label;
 }
 
-function addCollectionTypeToJsNbr(&$cusm_bank_nbr_check, $collectiontype, $excel_data_references) {
+function addCollectionTypeToJsNbr(&$cusm_bank_nbr_check, $collectiontype, $bank_patient_id, $excel_file_name) {
     if(isset($cusm_bank_nbr_check['collections'][$collectiontype])) {
-        recordErrorAndMessage('Participant',
+        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
             '@@ERROR@@',
-            "Participant collection type recorded twice for the same JS number. Please validate and correct data after migration.",
-            "See create '$collectiontype' collections for '".implode("' & '", $cusm_bank_nbr_check['collections'][$collectiontype]).".");
+            "Participant collection type recorded twice for the same JS number. Please validate and correct data after migration if required.",
+            "See created '$collectiontype' collections for participant(s) with JS number '".implode("' & '", $cusm_bank_nbr_check['collections'][$collectiontype]).".");
     }
-    $cusm_bank_nbr_check['collections'][$collectiontype][] = $excel_data_references;
+    $cusm_bank_nbr_check['collections'][$collectiontype][] = $bank_patient_id;
 }
 	
 ?>
