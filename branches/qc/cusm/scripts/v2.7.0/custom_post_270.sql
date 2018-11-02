@@ -45,10 +45,7 @@ UPDATE users
 SET username = 'Lung', first_name = 'Lung User Demo', email = '', password ='ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 1, deleted = '0', force_password_reset = null
 WHERE username = 'user1';
 
-UPDATE structure_permissible_values_custom_controls SET flag_active = '0' WHERE name = 'Laboratory Staff';
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_lung_bank_staff", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Lung Bank [", (SELECT id FROM banks WHERE name = 'Lung/Poumon'),"] - Staff\')"));
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES (CONCAT("Lung Bank [", (SELECT id FROM banks WHERE name = 'Lung/Poumon'),"] - Staff"), 1, 50, 'administration');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = CONCAT("Lung Bank [", (SELECT id FROM banks WHERE name = 'Lung/Poumon'),"] - Staff"));
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
 VALUES
 ("Aya Siblini", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
@@ -165,12 +162,12 @@ INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_inp
 VALUES
 ("2017-09-05", "05 September 2017", "05 Septembre 2017", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'consent_person', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff') , '0', '', '', '', 'witness', ''),
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'consent_person', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'witness', ''),
 ('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'form_version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions') , '0', '', '', '', 'form_version', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_consent_from_versions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form_version' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
-((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_cd_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_lung_bank_staff') AND `flag_confidential`='0');
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_cd_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 Replace INTO i18n (id,en,fr)
 VALUES
 ('witness', 'Witness', 'Témoin');
@@ -226,7 +223,7 @@ VALUES
 ('agreements', 'Agreements', "Autorisations"),
 ('questionnaires', 'Questionnaires', "Questionnaires"),
 ('blood sampling', 'Blood Sampling', "Prélèvement sanguin"),
-('tissue sampling', 'tissue Sampling', "Prélèvement de tissus"),
+('tissue sampling', 'Tissue Sampling', "Prélèvement de tissus"),
 ('muscle biopsy', 'Muscle Biopsy', "Biopsie musculaire"),
 ('dossier de sante du quebec - french label', 'Dossier de Santé du Quebec', "Dossier de Santé du Quebec"),
 ('access to clinical file', 'Access to Clinical File', "Accès au dossier clinique"),

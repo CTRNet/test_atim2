@@ -125,7 +125,7 @@ UPDATE realiquoting_controls SET flag_active=true WHERE id IN('71');
 -- New bank people
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = CONCAT("Lung Bank [", (SELECT id FROM banks WHERE name = 'Lung/Poumon'),"] - Staff"));
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
 VALUES
 ("Samantha", "", "", '1', @control_id, '2', NOW(),'2', NOW()),
@@ -345,47 +345,48 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structur
 
 UPDATE storage_controls SET storage_type_en = 'Box81 A1-I9', storage_type_fr = 'Boîte81 A1-I9' WHERE id = 9;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Consent
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE `cusm_cd_lungs` 
+  ADD COLUMN `stool_sampling` char(1) DEFAULT '',
+  ADD COLUMN `pericardial_fat_sampling` char(1) DEFAULT '';
+ALTER TABLE `cusm_cd_lungs_revs` 
+  ADD COLUMN `stool_sampling` char(1) DEFAULT '',
+  ADD COLUMN `pericardial_fat_sampling` char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_cd_lungs', 'stool_sampling', 'yes_no',  NULL , '0', '', '', '', 'stool sampling', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_cd_lungs', 'pericardial_fat_sampling', 'yes_no',  NULL , '0', '', '', '', 'pericardial fat sampling', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_cd_lungs' AND `field`='stool_sampling' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stool sampling' AND `language_tag`=''), '2', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_cd_lungs'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_cd_lungs' AND `field`='pericardial_fat_sampling' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pericardial fat sampling' AND `language_tag`=''), '2', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('stool sampling', 'Stool Sampling', 'Prélèvement de selles'),
+('pericardial fat sampling', 'Pericardial Fat Sampling', 'Prélèvement de graisse péricardique');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Inventory configuration
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('141', '188', '144', '220', '137', '142', '203');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('102', '194', '7', '130', '101', '10', '3', '4');
+UPDATE aliquot_controls SET flag_active=false WHERE id IN('11');
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN('12');
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN('48');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('227', '25', '124');
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN('187', '158');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_storage_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_methods') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_tissue_tube_storage_solutions') AND `flag_confidential`='0');
 
+UPDATE structure_fields SET field = 'tissue_nature' WHERE field = 'cusm_tissue_nature';
+UPDATE structure_permissible_values_custom_controls SET values_max_length = '15' WHERE name = "Tissue Natures";
+ALTER TABLE sd_spe_tissues DROP COLUMN cusm_tissue_nature;
+ALTER TABLE sd_spe_tissues_revs DROP COLUMN cusm_tissue_nature;
 
-
-
-
-
-UPDATE versions SET branch_build_number = 'xxxx' WHERE version_number = '2.7.0';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Label of the aliquots (labelled from 1 to n)
-     - Tissue in OCT :: JS-00-0000 OCT T/N (all tissues in the initial .xls are in OCT) 
-     - Flash Frozen Tissue :: JS-00-0000 FF T/N
-     - Tissue in DMSO :: JS-00-0000 CC T/N 
-     
-Plus generate label into the code 
-
-lab people into colelction
-
-format des boites et racks
-
-être capable editer un aliquot
-
-Migration des consentements
+UPDATE versions SET branch_build_number = '7474' WHERE version_number = '2.7.0';

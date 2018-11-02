@@ -15,7 +15,9 @@ class AliquotMasterCustom extends AliquotMaster
     var $useTable = 'aliquot_masters';
 
     var $name = 'AliquotMaster';
-
+    
+    private $sampleModel = null;
+    
     public function regenerateAliquotBarcode()
     {
         $queryToUpdate = "UPDATE aliquot_masters SET barcode = CONCAT('ATiM#', id) WHERE barcode IS NULL OR barcode LIKE '';";
@@ -23,9 +25,14 @@ class AliquotMasterCustom extends AliquotMaster
         $this->tryCatchQuery(str_replace("aliquot_masters", "aliquot_masters_revs", $queryToUpdate));
     }
 
-    public function getDefaultAliquotLabel($viewSample)
+    public function getDefaultAliquotLabel($viewSample, $nodeDefaultValues = array())
     {
+        if (! isset($this->sampleModel)) {
+            $this->sampleModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
+        }
+        
         $participantBankIdentifier = isset($viewSample['ViewSample']['identifier_value']) ? $viewSample['ViewSample']['identifier_value'] : '?';
+        
         $tubeSuffix = '?';
         switch ($viewSample['ViewSample']['sample_type']) {
             case 'buffy coat':
@@ -36,6 +43,38 @@ class AliquotMasterCustom extends AliquotMaster
                 break;
             case 'serum':
                 $tubeSuffix = 'S';
+                break;
+            case 'tissue':
+                $tubeSuffix = '?';
+                if ($nodeDefaultValues) {
+                    if (isset($nodeDefaultValues['AliquotDetail.cusm_storage_solution']) && $nodeDefaultValues['AliquotDetail.cusm_storage_solution'] == 'OCT') {
+                        $tubeSuffix = 'OCT';
+                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_storage_method'] == 'OCT') {
+                        $tubeSuffix = 'CC';
+                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_storage_method'] == 'flash freeze') {
+                        $tubeSuffix = 'FF';
+                    }
+                }
+                $sampleData = $this->sampleModel->find('first', array(
+                    'conditions' => array(
+                        'SampleMaster.id' => $viewSample['ViewSample']['sample_master_id']
+                    ),
+                    'recursive' => 0
+                ));
+                switch ($sampleData['SampleDetail']['tissue_nature']) {
+                    case 'normal':
+                        $tubeSuffix .= ' N';
+                        break;
+                    case 'tumor':
+                        $tubeSuffix .= ' T';
+                        break;
+                    case 'benign':
+                        $tubeSuffix .= ' B';
+                        break;
+                    case 'unknown':
+                    case 'metastatic':
+                        break;
+                }
                 break;
         }
         return "$participantBankIdentifier $tubeSuffix";

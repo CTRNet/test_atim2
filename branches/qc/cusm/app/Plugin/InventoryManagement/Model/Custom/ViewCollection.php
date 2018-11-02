@@ -53,7 +53,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
             ));
             $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
             $translatedCollectionType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Collection Types', $collectionData['ViewCollection']['cusm_collection_type']);
-            $summaryLabel = $collectionData['ViewCollection']['identifier_value'] . ($translatedCollectionType ? " - $translatedCollectionType '');
+            $summaryLabel = $collectionData['ViewCollection']['identifier_value'] . ($translatedCollectionType ? " - $translatedCollectionType" : '');
             
             $return = array(
                 'menu' => array(
