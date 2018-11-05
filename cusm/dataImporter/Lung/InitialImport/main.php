@@ -162,11 +162,12 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($consent_excel
         $previousExcelLine = $excel_line_data;
         // Check patient is defined
         $bank_patient_id = $excel_line_data['Patient ID'];   // JS-17-0000
-        $bank_patient_mrn = $excel_line_data['Patient Information MRN'];
-        if(strlen($bank_patient_mrn) == 6) {
-            recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@WARNING@@', "MRN nbr size is too small. Added '0' first. Pelase validate.", "Changed '$bank_patient_mrn' to '".'0'.$bank_patient_mrn."' : $line_number.");
+        $bank_patient_mrn = str_pad($excel_line_data['Patient Information MRN'], 7, "0", STR_PAD_LEFT); 
+        if($bank_patient_mrn != $excel_line_data['Patient Information MRN']) {
+            recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@WARNING@@', "MRN nbr size is too small. Added '0' first. Pelase validate.", "Changed '".$excel_line_data['Patient Information MRN']."' to '$bank_patient_mrn' : $line_number.");
             $bank_patient_mrn = '0'.$bank_patient_mrn;
         }
+        $excel_line_data['Patient Information MRN'] = $bank_patient_mrn;
         $excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
         if(!$bank_patient_id) {
             recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "PatientId not set. No consent data and nominal information of the line will be migrated.", "See line : $line_number.");
@@ -317,7 +318,14 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         recordErrorAndMessage('Participant (file : '.$excel_file_name.')', '@@ERROR@@', "Patient MRN not defined - No participant data of the line will be migrated.", "See Patient ID $bank_patient_id line : $line_number.");
 	} else {
 	    $excel_data_references = "Participant '<b>$bank_patient_id</b>' Line '<b>$line_number</b>'";
-	    	    
+	    	   
+	    $bank_patient_mrn = str_pad($excel_line_data['Patient Information MRN'], 7, "0", STR_PAD_LEFT);
+	    if($bank_patient_mrn != $excel_line_data['Patient Information MRN']) {
+	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')', '@@WARNING@@', "MRN nbr size is too small. Added '0' first. Pelase validate.", "Changed '".$excel_line_data['Patient Information MRN']."' to '$bank_patient_mrn' : $line_number.");
+	        $bank_patient_mrn = '0'.$bank_patient_mrn;
+	    }
+	    $excel_line_data['Patient Information MRN'] = $bank_patient_mrn;
+	    
 	    // Check bank number format
 	    if(!preg_match('/^[A-Z]+\-[0-9]{2}\-[0-9]{4}$/', $bank_patient_id, $matches)) {
 	        recordErrorAndMessage('Participant (file : '.$excel_file_name.')',
@@ -733,8 +741,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	                    "collection_id" => $collection_id,
         	                    "sample_master_id" => $sample_master_id,
         	                    'storage_master_id' => $storage_master_id,
-        	                    'storage_coord_x' => $storage_coord_x,
-        	                    'storage_coord_y' => $storage_coord_y,
+        	                    'storage_coord_x' => $storage_coord_y,
+        	                    'storage_coord_y' => $storage_coord_x,
         	                    'in_stock' => 'yes - available',
         	                    'in_stock_detail' => ''),
         	                $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
@@ -897,8 +905,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	                    "collection_id" => $collection_id,
     	                    "sample_master_id" => $sample_master_id,
     	                    'storage_master_id' => $storage_master_id,
-    	                    'storage_coord_x' => $storage_coord_x,
-    	                    'storage_coord_y' => $storage_coord_y,
+    	                    'storage_coord_x' => $storage_coord_y,
+    	                    'storage_coord_y' => $storage_coord_x,
     	                    'in_stock' => 'yes - available',
     	                    'in_stock_detail' => ''),
     	                $atim_controls['aliquot_controls'][$cusm_derivative_sample_type.'-tube']['detail_tablename'] => array());
@@ -917,11 +925,52 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 }  //End new line
 
 foreach($allConsentsFromConsentFile as $bank_patient_mrn => $allJsConsentData) {
-    if(!$allJsConsentData['atim_participant_id']) {
+    if(!$allJsConsentData['atim_participant_id']) {        
         recordErrorAndMessage('Consent File (both files)',
-            '@@ERROR@@',
-            "Participant of the excel consent file is not defined into excel collection file. Consent data won't be migrated into ATiM.",
+            '@@WARNING@@',
+            "Participant of the excel consent file is not defined into excel collection file. Participant, RAMQ, MRN and consent data will be created but no collection. Please validate.",
             "See patient with MRN $bank_patient_mrn in excel consent file.");
+        $excel_participant_data = array(
+            'first_name' => $allJsConsentData['first_name'],
+            'last_name' => $allJsConsentData['last_name'],
+            'date_of_birth' => $allJsConsentData['date_of_birth'],
+            'date_of_birth_accuracy' => $allJsConsentData['date_of_birth_accuracy'],
+            'last_modification' => $import_date);
+        $participant_id = customInsertRecord(array('participants' => $excel_participant_data));
+        $created_participant_counter++;
+        if($bank_patient_mrn) {
+            $misc_identifier_data = array(
+                'identifier_value' => $bank_patient_mrn,
+                'participant_id' => $participant_id,
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['MGH-MRN']['id'],
+                'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
+            );
+            customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        }
+        if($allJsConsentData['ramq']) {
+            $misc_identifier_data = array(
+                'identifier_value' => $allJsConsentData['ramq'],
+                'participant_id' => $participant_id,
+                'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['ramq nbr']['id'],
+                'flag_unique' => $atim_controls['misc_identifier_controls']['ramq nbr']['flag_unique']
+            );
+            customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        }
+        foreach($allJsConsentData['consents'] as $bank_patient_id => $allConsents) {
+            if($bank_patient_id) {
+                $misc_identifier_data = array(
+                    'identifier_value' => "$bank_patient_id",
+                    'participant_id' => $participant_id,
+                    'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
+                    'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
+                );
+                $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+            }            
+            foreach($allConsents as $newConsent) {
+                $newConsent['consent_masters']['participant_id'] = $participant_id;
+                customInsertRecord($newConsent);
+            }
+        }
     } else {
         foreach($allJsConsentData['consents'] as $bank_patient_id => $consentsData) {
             foreach($consentsData as $dateConsent => $consentData) {
@@ -1086,6 +1135,16 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
     }
     // --> Box
     $box_number = trim(str_replace(' ', '', $box_number));
+    $_new_box_number = trim(str_replace('.', ',', $box_number));
+    
+   if($_new_box_number != $box_number) { 
+        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
+            '@@WARNING@@',
+            "Box# value updated by script. Please validate data after migration.",
+            "See Box# '$box_number' changed to $_new_box_number for $excel_data_references.");
+   }
+    
+    $box_number = $_new_box_number; 
     if(!preg_match('/^[0-9]+(,[0-9]+){0,1}$/', $box_number)) {
         recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
             '@@WARNING@@',
