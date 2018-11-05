@@ -495,6 +495,11 @@ class DboSource extends DataSource {
 		    //Temporary patch to display SQL error message. 
 		    //Should be replaced by new code. See Issue#3628: Display sql error message for any SQL error
 		    pr($e->getMessage());
+                    if (API::isAPIMode()){
+                        API::clearData();
+                        API::addToBundle($e->getMessage(), API::$errors);
+                        API::sendDataAndClear();
+                    }
 		    //ATiM end------
 			if (isset($query->queryString)) {
 				$e->queryString = $query->queryString;

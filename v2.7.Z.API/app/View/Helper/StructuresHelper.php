@@ -699,7 +699,7 @@ class StructuresHelper extends AppHelper
             if ($type == 'addgrid' || $type == 'editgrid') {
                 $options['settings']['pagination'] = false;
             }
-            $this->buildTable($atimStructure, $options, $data, $type);
+            $this->buildTable($atimStructure, $options, $data, $type, $tableIndex);
         } elseif (in_array($type, array(
             'detail',
             'add',
@@ -746,7 +746,7 @@ class StructuresHelper extends AppHelper
             $this->buildDetail($atimStructure, $options, $data, $tableIndex);
         }
         
-        if (isset($options['type']) && !in_array($options['type'], array('index1', 'summary'))) {
+        if (isset($options['type']) && !in_array($options['type'], array('summary'))) {
             if (API::isAPIMode()) {
                 $structure=API::getStructure($tableIndex, $atimStructure, $options, $data);
                 if ($structure){
@@ -1333,7 +1333,7 @@ class StructuresHelper extends AppHelper
      * @param array $data
      * @param $type
      */
-    private function buildTable(array $atimStructure, array $options, array $data, $type)
+    private function buildTable(array $atimStructure, array $options, array $data, $type, &$tableStructure)
     {
         // attach PER PAGE pagination param to PASSED params array...
         if (isset($this->request->params['named']) && isset($this->request->params['named']['per'])) {

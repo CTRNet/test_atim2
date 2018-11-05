@@ -197,7 +197,7 @@ class BrowserController extends DatamartAppController
                 if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])) {
                     foreach ($values['id'] as $index=>$id) {
                         $modelInstance = AppModel::getInstance($browsingData['DatamartStructure']['plugin'], $modelName);
-                        $resultat=$modelInstance->find('first', array("conditions"=>array($modelName.".id" => $id)));
+                        $resultat=$modelInstance->find('first', array("conditions"=>array($modelName.".".$modelInstance->primaryKey => $id)));
                         if (empty($resultat)){
                             unset($values['id'][$index]);
                         }
@@ -761,7 +761,7 @@ class BrowserController extends DatamartAppController
         ));
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else {
+        } else{
             $this->request->data['BrowsingIndex']['temporary'] = false;
             $this->BrowsingIndex->pkeySafeguard = false;
             $this->BrowsingIndex->checkWritableFields = false;
@@ -982,8 +982,21 @@ class BrowserController extends DatamartAppController
                     $response[$model]=$values;
                 }
             }
+            
+           $mainModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
+           $miscIdentifierControls = $mainModel->find("list", array(
+               'conditions' => array("MiscIdentifierControl.flag_active" => "true"),
+               'fields' => array("MiscIdentifierControl.id", "MiscIdentifierControl.misc_identifier_name")
+           ));
+
+            foreach ($miscIdentifierControls as $k => $v) {
+                $miscIdentifierControls[$k] = __($v);
+            }
+
+            $response["MiscIdentifier"] = $miscIdentifierControls;
+
             return $response;
-        }else{
+        } else {
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
     }
@@ -1025,10 +1038,7 @@ class BrowserController extends DatamartAppController
     {
         if (API::isAPIMode()){
             $modelClass = AppModel::getInstance($plugin, $model);
-            $data = $modelClass->find('first', array(
-                "conditions" => array(
-                    $model . '.id' => $id
-                )));
+            $data = $modelClass->getOrRedirect($id);
             API::sendDataToAPI($data);            
         }else{
            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');

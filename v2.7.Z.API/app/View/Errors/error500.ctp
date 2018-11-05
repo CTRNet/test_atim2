@@ -6,6 +6,8 @@ if (Configure::read('debug') > 0 && isset($name)) {
     $errorMessage = $name;
 } elseif (strpos($message, 'server has gone away') > - 1) {
     $errorMessage = __('database server has gone away(Query should be limited)');
+} elseif (strpos($message, 'An Internal Error Has Occurred') > - 1) {
+    $errorMessage = $message;
 } elseif (strpos($message, 'bytes exhausted') > - 1) {
     $errorMessage = __('out of memory error');
 } elseif ($this->params['plugin'] == 'Datamart' && $this->params['action'] == 'browse' && $this->params['controller'] == 'Browser') {

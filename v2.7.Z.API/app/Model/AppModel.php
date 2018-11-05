@@ -278,7 +278,7 @@ class AppModel extends Model
         $modelName= strtolower($this->name);
 
         //Check the $validate for not consodering Delete function here
-        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation', 'browsingresult', 'browsingindex']) && $validate){
+        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation', 'browsingresult', 'browsingindex'])){
             if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
                 $message=[];
                 $message['message']='Pkey safeguard on model ' . $this->name;
@@ -297,7 +297,7 @@ class AppModel extends Model
             $message['message']='save_status';
             $message['action']=$result;
             API::addToBundle($message, 'actions');
-            $this->normalizedValidationErrors($this->validationErrors);
+            $this->normalizedValidationErrors();
             $this->moveFiles($moveFiles);              
         }else{
         if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
@@ -2079,8 +2079,9 @@ class AppModel extends Model
      * @param array $errors
      * @return array
      */
-    protected function normalizedValidationErrors($errors =array()) {
-        if ($errors !=array() && is_array($errors)) {
+    protected function normalizedValidationErrors() {
+        $errors = $this->validationErrors;
+        if (!empty($errors) && is_array($errors)) {
             foreach ($errors as $key => $value) {
                 foreach ($value as $message) {
                     API::addToBundle($key.": ".$message, API::$errors);

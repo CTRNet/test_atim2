@@ -202,8 +202,13 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
             }
         }
         
-        if (! $this->validateAndUpdateMiscIdentifierStudyData())
-            return false;
+        if (!$this->validateAndUpdateMiscIdentifierStudyData()){
+            $errors = false;
+        }
+        
+        if (!$errors){
+            $this->normalizedValidationErrors();
+        }
         
         return $errors;
     }
@@ -230,8 +235,9 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
             ));
             if (strlen($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'])) {
                 // Load model
-                if (self::$studyModel == null)
+                if (self::$studyModel == null){
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
+                }
                     
                     // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
@@ -251,4 +257,23 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         
         return true;
     }
+    
+    public function saveValidateState($displayAddForm) {
+        $validationRules = $this->validate;
+        if (!$displayAddForm) {
+            if (isset($this->validate["identifier_value"]) && is_array($this->validate["identifier_value"])) {
+                foreach ($this->validate["identifier_value"] as &$value) {
+                    if (isset($value['allowEmpty'])){
+                        $value['allowEmpty'] = true;
+                    }
+                }
+            }
+        }
+        return $validationRules;
+    }
+
+    public function restoreValidateState($saveState) {
+        $this->validate = $saveState;
+    }
+
 }
