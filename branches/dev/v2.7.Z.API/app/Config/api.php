@@ -7,6 +7,7 @@ define("CONTROLLER_NAME", "controller");
 define("REST_API_MODE", "APIMode");
 define("REST_API_ACTION", "APIAction");
 define("REST_API_MODE_STRUCTURE", "APISModeStructure");
+define("NUMBER", "number");
 
 define("RECEIVE", "receive");
 
@@ -194,10 +195,30 @@ class API {
     /**
      * @return mixed
      */
+    public static function clearData() 
+    {
+        if (static::isAPIMode()) {
+            $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
+        }
+    }
+
+    /**
+     * @return mixed
+     */
     public static function getAction() 
     {
         if (static::isAPIMode()) {
             return $_SESSION[REST_API][CONFIG_API][REST_API_ACTION];
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getNumber() 
+    {
+        if (static::isAPIMode()) {
+            return $_SESSION[REST_API][CONFIG_API][NUMBER];
         }
     }
 
@@ -257,41 +278,41 @@ class API {
      */
     public static function checkData(&$controller) 
     {
-        if (is_string($controller->request->data)) {
-            $data = json_decode($controller->request->data, true);
-        } elseif (is_array($controller->request->data)) {
-            $data = $controller->request->data;
-        } else {
-            return false;
-        }
-        
-        $data = static::checkExtradata($data);
+        if (!self::isAPIMode()){
+            if (is_string($controller->request->data)) {
+                $data = json_decode($controller->request->data, true);
+            } elseif (is_array($controller->request->data)) {
+                $data = $controller->request->data;
+            } else {
+                return false;
+            }
 
-//if ($data['data_put_options']['action']!="initialAPI"){
-//print_r($controller->request->data);
-//print_r($data);
-//exit("______________");
-//}
-        if (!(isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api'])) {
-            if (isset($_SESSION[REST_API])){
-                unset($_SESSION[REST_API]);
+            $data = static::checkExtradata($data);
+
+            if (!(isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api'])) {
+                if (isset($_SESSION[REST_API])){
+                    unset($_SESSION[REST_API]);
+                }
             }
-        }
-        if (!empty($data)) {
-            if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
-                $controller->request->data = $data;
-                Configure::write('debug', 0);
-                static::$apiKey = $data['data_put_options']['atimApiKey'];
-                $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = $data['data_put_options']['model'];
-                $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME] = $data['data_put_options']['controller'];
-                $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
-                $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
-                $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
-                $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
-                unset($controller->request->data['data_put_options']);
+            if (!empty($data)) {
+                if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
+                    $controller->request->data = $data;
+                    Configure::write('debug', 0);
+                    static::$apiKey = $data['data_put_options']['atimApiKey'];
+                    $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = $data['data_put_options']['model'];
+                    $_SESSION[REST_API][CONFIG_API][CONTROLLER_NAME] = $data['data_put_options']['controller'];
+                    $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
+                    $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
+                    $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
+                    $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array();
+                    unset($controller->request->data['data_put_options']);
+                }
             }
+            $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) ? $_SESSION[REST_API][CONFIG_API][REST_API_MODE] : false;
+            $_SESSION[REST_API][CONFIG_API][NUMBER] = 1;
+        }else{
+            $_SESSION[REST_API][CONFIG_API][NUMBER]++;
         }
-        $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) ? $_SESSION[REST_API][CONFIG_API][REST_API_MODE] : false;
     }
 
     /**
@@ -389,7 +410,7 @@ class API {
             if (in_array($optionType, array("addgrid", "editgrid"))) {
                 $response['example'][0][$item['model']][$item['field']] = null;
                 $response['example'][1][$item['model']][$item['field']] = null;
-            } else {
+            } elseif (empty($item['readonly'])){
                 $response['example'][$item['model']][$item['field']] = null;
             }
             if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
@@ -413,14 +434,14 @@ class API {
                 if (in_array($optionType, array("addgrid", "editgrid"))) {
                     $response['example'][0][$item['model']][$field] = null;
                     $response['example'][1][$item['model']][$field] = null;
-                } else {
+                } elseif (empty($item['readonly'])){
                     $response['example'][$item['model']][$field] = null;
                 }
                 if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
                     $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
                 }
                 $response['fields'][$field]['type'] = $item['type'];
-                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+                $response['fields'][$field]['readonly'] = $item['readonly'];
                 $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
                 $response['fields'][$field]['help'] = removeHTMLTags($item['help']);
                 if (isset($item['settings']['required'])) {
@@ -437,7 +458,7 @@ class API {
             if (in_array($optionType, array("addgrid", "editgrid"))) {
                 $response['example'][0][$item['model']][$field] = array('e1', 'e2');
                 $response['example'][1][$item['model']][$field] = array('e1', 'e2');
-            } else {
+            } elseif (empty($item['readonly'])){
                 $response['example'][$item['model']][$field] = array('e1', 'e2');
             }
             if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
@@ -478,7 +499,7 @@ class API {
             if (in_array($optionType, array("addgrid", "editgrid"))) {
                 $response['example'][0][$item['model']][$item['field']] = array('year' => null, 'month' => null, 'day' => null);
                 $response['example'][1][$item['model']][$item['field']] = array('year' => null, 'month' => null, 'day' => null);
-            } else {
+            } elseif (empty($item['readonly'])){
                 $response['example'][$item['model']][$item['field']] = array('year' => null, 'month' => null, 'day' => null);
             }
             if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
@@ -519,7 +540,7 @@ class API {
                     if (in_array($optionType, array("addgrid", "editgrid"))) {
                         $response['example'][0][$item['model']][$field] = array('year' => null, 'month' => null, 'day' => null);
                         $response['example'][0][$item['model']][$field] = array('year' => null, 'month' => null, 'day' => null);
-                    } else {
+                    } elseif (empty($item['readonly'])){
                         $response['example'][$item['model']][$field] = array('year' => null, 'month' => null, 'day' => null);
                     }
                 }
@@ -527,7 +548,7 @@ class API {
                     $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
                 }
                 $response['fields'][$field]['type'] = $item['type'];
-                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+                $response['fields'][$field]['readonly'] = $item['readonly'];
                 $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
                 $response['fields'][$field]['help'] = removeHTMLTags($item['help']);
                 if (isset($item['settings']['required'])) {
@@ -556,8 +577,14 @@ class API {
         if ($options['type'] == 'index'){
             foreach ($data as $dataVal) {
                 foreach($dataVal as $modelName => $modelArray) {
+                    $radioLists = "";
                     if (isset($options['links']['tree'][$modelName]['radiolist'])) {
-                        static::createTreeRadioButtonStructure($response, $data, $modelName, $options, 'radiolist');
+                        $radioLists = $options['links']['tree'][$modelName]['radiolist'];
+                    }elseif (isset($options['links']['radiolist'])) {
+                        $radioLists = $options['links']['radiolist'];
+                    }
+                    if (!empty($radioLists)){
+                        static::createTreeRadioButtonStructure($response, $data, $modelName, $radioLists, 'radiolist');
                     }
                 }
             }
@@ -568,7 +595,7 @@ class API {
                         if (!$item['flag_confidential'] || static::$user['Group']['flag_show_confidential']) {
                             $suffixes = null;
                             if (API::getAction() == "browse" && API::isStructMode()) {
-                                $suffixes = in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end") : "[]";
+                                $suffixes = in_array($item['type'], StructuresComponent::$rangeTypes) ? array("_start", "_end", "") : "[]";
                             }
                             if (in_array($item['type'], array('date', 'datetime'))) {
                                 static::setDate($response, $item, $suffixes, $options);
@@ -592,16 +619,15 @@ class API {
         return $response;
     }
 
-    private static function createTreeRadioButtonStructure(&$response, $data, $modelName, $options, $treeType)
+    private static function createTreeRadioButtonStructure(&$response, $data, $modelName, $radioLists, $treeType)
     {
         if ($treeType == 'radiolist') {
-            $rawRadiolist = $options['links']['tree'][$modelName]['radiolist'];
-            foreach ($rawRadiolist as $radiobuttonName => $radiobuttonValue) {
-                list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
-                $field = str_replace("%", "", $radiobuttonValue);
-                $field = (strpos($field, ".") !== false) ? substr($field, strpos($field, ".") + 1) : null;
-                break;
-            }
+                foreach ($radioLists as $radiobuttonName => $radiobuttonValue) {
+                    list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
+                    $field = str_replace("%", "", $radiobuttonValue);
+                    $field = (strpos($field, ".") !== false) ? substr($field, strpos($field, ".") + 1) : null;
+                    break;
+                }
         }
         $values = static::getAllPossibleValue($data, $modelName, $field);
         $response['fields'][$tmpField]=array(

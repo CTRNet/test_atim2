@@ -1596,7 +1596,8 @@ class Browser extends DatamartAppModel
             $page = isset($page)?$page:1;
             $this->offset=($page-1)*$chunkSize;
             if ($this->offset>=$this->count){
-                $this->offset = $this->count-$limit;
+                $this->offset = ($this->count-$limit<0)?0:$this->count-$limit;
+                $page = floor($this->offset / $chunkSize ) + 1;
             }
                 
             $this->fillBuffer($chunkSize);
@@ -2130,7 +2131,7 @@ $browsingFilter['attribute']);
             // save fullset
             $save = $browsingResultModel->save($save);
             $save['BrowsingResult']['id'] = $browsingResultModel->id;
-            if ($nodeId == 0) {
+            if ($nodeId == 0 && !API::isAPIMode()) {
                 // save into index as well
                 $browsingIndexModel = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
                 $browsingIndexModel->save(array(
