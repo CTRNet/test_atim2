@@ -81,3 +81,46 @@ UPDATE versions SET branch_build_number = '7374' WHERE version_number = '2.7.1';
 UPDATE versions SET branch_build_number = '7381' WHERE version_number = '2.7.1';
 UPDATE versions SET branch_build_number = '7396' WHERE version_number = '2.7.1';
 UPDATE versions SET branch_build_number = '7427' WHERE version_number = '2.7.1';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- pulmonary bank
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+("frsq - network", "FRQS - Network", "FRQS - Réseau"),
+("frsq", "FRQS", "FRQS"),
+("pre-frsq", "Pre-FRQS", "Pré-FRQS"),
+("frsq - gyneco", "FRQS - Gyneco/Ovary/Breast", "FRQS - Gynéco/Ovaire/Sein"),
+("ghadirian consent", "Dr Ghadirian's lab", "Labo Dr Ghadirian");
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'chum - pulmonary by script', 1, 'qc_nd_cd_chum_pulmonary_by_scripts', 'qc_nd_cd_chum_pulmonarys', 0, 'chum - pulmonary by script');
+
+ALTER TABLE qc_nd_cd_chum_pulmonarys
+   ADD COLUMN person_who_consented_by_script varchar (250) DEFAULT NULL,
+   ADD COLUMN person_who_consented_by_script_relationship varchar (250) DEFAULT NULL;
+ALTER TABLE qc_nd_cd_chum_pulmonarys_revs
+   ADD COLUMN person_who_consented_by_script varchar (250) DEFAULT NULL,
+   ADD COLUMN person_who_consented_by_script_relationship varchar (250) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('qc_nd_cd_chum_pulmonary_by_scripts');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_pulmonarys', 'person_who_consented_by_script', 'input',  NULL , '1', 'size=40', '', '', 'person who consented', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_pulmonarys', 'person_who_consented_by_script_relationship', 'input',  NULL , '1', 'size=40', '', '', 'relationship with the patient', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonary_by_scripts'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='person_who_consented_by_script' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=40' AND `default`='' AND `language_help`='' AND `language_label`='person who consented' AND `language_tag`=''), '2', '20', 'script details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonary_by_scripts'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='person_who_consented_by_script_relationship' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=40' AND `default`='' AND `language_help`='' AND `language_label`='relationship with the patient' AND `language_tag`=''), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('chum - pulmonary by script', 'CHUM -  Pulmonary (by script)', 'CHUM - Pulmonaire (par script)'),
+('script details', 'Script Details', 'Détails du script'),
+("person who consented", "Person who Consented", "Personne qui a consenti"),
+("relationship with the patient", "Relationship with the Patient", "Relation avec le patient");
+
+INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_laterality`, `sample_type_matching`, `tissue_source_matching`, `nature_matching`, `laterality_matching`) VALUES
+('PO', '', 'tissue', 'lung', 'unknown', ''),
+('PON', '', 'tissue', 'lung', 'normal', ''),
+('POT', '', 'tissue', 'lung', 'malignant', '');
+
+UPDATE versions SET branch_build_number = '7476' WHERE version_number = '2.7.1';
