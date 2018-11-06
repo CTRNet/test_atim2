@@ -400,6 +400,14 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 
             }
 
+            if (!empty($this->request->data['Collection']['event_master_id'])){
+                $this->EventMaster->id = $this->request->data['Collection']['event_master_id'];
+                $result = $this->EventMaster->read();
+                if (!$result || !$result['EventControl']['flag_use_for_ccl']){
+                    $this->atimFlashError(__('the annotation #%s is not for clinical collection link', $this->request->data['Collection']['event_master_id']), 'javascript:history.back();');
+                }
+            }
+            
             $this->request->data['Collection']['participant_id'] = $participantId;
             $this->Collection->id = (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null;
             unset($this->request->data['Collection']['id']);
@@ -564,7 +572,15 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 }
 
             }
-            
+
+            if (!empty($this->request->data['Collection']['event_master_id'])){
+                $this->EventMaster->id = $this->request->data['Collection']['event_master_id'];
+                $result = $this->EventMaster->read();
+                if (!$result || !$result['EventControl']['flag_use_for_ccl']){
+                    $this->atimFlashError(__('the annotation #%s is not for clinical collection link', $this->request->data['Collection']['event_master_id']), 'javascript:history.back();');
+                }
+            }
+
             if ($submittedDataValidates && $this->Collection->save($this->request->data, true, $fields)) {
                 
                 $hookLink = $this->hook('postsave_process');
