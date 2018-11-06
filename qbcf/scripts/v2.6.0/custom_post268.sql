@@ -2455,3 +2455,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_fields SET field = 'qbcf_generated_returned_block' WHERE field = 'qbcf_generated_paid_returned';
 
 UPDATE versions SET branch_build_number = '7173'  WHERE version_number = '2.6.8';
+
+-- 2018-11-06
+---------------------------------------------------------------------------------------------------
+
+ALTER TABLE qbcf_ar_tissue_blocks CHANGE COLUMN possible_pinches possible_punches VARCHAR(30) DEFAULT NULL;
+ALTER TABLE qbcf_ar_tissue_blocks_revs CHANGE COLUMN possible_pinches possible_punches VARCHAR(30) DEFAULT NULL;
+UPDATE structure_fields SET field = 'possible_punches' WHERE field = 'possible_pinches';
+
+UPDATE versions SET branch_build_number = '7482'  WHERE version_number = '2.6.8';
