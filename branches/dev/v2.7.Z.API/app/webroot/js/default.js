@@ -130,10 +130,12 @@ if ($("#header div:first").length !== 0) {
 var actionMenuShow = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
-    if (action_popup.length > 0) {
-        //show current menu
-        action_popup.slideDown(100);
-    }
+    slideMenuTimer = setTimeout(function(){
+        if (action_popup.length > 0) {
+            //show current menu
+            action_popup.slideDown(50);
+        }
+    }, 100);
 };
 
 //Slide up (hide) animation for action menu.
@@ -141,6 +143,7 @@ var actionMenuHide = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
     if (action_popup.length > 0) {
+        clearTimeout(slideMenuTimer);
         action_popup.slideUp(100).queue(function () {
             $(this).clearQueue();
         });
@@ -161,7 +164,7 @@ var actionClickUp = function () {
                 {
                     top: '+=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
 
@@ -184,7 +187,7 @@ var actionClickDown = function () {
                 {
                     top: '-=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
     }
