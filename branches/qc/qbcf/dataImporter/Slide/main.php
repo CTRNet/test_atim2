@@ -348,7 +348,7 @@ foreach($excel_files_names as $file_data) {
 										'participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier],
 										'qbcf_pathology_id' => $excel_pathology_id);
 									$block_collection_id = customInsertRecord(array('collections' => $collection_data));
-									addCreatedDataToSummary('New Collection', "New collection for participant '$qbcf_bank_participant_identifier' of bank '$bank' and block '$excel_block_aliquot_label'", $excel_data_references);
+									addCreatedDataToSummary('New Collection' . " ($excel_file_name)", "New collection for participant '$qbcf_bank_participant_identifier' of bank '$bank' and block '$excel_block_aliquot_label'", $excel_data_references);
 								}
 									
 								// Create one tissue sample per block
@@ -385,7 +385,7 @@ foreach($excel_files_names as $file_data) {
 								));
 								
 								$block_aliquot_master_id = customInsertRecord($aliquot_data);
-								addCreatedDataToSummary('New Block', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
+								addCreatedDataToSummary('New Block' . " ($excel_file_name)", "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label' (received on '$qbcf_shipping_reception_date')", $excel_data_references);
 							}
 							
 							if($block_aliquot_master_id) {
@@ -438,8 +438,6 @@ foreach($excel_files_names as $file_data) {
 										'qbcf_thickness_um' => $qbcf_thickness_um,));
 								$slide_aliquot_master_id = customInsertRecord($aliquot_data);
 								
-								addCreatedDataToSummary('Block Slide', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
-								
 								$excel_field = 'Date of sectionning';
 								list($realiquoting_datetime, $realiquoting_datetime_accuracy) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], 'Block Slide', $excel_field, "See $excel_data_references");
 								
@@ -450,6 +448,8 @@ foreach($excel_files_names as $file_data) {
 									'realiquoting_datetime_accuracy' => $realiquoting_datetime_accuracy));
 								
 								customInsertRecord($realiquoting_data);
+								
+								addCreatedDataToSummary('Block Slide' . " ($excel_file_name)", "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label' (cuted on  '$realiquoting_datetime' and stained on '$qbcf_staining_date')", $excel_data_references);
 							}
 						}
 					} //Participant found

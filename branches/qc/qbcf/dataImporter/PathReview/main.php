@@ -277,7 +277,7 @@ foreach($excel_files_names as $file_data) {
 									array("Nuclear Atypia", 'nuclear_atypia', 'qbcf_1_2_3'),
 									array("Mitosis count", 'mitosis_count', 'qbcf_1_2_3'),
 									array("Final Grade (Nottingham)", 'final_grade', 'qbcf_1_2_3'),
-								    array("Number of possible punches", 'possible_pinches', 'qbcf_path_review_possible_punches')
+								    array("Number of possible punches", 'possible_punches', 'qbcf_path_review_possible_punches')
 								);
 								foreach($fields_data as $field_data) {
 									list($excel_field, $atim_field, $domain_name) = $field_data;

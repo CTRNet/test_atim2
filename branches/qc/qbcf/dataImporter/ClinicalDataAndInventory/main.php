@@ -857,11 +857,11 @@ foreach($excel_files_names as $file_data) {
 									if($atim_treatment_control_data['tx_method'] == 'bone specific therapy' && strlen(trim($excel_line_data[$excel_field]))) {
 										recordErrorAndMessage($specific_summary_section_title, 
 										    '@@ERROR@@', 
-										    "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", 
+										    "A value is set for field '$excel_field' for a '".$excel_line_data['Treatment Type']."' treatment. System does not expect value. Value won't be mirgated. Please confirm.", 
 										    "See value [<i><u>$excel_field</u> = ".$excel_line_data[$excel_field]."</i>] of '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									} else if($atim_treatment_control_data['tx_method'] != 'bone specific therapy') {
 										if($excel_field == 'Systemic treatement - Treatment completed') {
-											if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
+											if(strtolower($excel_line_data[$excel_field]) == 'u') $excel_line_data[$excel_field] = 'unknown';
 											$excel_treatment_data[$tx_detail_tablename]['cycles_completed'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qbcf_yes_no_unk', $specific_summary_section_title, $excel_field, "See $excel_data_references");
 										} else {
 											if(strtolower($excel_line_data[$excel_field]) == 'u') {
@@ -888,19 +888,30 @@ foreach($excel_files_names as $file_data) {
 								//Check treatment should be updated or created
 									
 								$atim_treatment_data = array();
-								$query = "SELECT TreatmentMaster.*, TreatmentDetail.*, GROUP_CONCAT(TreatmentExtendMaster.drug_id SEPARATOR ',') as drug_ids
-									FROM treatment_masters AS TreatmentMaster
+// 								$query = "SELECT TreatmentMaster.*, TreatmentDetail.*, GROUP_CONCAT(TreatmentExtendMaster.drug_id SEPARATOR ',') as drug_ids
+// 								    FROM treatment_masters AS TreatmentMaster
+// 									INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+// 									LEFT JOIN  treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id AND TreatmentExtendMaster.deleted <> 1
+// 									WHERE TreatmentMaster.deleted <> 1
+// 									AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+// 									AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
+// 									AND TreatmentMaster.diagnosis_master_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['breast_diagnosis_id']."
+// 									AND TreatmentMaster.start_date = '$excel_start_date'
+// 									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
+// 									AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".str_replace("'", "''", $excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])."'" : 'TRUE').")
+// 									GROUP BY TreatmentMaster.*, TreatmentDetail.*;";
+								$query = "SELECT TreatmentMaster.*, TreatmentDetail.*
+								    FROM treatment_masters AS TreatmentMaster
 									INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
-									LEFT JOIN  treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id AND TreatmentExtendMaster.deleted <> 1
 									WHERE TreatmentMaster.deleted <> 1
 									AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
 									AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
 									AND TreatmentMaster.diagnosis_master_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['breast_diagnosis_id']."
-									AND TreatmentMaster.start_date = '$excel_start_date'
-									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
-									AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".str_replace("'", "''", $excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])."'" : 'TRUE').")
-									GROUP BY TreatmentMaster.id;";
+                                    AND TreatmentMaster.start_date = '$excel_start_date'
+                                    AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
+                                    AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".str_replace("'", "''", $excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])."'" : 'TRUE').");";								
 								$query_data = getSelectQueryResult($query);
+								
 								if($query_data) {
 									if(sizeof($query_data) > 1) {
 										// Two treatments matched the file treatment based on date and type
@@ -932,13 +943,29 @@ foreach($excel_files_names as $file_data) {
 									
 									/// 5.b.2 - SYSTEMIC TREATMENT UPDATE
 									
-									$data_to_update = array(
+								    $data_to_update = array(
 										'treatment_masters' => getDataToUpdate($atim_treatment_data, $excel_treatment_data['treatment_masters']),
 										$tx_detail_tablename => getDataToUpdate($atim_treatment_data, $excel_treatment_data[$tx_detail_tablename]));
 									if(sizeof($data_to_update['treatment_masters']) || sizeof($data_to_update[$tx_detail_tablename])) {
 										updateTableData($atim_treatment_data['treatment_master_id'], $data_to_update);
 										addUpdatedDataToSummary('Breast Treatment Update ('.$excel_line_data['Treatment Type'].")", array_merge($data_to_update['treatment_masters'], $data_to_update[$tx_detail_tablename]), $excel_data_references);
 									}
+									
+									$query = "SELECT TreatmentExtendMaster.treatment_master_id, GROUP_CONCAT(TreatmentExtendMaster.drug_id SEPARATOR ',') as drug_ids
+    								    FROM treatment_extend_masters AS TreatmentExtendMaster
+    									WHERE TreatmentExtendMaster.deleted <> 1
+    								    AND TreatmentExtendMaster.treatment_master_id = ". $atim_treatment_data['treatment_master_id'] ."
+    								    GROUP BY TreatmentExtendMaster.treatment_master_id;";
+								    $query_data2 = getSelectQueryResult($query);
+								    
+								    $atim_treatment_data['drug_ids'] = array();
+								    if(sizeof($query_data2)) {
+								        if(sizeof($query_data2) > 1) {
+								            	die('ERR 73787283782738327');
+								        }
+								        $atim_treatment_data['drug_ids'] = $query_data2[0]['drug_ids'];
+								    }
+									
 									$atim_treatment_drug_ids = array_filter(explode(',', $atim_treatment_data['drug_ids']));
 									$drug_ids_only_in_excel = array_diff($atim_drug_ids_to_link_to_treatment, $atim_treatment_drug_ids);
 									if($drug_ids_only_in_excel) {
