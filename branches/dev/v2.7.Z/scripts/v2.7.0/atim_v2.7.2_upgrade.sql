@@ -33,6 +33,19 @@ VALUES 	(
 );
 
 
+-- -------------------------------------------------------------------------------------
+--	In CCL, check if the annotation can be add
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	(
+'the annotation #%s is not for clinical collection link', 
+'The annotation #%s is not for Clinical Collection Link.',
+'L\'annotation #%s ne concerne pas le lien de collecte clinique.'
+);
+
+
 
 -- -------------------------------------------------------------------------------------
 
