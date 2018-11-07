@@ -1034,11 +1034,18 @@ class BrowserController extends DatamartAppController
          }
     }
 
-    public function searchById($plugin, $model, $id)
+    public function searchById($plugin, $model, $field, $id = null)
     {
         if (API::isAPIMode()){
+            if (!$id){
+                $id = $field;
+                $field = "id";
+            }
             $modelClass = AppModel::getInstance($plugin, $model);
-            $data = $modelClass->getOrRedirect($id);
+            $data = $modelClass->find("first", array(
+                'conditions' => array(
+                    $field => $id
+            )));
             API::sendDataToAPI($data);            
         }else{
            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
