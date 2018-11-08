@@ -6,6 +6,18 @@ if ($collectionData) {
             $this->SampleMaster->validationErrors['qbcf_tma_sample_control_code'][] = __('no control data has to be set for a participant tissue');
             $submittedDataValidates = false;
         }
+        $controlDetailFields = array(
+            'qbcf_control_er_overall',
+            'qbcf_control_pr_overall',
+            'qbcf_control_her_2_status',
+            'qbcf_control_tnbc'
+        );
+        foreach ($controlDetailFields as $newCtrlField) {
+            if ($this->request->data['SampleDetail'][$newCtrlField]) {
+                $this->SampleMaster->validationErrors[$newCtrlField][] = __('no control data has to be set for a participant tissue');
+                $submittedDataValidates = false;
+            }
+        }
     } else {
         // Tissue from banks
         $this->request->data['SampleMaster']['qbcf_is_tma_sample_control'] = 'y';

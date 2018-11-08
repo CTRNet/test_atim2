@@ -2464,3 +2464,112 @@ ALTER TABLE qbcf_ar_tissue_blocks_revs CHANGE COLUMN possible_pinches possible_p
 UPDATE structure_fields SET field = 'possible_punches' WHERE field = 'possible_pinches';
 
 UPDATE versions SET branch_build_number = '7482'  WHERE version_number = '2.6.8';
+
+-- 2018-11-07
+---------------------------------------------------------------------------------------------------
+
+SET @modified = (SELECT now() FROM users where id = 1);
+SET @modified_by = (SELECT id FROM users where id = 1);
+
+UPDATE aliquot_masters AM, ad_tissue_cores AD
+SET AM.deleted = 1, 
+AM.modified = @modified, 
+AM.modified_by = @modified_by,
+AM.storage_master_id = null,
+AM.storage_coord_x = null,
+AM.storage_coord_y = null
+WHERE AM.deleted <> 1 AND AM.id = AD.aliquot_master_id
+AND storage_master_id IN (SELECT id FROM storage_masters WHERE deleted <> 1 AND short_label LIKE 'QBCF_Opti_%')
+AND AM.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1)
+AND AM.id NOT IN (SELECT parent_aliquot_master_id FROM realiquotings WHERE deleted <> 1)
+AND AM.id NOT IN (SELECT child_aliquot_master_id FROM realiquotings WHERE deleted <> 1)
+AND AM.id NOT IN (SELECT aliquot_master_id FROM source_aliquots WHERE deleted <> 1)
+AND AM.id NOT IN (SELECT aliquot_master_id FROM aliquot_review_masters WHERE deleted <> 1);
+
+UPDATE sample_masters SM, sd_spe_tissues SD
+SET SM.deleted = 1, 
+SM.modified = @modified, 
+SM.modified_by = @modified_by
+WHERE SM.deleted <> 1 AND SM.id = SD.sample_master_id
+AND SM.id NOT IN (SELECT DISTINCT sample_master_id FROM aliquot_masters WHERE deleted <> 1)
+AND SM.id IN (SELECT DISTINCT sample_master_id FROM aliquot_masters WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by)
+AND SM.id NOT IN (SELECT DISTINCT sample_master_id FROM specimen_review_masters WHERE deleted <> 1)
+AND SM.id NOT IN (SELECT sample_master_id FROM (SELECT DISTINCT parent_id AS sample_master_id FROM sample_masters WHERE deleted <> 1 AND parent_id IS NOT NULL) AS res);
+
+UPDATE storage_masters SM, std_tma_blocks SD
+SET SM.deleted = 1,
+SM.modified = @modified, 
+SM.modified_by = @modified_by
+WHERE SM.deleted <> 1 
+AND SM.id = SD.storage_master_id
+AND SM.short_label LIKE 'QBCF_Opti_%'
+AND SM.id NOT IN (SELECT storage_master_id FROM (SELECT DISTINCT parent_id AS storage_master_id FROM storage_masters WHERE deleted <> 1 AND parent_id IS NOT NULL) AS res)
+AND SM.id NOT IN (SELECT DISTINCT storage_master_id FROM aliquot_masters WHERE deleted <> 1 AND storage_master_id IS NOT NULL)
+AND SM.id NOT IN (SELECT DISTINCT tma_block_storage_master_id FROM tma_slides WHERE deleted <> 1 AND tma_block_storage_master_id IS NOT NULL)
+AND SM.id NOT IN (SELECT DISTINCT storage_master_id FROM tma_slides WHERE deleted <> 1 AND storage_master_id IS NOT NULL);
+
+INSERT INTO sample_masters_revs 
+(id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, sop_master_id, product_code, 
+is_problematic, notes, qbcf_is_tma_sample_control, qbcf_tma_sample_control_code, modified_by, version_created)
+(SELECT id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, sop_master_id, product_code, 
+is_problematic, notes, qbcf_is_tma_sample_control, qbcf_tma_sample_control_code, modified_by, modified
+FROM sample_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO aliquot_masters_revs
+(id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, modified_by, version_created)
+(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, modified_by, modified
+FROM aliquot_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO storage_masters_revs
+(id, code, storage_control_id, parent_id, lft, rght, barcode, short_label, selection_label, storage_status, parent_storage_coord_x, parent_storage_coord_y, temperature, 
+temp_unit, notes, modified_by, version_created)
+(SELECT id, code, storage_control_id, parent_id, lft, rght, barcode, short_label, selection_label, storage_status, parent_storage_coord_x, parent_storage_coord_y, temperature, 
+temp_unit, notes, modified_by, modified
+FROM storage_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO ad_tissue_cores_revs
+(aliquot_master_id, qbcf_core_nature_site, qbcf_core_nature_revised, qbcf_core_nature_precision, version_created)
+(SELECT aliquot_master_id, qbcf_core_nature_site, qbcf_core_nature_revised, qbcf_core_nature_precision, modified
+FROM ad_tissue_cores INNER JOIN aliquot_masters ON id = aliquot_master_id WHERE  modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO sd_spe_tissues_revs
+(sample_master_id, tissue_source, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size, tissue_size_unit, 
+tissue_weight, tissue_weight_unit, version_created)
+(SELECT sample_master_id, tissue_source, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size, tissue_size_unit, 
+tissue_weight, tissue_weight_unit, modified
+FROM sd_spe_tissues INNER JOIN sample_masters ON id = sample_master_id WHERE  modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO std_tma_blocks_revs
+(storage_master_id, sop_master_id, product_code, creation_datetime, creation_datetime_accuracy, version_created)
+(SELECT storage_master_id, sop_master_id, product_code, creation_datetime, creation_datetime_accuracy, modified
+FROM std_tma_blocks INNER JOIN storage_masters ON id = storage_master_id WHERE  modified = @modified AND modified_by = @modified_by);
+
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qbcf_is_tma_sample_control' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qbcf_tma_sample_control_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE sd_spe_tissues 
+   ADD COLUMN qbcf_control_er_overall VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_pr_overall VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_her_2_status VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_tnbc VARCHAR(50) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs 
+   ADD COLUMN qbcf_control_er_overall VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_pr_overall VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_her_2_status VARCHAR(50) DEFAULT NULL,
+   ADD COLUMN qbcf_control_tnbc VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qbcf_control_er_overall', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_overall') , '0', '', '', '', 'er overall  (from path report)', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qbcf_control_pr_overall', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_overall') , '0', '', '', '', 'pr overall (in path report)', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qbcf_control_her_2_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her_2_status') , '0', '', '', '', 'her 2 status', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qbcf_control_tnbc', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnbc') , '0', '', '', '', 'tnbc', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qbcf_control_er_overall' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_overall')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='er overall  (from path report)' AND `language_tag`=''), '1', '702', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qbcf_control_pr_overall' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_overall')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pr overall (in path report)' AND `language_tag`=''), '1', '703', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qbcf_control_her_2_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her_2_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='her 2 status' AND `language_tag`=''), '1', '704', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qbcf_control_tnbc' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnbc')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tnbc' AND `language_tag`=''), '1', '705', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '7488'  WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
