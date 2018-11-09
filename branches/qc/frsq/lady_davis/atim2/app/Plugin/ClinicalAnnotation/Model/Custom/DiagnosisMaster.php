@@ -237,7 +237,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                 }
                 $date = empty($date) ? '?' : $date;
                 $precision = '';
-                if (isset($newDx['DiagnosisDetail']['qc_lady_tumor_site'])) {
+                if (isset($newDx['DiagnosisDetail']['qc_lady_tumor_site']) && $newDx['DiagnosisDetail']['qc_lady_tumor_site']) {
                     $precision = ' : ' . $qcLadyTumorSite[$newDx['DiagnosisDetail']['qc_lady_tumor_site']];
                 }
                 $participantDiagnosisList[$newDx['DiagnosisMaster']['id']] = "$rowToDisplay$category-$controlsType ($date)$precision";
