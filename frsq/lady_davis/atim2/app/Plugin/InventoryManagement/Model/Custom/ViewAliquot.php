@@ -4,7 +4,6 @@ class ViewAliquotCustom extends ViewAliquot
 {
 
     var $name = 'ViewAliquot';
-
     public static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
@@ -17,6 +16,7 @@ class ViewAliquotCustom extends ViewAliquot
 		
 			Collection.acquisition_label,
 Collection.misc_identifier_id AS misc_identifier_id,
+            Collection.collection_protocol_id AS collection_protocol_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,

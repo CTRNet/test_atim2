@@ -133,24 +133,50 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="mixte" AND language_alias="mixte"), "5", "1");
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('mixed', 'Mixed', 'Mixte');
+('mixte', 'Mixte', 'Mixte');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Diagnosis Control
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE diagnosis_controls SET controls_type = 'n/d' WHERE category IN ('remission', 'progression - locoregional', 'recurrence - locoregional') AND controls_type = 'undetailed';
+UPDATE diagnosis_controls SET controls_type = '-' WHERE category IN ('remission', 'progression - locoregional', 'recurrence - locoregional') AND controls_type = 'undetailed';
 UPDATE diagnosis_controls SET controls_type = 'localized' WHERE category IN ('secondary - distant') AND controls_type = 'undetailed';
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
-(null, 'secondary - distant', 'widespread', 1, 'dx_secondary', 'dxd_secondaries', 0, 'secondary - distant|widespread', 0);
+(null, 'secondary - distant', 'widespread', 1, '', 'dxd_secondaries', 0, 'secondary - distant|widespread', 0);
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-(''n/d', 'N/D', 'N/D),
 ('widespread', 'Widespread', 'Généralisé'),
 ('localized', 'Localized', 'Localisé');
 UPDATE diagnosis_controls SET databrowser_label = CONCAT(category, '|', controls_type);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES 
+(NULL, (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='qc_lady_tumor_site'), 'notBlank', '', '');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7467' WHERE version_number = '2.7.1';
+
+-- Move drug_id FROM treatmet extend detail table to master
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE treatment_extend_masters Master, qc_lady_txe_hormonos Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+UPDATE treatment_extend_masters_revs Master, qc_lady_txe_hormonos_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `qc_lady_txe_hormonos` DROP FOREIGN KEY `FK_qc_lady_txe_hormonos_drugs`;
+ALTER TABLE qc_lady_txe_hormonos DROP COLUMN drug_id;
+ALTER TABLE qc_lady_txe_hormonos_revs DROP COLUMN drug_id;
+
+UPDATE treatment_extend_masters Master, qc_lady_txe_immunos Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+UPDATE treatment_extend_masters_revs Master, qc_lady_txe_immunos_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `qc_lady_txe_immunos` DROP FOREIGN KEY `FK_qc_lady_txe_immunos_drugs`;
+ALTER TABLE qc_lady_txe_immunos DROP COLUMN drug_id;
+ALTER TABLE qc_lady_txe_immunos_revs DROP COLUMN drug_id;
+
+UPDATE treatment_extend_masters Master, qc_lady_txe_others Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+UPDATE treatment_extend_masters_revs Master, qc_lady_txe_others_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `qc_lady_txe_others` DROP FOREIGN KEY `FK_qc_lady_txe_others_drugs`;
+ALTER TABLE qc_lady_txe_others DROP COLUMN drug_id;
+ALTER TABLE qc_lady_txe_others_revs DROP COLUMN drug_id;
+
+UPDATE versions SET branch_build_number = '7489' WHERE version_number = '2.7.1';

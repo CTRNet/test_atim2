@@ -40,6 +40,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 Collection.misc_identifier_id AS misc_identifier_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -59,7 +60,7 @@ Collection.qc_lady_sop_deviations AS qc_lady_sop_deviations,
 MiscIdentifier.identifier_value AS misc_identifier_value
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1 
+LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
     public function summary($variables = array())
