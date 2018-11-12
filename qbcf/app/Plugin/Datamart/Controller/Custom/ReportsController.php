@@ -1215,6 +1215,8 @@ class ReportsControllerCustom extends ReportsController
                 BlockAliquotMaster.aliquot_label,
                 BlockAliquotMaster.in_stock,
                 AliquotDetail.qbcf_block_selected,
+                Realiquoting.id,
+                SlideAliquotMaster.id,
                 SlideAliquotMaster.barcode,
                 SlideAliquotMaster.aliquot_label,
                 AliquotReviewDetail.*
@@ -1250,28 +1252,31 @@ class ReportsControllerCustom extends ReportsController
             '0'
         );
         foreach ($this->Report->tryCatchQuery($sql) as $newResult) {
-            $participantId = $newResult['Participant']['id'];
-            $sampleMasterId = $newResult['BlockAliquotMaster']['sample_master_id'];
-            $aliquotMasterId = $newResult['BlockAliquotMaster']['id'];
-            $blocksDetails[] = array(
-                'Participant' => $newResult['Participant'],
-                'AliquotMaster' => $newResult['BlockAliquotMaster'],
-                'AliquotDetail' => $newResult['AliquotDetail'],
-                'AliquotReviewDetail' => $newResult['AliquotReviewDetail'],
-                'ViewAliquot' => array(
-                    'collection_id' => $newResult['BlockAliquotMaster']['collection_id'],
-                    'sample_master_id' => $sampleMasterId,
-                    'aliquot_master_id' => $aliquotMasterId
-                ),
-                '0' => array(
-                    'qbcf_generated_paid_block' => 'n',
-                    'qbcf_generated_returned_block' => 'n',
-                    'slide_barcode' => $newResult['SlideAliquotMaster']['barcode'],
-                    'slide_aliquot_label' => $newResult['SlideAliquotMaster']['aliquot_label'],
-                    'qbcf_generated_breast_diagnosis_found' => $newResult['0']['breast_diagnosis_found']
-                )
-            );
-            $blockAliquotMasterIds[] = $aliquotMasterId;
+            if ((!$newResult['Realiquoting']['id']) || ($newResult['Realiquoting']['id'] && $newResult['SlideAliquotMaster']['id'])) {
+                // Previous condtion set to eliminate any new row created by block to core realiquoting data
+                $participantId = $newResult['Participant']['id'];
+                $sampleMasterId = $newResult['BlockAliquotMaster']['sample_master_id'];
+                $aliquotMasterId = $newResult['BlockAliquotMaster']['id'];
+                $blocksDetails[] = array(
+                    'Participant' => $newResult['Participant'],
+                    'AliquotMaster' => $newResult['BlockAliquotMaster'],
+                    'AliquotDetail' => $newResult['AliquotDetail'],
+                    'AliquotReviewDetail' => $newResult['AliquotReviewDetail'],
+                    'ViewAliquot' => array(
+                        'collection_id' => $newResult['BlockAliquotMaster']['collection_id'],
+                        'sample_master_id' => $sampleMasterId,
+                        'aliquot_master_id' => $aliquotMasterId
+                    ),
+                    '0' => array(
+                        'qbcf_generated_paid_block' => 'n',
+                        'qbcf_generated_returned_block' => 'n',
+                        'slide_barcode' => $newResult['SlideAliquotMaster']['barcode'],
+                        'slide_aliquot_label' => $newResult['SlideAliquotMaster']['aliquot_label'],
+                        'qbcf_generated_breast_diagnosis_found' => $newResult['0']['breast_diagnosis_found']
+                    )
+                );
+                $blockAliquotMasterIds[] = $aliquotMasterId;
+            }
         }
         
         $sql = "SELECT DISTINCT AliquotInternalUse.type, AliquotInternalUse.aliquot_master_id
