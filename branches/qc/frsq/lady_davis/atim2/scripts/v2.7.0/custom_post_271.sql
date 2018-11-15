@@ -130,10 +130,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='diagnosis_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_participant_diagnosis_selection')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='related diagnosis' AND `language_tag`=''), '2', '131', 'diagnosis', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("mixte", "mixte");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="mixte" AND language_alias="mixte"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="mixte" AND language_alias="mixte"), "5", "1");
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('mixte', 'Mixte', 'Mixte');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="n/a" AND language_alias="n/a"), "6", "1");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------
 -- Diagnosis Control
@@ -179,4 +181,4 @@ ALTER TABLE `qc_lady_txe_others` DROP FOREIGN KEY `FK_qc_lady_txe_others_drugs`;
 ALTER TABLE qc_lady_txe_others DROP COLUMN drug_id;
 ALTER TABLE qc_lady_txe_others_revs DROP COLUMN drug_id;
 
-UPDATE versions SET branch_build_number = '7489' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7491' WHERE version_number = '2.7.1';
