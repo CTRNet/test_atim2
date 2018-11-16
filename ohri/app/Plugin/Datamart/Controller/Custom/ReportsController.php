@@ -5,6 +5,8 @@ class ReportsControllerCustom extends ReportsController
 
     public function terryFox(array $parameters)
     {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        
         global $tfriReportAllowedValues;
         global $tfriReportWarnings;
         global $newLine;
