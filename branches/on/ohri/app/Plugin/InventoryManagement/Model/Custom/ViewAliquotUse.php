@@ -7,7 +7,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 
     var $name = 'ViewAliquotUse';
 
-    public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -31,9 +31,9 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
-	
+
 		UNION ALL
-	
+
 		SELECT CONCAT(SourceAliquot.id,1) AS `id`,
 		AliquotMaster.id AS aliquot_master_id,
 		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
@@ -59,9 +59,9 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
 		WHERE SourceAliquot.deleted <> 1 %%WHERE%%
-	
+
 		UNION ALL
-	
+
 		SELECT CONCAT(Realiquoting.id ,2) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'realiquoted to' AS use_definition,
@@ -87,9 +87,9 @@ AliquotMasterChild.aliquot_label AS use_code,
 		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE Realiquoting.deleted <> 1 %%WHERE%%
-	
+
 		UNION ALL
-	
+
 		SELECT CONCAT(QualityCtrl.id,3) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'quality control' AS use_definition,
@@ -113,9 +113,9 @@ AliquotMasterChild.aliquot_label AS use_code,
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
-	
+
 		UNION ALL
-		
+
 		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
@@ -148,9 +148,9 @@ AliquotMasterChild.aliquot_label AS use_code,
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
-		
+
 		UNION ALL
-		
+
 		SELECT CONCAT(OrderItem.id, 7) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'shipped aliquot return' AS use_definition,
@@ -178,9 +178,9 @@ AliquotMasterChild.aliquot_label AS use_code,
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
-		
+
 		UNION ALL
-	
+
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'specimen review' AS use_definition,
@@ -204,5 +204,5 @@ AliquotMasterChild.aliquot_label AS use_code,
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-    
+
 }

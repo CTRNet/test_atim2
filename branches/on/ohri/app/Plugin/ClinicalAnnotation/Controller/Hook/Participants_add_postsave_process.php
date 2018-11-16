@@ -1,15 +1,26 @@
 <?php
 
 // --------------------------------------------------------------------------------
-// Manage Participant creation to generate participant identifier
+// Save Participant Identifier
 // --------------------------------------------------------------------------------
-$this->Participant->data = array();
-$this->Participant->id = $this->Participant->getLastInsertId();
-$participantDataToUpdate = array();
-$this->Participant->addWritableField(array(
-    'participant_identifier'
+$queryToUpdate = "UPDATE participants SET participants.participant_identifier = participants.id WHERE participants.id = " . $this->Participant->id . ";";
+$this->Participant->tryCatchQuery($queryToUpdate);
+$this->Participant->tryCatchQuery(str_replace("participants", "participants_revs", $queryToUpdate));
+
+// --------------------------------------------------------------------------------
+// Redirect to participant bank number creation
+// --------------------------------------------------------------------------------
+
+$miscIdentifierControlId = $this->MiscIdentifierControl->find('first', array(
+    'conditions' => array(
+        'MiscIdentifierControl.misc_identifier_name' => 'ohri_ovary_bank_participant_id',
+        'MiscIdentifierControl.flag_active' => 1
+    )
 ));
-$participantDataToUpdate['Participant']['participant_identifier'] = $this->Participant->id;
-if (! $this->Participant->save($participantDataToUpdate, false)) {
-    $this->redirect('/pages/err_clin_system_error', null, true);
+if ($miscIdentifierControlId) {
+    $miscIdentifierControlId = $miscIdentifierControlId['MiscIdentifierControl']['id'];
+    $urlToFlash = '/ClinicalAnnotation/MiscIdentifiers/add/' . $this->Participant->getLastInsertID() . "/$miscIdentifierControlId";
+    $_SESSION['ohri_transp_next_identifier_controls'] = array(
+        'ohri_hospital_card'
+    );
 }
