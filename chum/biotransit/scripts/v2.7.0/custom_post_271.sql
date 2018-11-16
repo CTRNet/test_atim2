@@ -121,7 +121,9 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='10' WHERE st
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES (NULL, (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chum_biotransit_contact_email' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='email'), 'custom,/([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))/', '', 'the email should be valid');
 
 
-INSERT INTO i18n (id, fr, en) values ('documentation', 'Documentation', 'Documentation');
+INSERT INTO i18n (id, fr, en) valuess
+('documentation', 'Documentation', 'Documentation'),
+('the email should be valid', 'L\'adresse courriel n\'est pas valide.', 'The email address is not valid.');
 
 -- ---------------------------------------------------------------------------------------------------
 
