@@ -124,3 +124,16 @@ INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_la
 ('POT', '', 'tissue', 'lung', 'malignant', '');
 
 UPDATE versions SET branch_build_number = '7476' WHERE version_number = '2.7.1';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change clinical stage data size
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE diagnosis_masters 
+  MODIFY `clinical_stage_summary` varchar(25) DEFAULT NULL,
+  MODIFY `path_stage_summary` varchar(25) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs
+  MODIFY `clinical_stage_summary` varchar(25) DEFAULT NULL,
+  MODIFY `path_stage_summary` varchar(25) DEFAULT NULL;
+ 
+UPDATE versions SET branch_build_number = '7495' WHERE version_number = '2.7.1';
