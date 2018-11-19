@@ -1,9 +1,9 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Mirgation from v254 (revs5176) to v271
 --
--- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/custom_pre270.sql
+-- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/custom_pre260.sql
 -- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/atim_v2.6.0_upgrade.sql
--- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/custom_post270.sql
+-- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/custom_post260.sql
 -- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/atim_v2.6.1_upgrade.sql
 -- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/atim_v2.6.2_upgrade.sql
 -- mysql -u root ohri --default-character-set=utf8 < ./v2.6.0/atim_v2.6.3_upgrade.sql
@@ -42,69 +42,361 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0'
 WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_protocol_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_protocols') AND `flag_confidential`='0');
 
+-- Users
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE users SET first_name = 'Unknown', last_name = 'Unknown', email = '', password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 0, deleted = 1 WHERE id IN (2,3);
+
+-- Order
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+select count(*) AS 'Nbr of order lines should be equal to 0. Pelase validate below.' from order_lines where deleted <> 1;
+
+-- Update databrowser
+-- ------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 1 AND id2 =24) OR (id1 = 24 AND id2 =1);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 24 AND id2 =3) OR (id1 = 3 AND id2 =24);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 23 AND id2 =3) OR (id1 = 3 AND id2 =23);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 23 AND id2 =24) OR (id1 = 24 AND id2 =23);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 23 AND id2 =25) OR (id1 = 25 AND id2 =23);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 8 AND id2 =25) OR (id1 = 25 AND id2 =8);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 6 AND id2 =25) OR (id1 = 25 AND id2 =6);
+
+-- Inveotry Configuration
+-- ------------------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('188', '189', '190', '194', '152', '193');
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN('9', '7', '8', '23', '136');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('192');
+
+SELECT DISTINCT sample_type AS 'Unsupported sample type' FROM sample_controls WHERE sample_type NOT IN ('ascite', 'tissue', 'ascite cell', 'ascite supernatant', 'cell culture', 'rna')
+AND id IN (SELECT sample_control_id FROM sample_masters WHERE deleted <> 1);
+
+-- Event
+-- ------------------------------------------------------------------------
+
+UPDATE event_controls SET use_addgrid = '1', use_detail_form_for_index = '1' WHERE event_group = 'clinical' AND event_type IN ('ctscan', 'follow up') AND flag_active = 1;
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='cols=40,rows=2', `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_ctscans' AND `field`='response' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='response') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='2', `flag_override_setting`='1', `setting`='cols=40,rows=2', `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_followups' AND `field`='recurrence_status' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_followups' AND `field`='disease_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_disease_status') AND `flag_confidential`='0');
+
+UPDATE event_controls SET use_addgrid = '1', use_detail_form_for_index = '1' WHERE event_group = 'lab' AND event_type IN ('chemistry', 'markers') AND flag_active = 1;
+
+UPDATE structure_formats SET `display_column`='2', `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_chemistries' AND `field`='CA125_u_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_chemistries' AND `field`='ca125_progression' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='cols=40,rows=2', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='2', `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_markers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_markers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_markers' AND `field`='brca' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_brca_result') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_markers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_markers' AND `field`='platinum' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_platinum_result') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='cols=40,rows=2', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_markers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='3', `flag_index`='1',`language_heading`='summary' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_lab_pathologies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Treatment
+-- ------------------------------------------------------------------------
+ 
+UPDATE treatment_controls SET use_addgrid = '1', use_detail_form_for_index = '1' WHERE flag_Active = 1 AND disease_site = 'ohri' AND tx_method IN ('surgery', 'radiation');
+UPDATE treatment_controls SET use_addgrid = '0', use_detail_form_for_index = '1' WHERE flag_Active = 1 AND disease_site = 'ohri' AND tx_method IN ('chemotherapy');
 
 
-SELECT count(*) FROM orderline
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ohri_txd_surgeries' AND `field`='residual_disease' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_residual_disease') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ohri_txd_surgeries' AND `field`='description' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_surgery_description') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='rows=2,cols=30', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', `flag_override_setting`='1', `setting`='rows=2,cols=30', `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='rad_completed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `display_column`='2', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Study Misc Identifier
+-- ------------------------------------------------------------------------
+ 
+INSERT INTO misc_identifier_controls (misc_identifier_name, flag_active, flag_link_to_study)
+VALUES
+('patient study id', '1', '1');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='identifier name' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifierControl' AND `tablename`='misc_identifier_controls' AND `field`='misc_identifier_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('patient study id', 'Patient Study#', '# Étude du patient');
 
+-- Study Consent
+-- ------------------------------------------------------------------------
+ 
+INSERT INTO consent_controls (controls_type, flag_active, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('study consent', '1', 'consent_masters_study', 'cd_nationals', 'study consent');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES 
+(NULL, (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_consent_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notBlank', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '2', '', '0', '1', 'study / project', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('study consent', 'Study Consent', 'Consentement d''étude');
 
+-- Batch actions & Databrowser
+-- ------------------------------------------------------------------------
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaBlock' AND label = 'create tma slide';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'Participant' AND label = 'create participant message (applied to all)';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
 
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 21 AND id2 =1) OR (id1 = 1 AND id2 =21);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 21 AND id2 =15) OR (id1 = 15 AND id2 =21);
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewCollection' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewSample' AND label = 'print barcodes';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'print barcodes';
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
 
+-- Database validation
+-- ------------------------------------------------------------------------
 
+ALTER TABLE ohri_dx_others MODIFY diagnosis_master_id int(11) NOT NULL;
+ALTER TABLE ohri_dx_ovaries MODIFY diagnosis_master_id int(11) NOT NULL;
+ALTER TABLE ohri_ed_clinical_ctscans MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE ohri_ed_clinical_followups MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_chemistries MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_markers MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_pathologies MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE ohri_txd_surgeries MODIFY treatment_master_id int(11) NOT NULL;
+ALTER TABLE spr_ohri_ovarian_tissues MODIFY specimen_review_master_id int(11) NOT NULL;
 
+ALTER TABLE spr_ohri_ovarian_tissues DROP COLUMN id;
 
+ALTER TABLE ohri_dx_ovaries_revs MODIFY diagnosis_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_ed_clinical_ctscans_revs MODIFY event_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_ed_clinical_followups_revs MODIFY event_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_chemistries_revs MODIFY event_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_markers_revs MODIFY event_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_ed_lab_pathologies_revs MODIFY event_master_id  int(11) NOT NULL;
+ALTER TABLE ohri_txd_surgeries_revs MODIFY treatment_master_id  int(11) NOT NULL;
 
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN created;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN created_by;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN modified;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN modified_by;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN deleted;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN deleted_date;
+ALTER TABLE spr_ohri_ovarian_tissues_revs DROP COLUMN id;
+ALTER TABLE spr_ohri_ovarian_tissues_revs MODIFY specimen_review_master_id int(11) NOT NULL;
 
+DROP TABLE announcements_revs;
 
+ALTER TABLE ohri_dx_others_revs MODIFY diagnosis_master_id   int(11) NOT NULL;
 
+ALTER TABLE ohri_ed_clinical_ctscans_revs DROP INDEX event_master_id;
+ALTER TABLE ohri_ed_clinical_followups_revs DROP INDEX event_master_id;
+ALTER TABLE ohri_ed_lab_chemistries_revs DROP INDEX event_master_id;
+ALTER TABLE ohri_ed_lab_markers_revs DROP INDEX event_master_id;
+ALTER TABLE ohri_ed_lab_pathologies_revs DROP INDEX event_master_id;
 
+-- Missing i18n
 
+INSERT INTO i18n (id,en,fr)
+VALUES
+('ohri - ovarian tissue', 'OHRI - Ovarian Tissue', '');
 
-
-
-PARTICIPANT IDENTIFIER REPORT
-----------------------------------------------------------------------------------------------------------
-Queries to desactivate 'Participant Identifiers' demo report
-----------------------------------------------------------------------------------------------------------
+-- Queries to desactivate 'Participant Identifiers' demo report
+-- --------------------------------------------------------------------------------------------------------
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'participant identifiers';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');
 
-TODO
-----------------------------------------------------------------------------------------------------------
-Added new relationsips into databrowser
+-- Inveotry ocnfiguration
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN('220', '203');
 
-Should change trunk ViewSample
+-- Queries to desactivate 'Participant Identifiers' demo report
+-- --------------------------------------------------------------------------------------------------------
+UPDATE datamart_reports SET flag_active = 0 WHERE name = 'terry fox export';
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'terry fox export');
 
-Review user - inactif/actif password
+-- Hide Control disease site
 
-### MESSAGE ###
-Application Change: Added new code to create treatment in batch. 
+update event_controls SET disease_site = '' WHERE disease_site = 'ohri';
+update treatment_controls SET disease_site = '' WHERE disease_site = 'ohri';
+update event_controls SET databrowser_label = event_type;
+update treatment_controls SET databrowser_label = tx_method;
 
-### MESSAGE ###
-Changed way all records linked to a study are displayed. Please review code of StudySummary.listAllLinkedRecords() and change custom code if required.
+-- Move Bank# to misc identifier
+-- ----------------------------------------------------------------------------------------------------------------
 
-### MESSAGE ###
-Added option to link a MiscIdentifier to a study.
-To activate option: Run following queries and change value of the misc_identifier_controls.flag_link_to_study to 1.
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
-### MESSAGE ###
-Added option to link a ConsentMaster to a study. (See structures 'consent_masters_study').
+UPDATE users SET username = 'system' WHERE username = 'manager' AND id = 2;
 
-### MESSAGE ###
-Added option to link a TMA slide to a study. (See structures 'tma_slides').
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, 
+`autoincrement_name`, `misc_identifier_format`, 
+`flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) 
+VALUES
+(null, 'ohri_ovary_bank_participant_id', 1, 3, 
+'', '', 
+1, 0, 1, 0, '', '', 0);
+INSERT INTO i18n (id,en,fr)
+VALUES
+('ohri_ovary_bank_participant_id', 'Ovary Bank#', 'Ovaire - Banque#');
 
-### MESSAGE ###
-Created funtion 'Create message (applied to all)'. Run following query to activate the function.
-UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';
-### MESSAGE ###
-Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slides relationship. To customize.
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'system');
+SET @misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'ohri_ovary_bank_participant_id');
 
-   ### 8 # Option to copy user logs data to a server file
-   -----------------------------------------------------------
+SELECT participant_identifier AS 'participant_identifier duplicated value to clean up' FROM (
+	select count(*) as res, participant_identifier FROM participants WHERE deleted <> 1 GROUP BY participant_identifier
+) res2 WHERE res2.res > 1;
+SELECT participant_identifier 'participant_identifier duplicated : not migrated to bank number', id as participant_id FROM participants WHERE deleted <> 1 AND participant_identifier = '1159';
+INSERT INTO misc_identifiers (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `flag_unique`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT participant_identifier, '', id, @misc_identifier_control_id, 1, @modified, @modified, @modified_by, @modified_by FROM participants WHERE deleted <> 1 AND participant_identifier != '1159');
+INSERT INTO misc_identifiers_revs (`misc_identifier_control_id`, `tmp_deleted`, `identifier_value`, `notes`, `participant_id`, 
+`flag_unique`, `modified_by`, `id`, `version_created`) 
+(SELECT `misc_identifier_control_id`, `tmp_deleted`, `identifier_value`, `notes`, `participant_id`, 
+`flag_unique`, `modified_by`, `id`, `modified` FROM misc_identifiers WHERE misc_identifier_control_id = @misc_identifier_control_id);
+
+UPDATE participants SET participant_identifier = id, modified = @modified, modified_by = @modified_by WHERE deleted <> 1;
+
+INSERT INTO participants_revs (id, title, first_name, middle_name, last_name, date_of_birth, date_of_birth_accuracy, marital_status,
+ language_preferred, sex, race, vital_status, notes, date_of_death, date_of_death_accuracy, cod_icd10_code,
+ secondary_cod_icd10_code, cod_confirmation_source, participant_identifier, last_chart_checked_date, last_chart_checked_date_accuracy, last_modification, last_modification_ds_id, 
+ modified_by, version_created)
+(SELECT id, title, first_name, middle_name, last_name, date_of_birth, date_of_birth_accuracy, marital_status,
+ language_preferred, sex, race, vital_status, notes, date_of_death, date_of_death_accuracy, cod_icd10_code,
+ secondary_cod_icd10_code, cod_confirmation_source, participant_identifier, last_chart_checked_date, last_chart_checked_date_accuracy, last_modification, last_modification_ds_id, 
+ modified_by, `modified` FROM participants WHERE modified = @modified AND modified_by = @modified_by);
+
+UPDATE structure_formats SET `display_column`='3', `display_order`='98', `language_heading`='system data', `flag_add`='0', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('participant identifier', 'Participant ATiM#', 'Participant ATiM#');
+
+ALTER TABLE collections ADD COLUMN misc_identifier_id int(11) DEFAULT NULL;
+ALTER TABLE collections_revs ADD COLUMN misc_identifier_id int(11) DEFAULT NULL;
+ALTER TABLE `collections`
+  ADD CONSTRAINT `collections_ibfk_misc_identifiers` FOREIGN KEY (`misc_identifier_id`) REFERENCES `misc_identifiers` (`id`); 
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'system');
+UPDATE collections Collection, misc_identifiers MiscIdentifier
+SET Collection.misc_identifier_id = MiscIdentifier.id,
+Collection.modified = @modified,
+Collection.modified_by = @modified_by
+WHERE Collection.participant_id = MiscIdentifier.participant_id
+AND Collection.deleted <> 1
+AND MiscIdentifier.deleted <> 1
+AND MiscIdentifier.misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'ohri_ovary_bank_participant_id');
+INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property,
+collection_notes, participant_id, diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, 
+misc_identifier_id,
+version_created, modified_by)
+(SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property,
+collection_notes, participant_id, diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, 
+misc_identifier_id,
+modified, modified_by FROM collections WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'misc_identifier_value', 'input',  NULL , '0', 'size=30,class=range file', '', '', 'collection participant identifier', ''),
+('InventoryManagement', 'ViewAliquot', '', 'misc_identifier_value', 'input',  NULL , '0', 'size=30,class=range file', '', '', 'collection participant identifier', ''),
+('InventoryManagement', 'ViewSample', '', 'misc_identifier_value', 'input',  NULL , '0', 'size=30,class=range file', '', '', 'collection participant identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='misc_identifier_value' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='collection participant identifier' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='misc_identifier_value' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='collection participant identifier' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='misc_identifier_value' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='collection participant identifier' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '10', 'collection', '0', '1', 'collection participant identifier', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '-1', '', '0', '1', 'collection participant identifier', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('collection participant identifier','Participant Identifier','Identifiant du participant'),
+('error_fk_frsq_number_linked_collection','Your data cannot be deleted! This identifier is linked to a collection.','Vos données ne peuvent être supprimées! Cet identifiant est attaché à une collection.');
+
+-- Set participant into project
+
+UPDATE misc_identifier_controls SET flag_unique = 0 WHERE misc_identifier_name = 'patient study id';
+
+SET @misc_identifier_control_id = (SELECT id from misc_identifier_controls WHERE misc_identifier_name = 'patient study id');
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'system');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Petkovich%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Petkovich%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Magliocco%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Magliocco%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Picketts%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Picketts%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Weberpals%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Weberpals%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Huntsman%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Huntsman%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Bachvarov%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Bachvarov%');
+
+SET @study_summary_id = (SELECT id FROM study_summaries WHERE title LIKE '%Dr Tsang%');
+INSERT INTO `misc_identifiers` (`identifier_value`, `notes`, `participant_id`, `misc_identifier_control_id`, `study_summary_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT 'n/a', '', lookup_id, @misc_identifier_control_id, @study_summary_id, @modified, @modified, @modified_by, @modified_by
+FROM datamart_batch_sets, datamart_batch_ids
+WHERE title LIKE '%project%' AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model = 'Participant')
+AND datamart_batch_sets.id = set_id
+AND title LIKE '%Tsang%');
+
+INSERT INTO `misc_identifiers_revs` (`misc_identifier_control_id`, `tmp_deleted`, `identifier_value`, `notes`, `participant_id`, `study_summary_id`, `modified_by`, `id`, `version_created`) 
+(SELECT `misc_identifier_control_id`, `tmp_deleted`, `identifier_value`, `notes`, `participant_id`, `study_summary_id`, `modified_by`, `id`, `modified` FROM misc_identifiers WHERE modified_by = @modified_by AND modified = @modified);
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '7496' WHERE version_number = '2.7.1';
