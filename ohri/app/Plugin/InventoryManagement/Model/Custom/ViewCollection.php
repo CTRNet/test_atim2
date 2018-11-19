@@ -32,7 +32,7 @@ MiscIdentifier.identifier_value AS misc_identifier_value
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-    
+
     public function summary($variables = array())
     {
         $return = false;
@@ -44,7 +44,11 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
                 )
             ));
             
-            $collectionTitle = __('participant identifier') . ': ' . (empty($collectionData['ViewCollection']['participant_identifier']) ? __('unlinked') : $collectionData['ViewCollection']['participant_identifier']);
+            $collectionTitle = __('unlinked');
+            if (! empty($collectionData['ViewCollection']['participant_identifier'])) {
+                $collectionTitle = empty($collectionData['ViewCollection']['misc_identifier_value']) ? '-' : $collectionData['ViewCollection']['misc_identifier_value'];
+                $collectionTitle .= ' ( ' . __('ATiM#') . ' ' . $collectionData['ViewCollection']['participant_identifier'] . ')';
+            }
             if (! empty($collectionData['ViewCollection']['collection_datetime'])) {
                 $formattedCollectionDate = substr($collectionData['ViewCollection']['collection_datetime'], 0, strpos($collectionData['ViewCollection']['collection_datetime'], ' '));
                 switch ($collectionData['ViewCollection']['collection_datetime_accuracy']) {
@@ -59,7 +63,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
                         break;
                     default:
                 }
-                $collectionTitle .= ' [' . $formattedCollectionDate . ']';
+                $collectionTitle .= ' : ' . $formattedCollectionDate;
             }
             
             $return = array(
