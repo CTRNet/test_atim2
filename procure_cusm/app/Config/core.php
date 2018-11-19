@@ -565,7 +565,7 @@ unset($debug);
  * Keep variable to null if no user log file has to be created or replace null by the path of the directory
  * where the log file has to be created.
  */
-$path = ($isTest) ? null : 'C:/_NicolasLuc/Server/www/procure';
+$path = ($isTest) ? null : 'D:/ATiM/ATiM User Logs/Procure Prod';
 Configure::write('atim_user_log_output_path', $path);
 
 // --------------------------------------------------------------------------------------------------------------------------------------------

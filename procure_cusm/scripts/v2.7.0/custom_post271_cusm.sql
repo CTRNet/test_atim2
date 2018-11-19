@@ -28,3 +28,4 @@ UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET site_branch_build_number = '7407' WHERE version_number = '2.7.1';
+UPDATE versions SET site_branch_build_number = '7498' WHERE version_number = '2.7.1';
