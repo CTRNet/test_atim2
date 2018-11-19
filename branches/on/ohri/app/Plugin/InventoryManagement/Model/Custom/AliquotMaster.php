@@ -52,7 +52,7 @@ class AliquotMasterCustom extends AliquotMaster
         ))) {
             
             // Participant participant_id and Bank Number
-            $bankNumber = empty($viewSampleData['participant_identifier']) ? 'n/a' : $viewSampleData['participant_identifier'];
+            $bankNumber = empty($viewSampleData['misc_identifier_value']) ? 'n/a' : $viewSampleData['misc_identifier_value'];
             $participantId = empty($viewSampleData['participant_id']) ? null : $viewSampleData['participant_id'];
             
             // Get aliquot already created

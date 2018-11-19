@@ -400,3 +400,7 @@ INSERT INTO `misc_identifiers_revs` (`misc_identifier_control_id`, `tmp_deleted`
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '7496' WHERE version_number = '2.7.1';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('ATiM#', 'ATiM#', 'ATiM#');
+
+UPDATE versions SET branch_build_number = '7497' WHERE version_number = '2.7.1';

@@ -19,7 +19,7 @@ class ParticipantCustom extends Participant
             ));
             
             // Add No Labs to description
-            $title = __('participant identifier') . ' ' . $result['Participant']['participant_identifier'];
+            $title = __('ATiM#') . ' ' . $result['Participant']['participant_identifier'];
             
             $return = array(
                 'menu' => array(
