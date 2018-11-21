@@ -469,7 +469,7 @@ class ReportsControllerCustom extends ReportsController
         $data[] = $tmpData;
         
         // **blood**
-        // **pbmc**
+        // **buffy coat**
         // **blood cell**
         // **plasma**
         // **serum**
@@ -477,7 +477,7 @@ class ReportsControllerCustom extends ReportsController
         // **dna**
         // **cell culture**
         
-        $sampleTypes = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+        $sampleTypes = "'blood', 'buffy coat', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
         
         $tmpData = array();
         $sql = "
@@ -789,7 +789,7 @@ class ReportsControllerCustom extends ReportsController
 			SELECT sample_controls.id, sample_controls.sample_type, aliquot_controls.id, aliquot_controls.aliquot_type
 			FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = aliquot_controls.sample_control_id
 			WHERE aliquot_controls.flag_active = 1
-			AND sample_controls.sample_type IN ('DNA','tissue', 'RNA', 'pbmc') AND aliquot_controls.aliquot_type IN ('block','tube');");
+			AND sample_controls.sample_type IN ('DNA','tissue', 'RNA', 'buffy coat') AND aliquot_controls.aliquot_type IN ('block','tube');");
         foreach ($resControlIds as $newControl) {
             switch ($newControl['sample_controls']['sample_type'] . $newControl['aliquot_controls']['aliquot_type']) {
                 case 'tissueblock':
@@ -799,7 +799,7 @@ class ReportsControllerCustom extends ReportsController
                 case 'tissuetube':
                     $tisueTubeControlId = $newControl['aliquot_controls']['id'];
                     break;
-                case 'pbmctube':
+                case 'buffy coattube':
                     $buffyCoatControlId = $newControl['sample_controls']['id'];
                     $buffyCoatTubeControlId = $newControl['aliquot_controls']['id'];
                     break;
@@ -964,7 +964,7 @@ class ReportsControllerCustom extends ReportsController
             if (array_key_exists($bcTubeAliquotMasterId, $tissuesBlocksAndBuffyCoatData))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId] = $emptyAliquotsSubarray;
-            $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId]['ViewAliquot']['sample_type'] = 'pbmc';
+            $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId]['ViewAliquot']['sample_type'] = 'buffy coat';
             $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId]['ViewAliquot']['aliquot_type'] = 'tube';
             $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId]['AliquotMaster']['aliquot_label'] = $newRow['AliquotMaster_TissueBlock_BcTube']['bc_tube_aliquot_label'];
             $tissuesBlocksAndBuffyCoatData[$bcTubeAliquotMasterId]['AliquotMaster']['barcode'] = $newRow['AliquotMaster_TissueBlock_BcTube']['bc_tube_barcode'];
