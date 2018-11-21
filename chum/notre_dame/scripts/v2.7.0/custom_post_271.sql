@@ -137,3 +137,32 @@ ALTER TABLE diagnosis_masters_revs
   MODIFY `path_stage_summary` varchar(25) DEFAULT NULL;
  
 UPDATE versions SET branch_build_number = '7495' WHERE version_number = '2.7.1';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Adrenal Bank
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO key_increments (key_name ,key_value) VALUES ('adrenal bank no lab', '360');
+INSERT INTO misc_identifier_controls (misc_identifier_name , flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_confidential, flag_unique, pad_to_length, reg_exp_validation, user_readable_format, flag_link_to_study)
+VALUES
+('adrenal bank no lab','1','1','adrenal bank no lab','%%key_increment%%','1','0','1','0','','','0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('adrenal no lab', "'No Labo' of Adrenal Bank","'No Labo' de la banque Surrénal"),
+('adrenal bank no lab', "'No Labo' of Adrenal Bank","'No Labo' de la banque Surrénal");
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'chum - adrenal', 1, 'qc_nd_cd_adrenal', 'cd_icm_generics', 0, 'chum - adrenal');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('chum - adrenal', 'CHUM - Adrenal', 'CHUM - Surrénal');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_cd_adrenal');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_adrenal'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='biological_material_use' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biological material use' AND `language_tag`=''), '2', '1', 'agreements', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_adrenal'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_blood' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='use of blood' AND `language_tag`=''), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_adrenal'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='contact_for_additional_data' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='contact for additional data' AND `language_tag`=''), '2', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'adrenal bank no lab') WHERE name = 'Adrenal/Surrénal';
+UPDATE misc_identifier_controls SET misc_identifier_format = 'B-%%key_increment%%' WHERE misc_identifier_name = 'adrenal bank no lab';
+
+UPDATE versions SET branch_build_number = '7501' WHERE version_number = '2.7.1';
