@@ -6,12 +6,17 @@ $structureLinks = array(
     )
 );
 
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => array(
+        'header' => isset($atimMenuVariables['User.id']) ? '' : __('announcement', null)
+    )
+);
+
 // CUSTOM CODE
 $hookLink = $this->Structures->hook();
 if ($hookLink) {
     require ($hookLink);
 }
 
-$this->Structures->build($atimStructure, array(
-    'links' => $structureLinks
-));
+$this->Structures->build($atimStructure, $finalOptions);

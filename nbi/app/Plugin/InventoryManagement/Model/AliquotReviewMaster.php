@@ -32,7 +32,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
      *
      * @author N. Luc
      * @since 2010-05-26
-     * @updated N. Luc
+     *        @updated N. Luc
      * @param null $sampleMasterId
      * @param null $specificAliquotType
      * @return array
@@ -68,6 +68,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $aliquotMasterId
      * @param null $aliquotData
      * @return mixed
@@ -84,6 +85,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

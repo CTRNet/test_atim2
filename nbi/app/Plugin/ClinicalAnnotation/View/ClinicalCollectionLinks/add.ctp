@@ -29,6 +29,14 @@ $finalOptions = array(
     )
 );
 
+if (isset($collectionProtocolId)) {
+    $structureLinks['top'] = '/ClinicalAnnotation/ClinicalCollectionLinks/add/' . $atimMenuVariables['Participant.id'] . '/' . $collectionProtocolId . '/';
+    $finalOptions['links'] = $structureLinks;
+    $finalOptions['extras'] = array(
+        'start' => '<input type="radio" id="collection_new" name="data[Collection][id]" value="" />' . __('new collection protocol') . ' : ' . $collectionProtocolName
+    );
+}
+
 // CUSTOM CODE
 $hookLink = $this->Structures->hook('collection_detail');
 if ($hookLink) {

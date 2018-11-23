@@ -1,10 +1,10 @@
 <?php
 $structureLinks = array(
     'top' => array(
-        'search' => '/material/materials/search/' . AppController::getNewSearchId()
+        'search' => '/Material/Materials/search/' . AppController::getNewSearchId()
     ),
     'bottom' => array(
-        'add' => '/material/materials/add/'
+        'add' => '/Material/Materials/add/'
     )
 );
 

@@ -40,6 +40,7 @@ class BanksController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $bankId
      */
     public function detail($bankId)
@@ -58,11 +59,11 @@ class BanksController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $bankId
      */
     public function edit($bankId)
     {
-        
         $bankData = $this->Bank->getOrRedirect($bankId);
         
         $this->set('atimMenuVariables', array(
@@ -90,6 +91,7 @@ class BanksController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $bankId
      */
     public function delete($bankId)

@@ -1,7 +1,9 @@
 <?php
 $structureLinks = array(
     'index' => array(
-        'detail' => '/Administrate/Banks/detail/%%Bank.id%%'
+        'detail' => '/Administrate/Banks/detail/%%Bank.id%%',
+        'edit' => '/Administrate/Banks/edit/%%Bank.id%%',
+        'delete' => '/Administrate/Banks/delete/%%Bank.id%%/'
     ),
     'bottom' => array(
         'add' => '/Administrate/Banks/add'

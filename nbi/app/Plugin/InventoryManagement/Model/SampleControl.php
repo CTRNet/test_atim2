@@ -28,6 +28,7 @@ class SampleControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getParentSampleTypePermissibleValuesFromId()
@@ -48,6 +49,7 @@ class SampleControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getParentSampleTypePermissibleValues()
@@ -80,6 +82,7 @@ class SampleControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param $byId
      * @param $onlySpecimen
      * @param bool $dontLimitToSamplesThatCanBeParents
@@ -141,8 +144,8 @@ class SampleControl extends InventoryManagementAppModel
      * @param $parentId
      * @return List of allowed aliquot types stored into the following array:
      *         array('aliquot_control_id' => 'aliquot_type')
-     * @internal param ID $sampleControlId of the sample control linked to the studied sample.*            of the sample control linked to the studied sample.
-     *
+     * @internal param ID $sampleControlId of the sample control linked to the studied sample.* of the sample control linked to the studied sample.
+     *          
      * @author N. Luc
      * @since 2009-11-01
      * @author FMLH 2010-08-04 (new flag_active policy)
@@ -173,6 +176,7 @@ class SampleControl extends InventoryManagementAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed

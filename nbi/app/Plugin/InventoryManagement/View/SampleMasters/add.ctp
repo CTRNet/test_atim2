@@ -18,9 +18,6 @@ if ($isAjax) {
 $sampleParentId = (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
     '' => ''
 );
-$structureOverride = $isSpecimen ? array() : array(
-    'SampleMaster.parent_id' => key($sampleParentId)
-);
 $dropdownOptions = array(
     'SampleMaster.parent_id' => $sampleParentId,
     'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
@@ -28,9 +25,25 @@ $dropdownOptions = array(
     )
 );
 
+$structureOverride = array();
+if (isset($templateNodeDefaultValues)) {
+    $templateNodeDefaultValues = array_filter($templateNodeDefaultValues, function ($var) {
+        return (! ($var == '' || is_null($var)));
+    });
+    $structureOverride = array_merge($structureOverride, $templateNodeDefaultValues);
+}
 $args = AppController::getInstance()->passedArgs;
 if (isset($args['templateInitId'])) {
-    $structureOverride = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId'])), $structureOverride);
+    $templateInitDefaultValues = Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId']));
+    $templateInitDefaultValues = array_filter($templateInitDefaultValues, function ($var) {
+        return (! ($var == '' || is_null($var)));
+    });
+    $structureOverride = array_merge($structureOverride, $templateInitDefaultValues);
+}
+if (! $isSpecimen) {
+    $structureOverride = array_merge($structureOverride, array(
+        'SampleMaster.parent_id' => key($sampleParentId)
+    ));
 }
 
 $finalAtimStructure = $atimStructure;

@@ -29,6 +29,7 @@ class LabBookMastersController extends LabBookAppController
      * --------------------------------------------------------------------------
      */
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
@@ -56,6 +57,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      * @param bool $fullDetailScreen
      */
@@ -64,7 +66,7 @@ class LabBookMastersController extends LabBookAppController
         if (! $labBookMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif ($labBookMasterId == '-1') {
-            $this->atimFlashWarning(__('no lab book is linked to this record'), "javascript:history.back()", 5);
+            $this->atimFlashWarning(__('no lab book is linked to this record'), "javascript:history.back()");
             return;
         }
         
@@ -102,6 +104,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $controlId
      * @param bool $isAjax
      */
@@ -187,6 +190,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function edit($labBookMasterId)
@@ -246,6 +250,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function editSynchOptions($labBookMasterId)
@@ -349,6 +354,7 @@ class LabBookMastersController extends LabBookAppController
     }
 
     /**
+     *
      * @param $labBookMasterId
      */
     public function delete($labBookMasterId)

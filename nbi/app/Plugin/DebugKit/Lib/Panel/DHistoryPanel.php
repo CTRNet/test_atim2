@@ -19,6 +19,13 @@ App::uses('DebugPanel', 'DebugKit.Lib');
 class DHistoryPanel extends DebugPanel {
 
     /**
+     * The title of the D History panel
+     *
+     * @var string
+     */
+    public $title = "D (output)";    
+    
+    /**
      * Number of history elements to keep
      *
      * @var string

@@ -27,6 +27,7 @@ class GroupsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function detail($groupId)
@@ -80,6 +81,7 @@ class GroupsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function edit($groupId)
@@ -162,6 +164,7 @@ class GroupsController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function delete($groupId)
