@@ -30,10 +30,11 @@ class TmaSlide extends StorageLayoutAppModel
     public static $studyModel = null;
 
     private $barcodes = array();
-
+    
     // barcode validation, key = barcode, value = id
-
+    
     /**
+     *
      * @param array $options
      * @return bool
      */
@@ -116,6 +117,7 @@ class TmaSlide extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param $tmaSlideData
      */
     public function isDuplicatedTmaSlideBarcode($tmaSlideData)
@@ -178,8 +180,8 @@ class TmaSlide extends StorageLayoutAppModel
                 // Load model
                 if (self::$studyModel == null)
                     self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
-                
-                // Check the aliquot internal use study definition
+                    
+                    // Check the aliquot internal use study definition
                 $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($tmaSlideData['FunctionManagement']['autocomplete_tma_slide_study_summary_id']);
                 
                 // Set study summary id
@@ -196,6 +198,7 @@ class TmaSlide extends StorageLayoutAppModel
     }
 
     /**
+     *
      * @param int $tmaSlideId
      * @return array
      */
@@ -207,7 +210,7 @@ class TmaSlide extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlideUse.tma_slide_id' => $tmaSlideId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -222,7 +225,7 @@ class TmaSlide extends StorageLayoutAppModel
             'conditions' => array(
                 'OrderItem.tma_slide_id' => $tmaSlideId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($nbrOrderItems > 0) {
             return array(

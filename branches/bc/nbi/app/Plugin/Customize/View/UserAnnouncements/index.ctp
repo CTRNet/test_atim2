@@ -6,7 +6,7 @@ if (in_array($listType, array(
     
     $structureLinks = array(
         'index' => array(
-            'detail' => '/Customize/Announcements/detail/%%Announcement.id%%'
+            'detail' => '/Customize/UserAnnouncements/detail/%%Announcement.id%%'
         )
     );
     
@@ -31,7 +31,7 @@ if (in_array($listType, array(
             'header' => __('news', null),
             'actions' => false
         ),
-        'extras' => $this->Structures->ajaxIndex('Customize/Announcements/index/current')
+        'extras' => $this->Structures->ajaxIndex('Customize/UserAnnouncements/index/current')
     );
     
     $displayNextForm = true;
@@ -56,7 +56,7 @@ if (in_array($listType, array(
             'header' => __('all', null),
             'actions' => true
         ),
-        'extras' => $this->Structures->ajaxIndex('Customize/Announcements/index/all')
+        'extras' => $this->Structures->ajaxIndex('Customize/UserAnnouncements/index/all')
     );
     
     $displayNextForm = true;

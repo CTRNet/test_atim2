@@ -22,6 +22,7 @@ class OrderLinesController extends OrderAppController
     );
 
     /**
+     *
      * @param $orderId
      */
     public function listall($orderId)
@@ -50,6 +51,7 @@ class OrderLinesController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      */
     public function add($orderId)
@@ -64,7 +66,7 @@ class OrderLinesController extends OrderAppController
         
         // Check order
         $orderData = $this->Order->getOrRedirect($orderId);
-        $this->set('overrideData', array(
+        $this->set('structureOverride', array(
             'FunctionManagement.autocomplete_order_line_study_summary_id' => $this->StudySummary->getStudyDataAndCodeForDisplay(array(
                 'StudySummary' => array(
                     'id' => $orderData['Order']['default_study_summary_id']
@@ -165,6 +167,7 @@ class OrderLinesController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderLineId
      */
@@ -229,6 +232,7 @@ class OrderLinesController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderLineId
      */
@@ -255,7 +259,7 @@ class OrderLinesController extends OrderAppController
             'conditions' => array(
                 'Shipment.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         $this->set('shipmentsList', $shipmentsList);
         
@@ -273,6 +277,7 @@ class OrderLinesController extends OrderAppController
     }
 
     /**
+     *
      * @param $orderId
      * @param $orderLineId
      */

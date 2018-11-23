@@ -22,6 +22,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
     public $paginate = array();
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */
@@ -134,6 +135,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      * @param $txExtendId
@@ -199,6 +201,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      * @param $txExtendId
@@ -235,6 +238,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
     }
 
     /**
+     *
      * @param $participantId
      * @param $txMasterId
      */

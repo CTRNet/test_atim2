@@ -24,6 +24,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      */
     public function listall($groupId)
@@ -41,6 +42,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -55,18 +57,25 @@ class AdminUsersController extends AdministrateAppController
         $this->hook();
         
         $this->request->data = $this->User->getOrRedirect($userId);
+        
+        if ($this->request->data['User']['group_id'] != $groupId) {
+            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
     }
 
     /**
+     *
      * @param $groupId
      */
     public function add($groupId)
     {
+        $isLdap = Configure::read("if_use_ldap_authentication");
+        $isLdap = ! empty($isLdap);
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
         ));
         $this->Structures->set('users,users_form_for_admin');
-        $this->set("atimMenu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
+        $this->set("atimMenu", $this->Menus->get('/Administrate/Groups/detail/%%Group.id%%/'));
         
         if ($this->Group->hasPermissions($groupId)) {
             $hookLink = $this->hook('format');
@@ -110,6 +119,10 @@ class AdminUsersController extends AdministrateAppController
                 }
                 
                 if ($submittedDataValidates) {
+                    if (! empty($isLdap)) {
+                        $this->request->data['force_password_reset'] = 1;
+                    }
+                    
                     if ($this->User->save($this->request->data)) {
                         $hookLink = $this->hook('postsave_process');
                         if ($hookLink) {
@@ -123,11 +136,12 @@ class AdminUsersController extends AdministrateAppController
                 $this->request->data['Generated']['field1'] = "";
             }
         } else {
-            $this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $groupId . "/", AppController::ERROR);
+            $this->atimFlashError(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $groupId . "/");
         }
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -189,6 +203,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -209,7 +224,9 @@ class AdminUsersController extends AdministrateAppController
             $announcementConditions = array(
                 'Announcement.user_id' => $userId
             );
-            $announcements = $announcementM->find('first', array('conditions' => $announcementConditions ));
+            $announcements = $announcementM->find('first', array(
+                'conditions' => $announcementConditions
+            ));
             if ($announcements) {
                 $arrAllowDeletion = array(
                     'allow_deletion' => false,
@@ -230,18 +247,25 @@ class AdminUsersController extends AdministrateAppController
         if ($arrAllowDeletion['allow_deletion']) {
             $this->User->id = $userId;
             $this->User->atimDelete($userId);
-            $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $groupId);
+            $this->atimFlash(__('your data has been deleted'), "/Administrate/Groups/detail/" . $groupId);
         } else {
             $this->atimFlashWarning(__($arrAllowDeletion['msg']), "/Administrate/AdminUsers/detail/$groupId/$userId");
         }
     }
 
     /**
+     *
      * @param int $searchId
      */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Groups/index'));
+        
+        $hookLink = $this->hook('pre_search_handler');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
         $this->searchHandler($searchId, $this->User, 'users', '/Administrate/AdminUsers/search');
         $this->Structures->set('empty', 'emptyStructure');
         
@@ -254,6 +278,7 @@ class AdminUsersController extends AdministrateAppController
     }
 
     /**
+     *
      * @param $groupId
      * @param $userId
      */
@@ -263,7 +288,11 @@ class AdminUsersController extends AdministrateAppController
         if ($user['Group']['id'] != $groupId) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
+        if ($userId == $_SESSION['Auth']['User']['id']) {
+            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
+        $this->set('atimMenu', $this->Menus->get('/Administrate/AdminUsers/detail'));
         $this->set('atimMenuVariables', array(
             'Group.id' => $user['Group']['id'],
             'User.id' => $userId

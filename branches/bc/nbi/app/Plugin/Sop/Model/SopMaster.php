@@ -18,6 +18,7 @@ class SopMaster extends SopAppModel
     );
 
     /**
+     *
      * @param array $variables
      * @return array|bool
      */
@@ -116,6 +117,7 @@ class SopMaster extends SopAppModel
     }
 
     /**
+     *
      * @return array
      */
     public function getAllSopPermissibleValues()
@@ -134,6 +136,7 @@ class SopMaster extends SopAppModel
     }
 
     /**
+     *
      * @param int $sopMasterId
      * @return array
      */
@@ -144,7 +147,7 @@ class SopMaster extends SopAppModel
             'conditions' => array(
                 'TmaSlide.sop_master_id' => $sopMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -159,7 +162,7 @@ class SopMaster extends SopAppModel
             'conditions' => array(
                 'StorageDetail.sop_master_id' => $sopMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -173,7 +176,7 @@ class SopMaster extends SopAppModel
             'conditions' => array(
                 'Collection.sop_master_id' => $sopMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -187,7 +190,7 @@ class SopMaster extends SopAppModel
             'conditions' => array(
                 'SampleMaster.sop_master_id' => $sopMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -201,7 +204,7 @@ class SopMaster extends SopAppModel
             'conditions' => array(
                 'AliquotMaster.sop_master_id' => $sopMasterId
             ),
-            'recursive' => -1
+            'recursive' => - 1
         ));
         if ($ctrlValue > 0) {
             return array(

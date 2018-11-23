@@ -9,6 +9,7 @@ class LabBookControl extends LabBookAppModel
     public $masterFormAlias = 'labbookmasters';
 
     /**
+     *
      * @return array
      */
     public function getLabBookTypePermissibleValuesFromId()
@@ -30,6 +31,7 @@ class LabBookControl extends LabBookAppModel
     }
 
     /**
+     *
      * @param mixed $results
      * @param bool $primary
      * @return mixed
