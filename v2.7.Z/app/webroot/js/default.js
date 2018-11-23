@@ -9,9 +9,11 @@ var checkedData = [];
 var DEBUG_MODE_JS = 0;
 var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
-//window.alert = function(a){
-//    console.log(a);
-//}
+
+if (window.name !== "ATiM - Advanced Tissue Management"){
+    window.name = "ATiM - Advanced Tissue Management";
+    location.reload(true);
+}
 
 $(document).ready(function () {
     $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
