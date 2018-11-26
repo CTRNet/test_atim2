@@ -642,4 +642,4 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`=
 -- ---------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------
 UPDATE versions v set v.permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '7505' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7506' WHERE version_number = '2.7.1';
