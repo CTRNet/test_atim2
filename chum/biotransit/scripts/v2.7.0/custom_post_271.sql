@@ -369,6 +369,8 @@ UPDATE realiquoting_controls SET flag_active=false WHERE id IN('12');
 UPDATE aliquot_controls SET flag_active=false WHERE id IN('34', '65');
 UPDATE aliquot_controls SET flag_active=true WHERE id IN('15');
 UPDATE realiquoting_controls SET flag_active=false WHERE id IN('35', '36');
+UPDATE aliquot_controls SET flag_active=true WHERE id IN('65');
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN('70');
 
 -- Sample
 -- ---------------------------------------------------------------------------------------------------
@@ -570,6 +572,20 @@ UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'SpecimenReviewMaster' AND label = 'number of elements per participant';
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
 
+-- Collection Template
+-- ---------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats 
+SET `flag_override_type`='1', `type`='input', `flag_override_setting`='1', `setting`='size=15', language_heading = 'specimen'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' LIMIT 0,1), '2', '400', 'derivative', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_by'), '2', '400', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=15', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `type`='datetime' ), '3', '500', 'aliquot', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
 -- ---------------------------------------------------------------------------------------------------
 -- Sop
 -- ---------------------------------------------------------------------------------------------------
@@ -626,4 +642,4 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`=
 -- ---------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------
 UPDATE versions v set v.permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '7468' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7505' WHERE version_number = '2.7.1';
