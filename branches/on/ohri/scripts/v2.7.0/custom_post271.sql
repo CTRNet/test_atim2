@@ -404,3 +404,251 @@ UPDATE versions SET branch_build_number = '7496' WHERE version_number = '2.7.1';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('ATiM#', 'ATiM#', 'ATiM#');
 
 UPDATE versions SET branch_build_number = '7497' WHERE version_number = '2.7.1';
+
+
+SELECT 'WARNING DATE TRUNCATED FOR TEST!';
+
+UPDATE participants SET date_of_death = '2011-01-01' WHERE date_of_death IS NOT NULL;
+UPDATE participants_revs SET date_of_death = '2011-01-01' WHERE date_of_death IS NOT NULL;
+
+UPDATE consent_masters SET consent_signed_date = CONCAT(SUBSTR(consent_signed_date, 1, 4),'-01-01'), consent_signed_date_accuracy = 'm' WHERE consent_signed_date IS NOt NULL;
+UPDATE consent_masters_revs SET consent_signed_date = CONCAT(SUBSTR(consent_signed_date, 1, 4),'-01-01'), consent_signed_date_accuracy = 'm' WHERE consent_signed_date IS NOt NULL;
+
+UPDATE diagnosis_masters SET dx_date = CONCAT(SUBSTR(dx_date, 1, 4),'-01-01'), dx_date_accuracy = 'm' WHERE dx_date IS NOt NULL;
+UPDATE diagnosis_masters_revs SET dx_date = CONCAT(SUBSTR(dx_date, 1, 4),'-01-01'), dx_date_accuracy = 'm' WHERE dx_date IS NOt NULL;
+
+UPDATE consent_masters SET status_date = CONCAT(SUBSTR(status_date, 1, 4),'-01-01'), status_date_accuracy = 'm' WHERE status_date IS NOt NULL;
+UPDATE consent_masters_revs SET status_date = CONCAT(SUBSTR(status_date, 1, 4),'-01-01'), status_date_accuracy = 'm' WHERE status_date IS NOt NULL;
+
+UPDATE event_masters SET event_date = CONCAT(SUBSTR(event_date, 1, 4),'-01-01'), event_date_accuracy = 'm' WHERE event_date IS NOt NULL;
+UPDATE event_masters_revs SET event_date = CONCAT(SUBSTR(event_date, 1, 4),'-01-01'), event_date_accuracy = 'm' WHERE event_date IS NOt NULL;
+
+UPDATE treatment_masters SET start_date = CONCAT(SUBSTR(start_date, 1, 4),'-01-01'), start_date_accuracy = 'm' WHERE start_date IS NOt NULL;
+UPDATE treatment_masters_revs SET start_date = CONCAT(SUBSTR(start_date, 1, 4),'-01-01'), start_date_accuracy = 'm' WHERE start_date IS NOt NULL;
+
+UPDATE treatment_masters SET finish_date = CONCAT(SUBSTR(finish_date, 1, 4),'-01-01'), finish_date_accuracy = 'm' WHERE finish_date IS NOt NULL;
+UPDATE treatment_masters_revs SET finish_date = CONCAT(SUBSTR(finish_date, 1, 4),'-01-01'), finish_date_accuracy = 'm' WHERE finish_date IS NOt NULL;
+  
+UPDATE collections SET collection_datetime = CONCAT(SUBSTR(collection_datetime, 1, 4),'-01-01 01:01:01'), collection_datetime_accuracy = 'm' WHERE collection_datetime IS NOt NULL;
+UPDATE collections_revs SET collection_datetime = CONCAT(SUBSTR(collection_datetime, 1, 4),'-01-01 01:01:01'), collection_datetime_accuracy = 'm' WHERE collection_datetime IS NOt NULL;
+  
+UPDATE specimen_details SET reception_datetime = CONCAT(SUBSTR(reception_datetime, 1, 4),'-01-01 01:01:01'), reception_datetime_accuracy = 'm' WHERE reception_datetime IS NOt NULL;
+UPDATE specimen_details_revs SET reception_datetime = CONCAT(SUBSTR(reception_datetime, 1, 4),'-01-01 01:01:01'), reception_datetime_accuracy = 'm' WHERE reception_datetime IS NOt NULL;
+  
+UPDATE aliquot_masters SET storage_datetime = null;
+UPDATE aliquot_masters_revs SET storage_datetime = null;
+
+-- Follow-up
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'system');
+
+ALTER TABLE ohri_ed_clinical_followups
+  ADD COLUMN recurence_evidence VARCHAR(150)  DEFAULT NULL;
+ALTER TABLE ohri_ed_clinical_followups_revs
+  ADD COLUMN recurence_evidence VARCHAR(150)  DEFAULT NULL;  
+INSERT INTO structure_value_domains (domain_name, override, category, source) values
+('ohri_followup_recurence_evidences', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'Recurrence Evidences\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES
+('Recurrence Evidences', 1, 150, 'clinial - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Recurrence Evidences');
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("biochemical","Biochemical", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("clinical","Clinical", "", "2", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("radiological","Radiological", "", "3", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("biochemical & clinical","Biochemical & Clinical", "", "4", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("biochemical & radiological","Biochemical & Radiological", "", "5", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("biochemical & clinical & radiological","Biochemical & Clinical & Radiological", "", "6", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("clinical & radiological","Clinical & Radiological", "", "7", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("other evidence","Other Evidence", "", "8", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("no evidence","No evidence", "", "9", "1", @control_id, @modified, @modified, @modified_by, @modified_by);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ohri_ed_clinical_followups', 'recurence_evidence', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_followup_recurence_evidences') , '0', '', '', '', 'basic recurrence', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_followups' AND `field`='recurence_evidence' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_followup_recurence_evidences')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='basic recurrence' AND `language_tag`=''), '2', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET  `setting`='size=30',  `language_label`='',  `language_tag`='details' WHERE model='EventDetail' AND tablename='ohri_ed_clinical_followups' AND field='recurrence_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_followups' AND `field`='recurrence_status' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ohri_followup_recurence_evidences') ,  `language_label`='recurrence evidence' WHERE model='EventDetail' AND tablename='ohri_ed_clinical_followups' AND field='recurence_evidence' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_followup_recurence_evidences');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_followups' AND `field`='recurence_evidence' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_followup_recurence_evidences') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('recurrence evidence', 'Recurrence Evidence', "Preuve de récurrence");
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'biochemical'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Biochemical', 'Biochemical evidence', 'Biochemical evidence/No clinical evidence');
+											
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'clinical'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Clinical','Clinical evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'radiological'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Radiological evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'biochemical & clinical'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Biochemical and Clinical', 'Biochemical and Clinical Evidence', 'Clinical and Biochemical', 'Clinical and Biochemical evidence', 
+'Clinical and Biological Evidence', 'Clinical Biochemical Evidence', 'Clinical Evidence and Biochemical evidence', 'Clinical, biochemical evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'biochemical & radiological'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Biochemical and Radiological', 'Biochemical and radiological evidence', 'Biochemical Radiological Evidence', 
+'Biochemical  and Radiological', 'Radioligical and biochemical evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'clinical & radiological'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Clinical and Radioligical evidence', 'Clinical and Radiological', 'Clinical and Radiological evidence', 'Clinical Radiological Evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'biochemical & clinical & radiological'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Biochemical, clinical and radiological', 'Biochemical, clinical and radiological evidence', 'Clinical and Biochemical and radiological evidence', 
+'Clinical and Biochemical evidence and Radiological', 'Clinical and Radiological and Biochemical Evidence', 'Clinical Biochemical and Radiological evidence', 
+'Clinical Biochemical Radiological Evidence', 'Clinical,  Biochemical and radiological evidence', 'Clinical, biochemical and radiological', 
+'Clinical, Biochemical and Radiological evidence', 'Clinical, Radioligical and biochemical evidence', 
+'Clinical, Radiological and Biochemical evidence', 'Radiological and Biochemical and Clinical Evidence', 'Radiological, Biochemical and Clinical evidence');
+		
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'other evidence'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('Pathological evidence', 'Surgical Evidence (Biopsy)', 'Clinical, Radiological and Cytological', 'Physical Evidence');
+
+UPDATE event_masters EM, ohri_ed_clinical_followups ED
+SET EM.modified = @modified,
+EM.modified_by = @modified_by,
+ED.recurence_evidence = 'no evidence'
+WHERE EM.id = ED.event_master_id
+AND EM.deleted <> 1
+AND recurrence_status IN ('No clinical evidence', 'No evidence', 'No evidence of recurrence');										
+
+INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, 
+urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, participant_id, diagnosis_master_id, 
+version_created, modified_by)
+(SELECT id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, 
+urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, participant_id, diagnosis_master_id, 
+modified, modified_by FROM event_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO ohri_ed_clinical_followups_revs (recurrence_status, disease_status, event_master_id, recurence_evidence, version_created)
+(SELECT recurrence_status, disease_status, event_master_id, recurence_evidence, modified 
+FROM event_masters INNER JOIN ohri_ed_clinical_followups ON id = event_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) VALUES
+('Disease Status', 1, 50, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Disease Status');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("remission", "Remission", "Rémission", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("regression", "Regression", "", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("stable", "Stable", "", "4", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("progressing", "Progressing", "", "5", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+UPDATE structure_permissible_values_custom_controls 
+ SET values_used_as_input_counter = 5, values_counter = 5 WHERE name = 'Disease Status';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Disease Status\')' WHERE domain_name = 'ohri_disease_status';
+SET @id = (SELECT id FROM structure_value_domains WHERE domain_name = 'ohri_disease_status');
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = @id;
+
+-- CT Scan
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) VALUES
+('CT Scan Responses', 1, 50, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'CT Scan Responses');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("progressive disease", "Progressive Disease", "Maladie progressive", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("stable disease", "Stable Disease", "Maladie stable", "4", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("unknown", "Unknown", "Inconnu", "5", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("complete", "Complete response", "Réponse complète", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("partial", "Partial response", "Réponse partielle", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+UPDATE structure_permissible_values_custom_controls 
+ SET values_used_as_input_counter = 5, values_counter = 5 WHERE name = 'CT Scan Responses';
+INSERT INTO structure_value_domains (domain_name, override, category, source) values
+('ohri_ctscan_responses', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'CT Scan Responses\')');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_responses')  WHERE model='EventDetail' AND tablename='ohri_ed_clinical_ctscans' AND field='response' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='response');
+
+ALTER TABLE ohri_ed_clinical_ctscans
+  ADD COLUMN type VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN site_of_response VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ohri_ed_clinical_ctscans_revs
+  ADD COLUMN type VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN site_of_response VARCHAR(50) DEFAULT NULL;
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) values
+('ohri_ctscan_types', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'CT-Scan Types\')'),
+('ohri_ctscan_response_sites', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'CT-Scan Response Sites\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES
+('CT-Scan Types', 1, 50, 'clinial - annotation'),
+('CT-Scan Response Sites', 1, 50, 'clinial - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'CT-Scan Types');
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("chest/thorax","Chest/Thorax", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("brain","Brain", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("abdomen/pelvis","Abdomen/Pelvis", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'CT-Scan Response Sites');
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("ascites","Ascites", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("lymph nodes","Lymph nodes", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("omentum","Omentum", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("liver","Liver", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("bowel","Bowel", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("peritoneal","Peritoneal", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("vaginal vault","Vaginal Vault", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("bone","Bone", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("lungs","Lungs", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("pleura","Pleura", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by),
+("pleural effusion","Pleural effusion", "", "1", "1", @control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ohri_ed_clinical_ctscans', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_types') , '0', '', '', '', 'type', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ohri_ed_clinical_ctscans', 'site_of_response', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_response_sites') , '0', '', '', '', '', ' site');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_ctscans' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '2', '20', 'data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_ctscans' AND `field`='site_of_response' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_response_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=' site'), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_ed_clinical_ctscans') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_ctscans' AND `field`='response' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_ctscan_responses') AND `flag_confidential`='0');
+
+-- ---------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions set branch_build_number = '7507' WHERE version_number = '2.7.1';
+
