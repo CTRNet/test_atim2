@@ -549,7 +549,7 @@ Configure::write('order_item_to_order_objetcs_link_setting', 3); // SampleMaster
  * 2 => aliquot only
  * 3 => tma slide only
  */
-Configure::write('order_item_type_config', 1);
+Configure::write('order_item_type_config', 2);
 
 unset($debug);
 
