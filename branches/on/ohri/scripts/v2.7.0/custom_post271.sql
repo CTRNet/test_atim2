@@ -651,4 +651,5 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 -- ---------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions set branch_build_number = '7507' WHERE version_number = '2.7.1';
+UPDATE versions set branch_build_number = '7510' WHERE version_number = '2.7.1';
 
