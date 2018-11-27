@@ -121,9 +121,9 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='10' WHERE st
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES (NULL, (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chum_biotransit_contact_email' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='email'), 'custom,/([\\w\\-\\.]+)@((\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|(([\\w\\-]+\\.)+)([a-zA-Z]{2,4}))/', '', 'the email should be valid');
 
 
-INSERT INTO i18n (id, fr, en) valuess
+INSERT IGNORE INTO i18n (id, fr, en) values
 ('documentation', 'Documentation', 'Documentation'),
-('the email should be valid', 'L\'adresse courriel n\'est pas valide.', 'The email address is not valid.');
+('the email should be valid', "L'adresse courriel n'est pas valide.", 'The email address is not valid.');
 
 -- ---------------------------------------------------------------------------------------------------
 
@@ -191,6 +191,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Institutions', 1, 100, 'clinical');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Institutions');
+SET @modified_by = 1;
+SET @modified = NOW();
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('CHUM', 'CHUM',  'CHUM', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
@@ -642,4 +644,4 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`=
 -- ---------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------
 UPDATE versions v set v.permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '7506' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7509' WHERE version_number = '2.7.1';
