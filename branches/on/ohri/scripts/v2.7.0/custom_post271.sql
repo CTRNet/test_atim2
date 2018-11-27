@@ -405,39 +405,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('ATiM#', 'ATiM#', 'ATiM#');
 
 UPDATE versions SET branch_build_number = '7497' WHERE version_number = '2.7.1';
 
-
-SELECT 'WARNING DATE TRUNCATED FOR TEST!';
-
-UPDATE participants SET date_of_death = '2011-01-01' WHERE date_of_death IS NOT NULL;
-UPDATE participants_revs SET date_of_death = '2011-01-01' WHERE date_of_death IS NOT NULL;
-
-UPDATE consent_masters SET consent_signed_date = CONCAT(SUBSTR(consent_signed_date, 1, 4),'-01-01'), consent_signed_date_accuracy = 'm' WHERE consent_signed_date IS NOt NULL;
-UPDATE consent_masters_revs SET consent_signed_date = CONCAT(SUBSTR(consent_signed_date, 1, 4),'-01-01'), consent_signed_date_accuracy = 'm' WHERE consent_signed_date IS NOt NULL;
-
-UPDATE diagnosis_masters SET dx_date = CONCAT(SUBSTR(dx_date, 1, 4),'-01-01'), dx_date_accuracy = 'm' WHERE dx_date IS NOt NULL;
-UPDATE diagnosis_masters_revs SET dx_date = CONCAT(SUBSTR(dx_date, 1, 4),'-01-01'), dx_date_accuracy = 'm' WHERE dx_date IS NOt NULL;
-
-UPDATE consent_masters SET status_date = CONCAT(SUBSTR(status_date, 1, 4),'-01-01'), status_date_accuracy = 'm' WHERE status_date IS NOt NULL;
-UPDATE consent_masters_revs SET status_date = CONCAT(SUBSTR(status_date, 1, 4),'-01-01'), status_date_accuracy = 'm' WHERE status_date IS NOt NULL;
-
-UPDATE event_masters SET event_date = CONCAT(SUBSTR(event_date, 1, 4),'-01-01'), event_date_accuracy = 'm' WHERE event_date IS NOt NULL;
-UPDATE event_masters_revs SET event_date = CONCAT(SUBSTR(event_date, 1, 4),'-01-01'), event_date_accuracy = 'm' WHERE event_date IS NOt NULL;
-
-UPDATE treatment_masters SET start_date = CONCAT(SUBSTR(start_date, 1, 4),'-01-01'), start_date_accuracy = 'm' WHERE start_date IS NOt NULL;
-UPDATE treatment_masters_revs SET start_date = CONCAT(SUBSTR(start_date, 1, 4),'-01-01'), start_date_accuracy = 'm' WHERE start_date IS NOt NULL;
-
-UPDATE treatment_masters SET finish_date = CONCAT(SUBSTR(finish_date, 1, 4),'-01-01'), finish_date_accuracy = 'm' WHERE finish_date IS NOt NULL;
-UPDATE treatment_masters_revs SET finish_date = CONCAT(SUBSTR(finish_date, 1, 4),'-01-01'), finish_date_accuracy = 'm' WHERE finish_date IS NOt NULL;
-  
-UPDATE collections SET collection_datetime = CONCAT(SUBSTR(collection_datetime, 1, 4),'-01-01 01:01:01'), collection_datetime_accuracy = 'm' WHERE collection_datetime IS NOt NULL;
-UPDATE collections_revs SET collection_datetime = CONCAT(SUBSTR(collection_datetime, 1, 4),'-01-01 01:01:01'), collection_datetime_accuracy = 'm' WHERE collection_datetime IS NOt NULL;
-  
-UPDATE specimen_details SET reception_datetime = CONCAT(SUBSTR(reception_datetime, 1, 4),'-01-01 01:01:01'), reception_datetime_accuracy = 'm' WHERE reception_datetime IS NOt NULL;
-UPDATE specimen_details_revs SET reception_datetime = CONCAT(SUBSTR(reception_datetime, 1, 4),'-01-01 01:01:01'), reception_datetime_accuracy = 'm' WHERE reception_datetime IS NOt NULL;
-  
-UPDATE aliquot_masters SET storage_datetime = null;
-UPDATE aliquot_masters_revs SET storage_datetime = null;
-
 -- Follow-up
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'system');
@@ -652,4 +619,5 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 
 UPDATE versions set branch_build_number = '7507' WHERE version_number = '2.7.1';
 UPDATE versions set branch_build_number = '7510' WHERE version_number = '2.7.1';
+UPDATE versions set branch_build_number = '7511' WHERE version_number = '2.7.1';
 
