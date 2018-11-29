@@ -798,7 +798,7 @@ class StructuresHelper extends AppHelper
                 $tableRowCount = 0;
                 $newLine = true;
                 $endOfLine = "";
-                $display = "";
+                $display = array();
                 $help = null; // keeps the help if hidden fields are in the way
                 foreach ($tableColumn as $tableRow) {
                     foreach ($tableRow as $tableRowPart) {
