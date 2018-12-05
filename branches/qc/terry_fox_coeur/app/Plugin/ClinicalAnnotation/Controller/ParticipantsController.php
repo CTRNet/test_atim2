@@ -77,8 +77,6 @@ class ParticipantsController extends ClinicalAnnotationAppController
      */
     public function profile($participantId)
     {
-        
-        pr(AppController::getStackTrace());
         // MANAGE DATA
         $this->request->data = $this->Participant->getOrRedirect($participantId);
         
