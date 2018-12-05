@@ -332,14 +332,3 @@ VALUES
 ('deceased from other disease', 'Deceased from Other Disease', "Décédé d'une autre maladie");
 
 UPDATE `versions` SET branch_build_number = '7259' WHERE version_number = '2.7.0';
-
-
-
-
-
-
-
-
-
-
-
