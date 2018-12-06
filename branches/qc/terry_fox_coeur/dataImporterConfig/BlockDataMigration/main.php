@@ -47,6 +47,10 @@ $query = "SELECT count(*) tt FROM specimen_review_masters;";
 $countRev = getSelectQueryResult($query);
 if($countRev[0]['tt']) { die('ERR8584874338');}
 
+$query = "select count(*) tt  from aliquot_masters WHERE study_summary_id is not  null;";
+$countRev = getSelectQueryResult($query);
+if($countRev[0]['tt']) { pr($countRev);die('ERR8584211274338');}
+
 // Blocks
 //----------------------------------------------------------------------------------
 
@@ -115,7 +119,7 @@ $queries = array(
     ) 
     AND deleted <> 1",
     
-    "UPDATE Collections
+    "UPDATE collections
     SET deleted = 1
     WHERE id NOT IN (
         SELECT collection_id FROM sample_masters WHERE deleted <> 1 
@@ -354,6 +358,30 @@ foreach($storageProperties as $excelField => $short_label) {
     $atim_storage_key_to_storage_master_id[$excelField] = customInsertRecord($storage_data);
 }
 
+$created_storage_counter++;
+$storage_controls = $atim_controls['storage_controls']['room'];
+$storage_data = array(
+    'storage_masters' => array(
+        "code" => 'tmp'.$created_storage_counter,
+        "short_label" => 'R12.118',
+        "selection_label" => 'R12.118',
+        "storage_control_id" => $storage_controls['id'],
+        "parent_id" => null),
+    $storage_controls['detail_tablename'] => array());
+$r12_118_storage_master_id = customInsertRecord($storage_data);
+
+$created_storage_counter++;
+$storage_controls = $atim_controls['storage_controls']['room'];
+$storage_data = array(
+    'storage_masters' => array(
+        "code" => 'tmp'.$created_storage_counter,
+        "short_label" => 'R12.112',
+        "selection_label" => 'R12.112',
+        "storage_control_id" => $storage_controls['id'],
+        "parent_id" => null),
+    $storage_controls['detail_tablename'] => array());
+$r12_112_storage_master_id = customInsertRecord($storage_data);
+
 // Block migration - Main code
 //----------------------------------------------------
 
@@ -363,6 +391,7 @@ $atimTissues = getATiMTissues();
 $blocksControl = array();
 $created_aliquot_counter = 0;
 $created_sample_counter = 0;
+$created_slide_counter = 0;
 $dataUpdateCreationSummary = array();
 
 $file_name = $bank_excel_files['file'];
@@ -538,7 +567,7 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     // Block in stock detail
     $excel_field = 'availability blocks';
     
-    $in_stock = 'yes & available';
+    $in_stock = 'yes - available';
     if($excel_line_block_data[$excel_field] == 'no') {
         $in_stock = 'no';
     } elseif($excel_line_block_data[$excel_field] != 'yes')  {
@@ -676,7 +705,12 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         }
         // compare aliquot
         $atim_block_data['notes'] = str_replace("'", "''", $atim_block_data['notes']);
-        $new_notes = array($atim_block_data['notes'], str_replace("'", "''", $excel_laterality_msg));
+        $new_notes = array(
+            $atim_block_data['notes'], 
+            str_replace("'", "''", $excel_laterality_msg),
+            str_replace("'", "''", $excel_line_block_data['notes from biobank']),
+            str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
+        );
         $new_notes = array_filter($new_notes);
         $new_notes = implode('. ',$new_notes);
         $detaiTablename = $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'];
@@ -749,19 +783,24 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
                 'tissue_laterality' => $excel_tissue_laterality));
         $sample_master_id = customInsertRecord($sample_data);
         $created_aliquot_counter++;
+        $new_notes = array(
+            str_replace("'", "''", $excel_laterality_msg),
+            str_replace("'", "''", $excel_line_block_data['notes from biobank']),
+            str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
+        );
+        $new_notes = array_filter($new_notes);
+        $new_notes = implode('. ',$new_notes);
         $aliquot_data = array(
             'aliquot_masters' => array(
                 "barcode" => 'tmp_'.$created_aliquot_counter,
-                'aliquot_label' => "FFPE $participantTfriNbr",
+                'aliquot_label' => str_replace("'", "''", $excel_block_pathology_nbr), //"FFPE $participantTfriNbr",
                 "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
                 "collection_id" => $collection_id,
                 "sample_master_id" => $sample_master_id,
                 'storage_master_id' => $storage_master_id,
-//                'storage_coord_x' => $storage_coord_y,
-//                'storage_coord_y' => $storage_coord_x,
                 'in_stock' => $in_stock,
                 'in_stock_detail' => '',
-                'notes' => str_replace("'", "''", $excel_laterality_msg)
+                'notes' => $new_notes
             ),
             $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
                 'block_type' => 'paraffin',
@@ -772,35 +811,7 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         $aliquot_master_id = customInsertRecord($aliquot_data);
     }
     
-    // reception information
-    
-    $excel_field = "Reception date";
-    list($reception_date, $reception_date_accuracy) = validateAndGetDateAndAccuracy(
-        $excel_line_block_data[$excel_field],
-        'Block creation/update',
-        $excel_field,
-        "Value won't be used by migration process - see line $excel_line_counter.");
-    $excel_field = "Received by";
-    $reception_by = validateAndGetStructureDomainValue(
-        str_replace(array("Cécile", "Liliane Meunier"), array("Cecile", "Liliane"), $excel_line_block_data[$excel_field]),
-        'custom_laboratory_staff',
-        'Block creation/update',
-        "Reception by",
-        "Value won't be used by migration process - see line $excel_line_counter.");
-    $fromInfo = array();
-    if($excel_line_block_data['Bank']) $fromInfo[] = $excel_line_block_data['Bank'];
-    if($excel_line_block_data['Received by']) $fromInfo[] = $excel_line_block_data['Received by'];
-    $fromInfo = implode(' / ', $fromInfo);
-    if($fromInfo) $fromInfo = "From $fromInfo";
-    if($reception_date.$reception_by.$fromInfo) {
-        customInsertRecord(array(
-            'aliquot_internal_uses' => array(
-                'aliquot_master_id' => $aliquot_master_id, 
-                'type' => 'reception (from bank)',
-                'use_code' => $fromInfo,
-                'use_datetime' => $reception_date,
-                'use_datetime_accuracy' => $reception_date_accuracy)));
-    } 
+    completeBlockEvents($excel_line_block_data, $excel_line_counter, $participantTfriNbr, $collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
 }
 
 // List ATiM block not used
@@ -867,8 +878,8 @@ foreach($atimCollectionsToMerge as $new_collections_set) {
 
 if($blocksControl) {
     $control_collection_id = customInsertRecord(array(
-        'collections' => array(
-            'collection_property' => 'independant collection',
+        'collections' => array(       
+            'collection_property' => 'independent collection',
             'collection_notes' => 'Controls')));
     
     foreach($blocksControl as $new_control) {
@@ -898,7 +909,7 @@ if($blocksControl) {
         // Block in stock detail
         $excel_field = 'availability blocks';
         
-        $in_stock = 'yes & available';
+        $in_stock = 'yes - available';
         if($excel_line_block_data[$excel_field] != 'control') {
             die('ERR File ' . __FILE__ .' Line ' . __LINE__);
         }
@@ -976,35 +987,8 @@ if($blocksControl) {
             "Block Control Creation.",
             "Created ["."CONTROL ".str_replace("'", "''", $excel_block_pathology_nbr)."] from line $excel_line_counter.");
         
-        // reception information
-        
-        $excel_field = "Reception date";
-        list($reception_date, $reception_date_accuracy) = validateAndGetDateAndAccuracy(
-            $excel_line_block_data[$excel_field],
-            'Block control creation',
-            $excel_field,
-            "Value won't be used by migration process - see line $excel_line_counter.");
-        $excel_field = "Received by";
-        $reception_by = validateAndGetStructureDomainValue(
-            str_replace(array("Cécile", "Liliane Meunier"), array("Cecile", "Liliane"), $excel_line_block_data[$excel_field]),
-            'custom_laboratory_staff',
-            'Block control creation',
-            "Reception by",
-            "Value won't be used by migration process - see line $excel_line_counter.");
-        $fromInfo = array();
-        if($excel_line_block_data['Bank']) $fromInfo[] = $excel_line_block_data['Bank'];
-        if($excel_line_block_data['Received by']) $fromInfo[] = $excel_line_block_data['Received by'];
-        $fromInfo = implode(' / ', $fromInfo);
-        if($fromInfo) $fromInfo = "From $fromInfo";
-        if($reception_date.$reception_by.$fromInfo) {
-            customInsertRecord(array(
-                'aliquot_internal_uses' => array(
-                    'aliquot_master_id' => $aliquot_master_id,
-                    'type' => 'reception (from bank)',
-                    'use_code' => $fromInfo,
-                    'use_datetime' => $reception_date,
-                    'use_datetime_accuracy' => $reception_date_accuracy)));
-        } 
+
+        completeBlockEvents($excel_line_block_data, $excel_line_counter, 'CONTROL', $control_collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
     }
 }
 
@@ -1012,37 +996,241 @@ if($blocksControl) {
 //-----------------------------------------
 
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Samples : '.$created_sample_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Aliquots : '.$created_aliquot_counter);
+recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Blocks : '.$created_aliquot_counter);
+recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Slides : '.$created_slide_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Storages : '.$created_storage_counter);
 
-
-
-
-
 $last_queries_to_execute = array(
-    "UPDATE sample_masters SET sample_code=id WHERE sample_code LIKE 'tmp_';",
+    "UPDATE sample_masters SET sample_code=id WHERE sample_code LIKE 'tmp_%';",
     "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;",
-    "UPDATE aliquot_masters SET barcode=id WHERE barcode LIKE 'tmp_';;",
+    "UPDATE aliquot_masters SET barcode=id WHERE barcode LIKE 'tmp_%';",
     "UPDATE storage_masters SET code=id;",
     "UPDATE versions SET permissions_regenerated = 0;"
 );
 foreach($last_queries_to_execute as $query)	customQuery($query);
 
-dislayErrorAndMessage(false);
-
-
-
-
-
-
-
-
-
-
+dislayErrorAndMessage($commit_all);
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 //Functions
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+function completeBlockEvents($excel_line_block_data, $excel_line_counter, $participantTfriNbr, $collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, &$created_slide_counter, $shipping_summary, $in_stock) {
+    global $atim_controls;
+    
+    // reception information
+
+    $excel_field = "Reception date";
+    list($reception_date, $reception_date_accuracy) = validateAndGetDateAndAccuracy(
+        $excel_line_block_data[$excel_field],
+        'Block Events and Slides Creation',
+        $excel_field,
+        "Value won't be used by migration process - see line $excel_line_counter.");
+    $excel_field = "Received by";
+    $reception_by = validateAndGetStructureDomainValue(
+        str_replace(array("Cécile", "Liliane Meunier"), array("Cecile", "Liliane"), $excel_line_block_data[$excel_field]),
+        'custom_laboratory_staff',
+        'Block Events and Slides Creation',
+        "Reception by",
+        "Value won't be used by migration process - see line $excel_line_counter.");
+    $fromInfo = array();
+    if($excel_line_block_data['Bank']) $fromInfo[] = $excel_line_block_data['Bank'];
+    if($excel_line_block_data['Contact name']) $fromInfo[] = $excel_line_block_data['Contact name'];
+    $fromInfo = implode(' / ', $fromInfo);
+    if($fromInfo) $fromInfo = "From $fromInfo";
+    if($reception_date.$reception_by.$fromInfo) {
+        customInsertRecord(array(
+            'aliquot_internal_uses' => array(
+                'aliquot_master_id' => $aliquot_master_id,
+                'type' => 'reception (from bank)',
+                'use_code' => $fromInfo,
+                'used_by' => $reception_by,
+                'use_datetime' => $reception_date,
+                'use_datetime_accuracy' => $reception_date_accuracy)));
+    }
+
+    // H&E slide
+
+    $slide_notes = array();
+    if(strlen($excel_line_block_data['H&E done by']))  $slide_notes[] = 'Done by : ' . $excel_line_block_data['H&E done by'];
+    if(strlen($excel_line_block_data['H&E vérified by']))  $slide_notes[] = 'Checked by : ' . $excel_line_block_data['H&E vérified by'];
+    if(strlen($excel_line_block_data['H&E available']))  $slide_notes[] = 'Availability : ' . $excel_line_block_data['H&E available'];
+    $slide_notes = str_replace("'", "''", implode('. ', $slide_notes).'.');
+
+    if(strlen($slide_notes.$excel_line_block_data['H&E date'])) {
+        $slide_storage_master_id = null;
+        if(preg_match('/R12\.112/', $excel_line_block_data['H&E available'])) {
+            $slide_storage_master_id = $r12_112_storage_master_id;
+        } else if(preg_match('/R12\.118/', $excel_line_block_data['H&E available'])) {
+            $slide_storage_master_id = $r12_118_storage_master_id;
+        }
+        $created_slide_counter++;
+        $aliquot_data = array(
+            'aliquot_masters' => array(
+                "barcode" => 'tmp_core_'.$created_slide_counter,
+                'aliquot_label' => "H&E [TFRI#$participantTfriNbr]",
+                "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-slide']['id'],
+                "collection_id" => $collection_id,
+                "sample_master_id" => $sample_master_id,
+                'storage_master_id' => $slide_storage_master_id,
+                'in_stock' => 'yes - available',
+                'notes' => $slide_notes),
+            $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array(
+                'immunochemistry' => 'H&E',));
+        $he_slide_aliquot_master_id = customInsertRecord($aliquot_data);
+
+        $excel_field = 'H&E date';
+        list($realiquoting_datetime, $realiquoting_datetime_accuracy) = validateAndGetDateAndAccuracy($excel_line_block_data[$excel_field], 'Block Events and Slides Creation', $excel_field, "Value won't be used by migration process - see line $excel_line_counter.");
+
+        $realiquoting_data = array('realiquotings' => array(
+            'parent_aliquot_master_id' => $aliquot_master_id,
+            'child_aliquot_master_id' => $he_slide_aliquot_master_id,
+            'realiquoting_datetime' => $realiquoting_datetime,
+            'realiquoting_datetime_accuracy' => $realiquoting_datetime_accuracy));
+
+        customInsertRecord($realiquoting_data);
+    }
+
+    // Slide revisions
+    
+    if(strlen($excel_line_block_data['Révision date at the CHUM'].$excel_line_block_data['Notes by Dr Rahimi'])) {
+        $use_details = array($excel_line_block_data['Notes by Dr Rahimi']);
+        $excel_field = 'Révision date at the CHUM';
+        list($use_datetime, $use_datetime_accuracy) = validateAndGetDateAndAccuracy(
+            $excel_line_block_data[$excel_field],
+            'Block Events and Slides Creation',
+            $excel_field,
+            "Value won't be used by migration process - see line $excel_line_counter.");
+        if($excel_line_block_data[$excel_field] && !$use_datetime) {
+            $use_details[] = 'Date info : '.$excel_line_block_data[$excel_field];
+        }
+        customInsertRecord(array(
+            'aliquot_internal_uses' => array(
+                'aliquot_master_id' => $aliquot_master_id,
+                'type' => 'slide revision',
+                'use_code' => 'H&E Slide',
+                'used_by' => 'dr rahimi',
+                'use_datetime' => $use_datetime,
+                'use_datetime_accuracy' => $use_datetime_accuracy,
+                'use_details' => str_replace("'", "''", implode('. ', $use_details)))));
+    }
+    
+    //return to bank
+    if(strlen($excel_line_block_data['Shipping to'].$excel_line_block_data['Shipping by'].$excel_line_block_data['Shipping date'].$excel_line_block_data['Shipping fedex #'])) {
+        $excel_field = 'Shipping date';
+        $newdate = '';
+        switch($excel_line_block_data[$excel_field]) {
+            case 'janvier 2014':
+                $newdate = '2014-01-xx';
+                break;
+            case 'septembre 2013':
+                $newdate = '2013-09-xx';
+                break;
+            case '20 janvier 2016':
+                $newdate = '2016-01-20';
+                break;
+            case 'septembre 2014':
+                $newdate = '2014-09-xx';
+                break;
+            case 'Aout 2018':
+                $newdate = '2018-08-xx';
+                break;
+            case 'juillet 2012':
+                $newdate = '2012-07-xx';
+                break;
+            case '7/2012':
+                $newdate = '2012-07-xx';
+                break;
+            case 'fev 2012':
+                $newdate = '2012-02-xx';
+                break;
+            case '12-06-218':
+                $newdate = '2018-06-12';
+                break;
+        }
+        if($newdate) {
+            recordErrorAndMessage(
+                'Block Events and Slides Creation',
+                '@@WARNING@@',
+                "Changed wrong $excel_field format to a good one. Please validate",
+                "See value '".$excel_line_block_data[$excel_field]."' changed to '$newdate'",
+                $excel_line_block_data[$excel_field]);
+             $excel_line_block_data[$excel_field]=$newdate;
+        }
+        list($ship_date, $ship_date_accuracy) = validateAndGetDateAndAccuracy(
+            $excel_line_block_data[$excel_field],
+            'Block Events and Slides Creation',
+            $excel_field,
+            "Value won't be used by migration process - see line $excel_line_counter.");
+
+        $excel_field = 'Shipping by';
+        $ship_by = validateAndGetStructureDomainValue(
+            str_replace(
+                array('Cecile et Jason' , 'Cecile LePage' , "Cécile", "Liliane Meunier","Cecile Lepage", "Isabelle Clément", 'Cecile LePage et Jason'), 
+                array("Cecile", "Cecile", "Cecile", "Liliane","Cecile", "Isabelle","Cecile"), $excel_line_block_data[$excel_field]),
+            'custom_laboratory_staff',
+            'Block Events and Slides Creation',
+            $excel_field,
+            "Value won't be used by migration process - see line $excel_line_counter.");
+        customInsertRecord(array(
+            'aliquot_internal_uses' => array(
+                'aliquot_master_id' => $aliquot_master_id,
+                'type' => 'returned (to bank)',
+                'use_code' => 'To '.(strlen($excel_line_block_data['Shipping to'])? $excel_line_block_data['Shipping to'] : '?').($shipping_summary? ' / ' .$shipping_summary : ''),
+                'used_by' => $ship_by,
+                'use_datetime' => $ship_date,
+                'use_datetime_accuracy' => $ship_date_accuracy,
+                'use_details' => (strlen($excel_line_block_data['Shipping fedex #'])? 'Fedex : ' .$excel_line_block_data['Shipping fedex #'] : '')))); 
+        if($in_stock != 'no') {
+            recordErrorAndMessage(
+                'Block Events and Slides Creation',
+                '@@ERROR@@',
+                "The block has been defined as returned to biobank but in stock value is different than 'no'. Please validate and clean up/create data after the migration.",
+                "See block  for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+        }
+    }
+    
+    // other slide
+    if(strlen($excel_line_block_data['Biomarker']) < 6 || preg_match('/,/', $excel_line_block_data['Biomarker'])) {
+        $biomarkers = explode(',', str_replace(' ', '', $excel_line_block_data['Biomarker']));
+        $biomarkers = array_filter($biomarkers);
+        foreach($biomarkers as $new_marker) {
+            $created_slide_counter++;
+            $aliquot_data = array(
+                'aliquot_masters' => array(
+                    "barcode" => 'tmp_core_'.$created_slide_counter,
+                    'aliquot_label' => "$new_marker [TFRI#$participantTfriNbr]",
+                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-slide']['id'],
+                    "collection_id" => $collection_id,
+                    "sample_master_id" => $sample_master_id,
+                    'in_stock' => 'yes - available',
+                    'notes' => ''),
+                $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array(
+                    'immunochemistry' => $new_marker,));
+            $other_slide_aliquot_master_id = customInsertRecord($aliquot_data);
+
+            $realiquoting_data = array('realiquotings' => array(
+                'parent_aliquot_master_id' => $aliquot_master_id,
+                'child_aliquot_master_id' => $other_slide_aliquot_master_id));
+
+            customInsertRecord($realiquoting_data);
+
+            recordErrorAndMessage(
+               'Block Events and Slides Creation',
+                '@@ERROR@@',
+                "Created other marker slide.",
+                "See value '$new_marker'",
+                $new_marker);
+        }
+    } else if(strlen($excel_line_block_data['Biomarker'])) {
+        recordErrorAndMessage(
+            'Block Events and Slides Creation',
+            '@@ERROR@@',
+            "The 'Biomarker' value is not supported. Please validate and clean up/create data after the migration.",
+            "See value '".$excel_line_block_data['Biomarker']."' for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+    }
+}
 
 function getATiMBlocks() {
     $query = "SELECT Participant.id as participant_id,
