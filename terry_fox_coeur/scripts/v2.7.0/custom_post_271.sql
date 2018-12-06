@@ -104,62 +104,49 @@ VALUES
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('cellularity', 'Cellularity', ''),
-('Quantity Available', 'quantity available', '');
+('quantity available', 'Quantity Available', '');
 
+-- ...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-INSERT INTO structures(`alias`) VALUES ('forgotten_password_reset_questions');
-INSERT INTO structure_value_domains (domain_name, source) 
-VALUES 
-('forgotten_password_reset_questions', "StructurePermissibleValuesCustom::getCustomDropdown('Password Reset Questions')");
-ALTER TABLE structure_permissible_values_custom_controls MODIFY values_max_length INT(4) DEFAULT '5';
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
-VALUES 
-('Password Reset Questions', 1, 500, 'administration');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Password Reset Questions');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
+("returned (to bank)","Returned (to bank)","Retour (à la banque)",'1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("dr rahimi","Dr Rahimi","",'1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("kim","Kim","",'1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- H&E and slide
+
+UPDATE aliquot_controls SET flag_active=true WHERE id IN('9');
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN('9');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='marker / coloration / etc' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('marker / coloration / etc', 'Marker/Coloration/Etc', '');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("slide revision","slide revision","",'1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE `versions` SET branch_build_number = '7525' WHERE version_number = '2.7.1';
 
 
 
-Finir block migration FFPE. Attention pour certain patient on a plusisuers blocks donc bien regarder que on écrase pas block puis regarder comment
-on les renomme.
+
 Tous les blocs chum de Coeur, n'ont pas été créer dans axe Onco avec un flagg donnée à COEUR. Todo pour CPCBN & QBCF aussi.
 Vérifier que les patients CHUM coeur sont tous dans ATiM.
 
