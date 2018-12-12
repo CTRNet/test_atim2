@@ -1521,6 +1521,79 @@ class ReportsController extends DatamartAppController
             'error_msg' => null
         );
     }
+    
+
+    /**
+     *
+     * @param $parameters
+     * @return array
+     */
+    public function participantIdentifiersWithCollectionDateSummary($parameters)
+    {
+        if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        
+        $header = null;
+        $conditions = array();
+        
+        $participantIdentifiers = $this->participantIdentifiersSummary($parameters);
+        
+        $inventoryManagementCollectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        
+        foreach($participantIdentifiers['data'] as $key=>$participantIdentifier){
+            $conditions = array(
+                'Collection.participant_id' => $participantIdentifiers['data'][$key]['Participant']['id']
+            );
+
+            $collectionForParticipantId = $inventoryManagementCollectionModel->find('all', array(
+                'conditions' => $conditions
+            ));
+            
+            $infos = '';
+            foreach($collectionForParticipantId as $collection){
+                $infos .= $collection['Collection']['collection_datetime'];
+            }
+            
+             $participantIdentifiers['data'][$key] = array(
+                    'Participant' => array(
+                        'id' => $participantIdentifiers['data'][$key]['Participant']['id'],
+                        'participant_identifier' => $participantIdentifiers['data'][$key]['Participant']['participant_identifier'],
+                        'first_name' => $participantIdentifiers['data'][$key]['Participant']['first_name'],
+                        'last_name' => $participantIdentifiers['data'][$key]['Participant']['last_name'],
+                    ),
+                    'Collection' => array(
+                        'collection_datetime' => $infos
+                    ),
+                    '0' => array(
+                        'BR_Nbr' => $participantIdentifiers['data'][$key][0]['BR_Nbr'],
+                        'PR_Nbr' => $participantIdentifiers['data'][$key][0]['PR_Nbr'],
+                        'hospital_number' => $participantIdentifiers['data'][$key][0]['hospital_number']
+                    )
+            );
+        
+        }
+        
+        AppController::addWarningMsg(__('all searches are considered as exact searches'));
+        
+        return array(
+            'header' => $participantIdentifiers['header'],
+            'data' => $participantIdentifiers['data'],
+            'columns_names' => null,
+            'error_msg' => null
+        );
+    }
+     
+        
+
+    
+    
 
     /**
      *
