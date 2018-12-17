@@ -1557,11 +1557,11 @@ class ReportsController extends DatamartAppController
             ));
             
             $infos = '';
-            foreach($collectionForParticipantId as $collection){
-                $infos .= $collection['Collection']['collection_datetime'];
-            }
-            
-             $participantIdentifiers['data'][$key] = array(
+            foreach($collectionForParticipantId as $keyCollection=>$collection){
+                $dateCollection = $collection['Collection']['collection_datetime'];
+                $dateCollectionAccuracy = $collection['Collection']['collection_datetime_accuracy'];
+                
+                $participantIdentifiersWithCollectionDate['data'][$key.'-'.$keyCollection] = array(
                     'Participant' => array(
                         'id' => $participantIdentifiers['data'][$key]['Participant']['id'],
                         'participant_identifier' => $participantIdentifiers['data'][$key]['Participant']['participant_identifier'],
@@ -1569,14 +1569,17 @@ class ReportsController extends DatamartAppController
                         'last_name' => $participantIdentifiers['data'][$key]['Participant']['last_name'],
                     ),
                     'Collection' => array(
-                        'collection_datetime' => $infos
+                        'collection_datetime' => $dateCollection,
+                        'collection_datetime_accuracy' => $dateCollectionAccuracy
                     ),
                     '0' => array(
                         'BR_Nbr' => $participantIdentifiers['data'][$key][0]['BR_Nbr'],
                         'PR_Nbr' => $participantIdentifiers['data'][$key][0]['PR_Nbr'],
                         'hospital_number' => $participantIdentifiers['data'][$key][0]['hospital_number']
                     )
-            );
+                );
+                
+            }
         
         }
         
@@ -1584,7 +1587,7 @@ class ReportsController extends DatamartAppController
         
         return array(
             'header' => $participantIdentifiers['header'],
-            'data' => $participantIdentifiers['data'],
+            'data' => $participantIdentifiersWithCollectionDate['data'],
             'columns_names' => null,
             'error_msg' => null
         );
