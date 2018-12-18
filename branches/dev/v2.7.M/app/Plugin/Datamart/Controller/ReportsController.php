@@ -1542,16 +1542,21 @@ class ReportsController extends DatamartAppController
         
         $header = null;
         $conditions = array();
+        $participantIdentifiersWithCollectionDate['data'] = array();
         
         $participantIdentifiers = $this->participantIdentifiersSummary($parameters);
         
         $inventoryManagementCollectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
         
+        $startDateForSql = AppController::getFormatedDatetimeSQL($parameters['Collection']['collection_datetime_start'], 'start');
+        $endDateForSql = AppController::getFormatedDatetimeSQL($parameters['Collection']['collection_datetime_end'], 'end');
+        
         foreach($participantIdentifiers['data'] as $key=>$participantIdentifier){
             $conditions = array(
-                'Collection.participant_id' => $participantIdentifiers['data'][$key]['Participant']['id']
+                'Collection.participant_id' => $participantIdentifiers['data'][$key]['Participant']['id'],
+                'Collection.collection_datetime BETWEEN ? AND ?' => array($startDateForSql, $endDateForSql)
             );
-
+        
             $collectionForParticipantId = $inventoryManagementCollectionModel->find('all', array(
                 'conditions' => $conditions
             ));
