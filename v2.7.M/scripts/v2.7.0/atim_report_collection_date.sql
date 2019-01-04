@@ -30,3 +30,25 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('participant identifiers with collection dates', '', 'Participant Identifiers with Collection Dates', 'Identifiants de participants avec les dates de collections');
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('list all identifiers of selected participants with their collection dates', '', 'List all identifiers of selected participants with their collection dates', 'Liste tous les identifiants de participants sélectionnés avec leurs dates de collections');
+
+
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('activate', '', 'Activate', 'Activer');
+
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('deactivate', '', 'Deactivate', 'Désactiver');
+
+
+
+INSERT INTO `datamart_structure_functions` ( `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+( 4, 'participant identifiers with collection dates report', CONCAT('/Datamart/Reports/manageReport/', COALESCE((
+    (SELECT id FROM datamart_reports WHERE `name`='participant identifiers with collection dates' AND `function`= "participantIdentifiersWithCollectionDateSummary")
+), '')), 1, '');
+
+
+
+
+
+
