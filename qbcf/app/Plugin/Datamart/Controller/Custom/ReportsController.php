@@ -214,6 +214,12 @@ class ReportsControllerCustom extends ReportsController
 			Participant.participant_identifier,
 			Participant.qbcf_bank_id,
 			Participant.vital_status,
+			Participant.date_of_death,
+			Participant.date_of_death_accuracy,
+			Participant.qbcf_suspected_date_of_death,
+			Participant.qbcf_suspected_date_of_death_accuracy,
+			Participant.qbcf_last_contact,       
+			Participant.qbcf_last_contact_accuracy,            
 			Participant.qbcf_bank_participant_identifier,
 			Participant.qbcf_study_exclusion,
 			Participant.qbcf_breast_cancer_fam_hist,
@@ -668,9 +674,22 @@ class ReportsControllerCustom extends ReportsController
             $newParticipant['GeneratedQbcfBrDxProg'] = array(
                 'first_progression' => $emptyValue,
                 'collection_to_first_progression_months' => $emptyValue,
-                'other_progressions' => array(
-                    $emptyValue
-                )
+                
+                'bone_progression' => 'n',
+                'brain_progression' => 'n',
+                'liver_progression' => 'n',
+                'lung_progression' => 'n',
+                'skin_progression' => 'n',
+                'lymph_node_progression' => 'n',
+                
+                'bone_from_collection_to_first_progression_months' => $emptyValue,
+                'brain_from_collection_to_first_progression_months' => $emptyValue,
+                'liver_from_collection_to_first_progression_months' => $emptyValue,
+                'lung_from_collection_to_first_progression_months' => $emptyValue,
+                'skin_from_collection_to_first_progression_months' => $emptyValue,
+                'lymph_node_from_collection_to_first_progression_months' => $emptyValue,
+            
+                'other_progressions' => array()
             );
             if ($newParticipant['TreatmentMaster']['id'] != 'n/a' && $newParticipant['TreatmentMaster']['start_date']) {
                 $sql = "SELECT DiagnosisMaster.dx_date, DiagnosisDetail.site
@@ -679,19 +698,61 @@ class ReportsControllerCustom extends ReportsController
 						WHERE DiagnosisMaster.deleted <> 1
 						AND  DiagnosisMaster.diagnosis_control_id = " . $dxControls['breast progression']['id'] . "
 						AND DiagnosisMaster.parent_id = " . $newParticipant['TreatmentMaster']['diagnosis_master_id'] . "
-						AND DiagnosisMaster.dx_date IS NOT NULL
-						AND DiagnosisMaster.dx_date > '" . $newParticipant['TreatmentMaster']['start_date'] . "' ORDER BY DiagnosisMaster.dx_date ASC";
+						ORDER BY DiagnosisMaster.dx_date ASC";
                 foreach ($this->Report->tryCatchQuery($sql) as $newProg) {
                     if (empty($newParticipant['GeneratedQbcfBrDxProg']['first_progression'])) {
-                        $newParticipant['GeneratedQbcfBrDxProg']['first_progression'] = $newProg['DiagnosisDetail']['site'];
-                        $newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $newProg['DiagnosisMaster']['dx_date']);
+                        if($newProg['DiagnosisMaster']['dx_date'] && $newProg['DiagnosisMaster']['dx_date'] > $newParticipant['TreatmentMaster']['start_date']) {
+                            $newParticipant['GeneratedQbcfBrDxProg']['first_progression'] = $newProg['DiagnosisDetail']['site'];
+                            $newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $newProg['DiagnosisMaster']['dx_date']);
+                            if(strlen($newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'])) {
+                                $newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] = 
+                                    ' : ' . 
+                                    $newParticipant['GeneratedQbcfBrDxProg']['collection_to_first_progression_months'] .
+                                    ' ' .
+                                    __('months from collection');
+                            }
+                        }
+                    }
+                    $siteKey = '';
+                    if (in_array($newProg['DiagnosisDetail']['site'], array(
+                        'bone',
+                        'brain',
+                        'liver',
+                        'lung',
+                        'skin'
+                    ))) {
+                        $siteKey = $newProg['DiagnosisDetail']['site'];
+                    } elseif (in_array($newProg['DiagnosisDetail']['site'], array(
+                        'lymph node - regional',
+                        'lymph node - distal'
+                    ))) {
+                        $siteKey = 'lymph_node';
+                    }
+                    if ($siteKey) {
+                        if ($newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_progression'] == 'n') {
+                            $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_progression'] = 'y';
+                            if (empty($newProg['DiagnosisMaster']['dx_date'])) {
+                                $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'] = ' (' . __('missing date') . ')';
+                            } elseif ($newProg['DiagnosisMaster']['dx_date'] < $newParticipant['TreatmentMaster']['start_date']) {
+                                $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'] = ' (' . __('before treatment') . ')';
+                            } else {
+                                $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'] = $this->getDateDiffInMonths($newParticipant['TreatmentMaster']['start_date'], $newProg['DiagnosisMaster']['dx_date']);
+                                if(strlen($newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'])) {
+                                    $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'] = 
+                                    ' : ' .
+                                    $newParticipant['GeneratedQbcfBrDxProg'][$siteKey . '_from_collection_to_first_progression_months'] .
+                                    ' ' .
+                                    __('months from collection');
+                                }
+                            }
+                        }
                     } else {
                         $newParticipant['GeneratedQbcfBrDxProg']['other_progressions'][$otherDxProgressionSites[$newProg['DiagnosisDetail']['site']]] = $otherDxProgressionSites[$newProg['DiagnosisDetail']['site']];
                     }
                 }
             }
-            $newParticipant['GeneratedQbcfBrDxProg']['other_progressions'] = implode(' & ', $newParticipant['GeneratedQbcfBrDxProg']['other_progressions']);
-            
+            $newParticipant['GeneratedQbcfBrDxProg']['other_progressions'] = empty($newParticipant['GeneratedQbcfBrDxProg']['other_progressions'])? $emptyValue : implode(' & ', $newParticipant['GeneratedQbcfBrDxProg']['other_progressions']);
+
             // ** 5 ** Other Tumors
             
             $sql = "SELECT DISTINCT DiagnosisDetail.disease_site
