@@ -1,6 +1,8 @@
 <?php
 
-class Announcement extends AppModel {
+/**
+ * Class Announcement
+ */
+class Announcement extends AppModel
+{
 }
-
-?>

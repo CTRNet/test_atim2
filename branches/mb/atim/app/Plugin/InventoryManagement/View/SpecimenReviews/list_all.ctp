@@ -1,23 +1,32 @@
-<?php 
+<?php
+$addLinks = array();
+foreach ($reviewControls as $reviewControl) {
+    $addLinks[__($reviewControl['SampleControl']['sample_type']) . ' - ' . __($reviewControl['SpecimenReviewControl']['review_type'])] = '/InventoryManagement/SpecimenReviews/add/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $reviewControl['SpecimenReviewControl']['id'];
+}
+ksort($addLinks);
 
-	$add_links = array();
-	foreach ( $review_controls as $review_control ) {
-		$add_links[ __($review_control['SampleControl']['sample_type']).' - '.__($review_control['SpecimenReviewControl']['review_type']) ] =  '/InventoryManagement/SpecimenReviews/add/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$review_control['SpecimenReviewControl']['id'];
-	}
-	ksort($add_links);
+$structureLinks = array(
+    'index' => array(),
+    'bottom' => array()
+);
+$structureLinks['index']['detail'] = '/InventoryManagement/SpecimenReviews/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%SpecimenReviewMaster.id%%';
+$structureLinks['index']['edit'] = '/InventoryManagement/SpecimenReviews/edit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%SpecimenReviewMaster.id%%';
+$structureLinks['index']['delete'] = '/InventoryManagement/SpecimenReviews/delete/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%SpecimenReviewMaster.id%%';
+if (! empty($addLinks)) {
+    $structureLinks['bottom']['add'] = $addLinks;
+}
 
-	$structure_links = array('index'=>array(), 'bottom'=>array());
-	$structure_links['index']['detail'] = '/InventoryManagement/SpecimenReviews/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/%%SpecimenReviewMaster.id%%';
-	if(!empty($add_links))  { $structure_links['bottom']['add'] = $add_links; }
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks
+);
 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index', 'links'=>$structure_links);
-			
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );	
-		
-?>
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
