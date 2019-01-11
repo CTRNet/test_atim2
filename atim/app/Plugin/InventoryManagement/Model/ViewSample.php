@@ -1,36 +1,54 @@
 <?php
 
-class ViewSample extends InventoryManagementAppModel {
-	var $primaryKey = 'sample_master_id';
-	
-	var $base_model = "SampleMaster";
-	var $base_plugin = 'InventoryManagement';
-	
-	var $actsAs = array('MinMax');
-	
-	var $belongsTo = array(
-		'SampleControl' => array(
-			'className'		=> 'InventoryManagement.SampleControl',
-			'foreignKey'	=> 'sample_control_id',
-			'type'			=> 'INNER'),
-		'SampleMaster' => array(
-			'className'		=> 'InventoryManagement.SampleMaster',
-			'foreignKey'	=> 'sample_master_id',
-			'type'			=> 'INNER')
-	);
-	
-	var $hasOne = array(
-		'SpecimenDetail' => array(
-			'className'   => 'InventoryManagement.SpecimenDetail',
-			'foreignKey'  => 'sample_master_id',
-			'dependent' => true),
-		'DerivativeDetail' => array(
-			'className'   => 'InventoryManagement.DerivativeDetail',
-			'foreignKey'  => 'sample_master_id',
-			'dependent' => true)
-	);
-	
-	static $table_query = '
+/**
+ * Class ViewSample
+ */
+class ViewSample extends InventoryManagementAppModel
+{
+
+    public $primaryKey = 'sample_master_id';
+
+    public $baseModel = "SampleMaster";
+
+    public $basePlugin = 'InventoryManagement';
+
+    public $actsAs = array(
+        'MinMax',
+        'OrderByTranslate' => array(
+            'sample_type',
+            'sample_category',
+            'initial_specimen_sample_type',
+            'parent_sample_type'
+        )
+    );
+
+    public $belongsTo = array(
+        'SampleControl' => array(
+            'className' => 'InventoryManagement.SampleControl',
+            'foreignKey' => 'sample_control_id',
+            'type' => 'INNER'
+        ),
+        'SampleMaster' => array(
+            'className' => 'InventoryManagement.SampleMaster',
+            'foreignKey' => 'sample_master_id',
+            'type' => 'INNER'
+        )
+    );
+
+    public $hasOne = array(
+        'SpecimenDetail' => array(
+            'className' => 'InventoryManagement.SpecimenDetail',
+            'foreignKey' => 'sample_master_id',
+            'dependent' => true
+        ),
+        'DerivativeDetail' => array(
+            'className' => 'InventoryManagement.DerivativeDetail',
+            'foreignKey' => 'sample_master_id',
+            'dependent' => true
+        )
+    );
+
+    public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -39,6 +57,7 @@ class ViewSample extends InventoryManagementAppModel {
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
+		Collection.collection_protocol_id AS collection_protocol_id,
 		
 		Participant.participant_identifier, 
 		
@@ -76,29 +95,46 @@ class ViewSample extends InventoryManagementAppModel {
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-	
-	var $fields_replace = null;
-	static $min_value_fields = array('coll_to_creation_spent_time_msg', 'coll_to_rec_spent_time_msg');
-	
-	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
-		if($this->fields_replace == null){
-			$this->fields_replace = array(
-				'coll_to_creation_spent_time_msg' => array(
-					'msg' => array(
-						-1 => __('collection date missing'),
-						-2 => __('spent time cannot be calculated on inaccurate dates'),
-						-3 => __('the collection date is after the derivative creation date')
-					), 'type' => 'spentTime'
-				), 
-				'coll_to_rec_spent_time_msg' => array(
-					'msg' => array(
-						-1 => __('collection date missing'),
-						-2 => __('spent time cannot be calculated on inaccurate dates'),
-						-3 => __('the collection date is after the specimen reception date')
-					), 'type' => 'spentTime'
-				)
-			); 
-		}
-		return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
-	}
+
+    public $fieldsReplace = null;
+
+    public static $minValueFields = array(
+        'coll_to_creation_spent_time_msg',
+        'coll_to_rec_spent_time_msg'
+    );
+
+    /**
+     * ViewSample constructor.
+     *
+     * @param bool $id
+     * @param null $table
+     * @param null $ds
+     * @param null $baseModelName
+     * @param null $detailTable
+     * @param null $previousModel
+     */
+    public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
+    {
+        if ($this->fieldsReplace == null) {
+            $this->fieldsReplace = array(
+                'coll_to_creation_spent_time_msg' => array(
+                    'msg' => array(
+                        - 1 => __('collection date missing'),
+                        - 2 => __('spent time cannot be calculated on inaccurate dates'),
+                        - 3 => __('the collection date is after the derivative creation date')
+                    ),
+                    'type' => 'spentTime'
+                ),
+                'coll_to_rec_spent_time_msg' => array(
+                    'msg' => array(
+                        - 1 => __('collection date missing'),
+                        - 2 => __('spent time cannot be calculated on inaccurate dates'),
+                        - 3 => __('the collection date is after the specimen reception date')
+                    ),
+                    'type' => 'spentTime'
+                )
+            );
+        }
+        return parent::__construct($id, $table, $ds, $baseModelName, $detailTable, $previousModel);
+    }
 }

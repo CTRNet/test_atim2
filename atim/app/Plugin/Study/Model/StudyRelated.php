@@ -1,10 +1,14 @@
 <?php
 
+/**
+ * Class StudyRelated
+ */
 class StudyRelated extends StudyAppModel
 {
-    var $name = 'StudyRelated';
-	var $useTable = 'study_related';
-	
-	var $validate = array();
+
+    public $name = 'StudyRelated';
+
+    public $useTable = 'study_related';
+
+    public $validate = array();
 }
-?>

@@ -2,8 +2,6 @@
 /**
  * XmlTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -15,8 +13,9 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Utility
  * @since         CakePHP(tm) v 1.2.0.5432
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('Xml', 'Utility');
 App::uses('CakeTestModel', 'TestSuite/Fixture');
 
@@ -30,7 +29,7 @@ class XmlArticle extends CakeTestModel {
 /**
  * name property
  *
- * @var string 'Article'
+ * @var string
  */
 	public $name = 'Article';
 
@@ -57,7 +56,7 @@ class XmlUser extends CakeTestModel {
 /**
  * name property
  *
- * @var string 'User'
+ * @var string
  */
 	public $name = 'User';
 
@@ -83,7 +82,7 @@ class XmlTest extends CakeTestCase {
 /**
  * autoFixtures property
  *
- * @var bool false
+ * @var bool
  */
 	public $autoFixtures = false;
 
@@ -169,6 +168,40 @@ class XmlTest extends CakeTestCase {
 	}
 
 /**
+ * test build() method with huge option
+ *
+ * @return void
+ */
+	public function testBuildHuge() {
+		$xml = '<tag>value</tag>';
+		$obj = Xml::build($xml, array('parseHuge' => true));
+		$this->assertEquals('tag', $obj->getName());
+		$this->assertEquals('value', (string)$obj);
+	}
+
+/**
+ * Test that the readFile option disables local file parsing.
+ *
+ * @expectedException XmlException
+ * @return void
+ */
+	public function testBuildFromFileWhenDisabled() {
+		$xml = CAKE . 'Test' . DS . 'Fixture' . DS . 'sample.xml';
+		Xml::build($xml, array('readFile' => false));
+	}
+
+/**
+ * Test that the readFile option disables local file parsing.
+ *
+ * @expectedException XmlException
+ * @return void
+ */
+	public function testBuildFromUrlWhenDisabled() {
+		$xml = 'http://www.google.com';
+		Xml::build($xml, array('readFile' => false));
+	}
+
+/**
  * data provider function for testBuildInvalidData
  *
  * @return array
@@ -201,13 +234,13 @@ class XmlTest extends CakeTestCase {
  */
 	public function testBuildInvalidDataSimpleXml() {
 		$input = '<derp';
-		$xml = Xml::build($input, array('return' => 'simplexml'));
+		Xml::build($input, array('return' => 'simplexml'));
 	}
 
 /**
  * test build with a single empty tag
  *
- * return void
+ * @return void
  */
 	public function testBuildEmptyTag() {
 		try {
@@ -374,7 +407,14 @@ XML;
 		$obj = Xml::fromArray($xml, 'attributes');
 		$xmlText = '<' . '?xml version="1.0" encoding="UTF-8"?><tags><tag id="1">defect</tag></tags>';
 		$this->assertXmlStringEqualsXmlString($xmlText, $obj->asXML());
+	}
 
+/**
+ * Test fromArray() with zero values.
+ *
+ * @return void
+ */
+	public function testFromArrayZeroValue() {
 		$xml = array(
 			'tag' => array(
 				'@' => 0,
@@ -385,6 +425,16 @@ XML;
 		$xmlText = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <tag test="A test">0</tag>
+XML;
+		$this->assertXmlStringEqualsXmlString($xmlText, $obj->asXML());
+
+		$xml = array(
+			'tag' => array('0')
+		);
+		$obj = Xml::fromArray($xml);
+		$xmlText = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<tag>0</tag>
 XML;
 		$this->assertXmlStringEqualsXmlString($xmlText, $obj->asXML());
 	}
@@ -453,7 +503,7 @@ XML;
 
 XML;
 		$xmlResponse = Xml::fromArray($xml, array('pretty' => false));
-		$this->assertEquals($expected, $xmlResponse->asXML());
+		$this->assertTextEquals($expected, $xmlResponse->asXML());
 
 		$expected = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -470,7 +520,7 @@ XML;
 
 XML;
 		$xmlResponse = Xml::fromArray($xml, array('pretty' => true));
-		$this->assertEquals($expected, $xmlResponse->asXML());
+		$this->assertTextEquals($expected, $xmlResponse->asXML());
 
 				$xml = array(
 			'tags' => array(
@@ -493,7 +543,7 @@ XML;
 
 XML;
 		$xmlResponse = Xml::fromArray($xml, array('pretty' => false, 'format' => 'attributes'));
-		$this->assertEquals($expected, $xmlResponse->asXML());
+		$this->assertTextEquals($expected, $xmlResponse->asXML());
 
 		$expected = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -504,7 +554,7 @@ XML;
 
 XML;
 		$xmlResponse = Xml::fromArray($xml, array('pretty' => true, 'format' => 'attributes'));
-		$this->assertEquals($expected, $xmlResponse->asXML());
+		$this->assertTextEquals($expected, $xmlResponse->asXML());
 	}
 
 /**
@@ -554,6 +604,7 @@ XML;
  * testFromArrayFail method
  *
  * @dataProvider invalidArrayDataProvider
+ * @return void
  */
 	public function testFromArrayFail($value) {
 		try {
@@ -783,7 +834,7 @@ XML;
 			'pubDate' => 'Tue, 31 Aug 2010 01:42:00 -0500',
 			'guid' => 'http://bakery.cakephp.org/articles/view/alertpay-automated-sales-via-ipn'
 		);
-		$this->assertSame($rssAsArray['rss']['channel']['item'][1], $expected);
+		$this->assertSame($expected, $rssAsArray['rss']['channel']['item'][1]);
 
 		$rss = array(
 			'rss' => array(
@@ -849,7 +900,7 @@ XML;
 				'params' => ''
 			)
 		);
-		$this->assertSame(Xml::toArray($xml), $expected);
+		$this->assertSame($expected, Xml::toArray($xml));
 
 		$xml = Xml::build('<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>12</int></value><value><string>Egypt</string></value><value><boolean>0</boolean></value><value><int>-31</int></value></data></array></value></param></params></methodCall>');
 		$expected = array(
@@ -873,7 +924,7 @@ XML;
 				)
 			)
 		);
-		$this->assertSame(Xml::toArray($xml), $expected);
+		$this->assertSame($expected, Xml::toArray($xml));
 
 		$xmlText = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -915,7 +966,7 @@ XML;
 				)
 			)
 		);
-		$this->assertSame(Xml::toArray($xml), $expected);
+		$this->assertSame($expected, Xml::toArray($xml));
 
 		$xml = Xml::fromArray($expected, 'tags');
 		$this->assertXmlStringEqualsXmlString($xmlText, $xml->asXML());
@@ -1039,7 +1090,7 @@ XML;
 		);
 		$expected = '<' . '?xml version="1.0" encoding="UTF-8"?><root><ns:attr xmlns:ns="http://cakephp.org">1</ns:attr></root>';
 		$xmlResponse = Xml::fromArray($xml);
-		$this->assertEquals(str_replace(array("\r", "\n"), '', $xmlResponse->asXML()), $expected);
+		$this->assertEquals($expected, str_replace(array("\r", "\n"), '', $xmlResponse->asXML()));
 
 		$xml = array(
 			'root' => array(
@@ -1124,6 +1175,7 @@ XML;
  *
  * @dataProvider invalidToArrayDataProvider
  * @expectedException XmlException
+ * @return void
  */
 	public function testToArrayFail($value) {
 		Xml::toArray($value);

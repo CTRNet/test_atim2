@@ -2,8 +2,6 @@
 /**
  * TimeHelperTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -15,14 +13,17 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.View.Helper
  * @since         CakePHP(tm) v 1.2.0.4206
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('TimeHelper', 'View/Helper');
 App::uses('View', 'View');
 App::uses('CakeTime', 'Utility');
 
 /**
  * TimeHelperTestObject class
+ *
+ * @package       Cake.Test.Case.View.Helper
  */
 class TimeHelperTestObject extends TimeHelper {
 
@@ -38,6 +39,8 @@ class TimeHelperTestObject extends TimeHelper {
 
 /**
  * CakeTimeMock class
+ *
+ * @package       Cake.Test.Case.View.Helper
  */
 class CakeTimeMock {
 }
@@ -75,6 +78,8 @@ class TimeHelperTest extends CakeTestCase {
 
 /**
  * test CakeTime class methods are called correctly
+ *
+ * @return void
  */
 	public function testTimeHelperProxyMethodCalls() {
 		$methods = array(
@@ -101,6 +106,8 @@ class TimeHelperTest extends CakeTestCase {
 
 /**
  * test engine override
+ *
+ * @return void
  */
 	public function testEngineOverride() {
 		App::build(array(
@@ -168,7 +175,7 @@ class TimeHelperTest extends CakeTestCase {
 				'title' => $timestamp,
 				'class' => 'time-ago-in-words'
 			),
-			'2 weeks',
+			'in 2 weeks',
 			'/div'
 		);
 		$this->assertTags($result, $expected);

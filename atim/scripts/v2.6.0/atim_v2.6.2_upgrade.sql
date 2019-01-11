@@ -11,7 +11,7 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('viability (%)', '', 'Viability (&#37;)', 'Viabilit� (&#37;)'),
+('viability (%)', '', 'Viability (&#37;)', 'Viabilité (&#37;)'),
 ('in situ percentage', '', 'IS&#37;', 'IS&#37;'),
 ('invasive percentage', '', 'INV&#37;', 'INV&#37;'),
 ('necrosis inv percentage', '', 'Nec &#37; INV', 'Nec &#37; INV'),

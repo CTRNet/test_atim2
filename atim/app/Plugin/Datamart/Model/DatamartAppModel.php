@@ -1,98 +1,116 @@
 <?php
 
-class DatamartAppModel extends AppModel {
-	/**
-	 * Builds the action dropdown actions
-	 * @param string $plugin
-	 * @param string $model_name The model to use to fetch the data
-	 * @param string $model_pkey The key to use to fetch the data
-	 * @param string $structure_alias The structure to render the data
-	 * @param string $data_model The model to look for in the data array (for csv linking)
-	 * @param string $data_pkey The pkey to look for in the data array (for csv linking)
-	 * @param int $batch_set_id The id of the current batch set
-	 * @param boolean $add_csv_action Flag to add csv action (set to true by default)
-	 */	
-	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey, $batch_set_id = null, $add_csv_action = true){
-		$batch_set_model = AppModel::getInstance("Datamart", "BatchSet", true);
-		$datamart_structure_model = AppModel::getInstance("Datamart", "DatamartStructure", true);
-		$datamart_structure_id = $datamart_structure_model->getIdByModelName($data_model); 
-		$compatible_batch_sets = $batch_set_model->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id, $batch_set_id);
-		$batch_set_menu[] = array(
-			'value' => '0',
-			'label' => __('create batchset'),
-			'value' => 'Datamart/BatchSets/add/'
-		);
-		$add_to_batch_set_menu = array();
-		$compare_to_batch_set_menu = array();
-		foreach($compatible_batch_sets as $batch_set){
-			$batch_set_label = $batch_set_model->getBatchSetLabel($batch_set['BatchSet']);
-			$add_to_batch_set_menu[] = array(
-				'value' => '0',
-				'label' => $batch_set_label,
-				'value' => 'Datamart/BatchSets/add/'.$batch_set['BatchSet']['id']
-			);
-			$compare_to_batch_set_menu[] = array(
-				'value' => '0',
-				'label' => $batch_set_label,
-				'value' => 'Datamart/Reports/compareToBatchSetOrNode/batchset/'.$batch_set['BatchSet']['id']
-			);
-		}
-		$batch_set_menu[] = array(
-			'value' => '0',
-			'label' => __('add to compatible batchset'),
-			'children' => $add_to_batch_set_menu
-		);
-		$batch_set_menu[] = array(
-				'value' => '0',
-				'label' => __('compare to compatible batchset'),
-				'children' => $compare_to_batch_set_menu
-		);
-		
-		$result = array();
-		$result[] = array(
-			'value' => '0',
-			'label' => __('batchset'),
-			'children' => $batch_set_menu
-		);
-		
-		$structure_functions = AppModel::getInstance("Datamart", "DatamartStructureFunction", true);
-		$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $datamart_structure_id, 'DatamartStructureFunction.flag_active' => true)));
-		if(count($functions)){
-			$functions_menu = array();
-			foreach($functions as $function){
-				if(AppController::checkLinkPermission($function['DatamartStructureFunction']['link'])){
-					$functions_menu[] = array(
-						'value' 	=> '0',
-						'label' 	=> __($function['DatamartStructureFunction']['label']),
-						'value'		=> substr($function['DatamartStructureFunction']['link'], 1)
-					);
-				}
-			}
-			if($functions_menu){
-				$result[] = array(
-					'value' => '0',
-					'label' => __('batch actions / reports'),
-					'children' => $functions_menu
-				);
-			}
-		}
-		if($add_csv_action) {
-			$csv_action = 'Datamart/Csv/csv/%d/plugin:'.$plugin_name.'/model:'.$model_name.'/modelPkey:'.$model_pkey.'/structure:'.$structure_name.'/';
-			if(strlen($data_model)){
-				$csv_action .= 'dataModel:'.$data_model.'/';
-				if(strlen($data_pkey)){
-					$csv_action .= 'dataPkey:'.$data_pkey.'/';
-				}
-			}
-			$csv_action = "javascript:setCsvPopup('$csv_action');";
-			$result[] = array(
-				'value' => '0',
-				'label' => __('export as CSV file (comma-separated values)'),
-				'value' => sprintf($csv_action, 0)
-			);
-		}		
-		return $result;
-	}
-}
+/**
+ * Class DatamartAppModel
+ */
+class DatamartAppModel extends AppModel
+{
 
-?>
+    /**
+     * Builds the action dropdown actions
+     *
+     * @param $pluginName
+     * @param string $modelName The model to use to fetch the data
+     * @param string $modelPkey The key to use to fetch the data
+     * @param $structureName
+     * @param string $dataModel The model to look for in the data array (for csv linking)
+     * @param string $dataPkey The pkey to look for in the data array (for csv linking)
+     * @param int $batchSetId The id of the current batch set
+     * @param boolean $addCsvAction Flag to add csv action (set to true by default)
+     * @return array
+     * @internal param string $plugin
+     * @internal param string $structureAlias The structure to render the data* The structure to render the data
+     */
+    public function getDropdownOptions($pluginName, $modelName, $modelPkey, $structureName, $dataModel, $dataPkey, $batchSetId = null, $addCsvAction = true)
+    {
+        $batchSetModel = AppModel::getInstance("Datamart", "BatchSet", true);
+        $datamartStructureModel = AppModel::getInstance("Datamart", "DatamartStructure", true);
+        $datamartStructureId = $datamartStructureModel->getIdByModelName($dataModel);
+        $compatibleBatchSets = $batchSetModel->getCompatibleBatchSets($pluginName, $modelName, $datamartStructureId, $batchSetId);
+        $batchSetMenu[] = array(
+            'value' => '0',
+            'label' => __('create batchset'),
+            'value' => 'Datamart/BatchSets/add/'
+        );
+        $addToBatchSetMenu = array();
+        $compareToBatchSetMenu = array();
+        foreach ($compatibleBatchSets as $batchSet) {
+            $batchSetLabel = str_replace(array(
+                '  ',
+                "\t",
+                "\n",
+                "\r"
+            ), ' ', $batchSetModel->getBatchSetLabel($batchSet['BatchSet']));
+            $addToBatchSetMenu[] = array(
+                'value' => '0',
+                'label' => $batchSetLabel,
+                'value' => 'Datamart/BatchSets/add/' . $batchSet['BatchSet']['id']
+            );
+            $compareToBatchSetMenu[] = array(
+                'value' => '0',
+                'label' => $batchSetLabel,
+                'value' => 'Datamart/Reports/compareToBatchSetOrNode/batchset/' . $batchSet['BatchSet']['id']
+            );
+        }
+        $batchSetMenu[] = array(
+            'value' => '0',
+            'label' => __('add to compatible batchset'),
+            'children' => $addToBatchSetMenu
+        );
+        $batchSetMenu[] = array(
+            'value' => '0',
+            'label' => __('compare to compatible batchset'),
+            'children' => $compareToBatchSetMenu
+        );
+        
+        $result = array();
+        $result[] = array(
+            'value' => '0',
+            'label' => __('batchset'),
+            'children' => $batchSetMenu
+        );
+        
+        $structureFunctions = AppModel::getInstance("Datamart", "DatamartStructureFunction", true);
+        $functions = $structureFunctions->find('all', array(
+            'conditions' => array(
+                'DatamartStructureFunction.datamart_structure_id' => $datamartStructureId,
+                'DatamartStructureFunction.flag_active' => true
+            )
+        ));
+        if (count($functions)) {
+            $functionsMenu = array();
+            foreach ($functions as $function) {
+                if (AppController::checkLinkPermission($function['DatamartStructureFunction']['link'])) {
+                    $functionsMenu[] = array(
+                        'value' => '0',
+                        'label' => __($function['DatamartStructureFunction']['label']),
+                        'value' => substr($function['DatamartStructureFunction']['link'], 1)
+                    );
+                }
+            }
+            if ($functionsMenu) {
+                $result[] = array(
+                    'value' => '0',
+                    'label' => __('batch actions / reports'),
+                    'children' => $functionsMenu
+                );
+            }
+        }
+        if ($addCsvAction) {
+            $csvAction = 'Datamart/Csv/csv/%d/plugin:' . $pluginName . '/model:' . $modelName . '/modelPkey:' . $modelPkey . '/structure:' . $structureName . '/';
+            if (strlen($dataModel)) {
+                $csvAction .= 'dataModel:' . $dataModel . '/';
+                if (strlen($dataPkey)) {
+                    $csvAction .= 'dataPkey:' . $dataPkey . '/';
+                }
+            }
+            $csvAction = "javascript:setCsvPopup('$csvAction');";
+            $result[] = array(
+                'value' => '0',
+                'label' => __('export as CSV file (comma-separated values)'),
+                'value' => sprintf($csvAction, 0)
+            );
+        }
+        return $result;
+    }
+}

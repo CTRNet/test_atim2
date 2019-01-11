@@ -1,57 +1,71 @@
 <?php
 $options = array();
-$secondary_ctrl_id = array();
-AppController::$highlight_missing_translations = false;
-if(AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/')){
-	$current = array();
-	foreach($diagnosis_controls_list as $dx_ctrl){
-		if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
-			$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);
-			if($dx_ctrl['DiagnosisControl']['category'] == 'secondary'){
-				$secondary_ctrl_id[] = $dx_ctrl['DiagnosisControl']['id'];
-			}
-		}
-	}
-	natcasesort($current);
-	$options[] = array('grpName' => __('diagnosis'), 'data' => $current, 'link' => 'ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/');
+$secondaryCtrlId = array();
+AppController::$highlightMissingTranslations = false;
+if (AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/')) {
+    $current = array();
+    foreach ($diagnosisControlsList as $dxCtrl) {
+        if ($dxCtrl['DiagnosisControl']['category'] != 'primary') {
+            $current[$dxCtrl['DiagnosisControl']['id']] = __($dxCtrl['DiagnosisControl']['category']) . ' - ' . __($dxCtrl['DiagnosisControl']['controls_type']);
+            if ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant') {
+                $secondaryCtrlId[] = $dxCtrl['DiagnosisControl']['id'];
+            }
+        }
+    }
+    natcasesort($current);
+    $options[] = array(
+        'grpName' => __('diagnosis'),
+        'data' => $current,
+        'link' => 'ClinicalAnnotation/DiagnosisMasters/add/' . $atimMenuVariables['Participant.id'] . '/'
+    );
 }
-if(AppController::checkLinkPermission('ClinicalAnnotation/TreatmentMasters/add/')){
-	$current = array();
-	foreach($treatment_controls_list as $tx_ctrl){
-		$current[$tx_ctrl['TreatmentControl']['id']] = __($tx_ctrl['TreatmentControl']['tx_method']) . (empty($tx_ctrl['TreatmentControl']['disease_site'])? '' : ' - '.__($tx_ctrl['TreatmentControl']['disease_site']));
-	}
-	natcasesort($current);
-	$options[] = array('grpName' => __('treatment'), 'data' => $current, 'link' => 'ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/');
+if (AppController::checkLinkPermission('ClinicalAnnotation/TreatmentMasters/add/')) {
+    $current = array();
+    foreach ($treatmentControlsList as $txCtrl) {
+        $current[$txCtrl['TreatmentControl']['id']] = __($txCtrl['TreatmentControl']['tx_method']) . (empty($txCtrl['TreatmentControl']['disease_site']) ? '' : ' - ' . __($txCtrl['TreatmentControl']['disease_site']));
+    }
+    natcasesort($current);
+    $options[] = array(
+        'grpName' => __('treatment'),
+        'data' => $current,
+        'link' => 'ClinicalAnnotation/TreatmentMasters/add/' . $atimMenuVariables['Participant.id'] . '/'
+    );
 }
-if(AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')){
-	$current = array();
-	foreach($event_controls_list as $event_ctrl){
-		$current[$event_ctrl['EventControl']['event_group']][$event_ctrl['EventControl']['id']] = __($event_ctrl['EventControl']['event_type']).(empty($event_ctrl['EventControl']['disease_site'])? '' : ' - '. __($event_ctrl['EventControl']['disease_site']));
-	}
-	ksort($current);
-	foreach($current as $group_name => $grp_options){
-		natcasesort($grp_options);
-		$options[] = array('grpName' => __('event').' - '.__($group_name), 'data' => $grp_options, 'link' => 'ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/');
-	}
+if (AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')) {
+    $current = array();
+    foreach ($eventControlsList as $eventCtrl) {
+        $current[$eventCtrl['EventControl']['event_group']][$eventCtrl['EventControl']['id']] = __($eventCtrl['EventControl']['event_type']) . (empty($eventCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($eventCtrl['EventControl']['disease_site']));
+    }
+    ksort($current);
+    foreach ($current as $groupName => $grpOptions) {
+        natcasesort($grpOptions);
+        $options[] = array(
+            'grpName' => __('event') . ' - ' . __($groupName),
+            'data' => $grpOptions,
+            'link' => 'ClinicalAnnotation/EventMasters/add/' . $atimMenuVariables['Participant.id'] . '/'
+        );
+    }
 }
-AppController::$highlight_missing_translations = true;
+AppController::$highlightMissingTranslations = true;
 
-$hook_link = $this->Structures->hook('after_ids_groups');
-if( $hook_link ) {
-	require($hook_link);
+$hookLink = $this->Structures->hook('after_ids_groups');
+if ($hookLink) {
+    require ($hookLink);
 }
 ?>
-		<div id="popupSelect" class="hidden">
+<div id="popupSelect" class="hidden">
 			<?php
-			echo $this->Form->input("data[DiagnosisControl][id]", array('type' => 'select', 'label' => false, 'options' => array())); 
-			?>
+echo $this->Form->input("data[DiagnosisControl][id]", array(
+    'type' => 'select',
+    'label' => false,
+    'options' => array()
+));
+?>
 		</div>
-		
-		
-		<script>
-		var canHaveChild = [<?php echo implode(", ", $can_have_child); ?>];
+<script>
+		var canHaveChild = [<?php echo implode(", ", $canHaveChild); ?>];
 		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
-		var secondaryCtrlId = [<?php echo implode(", ", $secondary_ctrl_id); ?>];
+		var secondaryCtrlId = [<?php echo implode(", ", $secondaryCtrlId); ?>];
 
 		function addPopup(diagnosisMasterId, diagnosisControlId){
 			if($("#addPopup").length == 0){
@@ -104,4 +118,4 @@ if( $hook_link ) {
 			dropdownOptions = $.parseJSON(dropdownOptions);
 			initTree($("body"));
 		}
-		</script>
+</script>

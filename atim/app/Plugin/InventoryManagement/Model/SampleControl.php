@@ -1,129 +1,188 @@
 <?php
 
-class SampleControl extends InventoryManagementAppModel {
-	
-	var $master_form_alias = 'sample_masters';
+/**
+ * Class SampleControl
+ */
+class SampleControl extends InventoryManagementAppModel
+{
 
- 	/**
-	 * Get permissible values array gathering all existing sample types.
-	 * 
-	 * @author N. Luc
-	 * @since 2010-05-26
-	 * @updated N. Luc
-	 */  	
-	function getSampleTypePermissibleValuesFromId() {		
-		return $this->getSamplesPermissibleValues(true, false);
-	}
+    public $masterFormAlias = 'sample_masters';
 
-	function getParentSampleTypePermissibleValuesFromId() {		
-		return $this->getSamplesPermissibleValues(true, false, false);
-	}
-	
- 	/**
-	 * Get permissible values array gathering all existing sample types.
-	 *
-	 * @author N. Luc
-	 * @since 2010-05-26
-	 * @updated N. Luc
-	 */  	
-	function getSampleTypePermissibleValues() {
-		return $this->getSamplesPermissibleValues(false, false);
-	}
-	
-	function getParentSampleTypePermissibleValues() {
-		return $this->getSamplesPermissibleValues(false, false, false);
-	}
-	
- 	/**
-	 * Get permissible values array gathering all existing specimen sample types.
-	 *
-	 * @author N. Luc
-	 * @since 2010-05-26
-	 * @updated N. Luc
-	 */  	
-	function getSpecimenSampleTypePermissibleValues() {		
-		return $this->getSamplesPermissibleValues(false, true);
-	}
-	
- 	/**
-	 * Get permissible values array gathering all existing specimen sample types.
-	 *
-	 * @author N. Luc
-	 * @since 2010-05-26
-	 * @updated N. Luc
-	 */  	
-	function getSpecimenSampleTypePermissibleValuesFromId() {		
-		return $this->getSamplesPermissibleValues(true, true);
-	}
-	
-	function getSamplesPermissibleValues($by_id, $only_specimen, $dont_limit_to_samples_that_can_be_parents = true){
-		$result = array();
-		
-		// Build tmp array to sort according translation
-		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
-		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
-		if($only_specimen){
-			$conditions['DerivativeControl.sample_category'] = 'specimen';
-		}
-		$controls = null;
-		$model_name = null;
-		if($dont_limit_to_samples_that_can_be_parents){
-			$model_name = 'DerivativeControl';
-			$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
-		}else{
-			$model_name = 'ParentSampleControl';
-			$conditions['NOT'] = array('ParentToDerivativeSampleControl.parent_sample_control_id' => NULL);
-			$controls = $this->ParentToDerivativeSampleControl->find('all', array(
-				'conditions' => $conditions,
-				'fields' => array('ParentSampleControl.id', 'ParentSampleControl.sample_type'))
-			);
-		}
-		
-		if($by_id){
-			foreach($controls as $control){
-				$result[$control[$model_name]['id']] = __($control[$model_name]['sample_type']);
-			}
-		}else{
-			foreach($controls as $control){
-				$result[$control[$model_name]['sample_type']] = __($control[$model_name]['sample_type']);
-			}
-		}
-		natcasesort($result);
-		
-		return $result;
-	}
-	
-	/**
-	 * Gets a list of sample types that could be created from a sample type.
-	 *
-	 * @param $sample_control_id ID of the sample control linked to the studied sample.
-	 * 
-	 * @return List of allowed aliquot types stored into the following array:
-	 * 	array('aliquot_control_id' => 'aliquot_type')
-	 * 
-	 * @author N. Luc
-	 * @since 2009-11-01
-	 * @author FMLH 2010-08-04 (new flag_active policy)
-	 */
-	function getPermissibleSamplesArray($parent_id){
-		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
-		if($parent_id == null){
-			$conditions[] = 'ParentToDerivativeSampleControl.parent_sample_control_id IS NULL';
-		}else{
-			$conditions['ParentToDerivativeSampleControl.parent_sample_control_id'] = $parent_id;
-		}
-		
-		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
-		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
-		$specimen_sample_controls_list = array();
-		foreach($controls as $control){
-			$specimen_sample_controls_list[$control['DerivativeControl']['id']]['SampleControl'] = $control['DerivativeControl'];	
-		}
-		return $specimen_sample_controls_list;
-	}
-	
-	function afterFind($results, $primary = false) {
-		return $this->applyMasterFormAlias($results, $primary);
-	}
-	
+    public $actsAs = array(
+        'OrderByTranslate' => array(
+            'sample_type',
+            'sample_category'
+        )
+    );
+
+    /**
+     * Get permissible values array gathering all existing sample types.
+     *
+     * @author N. Luc
+     * @since 2010-05-26
+     *        @updated N. Luc
+     */
+    public function getSampleTypePermissibleValuesFromId()
+    {
+        return $this->getSamplesPermissibleValues(true, false);
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getParentSampleTypePermissibleValuesFromId()
+    {
+        return $this->getSamplesPermissibleValues(true, false, false);
+    }
+
+    /**
+     * Get permissible values array gathering all existing sample types.
+     *
+     * @author N. Luc
+     * @since 2010-05-26
+     *        @updated N. Luc
+     */
+    public function getSampleTypePermissibleValues()
+    {
+        return $this->getSamplesPermissibleValues(false, false);
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getParentSampleTypePermissibleValues()
+    {
+        return $this->getSamplesPermissibleValues(false, false, false);
+    }
+
+    /**
+     * Get permissible values array gathering all existing specimen sample types.
+     *
+     * @author N. Luc
+     * @since 2010-05-26
+     *        @updated N. Luc
+     */
+    public function getSpecimenSampleTypePermissibleValues()
+    {
+        return $this->getSamplesPermissibleValues(false, true);
+    }
+
+    /**
+     * Get permissible values array gathering all existing specimen sample types.
+     *
+     * @author N. Luc
+     * @since 2010-05-26
+     *        @updated N. Luc
+     */
+    public function getSpecimenSampleTypePermissibleValuesFromId()
+    {
+        return $this->getSamplesPermissibleValues(true, true);
+    }
+
+    /**
+     *
+     * @param $byId
+     * @param $onlySpecimen
+     * @param bool $dontLimitToSamplesThatCanBeParents
+     * @return array
+     */
+    public function getSamplesPermissibleValues($byId, $onlySpecimen, $dontLimitToSamplesThatCanBeParents = true)
+    {
+        $result = array();
+        
+        // Build tmp array to sort according translation
+        $this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+        $conditions = array(
+            'ParentToDerivativeSampleControl.flag_active' => true
+        );
+        if ($onlySpecimen) {
+            $conditions['DerivativeControl.sample_category'] = 'specimen';
+        }
+        $controls = null;
+        $modelName = null;
+        if ($dontLimitToSamplesThatCanBeParents) {
+            $modelName = 'DerivativeControl';
+            $controls = $this->ParentToDerivativeSampleControl->find('all', array(
+                'conditions' => $conditions,
+                'fields' => array(
+                    'DerivativeControl.*'
+                )
+            ));
+        } else {
+            $modelName = 'ParentSampleControl';
+            $conditions['NOT'] = array(
+                'ParentToDerivativeSampleControl.parent_sample_control_id' => null
+            );
+            $controls = $this->ParentToDerivativeSampleControl->find('all', array(
+                'conditions' => $conditions,
+                'fields' => array(
+                    'ParentSampleControl.id',
+                    'ParentSampleControl.sample_type'
+                )
+            ));
+        }
+        
+        if ($byId) {
+            foreach ($controls as $control) {
+                $result[$control[$modelName]['id']] = __($control[$modelName]['sample_type']);
+            }
+        } else {
+            foreach ($controls as $control) {
+                $result[$control[$modelName]['sample_type']] = __($control[$modelName]['sample_type']);
+            }
+        }
+        natcasesort($result);
+        
+        return $result;
+    }
+
+    /**
+     * Gets a list of sample types that could be created from a sample type.
+     *
+     * @param $parentId
+     * @return List of allowed aliquot types stored into the following array:
+     *         array('aliquot_control_id' => 'aliquot_type')
+     * @internal param ID $sampleControlId of the sample control linked to the studied sample.* of the sample control linked to the studied sample.
+     *          
+     * @author N. Luc
+     * @since 2009-11-01
+     * @author FMLH 2010-08-04 (new flag_active policy)
+     */
+    public function getPermissibleSamplesArray($parentId)
+    {
+        $conditions = array(
+            'ParentToDerivativeSampleControl.flag_active' => true
+        );
+        if ($parentId == null) {
+            $conditions[] = 'ParentToDerivativeSampleControl.parent_sample_control_id IS NULL';
+        } else {
+            $conditions['ParentToDerivativeSampleControl.parent_sample_control_id'] = $parentId;
+        }
+        
+        $this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+        $controls = $this->ParentToDerivativeSampleControl->find('all', array(
+            'conditions' => $conditions,
+            'fields' => array(
+                'DerivativeControl.*'
+            )
+        ));
+        $specimenSampleControlsList = array();
+        foreach ($controls as $control) {
+            $specimenSampleControlsList[$control['DerivativeControl']['id']]['SampleControl'] = $control['DerivativeControl'];
+        }
+        return $specimenSampleControlsList;
+    }
+
+    /**
+     *
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
+    public function afterFind($results, $primary = false)
+    {
+        return $this->applyMasterFormAlias($results, $primary);
+    }
 }

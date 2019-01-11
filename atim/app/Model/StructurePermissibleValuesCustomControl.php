@@ -1,6 +1,10 @@
 <?php
-class StructurePermissibleValuesCustomControl extends AppModel {
 
-	var $name = 'StructurePermissibleValuesCustomControl';
-	
+/**
+ * Class StructurePermissibleValuesCustomControl
+ */
+class StructurePermissibleValuesCustomControl extends AppModel
+{
+
+    public $name = 'StructurePermissibleValuesCustomControl';
 }

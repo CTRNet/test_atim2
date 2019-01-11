@@ -1,4 +1,10 @@
 <?php
-class DatamartStructureFunction extends DatamartAppModel {
-	var $useTable = 'datamart_structure_functions';
+
+/**
+ * Class DatamartStructureFunction
+ */
+class DatamartStructureFunction extends DatamartAppModel
+{
+
+    public $useTable = 'datamart_structure_functions';
 }
