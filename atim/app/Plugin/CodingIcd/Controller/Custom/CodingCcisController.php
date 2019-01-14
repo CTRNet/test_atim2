@@ -1,39 +1,45 @@
 <?php
 
-class CodingCcisControllerCustom extends CodingCcisController{
+class CodingCcisControllerCustom extends CodingCcisController
+{
 
-	var $uses = array("CodingIcd.CodingCci", "CodingIcd.CodingIcd10Ca"); 
-	/* 
-		Forms Helper appends a "tool" link to the "add" and "edit" form types
-		Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
-	*/
-	
-	function tool($use_icd_type){
-		parent::tool();
-		$this->set("use_icd_type", $use_icd_type);
-	}
+    var $uses = array(
+        "CodingIcd.CodingCci",
+        "CodingIcd.CodingIcd10Ca"
+    );
 
-	function search($use_icd_type = "cci", $is_tool = true){
-		parent::globalSearch($is_tool, $this->getCciType($use_icd_type));
-		$this->set("use_icd_type", $use_icd_type);
-	}
-	
-	function autocomplete($use_icd_type = "cci"){
-		parent::globalAutocomplete($this->getCciType($use_icd_type));
-	}
-	
-	function getCciType($icd_type_name){
-		$model_to_use = null;
-		if($icd_type_name == "cci"){
-			$model_to_use = $this->CodingCci;
-		}else if($icd_type_name == "ca"){
-			$model_to_use = $this->CodingIcd10Ca;
-		}else{
-			$this->CodingIcd9->validationErrors[] = __("invalid model for icd9s search [".$icd_type_name."]", true);
-			$model_to_use = $this->CodingIcd10Who;
-		}
-		return $model_to_use;
-	}
+    /*
+     * Forms Helper appends a "tool" link to the "add" and "edit" form types
+     * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
+     */
+    public function tool($useIcdType)
+    {
+        parent::tool();
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    public function search($useIcdType = "cci", $isTool = true)
+    {
+        parent::globalSearch($isTool, $this->getCciType($useIcdType));
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    public function autocomplete($useIcdType = "cci")
+    {
+        parent::globalAutocomplete($this->getCciType($useIcdType));
+    }
+
+    public function getCciType($icdTypeName)
+    {
+        $modelToUse = null;
+        if ($icdTypeName == "cci") {
+            $modelToUse = $this->CodingCci;
+        } elseif ($icdTypeName == "ca") {
+            $modelToUse = $this->CodingIcd10Ca;
+        } else {
+            $this->CodingIcd9->validationErrors[] = __("invalid model for icd9s search [" . $icdTypeName . "]", true);
+            $modelToUse = $this->CodingIcd10Who;
+        }
+        return $modelToUse;
+    }
 }
-
-?>

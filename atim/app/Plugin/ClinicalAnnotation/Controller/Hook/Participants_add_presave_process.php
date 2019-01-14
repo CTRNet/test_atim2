@@ -1,22 +1,19 @@
 <?php
+$endDate = $this->request->data['Participant']['date_of_death'];
+echo $endDate;
 
-         $end_date=   $this->request->data['Participant']['date_of_death'];  
-         echo $end_date;
+$startDate = $this->request->data['Participant']['date_of_birth'];
+echo $startDate;
 
-         $start_date= $this->request->data['Participant']['date_of_birth'];
-         echo $start_date;
+$startYear = $startDate['year'];
+echo $startYear;
 
-         $start_year = $start_date['year'];
-         echo $start_year;
+$endYear = $endDate['year'];
+echo $endYear;
 
-         $end_year = $end_date['year'];
-         echo $end_year;
+$diffInYrs = ($endYear - $startYear);
+echo $diffInYrs;
 
-         $diff_in_yrs = ($end_year - $start_year);
-         echo $diff_in_yrs;
-
-         if ($diff_in_yrs > 0){
-         $this->request->data['Participant']['time_to_death'] =$diff_in_yrs;
-         }
- 	
-?>
+if ($diffInYrs > 0) {
+    $this->request->data['Participant']['time_to_death'] = $diffInYrs;
+}
