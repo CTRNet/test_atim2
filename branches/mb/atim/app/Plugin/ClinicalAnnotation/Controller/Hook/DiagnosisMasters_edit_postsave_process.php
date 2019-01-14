@@ -1,38 +1,30 @@
 <?php
 
-        // July 25 2018 changed from presave to postave hook to acoomodate for missing d or y
-        
-         $end_date=  $dx_master_data['DiagnosisMaster']['dx_date'];
-		 echo $end_date;
-         
-		 // GET PARTICIPANT DATA  
-        	 $this->Participant->id = $participant_id;
-           	 $participant_data = $this->Participant->read();
+// July 25 2018 changed from presave to postave hook to acoomodate for missing d or y
+$endDate = $dxMasterData['DiagnosisMaster']['dx_date'];
+echo $endDate;
 
-         $start_date= $participant_data['Participant']['date_of_birth'];
-         echo $start_date;
-		 
-		 
-		 
-		 		 
-		 $start_dt=date_create($start_date);
-		 $end_dt=date_create($end_date);
-		 
-		 $dtinter=date_diff($start_dt,$end_dt);
-		 
-		 
-		 echo $dtinter->format("%a");
-		 
-         $agedx = floor($dtinter->format("%a")/365.2425);
-         echo $agedx;
+// GET PARTICIPANT DATA
+$this->Participant->id = $participantId;
+$participantData = $this->Participant->read();
 
-         if ($agedx > 0){
-		 
-		 $query_to_update = "UPDATE diagnosis_masters SET diagnosis_masters.age_at_dx = ".$agedx." WHERE ".$diagnosis_master_id."=diagnosis_masters.id";"";
-	     $this->DiagnosisMaster->tryCatchQuery($query_to_update);
-	     $this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
-         }
- 	
+$startDate = $participantData['Participant']['date_of_birth'];
+echo $startDate;
 
- 	
-?>
+$startDt = date_create($startDate);
+$endDt = date_create($endDate);
+
+$dtinter = date_diff($startDt, $endDt);
+
+echo $dtinter->format("%a");
+
+$agedx = floor($dtinter->format("%a") / 365.2425);
+echo $agedx;
+
+if ($agedx > 0) {
+    
+    $queryToUpdate = "UPDATE diagnosis_masters SET diagnosis_masters.age_at_dx = " . $agedx . " WHERE " . $diagnosisMasterId . "=diagnosis_masters.id";
+    "";
+    $this->DiagnosisMaster->tryCatchQuery($queryToUpdate);
+    $this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $queryToUpdate));
+}

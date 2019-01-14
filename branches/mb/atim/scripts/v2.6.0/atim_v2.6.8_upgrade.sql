@@ -1321,9 +1321,9 @@ VALUES
 ('drug is defined as a component of at least one participant treatment','The drug is defined as a component of at least one participant treatment!',"Le médicament est défini comme étant le composant d'au moins un traitement de participant!"),
 ('more than one drug matches the following data [%s]', 'More than one drug matches the value [%s]', "Plus d'un médicament correspond à la valeur [%s]"),
 ('no drug matches the following data [%s]', 'No drug matches the value [%s]', "Aucune médicament ne correspond à la valeur [%s]");
-DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
-DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
-DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail';
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+DELETE FROM structure_fields WHERE structure_value_domain IN (SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- TreatmentExtend Model: Added drug autocomplete field 
@@ -1356,9 +1356,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 FROM structure_formats 
 INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
 WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
-DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
-DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
-DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail';
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+DELETE FROM structure_fields WHERE structure_value_domain IN (SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3209: Added buffy coat
@@ -1437,7 +1437,7 @@ ALTER TABLE `ad_envelopes`
 INSERT INTO sample_controls ( sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label) 
 VALUES
 ('nail', 'specimen','specimens', 'sd_spe_nails', 'nail');
-ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope') NOT NULL COMMENT 'Generic name.';
+ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope','FTA Paper','Oragene tube') NOT NULL COMMENT 'Generic name.';
 INSERT INTO aliquot_controls (sample_control_id,aliquot_type,detail_form_alias,detail_tablename,flag_active,databrowser_label)
 VALUES
 ((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'nail|tube'),
