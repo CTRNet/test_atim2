@@ -111,18 +111,23 @@ class ClinicalAnnotationAppModel extends AppModel
                 $currData = $this->findById($this->id);
                 $this->data = $prevData;
                 $participantId = null;
-                if (isset($currData[$this->name]) && isset($currData[$this->name]['participant_id']))
+                if (isset($currData[$this->name]) && isset($currData[$this->name]['participant_id'])){
                     $participantId = $currData[$this->name]['participant_id'];
+                }
             }
             $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
-            $datamartStructure = $datamartStructureModel->find('first', array(
-                'conditions' => array(
-                    'DatamartStructure.model' => $name
-                )
-            ));
-            if (! $datamartStructure) {
-                AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+
+            if (substr($name, -7)!='Control'){
+                $datamartStructure = $datamartStructureModel->find('first', array(
+                    'conditions' => array(
+                        'DatamartStructure.model' => $name
+                    )
+                ));
+                if (! $datamartStructure) {
+                    AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
             }
+            
             if ($participantId) {
                 $participantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
                 $participantModel->data = array();
