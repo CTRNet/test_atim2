@@ -439,7 +439,7 @@ class AppController extends Controller
     {
         // global $startTime;
         // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
-        if (sizeof(AppController::$missingTranslations) > 0) {
+        if (sizeof(AppController::$missingTranslations) > 0 && Configure::read('debug')==0) {
             App::uses('MissingTranslation', 'Model');
             $mt = new MissingTranslation();
             foreach (AppController::$missingTranslations as $missingTranslation) {
@@ -1552,20 +1552,20 @@ class AppController extends Controller
             $en = $i18nLine[0]['en'];
             $fr = $i18nLine[0]['fr'];
             if (strlen($en) > 1014) {
-                $error = "msgid\t\"$id\"\nen\t\"$en\"\n";
+                $error = "msgid    \"$id\"\nen    \"$en\"\n";
                 $en = substr($en, 0, 1014);
             }
             
             if (strlen($fr) > 1014) {
                 if (strlen($error) > 2) {
-                    $error = "$error\\nmsgstr\t\"$fr\"\n";
+                    $error = "$error\\nmsgstr    \"$fr\"\n";
                 } else {
-                    $error = "msgid\t\"$id\"\nmsgstr=\"$fr\"\n";
+                    $error = "msgid    \"$id\"\nmsgstr=\"$fr\"\n";
                 }
                 $fr = substr($fr, 0, 1014);
             }
-            $english = "msgid\t\"$id\"\nmsgstr\t\"$en\"\n";
-            $french = "msgid\t\"$id\"\nmsgstr\t\"$fr\"\n";
+            $english = "msgid    \"$id\"\nmsgstr   \"$en\"\n";
+            $french = "msgid    \"$id\"\nmsgstr   \"$fr\"\n";
             
             // Writes output to file
             fwrite($filee, $english);

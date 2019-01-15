@@ -1987,6 +1987,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
     flyOverComponents();
     initPostData();
+    if (typeof getI18nVariable !== 'undefined' && getI18nVariable ===true){
+        getI18n();
+    }
 }
 
 function loadClearSearchData()

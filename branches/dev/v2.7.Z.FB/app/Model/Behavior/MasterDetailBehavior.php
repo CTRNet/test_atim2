@@ -256,7 +256,7 @@ class MasterDetailBehavior extends ModelBehavior
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
         extract(AppController::convertArrayKeyFromSnakeToCamel($this->__settings[$model->alias]));
-        if (! $isView && ($isMasterModel || $isControlModel)) {
+        if (! $isView && ($isMasterModel /*|| $isControlModel*/)) {
             // get DETAIL table name and create DETAIL model object
             $associated = $model->find('first', array(
                 'conditions' => array(
