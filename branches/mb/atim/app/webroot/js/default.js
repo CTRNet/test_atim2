@@ -672,7 +672,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     //alternate source for debugging
             source: function(request, response) {
                     $.get(url, request, function(data){
-                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+//                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                    	if (data.indexOf('<div id="ajaxSqlLog"')>-1){
                             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);

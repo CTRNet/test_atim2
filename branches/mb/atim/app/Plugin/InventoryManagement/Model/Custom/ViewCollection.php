@@ -33,8 +33,8 @@ class ViewCollectionCustom extends ViewCollection
         )
     );
 
-    static $tableQuery = '
-		SELECT 
+    public static $tableQuery = '
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -43,6 +43,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -50,24 +51,24 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.banked      AS banked     ,
-		Collection.banked_date AS banked_date,
-		Collection.mb_number   AS mb_number  ,
-		Collection.init_fu     AS init_fu  ,
-		Participant.vital_status AS vital_status,
-        Collection.case_type       	 AS case_type,       
-        Collection.pathnum         	 AS pathnum,         
-        Collection.protected       	 AS protected,       
-        Collection.protected_reason	 AS protected_reason,
-        Collection.array_case      	 AS array_case,      
-        Collection.array           	 AS array,
-        Collection.erlab_tbnumber	 AS erlab_tbnumber,	
-        Collection.arterial	 AS arterial,	
-        Collection.created AS created 
-		FROM collections AS Collection 
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
+Collection.banked      AS banked     ,
+Collection.banked_date AS banked_date,
+Collection.mb_number   AS mb_number  ,
+Collection.init_fu     AS init_fu  ,
+Participant.vital_status AS vital_status,
+Collection.case_type       	 AS case_type,       
+Collection.pathnum         	 AS pathnum,         
+Collection.protected       	 AS protected,       
+Collection.protected_reason	 AS protected_reason,
+Collection.array_case      	 AS array_case,      
+Collection.array           	 AS array,
+Collection.erlab_tbnumber	 AS erlab_tbnumber,	
+Collection.arterial	 AS arterial,
+		Collection.created AS created
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-
+    
     public function summary($variables = array())
     {
         $return = false;
