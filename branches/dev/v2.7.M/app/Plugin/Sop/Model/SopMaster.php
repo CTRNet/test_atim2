@@ -138,14 +138,40 @@ class SopMaster extends SopAppModel
     public function getAllSopPermissibleValues()
     {
         $result = array();
+        $resultInactif = array();
+        
+        $sops = $this->find('all', array(
+            'order' => 'SopMaster.title',
+            'conditions' => array(
+                "OR" => array(
+                    'expiry_date >' => date("Y-m-d"),
+                    "expiry_date" => null),
+                "status" => "activated"
+        )));
+        
+        $sopsInactif = $this->find('all', array(
+            'order' => 'SopMaster.title',
+            'conditions' => array(
+                "OR" => array(
+                    'expiry_date <' => date("Y-m-d"),
+                    "status" => "deactivated"),
+        )));
         
         // Build tmp array to sort according translation
-        foreach ($this->find('all', array(
-            'order' => 'SopMaster.title'
-        )) as $sop) {
+        foreach ($sops as $sop) {
             
             $result[$sop['SopMaster']['id']] = (empty($sop['SopMaster']['title']) ? __('unknown') : $sop['SopMaster']['title']) . ' [' . $sop['SopMaster']['code'] . ' - ' . $sop['SopMaster']['version'] . ']';
         }
+        
+        
+        // Build tmp array to sort according translation
+        foreach ($sopsInactif as $sop) {
+            
+            $resultInactif[$sop['SopMaster']['id']] = (empty($sop['SopMaster']['title']) ? __('unknown') : $sop['SopMaster']['title']) . ' [' . $sop['SopMaster']['code'] . ' - ' . $sop['SopMaster']['version'] . ']';
+        }
+        
+        $result["defined"] = $result;
+        $result["previously_defined"] = $resultInactif;
         
         return $result;
     }
