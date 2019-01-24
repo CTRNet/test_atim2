@@ -47,8 +47,10 @@ VALUES
 	('flag_detail', 'Detail', 'Détail'),
 	('display_column', 'Position', 'Position'),
 	('display_order', 'Row number', 'Numéro de ligne'),
+-- 	('control information', '', ''),
 	('language_heading', 'Heading title', 'Titre de rubrique');
 
+-- 	('', '', ''),
 -- -------------------------------------------------------------------------------------
 --	Add FB to administrator Menu
 -- -------------------------------------------------------------------------------------

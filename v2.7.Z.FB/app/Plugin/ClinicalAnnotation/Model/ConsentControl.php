@@ -107,4 +107,32 @@ class ConsentControl extends ClinicalAnnotationAppModel
 
     }
     
+    public function getOrRedirectFormBuilder($id, $dataAlias)
+    {
+        $data = $this->getOrRedirect($id);
+        $typeValue = $data["ConsentControl"]["controls_type"];
+
+        $i18nModel = new Model(array(
+            'table' => 'i18n',
+            'name' => 0
+        ));
+        $i18n = $i18nModel->find('first', array(
+            "conditions" => array(
+                "id" => $typeValue
+            )
+        ));
+        
+        $fr = $en = "";
+        if (!empty($i18n)) {
+            $fr = $i18n[0]['fr'];
+            $en = $i18n[0]['en'];
+        }
+
+        $data["ConsentControl"]["databrowser_label_fr"] = $fr;
+        $data["ConsentControl"]["databrowser_label_en"] = $en;
+        $data["ConsentControl"]["controls_type"] = $typeValue;
+        
+        return $data;
+    }
+    
 }

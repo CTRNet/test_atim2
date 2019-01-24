@@ -75,15 +75,17 @@ class FormBuildersController extends AdministrateAppController
     
     public function detailControl($formBuilderId, $controlId) 
     {
+        
         $formBuilderItems = $this->FormBuilder->getOrRedirect($formBuilderId);
         
         $model = $formBuilderItems['FormBuilder']['model'];
         $plugin = $formBuilderItems['FormBuilder']['plugin'];
         $master = (isset($formBuilderItems['FormBuilder']['master']))?$formBuilderItems['FormBuilder']['master']:"";
-        //$alias = $formBuilderItems['FormBuilder']['default_alias'];
+        $alias = $formBuilderItems['FormBuilder']['alias'];
+
         $modelInstance = AppModel::getInstance($plugin, $model);
         
-        $controlItem = $modelInstance->getOrRedirect($controlId);
+        $controlItem = $modelInstance->getOrRedirectFormBuilder($controlId, $this->Structures->getSingleStructure($alias));
 
         $detailFormAliases = explode(",", $controlItem[$model]["detail_form_alias"]);
         $masterFormAliases = explode(",", $controlItem[$model]["form_alias"]);
@@ -101,14 +103,25 @@ class FormBuildersController extends AdministrateAppController
         foreach ($detailFormAliases as $aliasName){
             $result["detail"][] = $this->Structures->getSingleStructure($aliasName);
         }
-        
+
         $this->request->data = $this->FormBuilder->getDataFromAlias($result);
-        
-        $this->set("data", $this->request->data);
+        $this->request->data['control'] = $controlItem;
         
         $aliases = "form_builder_structure";
-        
         $this->Structures->set($aliases, "atimStructureForControl");
+        
+        $this->Structures->set($alias, "atimStructureForDetailControl");
+        
+        $data = array(
+            'data' => $this->request->data,
+            'model' => $model,
+            'plugin' => $plugin,
+            'master' => $master,
+            'controlId' => $controlId,
+            'formBuilderId' => $formBuilderId
+        );
+
+        $this->set("formData", $data);
         
 
     }

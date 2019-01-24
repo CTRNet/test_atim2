@@ -11,17 +11,30 @@ $structureLinks = array(
 
 $structureOptions = array(
     'links' => $structureLinks,
-    'type' => 'add'
+    'type' => 'add',
+    'settings' =>array(
+        'header' => __("control information")
+    )
 );
 
 $this->Structures->build($atimStructure, $structureOptions);
+
+
+
 ?>
+
 <script>
     var getI18nVariable = true;
     var i18n = Array();
     var typeValue = "";
     var confirmMessage = "<?php echo __("do you want to update the labels?");?>";
     var alertMessage = "<?php echo __("the labels are already exist and unchangeable");?>";
+    
+    var copyStr = "<?php echo(__("copy", null)); ?>";
+    var pasteStr = "<?php echo(__("paste")); ?>";
+    var copyingStr = "<?php echo(__("copying")); ?>";
+    var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
+    var copyControl = true;
 
     function getI18n(){
         $.ajax({
