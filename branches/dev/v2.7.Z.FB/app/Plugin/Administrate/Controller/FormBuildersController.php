@@ -1,5 +1,7 @@
 <?php
 
+App::uses('StructuresComponent', 'Controller/Component');
+
 /**
  * Class FormBuildersController
  */
@@ -8,6 +10,10 @@ class FormBuildersController extends AdministrateAppController
     public $uses = array(
         'ClinicalAnnotation.ConsentControl',
         'Administrate.FormBuilder'
+    );
+    
+    public $components = array(
+        "Structures"
     );
         
     public function beforeFilter()
@@ -22,7 +28,11 @@ class FormBuildersController extends AdministrateAppController
         $this->request->data = $this->FormBuilder->find('all', array(
             'conditions' => array(
                 'flag_active' => '1'
-        )));
+            ),
+            'order' => array(
+                'display_order'
+            )
+        ));
         if (!empty($this->request->data)) {
             foreach ($this->request->data as &$data) {
                 $data['FormBuilder']['note'] = __($data['FormBuilder']['note']);
@@ -65,7 +75,42 @@ class FormBuildersController extends AdministrateAppController
     
     public function detailControl($formBuilderId, $controlId) 
     {
+        $formBuilderItems = $this->FormBuilder->getOrRedirect($formBuilderId);
         
+        $model = $formBuilderItems['FormBuilder']['model'];
+        $plugin = $formBuilderItems['FormBuilder']['plugin'];
+        $master = (isset($formBuilderItems['FormBuilder']['master']))?$formBuilderItems['FormBuilder']['master']:"";
+        //$alias = $formBuilderItems['FormBuilder']['default_alias'];
+        $modelInstance = AppModel::getInstance($plugin, $model);
+        
+        $controlItem = $modelInstance->getOrRedirect($controlId);
+
+        $detailFormAliases = explode(",", $controlItem[$model]["detail_form_alias"]);
+        $masterFormAliases = explode(",", $controlItem[$model]["form_alias"]);
+        $masterFormAliases = array_diff($masterFormAliases, $detailFormAliases);
+
+        $result = array(
+            "master" =>array(), 
+            "detail" =>array()
+        );
+        
+        foreach ($masterFormAliases as $aliasName){
+            $result["master"][] = $this->Structures->getSingleStructure($aliasName);
+        }
+        
+        foreach ($detailFormAliases as $aliasName){
+            $result["detail"][] = $this->Structures->getSingleStructure($aliasName);
+        }
+        
+        $this->request->data = $this->FormBuilder->getDataFromAlias($result);
+        
+        $this->set("data", $this->request->data);
+        
+        $aliases = "form_builder_structure";
+        
+        $this->Structures->set($aliases, "atimStructureForControl");
+        
+
     }
 
     public function edit($formBuilderId, $controlId) 
@@ -99,7 +144,7 @@ class FormBuildersController extends AdministrateAppController
         $modelInstance = AppModel::getInstance($plugin, $model);
         $this->Structures->set($alias);
         $data = $this->request->data;
-d($data);
+
         $formData = array(
             'indexData' => $data,
             'model' => $model,
@@ -108,7 +153,7 @@ d($data);
             'formBuilderId' => $formBuilderId
         );
         $this->set('formData', $formData);
-$modelInstance->data = $data;
+        $modelInstance->data = $data;
         if (!empty($data) && $modelInstance->validates()){
             $modelInstance->setDataBeforeSave($data);
             $modelInstance->valiateLabels($data);
@@ -130,5 +175,12 @@ $modelInstance->data = $data;
         }else{
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
+    }
+    
+    public function AutocompleteDropDownList()
+    {
+        //Todo
+        //To be completed to return the list of value/domain
+
     }
 }

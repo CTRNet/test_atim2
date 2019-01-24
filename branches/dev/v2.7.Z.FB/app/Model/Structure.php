@@ -142,68 +142,69 @@ class Structure extends AppModel
                     if (! $this->simple) {
                         $sf['StructureValidation'] = array_merge($sf['StructureValidation'], $sf['StructureField']['StructureValidation']);
                     }
-                    
-                    foreach ($sf['StructureValidation'] as $validation) {
-                        $rule = array();
-                        if (($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
-                            // To support coma as decimal separator
-                            $rule[0] = $validation['rule'];
-                        } elseif (strlen($validation['rule']) > 0) {
-                            $rule = explode(',', $validation['rule']);
-                            if ($rule[0] == 'custom') {
-                                $rule = array(
-                                    'custom',
-                                    substr($validation['rule'], strpos($validation['rule'], ',') + 1)
-                                );
+                    if (isset($sf['StructureValidation'])){
+                        foreach ($sf['StructureValidation'] as $validation) {
+                            $rule = array();
+                            if (($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
+                                // To support coma as decimal separator
+                                $rule[0] = $validation['rule'];
+                            } elseif (strlen($validation['rule']) > 0) {
+                                $rule = explode(',', $validation['rule']);
+                                if ($rule[0] == 'custom') {
+                                    $rule = array(
+                                        'custom',
+                                        substr($validation['rule'], strpos($validation['rule'], ',') + 1)
+                                    );
+                                }
                             }
-                        }
-                        
-                        if (count($rule) == 1) {
-                            $rule = $rule[0];
-                        } elseif (count($rule) == 0) {
-                            if (Configure::read('debug') > 0) {
-                                AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
+
+                            if (count($rule) == 1) {
+                                $rule = $rule[0];
+                            } elseif (count($rule) == 0) {
+                                if (Configure::read('debug') > 0) {
+                                    AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
+                                }
+                                continue;
                             }
-                            continue;
-                        }
-                        
-                        $notEmpty = $rule == 'notBlank';
-                        $ruleArray = array(
-                            'rule' => $rule,
-                            'allowEmpty' => ! $notEmpty
-                        );
-                        
-                        if ($validation['on_action']) {
-                            if (in_array($validation['on_action'], array(
-                                'create',
-                                'update'
-                            ))) {
-                                $ruleArray['on'] = $validation['on_action'];
-                            } elseif (Configure::read('debug') > 0) {
-                                AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.', true);
+
+                            $notEmpty = $rule == 'notBlank';
+                            $ruleArray = array(
+                                'rule' => $rule,
+                                'allowEmpty' => ! $notEmpty
+                            );
+
+                            if ($validation['on_action']) {
+                                if (in_array($validation['on_action'], array(
+                                    'create',
+                                    'update'
+                                ))) {
+                                    $ruleArray['on'] = $validation['on_action'];
+                                } elseif (Configure::read('debug') > 0) {
+                                    AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.', true);
+                                }
                             }
-                        }
-                        if ($validation['language_message']) {
-                            $ruleArray['message'] = __($validation['language_message']);
-                        } elseif ($ruleArray['rule'] == 'notBlank') {
-                            $ruleArray['message'] = __("this field is required");
-                        } elseif ($ruleArray['rule'] == 'isUnique') {
-                            $ruleArray['message'] = __("this field must be unique");
-                        }
-                        
-                        if (strlen($sf['language_label']) > 0 && isset($ruleArray['message'])) {
-                            $ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
-                        }
-                        
-                        if (! isset($rules[$sf['model']][$sf['field']])) {
-                            $rules[$sf['model']][$sf['field']] = array();
-                        }
-                        
-                        if ($notEmpty) {
-                            // the not empty rule must be the first one or cakes will ignore it
-                            array_unshift($rules[$sf['model']][$sf['field']], $ruleArray);
-                        } else {
-                            $rules[$sf['model']][$sf['field']][] = $ruleArray;
+                            if ($validation['language_message']) {
+                                $ruleArray['message'] = __($validation['language_message']);
+                            } elseif ($ruleArray['rule'] == 'notBlank') {
+                                $ruleArray['message'] = __("this field is required");
+                            } elseif ($ruleArray['rule'] == 'isUnique') {
+                                $ruleArray['message'] = __("this field must be unique");
+                            }
+
+                            if (strlen($sf['language_label']) > 0 && isset($ruleArray['message'])) {
+                                $ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
+                            }
+
+                            if (! isset($rules[$sf['model']][$sf['field']])) {
+                                $rules[$sf['model']][$sf['field']] = array();
+                            }
+
+                            if ($notEmpty) {
+                                // the not empty rule must be the first one or cakes will ignore it
+                                array_unshift($rules[$sf['model']][$sf['field']], $ruleArray);
+                            } else {
+                                $rules[$sf['model']][$sf['field']][] = $ruleArray;
+                            }
                         }
                     }
                     

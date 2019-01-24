@@ -45,30 +45,35 @@ class ConsentControl extends ClinicalAnnotationAppModel
 
     public function setDataBeforeSave(&$data = array())
     {
-        $alias = $this->alis;
         $model = $this->name;
+        $maxDisplayOrder = $this->find("first", array(
+            'fields'=>array("display_order"),
+            'order'=>array("display_order DESC")
+        ));
         
-        $detailTableName = 'detail_'.$alias."_".date('ymsHis');
+        $detailTableName = 'cd_'.substr($data[$model]["controls_type"], 0, 10)."_".date('YmsHis');
         $data[$model]["detail_tablename"] = $detailTableName;
+        $data[$model]["detail_form_alias"] = $detailTableName;
         $data[$model]["flag_active"] = 1;
-        $data[$model]["display_order"] = 100;
+        $data[$model]["display_order"] = $maxDisplayOrder[$this->name]["display_order"] + 1;
         $data[$model]["databrowser_label"] = $data[$model]["controls_type"];
-        $this->addWritableField(array("detail_tablename", "flag_active", "display_order", "databrowser_label"));
-        
-        
+        $data[$model]["is_test_mode"] = '1';
+        $this->addWritableField(array("detail_tablename", "flag_active", "display_order", "databrowser_label", "detail_form_alias", "is_test_mode"));
+
     }
     
     public function valiateLabels(&$data = array()){
-        $typeValue = $data["ConsentControl"]["controls_type"];
+        $model = $this->name;
+        $typeValue = $data[$model]["controls_type"];
 
         $labels = array (
             "id" => $typeValue,
-            "fr" =>$data["ConsentControl"]["databrowser_label_fr"],
-            "en" =>$data["ConsentControl"]["databrowser_label_en"]
+            "fr" =>$data[$model]["databrowser_label_fr"],
+            "en" =>$data[$model]["databrowser_label_en"]
         );
 
-        unset ($data["ConsentControl"]["databrowser_label_fr"]);
-        unset ($data["ConsentControl"]["databrowser_label_en"]);
+        unset ($data[$model]["databrowser_label_fr"]);
+        unset ($data[$model]["databrowser_label_en"]);
 
         $i18nModel = new Model(array(
             'table' => 'i18n',
@@ -81,7 +86,7 @@ class ConsentControl extends ClinicalAnnotationAppModel
         ));
 
 
-        if (!empty($i18n) && empty($i18n[0]["page_id"])) {
+        if (!empty($i18n) && (empty($i18n[0]["page_id"]) || $i18n[0]["page_id"] == "global")) {
             $fr = $i18n[0]['fr'];
             $en = $i18n[0]['en'];
             if ($labels['fr'] != $fr || $labels['en'] != $en) {
@@ -89,11 +94,17 @@ class ConsentControl extends ClinicalAnnotationAppModel
                 $labels['en'] = $en;
                 AppController::addWarningMsg(__("the labels are already exist and unchangeable"));
             }
-        }elseif (empty($i18n)){
-            $labels["page_id"] = "fb_temp";
+        }else{
+            if (empty($i18n)){
+                $labels["page_id"] = $data[$model]["detail_tablename"];
+            }elseif (!empty($i18n[0]['page_id'])){
+                $pageIds = explode(",", $i18n[0]['page_id']);
+                $pageIds[] = $data[$model]["detail_tablename"];
+                $labels["page_id"] = implode(",", $pageIds);
+            }
+            $i18nModel->save($labels);
         }
 
-        $i18nModel->save($labels);
     }
     
 }
