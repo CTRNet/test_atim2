@@ -732,6 +732,7 @@ div.menu.level_1 li {
 	height: auto;
 	padding: 0;
 	border-top: 1px dotted #999;
+        width: max-content;
 }
 
 div.menu.level_1 li.not_allowed {
