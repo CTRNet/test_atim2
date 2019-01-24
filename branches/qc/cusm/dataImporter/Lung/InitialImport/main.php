@@ -100,8 +100,6 @@ if($data_counter[0]['res']) {
     die('ERR3');
 }
 
-pr('TODO : Valider avec Nick que Consented (Y/N) = n doit être interprété comme denied. Pas certain. Peut avoir un impact sur "Consent linked to a participant is only defined into excel collection file. Will create a new consent from file data but please validate"');
-
 // *** PARSE CONSENT EXCEL FILES ***
 
 $worksheet_name = 'Enrolled';
@@ -122,9 +120,9 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($consent_excel
         $consent_status = 'denied';
         recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@WARNING@@', "Patient consent flagged as denied. Please validate and correct/erase data after the migration if required.", "See line : $line_number.");
     } else if(strlen($excel_line_data['Consent Consented (Y/N)'])) {
-        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not supported. Data of the line including nominal information won't be migrated. Please validate and correct data after the migration if required.", "See valeu '".$excel_line_data['Consent Consented (Y/N)']."' on line : $line_number.");
+        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not supported. Data of the (consent file) line including nominal information won't be used by the migration process. Please validate and correct data after the migration if required.", "See valeu '".$excel_line_data['Consent Consented (Y/N)']."' on line : $line_number.");
     } else {
-        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not set. Data of the line including nominal information won't be migrated. Please validate and correct data after the migration if required.", "See line : $line_number.");
+        recordErrorAndMessage('Consent File ('.$consent_excel_file_name.')', '@@ERROR@@', "Patient consent status is not set. Data of the (consent file) line including nominal information won't be used by the migration process. Please validate and correct data after the migration if required.", "See line : $line_number.");
     }
     if(!strlen($consent_status)) {
         $previousExcelLine = $excel_line_data;
@@ -177,7 +175,9 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($consent_excel
             // Record consent data
             $excel_field = "Consent Consenter";
             $consent_person = validateAndGetStructureDomainValue(
-                str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]),
+                str_replace(
+                    array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick', 'Emma Lee Lee', 'Dr. Ferri', 'Dr. Cools', 'Sammantha, Emma Lee'), 
+                    array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos', "Emma Lee", 'Ferri', 'Cools-Lartigue', 'Emma Lee'), $excel_line_data[$excel_field]),
                 'custom_laboratory_staff',
                 'Consent File ('.$consent_excel_file_name.')',
                 "See field '$excel_field'.",
@@ -298,6 +298,8 @@ $atim_storage_key_to_storage_master_id = array();
 $cusm_mrn_to_participant_id = array();
 $cusm_bank_nbr_check = array();
 
+$misc_identifier_check = array();
+
 $created_participant_counter = 0;
 $created_consent_counter = 0;
 $created_collection_counter = 0;
@@ -348,18 +350,14 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	if(isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
         	    // Compare participant data to excel consent file data
         	    // Add ramq and date of birth to partiicpant data set
-        	    if($allConsentsFromConsentFile[$bank_patient_mrn]['first_name']  != $excel_line_data['Patient Information First_Name']) {
+        	    if(($allConsentsFromConsentFile[$bank_patient_mrn]['first_name']  != $excel_line_data['Patient Information First_Name']) ||
+        	    ($allConsentsFromConsentFile[$bank_patient_mrn]['last_name']  != $excel_line_data['Patient Information Last_Name'])) {
+        	        $cstNames = $allConsentsFromConsentFile[$bank_patient_mrn]['first_name'] . ' -- ' . $allConsentsFromConsentFile[$bank_patient_mrn]['last_name'] ;
+        	        $invNames = $excel_line_data['Patient Information First_Name'] . ' -- ' . $excel_line_data['Patient Information Last_Name'];
         	        recordErrorAndMessage('Participant (both files)',
         	            '@@ERROR@@',
-        	            "First name is different for a participant identified by the same MRN in both collection and consent excel files.",
-        	            "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['first_name']."' & '".$excel_line_data['Patient Information First_Name']."' for $excel_data_references.");
-        	    }
-        	    
-        	    if($allConsentsFromConsentFile[$bank_patient_mrn]['last_name']  != $excel_line_data['Patient Information Last_Name']) {
-        	        recordErrorAndMessage('Participant (both files)',
-        	            '@@ERROR@@',
-        	            "Last name is different for a participant identified by the same MRN in both collection and consent excel files.",
-        	            "See values '".$allConsentsFromConsentFile[$bank_patient_mrn]['last_name']."' & '".$excel_line_data['Patient Information Last_Name']."' for $excel_data_references.");
+        	            "First or last name is different for a participant identified by the same MRN in both collection and consent excel files.",
+        	            "See values (consent) '$cstNames' & (inv) '$invNames' for $excel_data_references.");
         	    }
         	    $excel_participant_data['date_of_birth'] = $allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth'];
         	    $excel_participant_data['date_of_birth_accuracy'] = $allConsentsFromConsentFile[$bank_patient_mrn]['date_of_birth_accuracy'];
@@ -377,6 +375,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
     	    );
     	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        	    $misc_identifier_check[$atim_controls['misc_identifier_controls']['MGH-MRN']['id'].'||'.$bank_patient_mrn] = '1';
     	    if($ramq_to_create) {
         	    $misc_identifier_data = array(
         	        'identifier_value' => $ramq_to_create,
@@ -385,6 +384,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	        'flag_unique' => $atim_controls['misc_identifier_controls']['ramq nbr']['flag_unique']
         	    );
         	    customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        	    $misc_identifier_check[$atim_controls['misc_identifier_controls']['ramq nbr']['id'].'||'.$ramq_to_create] = '1';
     	    }
     	    $cusm_mrn_to_participant_id[$bank_patient_mrn] = array(
     	        'participant_id' => $participant_id,
@@ -431,6 +431,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	       'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
         	   );
         	   $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+        	   $misc_identifier_check[$atim_controls['misc_identifier_controls']['lung bank participant number']['id'].'||'."$bank_patient_id ($duplicatedJsNbrCounter)"] = '1';
         	   $cusm_bank_nbr_check[$bank_patient_id][$participant_id] = array(
         	       'participant_id' => $participant_id,
         	       'bank_patient_misc_identifier_id' => $bank_patient_misc_identifier_id,
@@ -447,6 +448,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
     	    );
     	    $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    $misc_identifier_check[$atim_controls['misc_identifier_controls']['lung bank participant number']['id'].'||'."$bank_patient_id"] = '1';
     	    $cusm_bank_nbr_check[$bank_patient_id][$participant_id] = array(
     	        'participant_id' => $participant_id,
     	        'bank_patient_misc_identifier_id' => $bank_patient_misc_identifier_id,
@@ -460,25 +462,13 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	// Get data of the collection file
     	
     	$collection_file_consent_data = array();
-    	if(preg_match('/^[NnYy]/', $excel_line_data['Consent Consented (Y/N)'])){
-	        $consent_status = '';
-	        if(preg_match('/^[Yy]/', $excel_line_data['Consent Consented (Y/N)'])){
-	            if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
-	                recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
-	                    '@@WARNING@@',
-	                    "Listed an 'Obtained' consent from excel collection file but the 'Consented' value is different than 'Y'. Please confirm and check no additional information has to be recorded.",
-	                    "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
-	            }
-	            $consent_status = 'obtained';
-	        } else {
-	            if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
-	                recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
-	                    '@@WARNING@@',
-	                    "Listed an  'Denied' consent from excel collection file but the 'Consented' value is different than 'N'. Please confirm and check no additional information has to be recorded.",
-	                    "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
-	            }
-	            $consent_status = 'denied';
-	        }
+    	if(preg_match('/^[Yy]/', $excel_line_data['Consent Consented (Y/N)'])){
+            if(strlen(trim($excel_line_data['Consent Consented (Y/N)'])) != 1) {
+                recordErrorAndMessage('Consent (file : '.$excel_file_name.')',
+                    '@@WARNING@@',
+                    "Listed an 'Obtained' consent from excel collection file but the 'Consented' value is different than 'Y'. Please confirm and check no additional information has to be recorded.",
+                    "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references.");
+            }
 	        $excel_field = 'Consent Date Consented';
 	        list($consent_date, $consent_date_accuracy) = validateAndGetDateAndAccuracy(
 	            $excel_line_data[$excel_field],
@@ -487,7 +477,10 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            "See $excel_data_references");
 	        $excel_field = "Consent Consenter";
 	        $consent_person = validateAndGetStructureDomainValue(
-	            str_replace(array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick'), array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos'), $excel_line_data[$excel_field]),
+	            str_replace(
+                    array("Spicer", "Ioana", "Dong", "Aya", "Julie", "Emma", 'Nick', 'Emma Lee Lee', 'Dr. Ferri', 'Dr. Cools', 'Sammantha, Emma Lee'), 
+                    array("Jonathan Spicer", "Ioana Nicolau", "Dong", "Aya Siblini", "Julie Breau", "Emma Lee", 'Nick Berthos', "Emma Lee", 'Ferri', 'Cools-Lartigue', 'Emma Lee'), 
+	                $excel_line_data[$excel_field]),
 	            'custom_laboratory_staff',
 	            'Consent (file : '.$excel_file_name.')',
 	            "See field '$excel_field'.",
@@ -497,6 +490,11 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            "consent_person" => $consent_person,
 	            'consent_signed_date' => $consent_date,
 	            'consent_signed_date_accuracy' => $consent_date_accuracy);
+        } elseif(preg_match('/^[Nn]/', $excel_line_data['Consent Consented (Y/N)'])){
+            recordErrorAndMessage('Consent (file : '.$excel_file_name.')', 
+	            '@@MESSAGE@@', 
+	            "Consented (Y/N) is set to 'N'. No consent info from excel collection file will be used to create ATiM consent. Please confirm.", 
+	            strlen($excel_line_data['Consent Consented (Y/N)'])? "See value '".$excel_line_data['Consent Consented (Y/N)']."' for $excel_data_references." : "See $excel_data_references.");
     	} else {
             recordErrorAndMessage('Consent (file : '.$excel_file_name.')', 
 	            '@@MESSAGE@@', 
@@ -507,6 +505,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	// Manage consent creation
     	$consent_signed_date_to_consider = '-1';
 	    if($collection_file_consent_data && !isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+	        // Consent only defined into the collection file
+	        // Will add this one to the list of consents
     	    if(isset($allConsentsFromConsentFile[$bank_patient_mrn])) {
                 $js_nbrs = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents']);
     	        $js_nbrs = implode(' & ', $js_nbrs);
@@ -525,8 +525,9 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	            $atim_controls['consent_controls']['lung bank consent']['detail_tablename'] => array());
 	        $consent_signed_date_to_consider = $collection_file_consent_data['consent_signed_date'];
 	    } elseif(!$collection_file_consent_data && isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+	        // Consent only defined into the consent file file
     	    $consentDates = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id]);
-    	    if(sizeof($consentDate) == 1) {
+    	    if(sizeof($consentDates) == 1) {
     	        $consent_signed_date_to_consider = array_shift($consentDates);
     	    } else {
     	        recordErrorAndMessage('Consent (both files)',
@@ -535,6 +536,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	            "See new consent created from excel collection file data for the JS number $bank_patient_id of the patient with MRN $bank_patient_mrn. See $excel_data_references.");
     	    }   	    
     	} elseif($collection_file_consent_data && isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id])) {
+    	    // Consent defined into both the consent and collection files
     	    if(!isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']])) {
     	        $csfFileDates = array_keys($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id]);
     	        recordErrorAndMessage('Consent (both files)',
@@ -571,15 +573,15 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        "Script is unable to link a consent to a collection. Please check data and correct data manually into ATiM.",
     	        "See new collection created for $excel_data_references.");
     	} else {
-    	    if(!isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'])) {
+    	    if(!isset($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]['consent_master_id'])) {
     	        $allConsentsFromConsentFile[$bank_patient_mrn]['atim_participant_id'] = $participant_id;
-    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_masters']["participant_id"] = $participant_id;
-    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_masters']["consent_control_id"] = $atim_controls['consent_controls']['lung bank consent']['id'];
-    	        $final_consent_master_id = customInsertRecord($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]);
-    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'] = $final_consent_master_id;
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]['consent_masters']["participant_id"] = $participant_id;
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]['consent_masters']["consent_control_id"] = $atim_controls['consent_controls']['lung bank consent']['id'];
+    	        $final_consent_master_id = customInsertRecord($allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]);
+    	        $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]['consent_master_id'] = $final_consent_master_id;
     	        $created_consent_counter++;
     	    }
-    	    $final_consent_master_id = $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$collection_file_consent_data['consent_signed_date']]['consent_master_id'];
+    	    $final_consent_master_id = $allConsentsFromConsentFile[$bank_patient_mrn]['consents'][$bank_patient_id][$consent_signed_date_to_consider]['consent_master_id'];
     	}
     	
     	// Unused data
@@ -600,8 +602,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	for($tmpId = 1; $tmpId < 4; $tmpId++) {
     	    if(strlen($excel_line_data["Stool $tmpId Date"].$excel_line_data["Stool $tmpId Aliquots"].$excel_line_data["Stool $tmpId Location"])) {
     	        $stoolData = 'Date: ['.$excel_line_data["Stool $tmpId Date"].'], Aliquots: ['.$excel_line_data["Stool $tmpId Aliquots"].'] and location: ['.$excel_line_data["Stool $tmpId Location"].']';
-    	        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
-    	            '@@WARNING@@',
+    	        recordErrorAndMessage('Collection (file : '.$excel_file_name.') : TODO',
+    	            '@@ERROR@@',
     	            "Stool data won't be imported by the script. Please complete data into ATiM after migration if required.",
     	            "See stool data (#$tmpId) : $stoolData. See $excel_data_references.");
     	    }
@@ -620,6 +622,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 	    $inventory_data_found = false;
 	    $inventory_fields = array(
 	        'TISSUE Location', 'TISSUE Rack #', 'TISSUE Box #', 'TISSUE Normal', 'TISSUE Tumor', 'TISSUE Lymph Nodes', 'TISSUE Notes', 'Pathology Acession #',
+	        'TISSUE Location2', 'TISSUE Box #2', 'TISSUE Normal2', 'TISSUE Tumor2',
             'Pre-Surgery Location', 
 	        'Pre-Surgery Box #1', 'Pre-Surgery Serum1', 'Pre-Surgery Plasma1', 'Pre-Surgery WBC1',
 	        'Pre-Surgery Box #2', 'Pre-Surgery Serum2', 'Pre-Surgery Plasma2', 'Pre-Surgery WBC2', 'Pre-Surgery Notes',
@@ -674,7 +677,15 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        $excel_line_data['TISSUE Box #'], 
                 array('normal' => $excel_line_data['TISSUE Normal'], 'tumor' => $excel_line_data['TISSUE Tumor'], 'lymph nodes' => $excel_line_data['TISSUE Lymph Nodes']), 
     	        $excel_line_data['TISSUE Rack #']);
-    	    if($tissue_aliquots || strlen($excel_line_data['Pathology Acession #']) || strlen($excel_line_data['TISSUE Notes']) || $ln_collection_notes) {
+	       $tissue_aliquots_2 = getAliquots(
+	           $excel_data_references, $excel_file_name,
+	           'tissue',
+	           $excel_line_data['TISSUE Location2'],
+	           $excel_line_data['TISSUE Box #2'],
+	           array('normal' => $excel_line_data['TISSUE Normal2'], 'tumor' => $excel_line_data['TISSUE Tumor2']),
+	           '');
+	       $tissue_aliquots = array_merge($tissue_aliquots, $tissue_aliquots_2);
+	       if($tissue_aliquots || strlen($excel_line_data['Pathology Acession #']) || strlen($excel_line_data['TISSUE Notes']) || $ln_collection_notes) {
     	        $collection_data = array(
     	            'collection_property' => 'participant collection',
     	            'participant_id' => $participant_id,
@@ -707,7 +718,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	        );
         	        foreach($tissue_aliquots as $new_tissue_aliquots) {
         	            //WARNING :: positions x and y permuted
-        	            list($cusm_tissue_nature, $storage_master_id, $storage_coord_y, $storage_coord_x) = $new_tissue_aliquots;
+        	            list($cusm_tissue_nature, $storage_master_id, $storage_coord_y, $storage_coord_x, $position_extension) = $new_tissue_aliquots;
         	            if(!array_key_exists($cusm_tissue_nature, $created_tissue_sample_master_ids)) {
         	                $created_sample_counter++;
         	                $tissue_source = 'C34';
@@ -733,10 +744,16 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	            $created_aliquot_counter++;
         	            $tube_label = ($cusm_tissue_nature == 'lymph nodes') ? 'LN' : strtoupper($cusm_tissue_nature[0]);
         	            $tube_label_counter[$tube_label]++;
+        	            $tmp_st_solution = 'OCT';
+        	            $tmp_st_solution_label = 'OCT';
+        	            if($position_extension == 'CC' || $position_extension == 'FBS/DMSO') {
+        	                $tmp_st_solution = 'DMSO';
+        	                $tmp_st_solution_label = $position_extension;      	                
+        	            }
         	            $aliquot_data = array(
         	                'aliquot_masters' => array(
         	                    "barcode" => 'barcode_'.$created_aliquot_counter,
-        	                    'aliquot_label' => "$bank_patient_id OCT $tube_label $collection_date_label ".$tube_label_counter[$tube_label],
+        	                    'aliquot_label' => "$bank_patient_id $tmp_st_solution_label $tube_label $collection_date_label ".$tube_label_counter[$tube_label],
         	                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-tube']['id'],
         	                    "collection_id" => $collection_id,
         	                    "sample_master_id" => $sample_master_id,
@@ -744,9 +761,10 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
         	                    'storage_coord_x' => $storage_coord_y,
         	                    'storage_coord_y' => $storage_coord_x,
         	                    'in_stock' => 'yes - available',
-        	                    'in_stock_detail' => ''),
+        	                    'in_stock_detail' => '',
+        	                    'notes' => ($position_extension? "Defined as [$position_extension] in excel." : '')),
         	                $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
-        	                    'cusm_storage_solution' => 'OCT'
+        	                    'cusm_storage_solution' => $tmp_st_solution
         	                ));
         	            customInsertRecord($aliquot_data);
                         $created_aliquots = true;
@@ -861,7 +879,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	        );
     	        foreach($new_blood_collection['aliquots'] as $new_blood_aliquots) {
     	            //WARNING :: positions x and y permuted
-    	            list($cusm_derivative_sample_type, $storage_master_id, $storage_coord_y, $storage_coord_x) = $new_blood_aliquots;
+    	            list($cusm_derivative_sample_type, $storage_master_id, $storage_coord_y, $storage_coord_x, $position_extension) = $new_blood_aliquots;
     	            $blood_type = ($cusm_derivative_sample_type == 'serum')? 'serum' : 'edta';
     	            if(!array_key_exists($blood_type.'_key', $created_blood_sample_master_ids)) {
     	                $created_sample_counter++;
@@ -908,7 +926,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
     	                    'storage_coord_x' => $storage_coord_y,
     	                    'storage_coord_y' => $storage_coord_x,
     	                    'in_stock' => 'yes - available',
-    	                    'in_stock_detail' => ''),
+    	                    'in_stock_detail' => '',
+    	                    'notes' => ($position_extension? "Defined as [$position_extension] in excel." : '')),
     	                $atim_controls['aliquot_controls'][$cusm_derivative_sample_type.'-tube']['detail_tablename'] => array());
     	            customInsertRecord($aliquot_data);
                     $created_aliquots = true;
@@ -946,6 +965,7 @@ foreach($allConsentsFromConsentFile as $bank_patient_mrn => $allJsConsentData) {
                 'flag_unique' => $atim_controls['misc_identifier_controls']['MGH-MRN']['flag_unique']
             );
             customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    $misc_identifier_check[$atim_controls['misc_identifier_controls']['MGH-MRN']['id'].'||'."$bank_patient_mrn"] = '1';
         }
         if($allJsConsentData['ramq']) {
             $misc_identifier_data = array(
@@ -955,16 +975,25 @@ foreach($allConsentsFromConsentFile as $bank_patient_mrn => $allJsConsentData) {
                 'flag_unique' => $atim_controls['misc_identifier_controls']['ramq nbr']['flag_unique']
             );
             customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+    	    $misc_identifier_check[$atim_controls['misc_identifier_controls']['ramq nbr']['id'].'||'.$allJsConsentData['ramq']] = '1';
         }
         foreach($allJsConsentData['consents'] as $bank_patient_id => $allConsents) {
             if($bank_patient_id) {
-                $misc_identifier_data = array(
-                    'identifier_value' => "$bank_patient_id",
-                    'participant_id' => $participant_id,
-                    'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
-                    'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
-                );
-                $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+                if(isset($misc_identifier_check[$atim_controls['misc_identifier_controls']['lung bank participant number']['id'].'||'."$bank_patient_id"])) {
+                    recordErrorAndMessage('Consent File (both files)',
+                        '@@ERROR@@',
+                        "System is creating new participant who consented but was not linked to collection by the script but the Bank Participant # has already be assigned to another created participant. New participant won't be created! Please validate participant is the same or is a different one then correct data after migration.",
+                        "See patient with MRN $bank_patient_mrn  and JS nbr $bank_patient_id in excel consent file.");
+                } else {
+                    $misc_identifier_data = array(
+                        'identifier_value' => "$bank_patient_id",
+                        'participant_id' => $participant_id,
+                        'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['lung bank participant number']['id'],
+                        'flag_unique' => $atim_controls['misc_identifier_controls']['lung bank participant number']['flag_unique']
+                    );
+                    $bank_patient_misc_identifier_id = customInsertRecord(array('misc_identifiers' => $misc_identifier_data));
+                    $misc_identifier_check[$atim_controls['misc_identifier_controls']['lung bank participant number']['id'].'||'."$bank_patient_id"] = '1';
+                }
             }            
             foreach($allConsents as $newConsent) {
                 $newConsent['consent_masters']['participant_id'] = $participant_id;
@@ -1063,6 +1092,12 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
 	    $tmp_data = str_replace(' ', '', trim($tmp_data));
 	    $positions[$key] = trim($tmp_data);
 	    if($tmp_data == '-') {
+	        $positions[$key] = '';
+	    } elseif($tmp_data == 'none') {
+	        $positions[$key] = '';
+	    } elseif($tmp_data == 'NA') {
+	        $positions[$key] = '';
+	    } elseif($tmp_data == '_') {
 	        $positions[$key] = '';
 	    } else {
 	        if(strlen($tmp_data)) {
@@ -1178,15 +1213,17 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
     $aliquots_positions_key = 0;
     $is_first_sample_type = true;
     foreach($positions as $sample_type => $aliquots_positions_sets) {
-        $increment_boxes_content_key = (!$is_first_sample_type && preg_match('/^A1/', $aliquots_positions_sets))? true : false;     // Ceck case when 2 sample types are into 2 differnet  boxes ([serum] => I4-I9 // [plasma] => A1-A6)
-        foreach(explode(',', $aliquots_positions_sets) as $new_aliquots_postions_set) {
-            if($increment_boxes_content_key) $aliquots_positions_key +=1;
-            if(strlen($new_aliquots_postions_set)) {
-                $aliquots_positions[$aliquots_positions_key][$sample_type] = $new_aliquots_postions_set;
+        if(strlen($aliquots_positions_sets)) {
+            $increment_boxes_content_key = (!$is_first_sample_type && preg_match('/^A1/', $aliquots_positions_sets))? true : false;     // Ceck case when 2 sample types are into 2 differnet  boxes ([serum] => I4-I9 // [plasma] => A1-A6)
+            foreach(explode(',', $aliquots_positions_sets) as $new_aliquots_postions_set) {
+                if($increment_boxes_content_key) $aliquots_positions_key +=1;
+                if(strlen($new_aliquots_postions_set)) {
+                    $aliquots_positions[$aliquots_positions_key][$sample_type] = $new_aliquots_postions_set;
+                }
+                $increment_boxes_content_key = true;
             }
-            $increment_boxes_content_key = true;
+            $is_first_sample_type = false;
         }
-        $is_first_sample_type = false;
     }
     // Create results (aliquots storage information)
     
@@ -1197,7 +1234,7 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
             "See box(es) '$box_number' ".($position_defined? "and defined positions '".implode("' & '", $position_defined) : '')." for $excel_data_references.");
         return array();
     } else if(!(sizeof($created_box_storage_masters_ids) == sizeof($aliquots_positions) && array_keys($aliquots_positions) == array_keys($created_box_storage_masters_ids))) {
-       recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
+        recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
            '@@ERROR@@',
            "The number of boxes defined from the box(es) label(s) defintion does not match the number of boxes defined from the aliquots positions. Be sure than character ',' as not be used to separate positions of 2 aliquots of the same box (use '.' instead'). No aliquot will be created. Please validate and correct data directly into ATiM if required.",
            "See box(es) '$box_number' ".($position_defined? "and defined positions '".implode("' & '", $position_defined) : '')." for $excel_data_references.");
@@ -1213,13 +1250,15 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
             foreach($new_box['aliquots'] as $sample_type => $all_box_sample_aliquots_positions) {
                 // Expected positions formate /A1.A3.E3.E7-E9/
                 foreach(explode('.', $all_box_sample_aliquots_positions) as $aliquot_positions) {
-                    if(preg_match('/^([A-I])([1-9])$/', $aliquot_positions, $matches)) {
-                        $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $matches[0], $matches[1]);
-                    } else if(preg_match('/^([A-I])([1-9])\-([A-I])([1-9])$/', $aliquot_positions, $matches)) {
+                    if(preg_match('/^([A-I])([1-9])(\(((FBS\/DMSO)|(CC)|(OCT))\)){0,1}$/', $aliquot_positions, $matches)) {
+                        $posExtension = isset($matches[4])? $matches[4] : '';
+                        $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $matches[1], $matches[2], $posExtension);
+                    } else if(preg_match('/^([A-I])([1-9])\-([A-I])([1-9])(\(((FBS\/DMSO)|(CC)|(OCT))\)){0,1}$/', $aliquot_positions, $matches)) {
                         $from_x = $matches[1];
                         $from_y = $matches[2];
                         $to_x = $matches[3];
                         $to_y = $matches[4];
+                        $posExtension = isset($matches[6])? $matches[6] : '';
                         if(($from_x.$from_y) >= ($to_x.$to_y)) {
                             recordErrorAndMessage('Collection (file : '.$excel_file_name.')',
                                 '@@ERROR@@',
@@ -1231,7 +1270,7 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
                             $last_aliquot_position_found = false;
                             while(!$last_aliquot_position_found) {
                                 if(!preg_match('/^([A-I])([1-9])$/', ($x.$y))) die('ERR2234234'); // Should never happens
-                                $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $x, $y);
+                                $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $x, $y, $posExtension);
                                 if($y >= 9) {
                                     $next_x = ord($x)+1;
                                     $x = chr($next_x);
@@ -1243,7 +1282,7 @@ function getAliquots($excel_data_references, $excel_file_name, $sample_type, $lo
                                     //Add the last aliquot position
                                     $last_aliquot_position_found = true;
                                     if(!preg_match('/^([A-I])([1-9])$/', ($x.$y))) die('ERR2234234'); // Should never happens
-                                    $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $x, $y);
+                                    $final_aliquots_storage_information[] = array($sample_type, $storage_master_id, $x, $y, $posExtension);
                                 }
                             }
                         }
