@@ -44,7 +44,12 @@ WHERE name = 'Users';
 UPDATE users 
 SET username = 'Lung', first_name = 'Lung User Demo', email = '', password ='ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 1, deleted = '0', force_password_reset = null
 WHERE username = 'user1';
-
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+("Cools-Lartigue", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Ferri", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
+("Emad", "", "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
 VALUES

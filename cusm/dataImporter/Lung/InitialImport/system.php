@@ -933,66 +933,65 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
     global $empty_date_time_values;
     global $xls_offset;
     $date = str_replace(' ', '', $date);
+
+    $date = str_replace(
+        array('Jan', 'Fev', 'Feb', 'Jul', 'Aug', 'Nov'),
+        array('01', '02', '02', '07', '08', '11'),
+        $date);
+    
     if (empty($date) || in_array(strtolower($date), $empty_date_time_values)) {
         return array(
             '',
             ''
         );
-    } else 
-        if (preg_match('/^([0-9]+)$/', $date, $matches)) {
-            // format excel date integer representation
-            $php_offset = 946746000; // 2000-01-01 (12h00 to avoid daylight problems)
-            $formated_date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
-            if (preg_match('/^(19|20)([0-9]{2})$/', $date)) {
-                recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning' . (empty($summary_title_add_in) ? '' : ' - ' . $summary_title_add_in), "The excel date value '$date' is considered by the migration process as an Excel formated date 'xxxx-xx-xx' but please validate it's not just the four digits of a year. Migrated date will be '$formated_date'." . (empty($summary_details_add_in) ? '' : " [$summary_details_add_in]"));
-            }
-            return array(
-                $formated_date,
-                'c'
-            );
-        } else 
-            if (preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches)) {
-                return array(
-                    $date,
-                    'c'
-                );
-            } else 
-                if (preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/', $date, $matches)) {
-                    return array(
-                        $date . '-01',
-                        'd'
-                    );
-                } else 
-                    if (preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((xx)|(unk))$/', $date, $matches)) {
-                        return array(
-                            $matches[1] . '-01',
-                            'd'
-                        );
-                    } else 
-                        if (preg_match('/^((19|20)([0-9]{2}))\-((xx)|(unk))\-((xx)|(unk))$/', $date, $matches)) {
-                            return array(
-                                $matches[1] . '-01-01',
-                                'm'
-                            );
-                        } else 
-                            if (preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/', $date, $matches)) {
-                                return array(
-                                    $matches[3] . $matches[4] . '-' . $matches[2] . '-' . $matches[1],
-                                    'c'
-                                );
-                            } else 
-                                if (preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/', $date, $matches)) {
-                                    return array(
-                                        $matches[3] . $matches[4] . '-' . $matches[2] . '-' . $matches[1],
-                                        'c'
-                                    );
-                                } else {
-                                    recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error' . (empty($summary_title_add_in) ? '' : ' - ' . $summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased." . (empty($summary_details_add_in) ? '' : " [$summary_details_add_in]"));
-                                    return array(
-                                        '',
-                                        ''
-                                    );
-                                }
+    } elseif (preg_match('/^([0-9]+)$/', $date, $matches)) {
+        // format excel date integer representation
+        $php_offset = 946746000; // 2000-01-01 (12h00 to avoid daylight problems)
+        $formated_date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
+        if (preg_match('/^(19|20)([0-9]{2})$/', $date)) {
+            recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning' . (empty($summary_title_add_in) ? '' : ' - ' . $summary_title_add_in), "The excel date value '$date' is considered by the migration process as an Excel formated date 'xxxx-xx-xx' but please validate it's not just the four digits of a year. Migrated date will be '$formated_date'." . (empty($summary_details_add_in) ? '' : " [$summary_details_add_in]"));
+        }
+        return array(
+            $formated_date,
+            'c'
+        );
+    } elseif (preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches)) {
+        return array(
+            $date,
+            'c'
+        );
+    } elseif (preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/', $date, $matches)) {
+        return array(
+            $date . '-01',
+            'd'
+        );
+    } elseif (preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((xx)|(unk))$/', $date, $matches)) {
+        return array(
+            $matches[1] . '-01',
+            'd'
+        );
+    } elseif (preg_match('/^((19|20)([0-9]{2}))\-((xx)|(unk))\-((xx)|(unk))$/', $date, $matches)) {
+        return array(
+            $matches[1] . '-01-01',
+            'm'
+        );
+    } elseif (preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/', $date, $matches)) {
+        return array(
+            $matches[3] . $matches[4] . '-' . $matches[2] . '-' . $matches[1],
+            'c'
+        );
+    } elseif (preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/', $date, $matches)) {
+        return array(
+            $matches[3] . $matches[4] . '-' . $matches[2] . '-' . $matches[1],
+            'c'
+        );
+    } else {
+        recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error' . (empty($summary_title_add_in) ? '' : ' - ' . $summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased." . (empty($summary_details_add_in) ? '' : " [$summary_details_add_in]"));
+        return array(
+            '',
+            ''
+        );
+    }
 }
 
 /**
