@@ -78,7 +78,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
      */
     public function find($type = 'first', $query = array())
     {
-        if (isset($query['conditions'])) {
+        if (isset($query['conditions']) && is_array($query['conditions'])) {
             $gtKey = array_key_exists('MiscIdentifier.identifier_value >=', $query['conditions']);
             $ltKey = array_key_exists('MiscIdentifier.identifier_value <=', $query['conditions']);
             if ($gtKey || $ltKey) {

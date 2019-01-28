@@ -4,7 +4,7 @@
 -- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC', 'CUSM');
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC - Lung', 'CUSM - Poumon');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Bank/User Management
@@ -113,7 +113,6 @@ VALUES
 ('ramq nbr', 'RAMQ', 'RAMQ'),
 ('MGH-MRN', 'MGH-MRN', 'MGH-MRN'),
 ('RVC-MRN', 'RVC-MRN', 'RVC-MRN');
-INSERT INTO key_increments (key_name, key_value) VALUES ('lung bank participant number', '200');
 
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, 
 `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) 

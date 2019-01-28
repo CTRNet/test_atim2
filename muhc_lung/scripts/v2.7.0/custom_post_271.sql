@@ -428,3 +428,15 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Protocol/%';
 UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/Drug/%';
 
 UPDATE versions SET branch_build_number = '7543' WHERE version_number = '2.7.1';
+
+-- View  collection and SOP
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Review
+
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE specimen_review_controls SET flag_active = 0;
+
+UPDATE versions SET branch_build_number = '7548' WHERE version_number = '2.7.1';
