@@ -415,4 +415,4 @@ UPDATE aliquot_review_controls SET flag_active = 0;
 UPDATE specimen_review_controls SET flag_active = 0;
 
 
-UPDATE versions SET branch_build_number = '7547' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7549' WHERE version_number = '2.7.1';

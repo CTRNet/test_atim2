@@ -14,5 +14,5 @@ foreach( $this->request->data as &$cusmMelanomaBkNewCollection) {
     foreach($cusmMelanomaBkNewCollection['SampleMaster'] as $cusmMelanomaBkNewSample) {
         $sampelTypes[$cusmMelanomaBkNewSample['initial_specimen_sample_type']] = __($cusmMelanomaBkNewSample['initial_specimen_sample_type']);
     }
-    $cusmMelanomaBkNewCollection['Generated']['cusm_melanoma_bk_next_identifier_controls'] = implode(' & ', $sampelTypes);
+    $cusmMelanomaBkNewCollection['Generated']['cusm_collection_specimens'] = implode(' & ', $sampelTypes);
 }
