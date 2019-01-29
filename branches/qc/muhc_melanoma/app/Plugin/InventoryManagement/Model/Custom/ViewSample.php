@@ -49,7 +49,7 @@ class ViewSampleCustom extends ViewSample
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg ,
-Collection.cusm_melanoma_bk_collection_type,
+Collection.cusm_sl_bk_collection_type,
 MiscIdentifier.identifier_value
 		
 		FROM sample_masters AS SampleMaster

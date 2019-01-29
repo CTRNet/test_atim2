@@ -15,7 +15,7 @@ $miscIdentifierData = $this->MiscIdentifier->find('threaded', array(
     'conditions' => array(
         'MiscIdentifier.participant_id' => $participantId,
         'MiscIdentifierControl.misc_identifier_name' => array(
-            'melanoma bank participant number'
+            'skin lesions bank participant number'
         )
     )
 ));

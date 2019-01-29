@@ -12,8 +12,8 @@
 // --------------------------------------------------------------------------------
 // Set next participant identifier to complete
 // --------------------------------------------------------------------------------
-if ($_SESSION['cusm_melanoma_bk_next_identifier_controls']) {
-    $nextIdentifierName = array_shift($_SESSION['cusm_melanoma_bk_next_identifier_controls']);
+if ($_SESSION['cusm_sl_bk_next_identifier_controls']) {
+    $nextIdentifierName = array_shift($_SESSION['cusm_sl_bk_next_identifier_controls']);
     if ($nextIdentifierName) {
         $miscIdentifierControlId = $this->MiscIdentifierControl->find('first', array(
             'conditions' => array(

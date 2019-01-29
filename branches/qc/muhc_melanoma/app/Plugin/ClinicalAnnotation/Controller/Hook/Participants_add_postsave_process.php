@@ -22,14 +22,14 @@ $this->Participant->tryCatchQuery(str_replace("participants", "participants_revs
 
 $miscIdentifierControlId = $this->MiscIdentifierControl->find('first', array(
     'conditions' => array(
-        'MiscIdentifierControl.misc_identifier_name' => 'melanoma bank participant number',
+        'MiscIdentifierControl.misc_identifier_name' => 'skin lesions bank participant number',
         'MiscIdentifierControl.flag_active' => 1
     )
 ));
 if ($miscIdentifierControlId) {
     $miscIdentifierControlId = $miscIdentifierControlId['MiscIdentifierControl']['id'];
     $urlToFlash = '/ClinicalAnnotation/MiscIdentifiers/add/' . $this->Participant->getLastInsertID() . "/$miscIdentifierControlId";
-    $_SESSION['cusm_melanoma_bk_next_identifier_controls'] = array(
+    $_SESSION['cusm_sl_bk_next_identifier_controls'] = array(
         'ramq nbr',
         'MGH-MRN'
     );

@@ -33,7 +33,7 @@ class ViewCollectionCustom extends ViewCollection
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
-Collection.cusm_melanoma_bk_collection_type,
+Collection.cusm_sl_bk_collection_type,
 MiscIdentifier.identifier_value    
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -52,7 +52,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
                 'recursive' => - 1
             ));
             $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-            $translatedCollectionType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Collection Types', $collectionData['ViewCollection']['cusm_melanoma_bk_collection_type']);
+            $translatedCollectionType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Collection Types', $collectionData['ViewCollection']['cusm_sl_bk_collection_type']);
             $summaryLabel = $collectionData['ViewCollection']['identifier_value'] . ($translatedCollectionType ? " - $translatedCollectionType" : '');
             
             $return = array(
