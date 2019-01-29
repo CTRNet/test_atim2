@@ -214,6 +214,4 @@ CONCAT(AliquotMasterChild.aliquot_label, ' (', AliquotMasterChild.barcode, ')') 
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-    
-    }
 }

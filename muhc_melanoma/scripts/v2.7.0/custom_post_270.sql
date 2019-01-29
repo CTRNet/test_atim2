@@ -4,7 +4,10 @@
 -- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC - Melanoma', 'CUSM - Mélanome');
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'MUHC - Skin Lesions', 'CUSM - Lésions cutanées');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('melanoma', 'Melanoma', 'Mélanome');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('skin lesions', 'Skin Lesions', 'Lésions cutanées');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('skin lesion', 'Skin Lesion', 'Lésion cutanée');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Bank/User Management
@@ -33,16 +36,16 @@ UPDATE groups SET flag_show_confidential = '1' WHERE name = 'Administrators';
 -- Banks Groups
 -- -------------------------------------------------------------------------------
 
--- Melanoma
+-- Skin Lesions
 
 UPDATE banks
-SET name = 'Melanoma/Mélanome', description = ''
+SET name = 'Skin Lesions/Lésions cutanées', description = ''
 WHERE name = 'Default Bank';
 UPDATE groups 
-SET name = 'Melanoma - Administrators', bank_id = (SELECT id FROM banks WHERE name = 'Melanoma/Mélanome'), flag_show_confidential = '1' 
+SET name = 'Skin Lesions - Administrators', bank_id = (SELECT id FROM banks WHERE name = 'Skin Lesions/Lésions cutanées'), flag_show_confidential = '1' 
 WHERE name = 'Users'; 
 UPDATE users 
-SET username = 'Melanoma', first_name = 'Melanoma User Demo', email = '', password ='ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 1, deleted = '0', force_password_reset = null
+SET username = 'Skin Lesions', first_name = 'Skin Lesions User Demo', email = '', password ='ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 1, deleted = '0', force_password_reset = null
 WHERE username = 'user1';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
 -- INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
@@ -83,7 +86,7 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_detail`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
 
--- Melanoma Bank
+-- Skin Lesions Bank
 
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, 
 `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) 
@@ -103,11 +106,11 @@ VALUES
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, 
 `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) 
 VALUES
-(null, 'melanoma bank participant study number', 1, 60, '', '', 
+(null, 'skin lesions bank participant study number', 1, 60, '', '', 
 0, 0, 0, 0, '', '', 1);
 INSERT IGNORE  into i18n (id,en,fr)
 VALUES
-('melanoma bank participant study number', 'Melanoma Bank - Study#', 'Banque Mélanome - Étude#');
+('skin lesions bank participant study number', 'Skin Lesions Bank - Study#', 'Banque des lésions cutanées - Étude#');
 
 -- Consents
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -123,46 +126,46 @@ VALUES
 AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0'), 'notBlank', '');
 
 ALTER TABLE consent_masters 
-  ADD COLUMN `cusm_melanoma_bk_with_restriction` char(1) DEFAULT '';
+  ADD COLUMN `cusm_sl_bk_with_restriction` char(1) DEFAULT '';
 ALTER TABLE consent_masters_revs
-  ADD COLUMN `cusm_melanoma_bk_with_restriction` char(1) DEFAULT '';
+  ADD COLUMN `cusm_sl_bk_with_restriction` char(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'cusm_melanoma_bk_with_restriction', 'yes_no',  NULL , '0', '', '', '', 'with restriction', '');
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'cusm_sl_bk_with_restriction', 'yes_no',  NULL , '0', '', '', '', 'with restriction', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_melanoma_bk_with_restriction' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='with restriction' AND `language_tag`=''), '2', '201', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_sl_bk_with_restriction' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='with restriction' AND `language_tag`=''), '2', '201', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('with restriction', 'With Restriction', 'Avec restriction');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='reason_denied' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_column`='1', `display_order`='22', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_melanoma_bk_with_restriction' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='22', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='cusm_sl_bk_with_restriction' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
--- Melanoma Consent
+-- Skin Lesions Consent
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-(null, 'melanoma bank consent', 1, 'cusm_melanoma_bk_cd_melanomas', 'cusm_melanoma_bk_cd_melanomas', 0, 'melanoma bank consent');
+(null, 'skin lesions bank consent', 1, 'cusm_sl_bk_cd_skin_lesions', 'cusm_sl_bk_cd_skin_lesions', 0, 'skin lesions bank consent');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('melanoma bank consent', 'Melanoma Bank - Consent', 'Banque Poumon - Consentement');
-INSERT INTO structures(`alias`) VALUES ('cusm_melanoma_bk_cd_melanomas');
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_melanoma_bk_consent_from_versions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Melanoma - Consent Form Versions\')");
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Melanoma - Consent Form Versions', 1, 50, 'clinical - consent');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Melanoma - Consent Form Versions');
+('skin lesions bank consent', 'Skin Lesions Bank - Consent', 'Banque des lésions cutanées - Consentement');
+INSERT INTO structures(`alias`) VALUES ('cusm_sl_bk_cd_skin_lesions');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_sl_bk_consent_from_versions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Skin Lesions - Consent Form Versions\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Skin Lesions - Consent Form Versions', 1, 50, 'clinical - consent');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Skin Lesions - Consent Form Versions');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
 VALUES
 ("1.7 2019-01-15", "v1.7 15 January 2019", "v1.7 15 Janvier 2019", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'consent_person', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'witness', ''),
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'form_version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_consent_from_versions') , '0', '', '', '', 'form_version', '');
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'form_version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_consent_from_versions') , '0', '', '', '', 'form_version', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_consent_from_versions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form_version' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_consent_from_versions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form_version' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='witness' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 Replace INTO i18n (id,en,fr)
 VALUES
 ('witness', 'Witness', 'Témoin');
 
-CREATE TABLE `cusm_melanoma_bk_cd_melanomas` (
+CREATE TABLE `cusm_sl_bk_cd_skin_lesions` (
   `consent_master_id` int(11) NOT NULL,
   `questionnaires` char(1) DEFAULT '',
   `blood_sampling` char(1) DEFAULT '',
@@ -172,9 +175,9 @@ CREATE TABLE `cusm_melanoma_bk_cd_melanomas` (
   `access_to_archived_samples` char(1) DEFAULT '',
   `future_specific_research` char(1) DEFAULT '',
   KEY `consent_master_id` (`consent_master_id`),
-  CONSTRAINT `FK_cusm_melanoma_bk_cd_melanomas_consent_masters` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
+  CONSTRAINT `FK_cusm_sl_bk_cd_skin_lesions_consent_masters` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-CREATE TABLE `cusm_melanoma_bk_cd_melanomas_revs` (
+CREATE TABLE `cusm_sl_bk_cd_skin_lesions_revs` (
   `consent_master_id` int(11) NOT NULL,
   `questionnaires` char(1) DEFAULT '',
   `blood_sampling` char(1) DEFAULT '',
@@ -189,21 +192,21 @@ CREATE TABLE `cusm_melanoma_bk_cd_melanomas_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'questionnaires', 'yes_no',  NULL , '0', '', '', '', 'questionnaires', ''), 
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'blood_sampling', 'yes_no',  NULL , '0', '', '', '', 'blood sampling', ''), 
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'urine_sampling', 'yes_no',  NULL , '0', '', '', '', 'urine sampling', ''),
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'stools_sampling', 'yes_no',  NULL , '0', '', '', '', 'stools sampling', ''),
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'tissue_sampling', 'yes_no',  NULL , '0', '', '', '', 'tissue sampling', ''), 
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'access_to_archived_samples', 'yes_no',  NULL , '0', '', '', '', 'access to archived samples', ''),
-('ClinicalAnnotation', 'ConsentDetail', 'cusm_melanoma_bk_cd_melanomas', 'future_specific_research', 'yes_no',  NULL , '0', '', '', '', 'future research', '');
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'questionnaires', 'yes_no',  NULL , '0', '', '', '', 'questionnaires', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'blood_sampling', 'yes_no',  NULL , '0', '', '', '', 'blood sampling', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'urine_sampling', 'yes_no',  NULL , '0', '', '', '', 'urine sampling', ''),
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'stools_sampling', 'yes_no',  NULL , '0', '', '', '', 'stools sampling', ''),
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'tissue_sampling', 'yes_no',  NULL , '0', '', '', '', 'tissue sampling', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'access_to_archived_samples', 'yes_no',  NULL , '0', '', '', '', 'access to archived samples', ''),
+('ClinicalAnnotation', 'ConsentDetail', 'cusm_sl_bk_cd_skin_lesions', 'future_specific_research', 'yes_no',  NULL , '0', '', '', '', 'future research', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='questionnaires'), '2', '40', 'agreements', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='blood_sampling'), '2', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='urine_sampling'), '2', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='stools_sampling'), '2', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='tissue_sampling'), '2', '50', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='access_to_archived_samples'), '2', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_cd_melanomas'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_melanoma_bk_cd_melanomas' AND `field`='future_specific_research'), '2', '61', 're-contact', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='questionnaires'), '2', '40', 'agreements', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='blood_sampling'), '2', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='urine_sampling'), '2', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='stools_sampling'), '2', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='tissue_sampling'), '2', '50', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='access_to_archived_samples'), '2', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_cd_skin_lesions'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cusm_sl_bk_cd_skin_lesions' AND `field`='future_specific_research'), '2', '61', 're-contact', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('agreements', 'Agreements', "Autorisations"),
@@ -223,7 +226,7 @@ VALUES
 -- SOP
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE sop_controls SET sop_group = 'bank', type = 'melanoma' WHERE id = 1;
+UPDATE sop_controls SET sop_group = 'bank', type = 'skin lesions' WHERE id = 1;
 UPDATE sop_controls SET flag_active = '0' WHERE id = 2;
 
 UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL ,  `setting`='size=20' WHERE model='SopMaster' AND tablename='sop_masters' AND field='version' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_sop_verisons');
@@ -259,9 +262,9 @@ VALUES
 -- Collection Tree View
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'Generated', '', 'cusm_melanoma_bk_collection_specimens', 'input',  NULL , '0', 'size=20', '', '', 'collection specimens', '');
+('InventoryManagement', 'Generated', '', 'cusm_sl_bk_collection_specimens', 'input',  NULL , '0', 'size=20', '', '', 'collection specimens', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='cusm_melanoma_bk_collection_specimens' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='collection specimens' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='cusm_sl_bk_collection_specimens' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='collection specimens' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- Sample - All
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -304,9 +307,9 @@ WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='tissue_sour
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues');
 
-ALTER TABLE sd_spe_tissues ADD COLUMN cusm_melanoma_bk_tissue_nature varchar(50) DEFAULT NULL;
-ALTER TABLE sd_spe_tissues_revs ADD COLUMN cusm_melanoma_bk_tissue_nature varchar(50) DEFAULT NULL;
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_melanoma_bk_tissue_natures", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Natures\')"));
+ALTER TABLE sd_spe_tissues ADD COLUMN cusm_sl_bk_tissue_nature varchar(50) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN cusm_sl_bk_tissue_nature varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_sl_bk_tissue_natures", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Natures\')"));
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ("Tissue Natures", 1, 50, 'inventory');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Tissue Natures");
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
@@ -317,24 +320,24 @@ VALUES
 ('normal','Normal', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ('unknown','Unknown', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'cusm_melanoma_bk_tissue_nature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_natures') , '0', '', '', '', 'nature', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'cusm_sl_bk_tissue_nature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_natures') , '0', '', '', '', 'nature', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_melanoma_bk_tissue_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_natures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_sl_bk_tissue_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_natures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 ALTER TABLE ad_tubes
-  ADD COLUMN cusm_melanoma_bk_storage_method VARCHAR(100) DEFAULT NULL,
-  ADD COLUMN cusm_melanoma_bk_storage_solution VARCHAR(100) DEFAULT NULL;
+  ADD COLUMN cusm_sl_bk_storage_method VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_sl_bk_storage_solution VARCHAR(100) DEFAULT NULL;
 ALTER TABLE ad_tubes_revs
-  ADD COLUMN cusm_melanoma_bk_storage_method VARCHAR(100) DEFAULT NULL,
-  ADD COLUMN cusm_melanoma_bk_storage_solution VARCHAR(100) DEFAULT NULL;
-UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',cusm_melanoma_bk_ad_tissue_tubes') 
+  ADD COLUMN cusm_sl_bk_storage_method VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_sl_bk_storage_solution VARCHAR(100) DEFAULT NULL;
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',cusm_sl_bk_ad_tissue_tubes') 
 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue') 
 AND aliquot_type = 'tube';
-INSERT INTO structures(`alias`) VALUES ('cusm_melanoma_bk_ad_tissue_tubes');
+INSERT INTO structures(`alias`) VALUES ('cusm_sl_bk_ad_tissue_tubes');
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES 
-("cusm_melanoma_bk_tissue_tube_storage_methods", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Methods\')")),
-("cusm_melanoma_bk_tissue_tube_storage_solutions", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Solutions\')"));
+("cusm_sl_bk_tissue_tube_storage_methods", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Methods\')")),
+("cusm_sl_bk_tissue_tube_storage_solutions", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Tube Storage Solutions\')"));
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
 ("Tissue Tube Storage Methods", 1, 50, 'inventory'),
@@ -349,11 +352,11 @@ VALUES
 ('OCT','', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ('DMSO','', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_melanoma_bk_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_tube_storage_methods') , '0', '', '', '', 'storage method', ''), 
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_melanoma_bk_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_tube_storage_solutions') , '0', '', '', '', 'storage solution', '');
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_sl_bk_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_tube_storage_methods') , '0', '', '', '', 'storage method', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'cusm_sl_bk_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_tube_storage_solutions') , '0', '', '', '', 'storage solution', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_melanoma_bk_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_tube_storage_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '75', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='cusm_melanoma_bk_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_melanoma_bk_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_tissue_tube_storage_solutions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '76', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_sl_bk_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_tube_storage_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '75', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_sl_bk_ad_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cusm_sl_bk_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_tissue_tube_storage_solutions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '76', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) 
 VALUES
 ('storage method', 'Storage Method', "Méthode d'entreposage"),
@@ -361,14 +364,14 @@ VALUES
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_melanoma_bk_tissue_nature'), '0', '6', '', '0', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_blood_types') AND `flag_confidential`='0');
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cusm_sl_bk_tissue_nature'), '0', '6', '', '0', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_blood_types') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='#' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Blood
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_melanoma_bk_blood_types", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Blood Types\')"));
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cusm_sl_bk_blood_types", "", "", CONCAT("StructurePermissibleValuesCustom::getCustomDropdown(\'Blood Types\')"));
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ("Blood Types", 1, 30, 'inventory');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = "Blood Types");
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
@@ -376,7 +379,7 @@ VALUES
 ('edta','EDTA', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ('serum','Serum', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW()),
 ('paxgen','Paxgen', "", '1', @control_id, @user_system_id, NOW(),@user_system_id, NOW());
-UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='cusm_melanoma_bk_blood_types') 
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='cusm_sl_bk_blood_types') 
 WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type';
 
 -- buffy coat

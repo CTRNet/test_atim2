@@ -68,7 +68,7 @@
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-Collection.cusm_melanoma_bk_collection_type,
+Collection.cusm_sl_bk_collection_type,
 MiscIdentifier.identifier_value
 			
 			FROM aliquot_masters AS AliquotMaster

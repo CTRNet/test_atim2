@@ -47,11 +47,11 @@ class AliquotMasterCustom extends AliquotMaster
             case 'tissue':
                 $tubeSuffix = '?';
                 if ($nodeDefaultValues) {
-                    if (isset($nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_solution']) && $nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_solution'] == 'OCT') {
+                    if (isset($nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_solution']) && $nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_solution'] == 'OCT') {
                         $tubeSuffix = 'OCT';
-                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_method'] == 'OCT') {
+                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_method'] == 'OCT') {
                         $tubeSuffix = 'CC';
-                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_melanoma_bk_storage_method'] == 'flash freeze') {
+                    } elseif (isset($nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_method']) && $nodeDefaultValues['AliquotDetail.cusm_sl_bk_storage_method'] == 'flash freeze') {
                         $tubeSuffix = 'FF';
                     }
                 }

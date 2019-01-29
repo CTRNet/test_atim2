@@ -9,10 +9,10 @@
  * @since 2018-10-15
  */
 
-foreach( $this->request->data as &$cusmMelanomaBkNewCollection) {
+foreach( $this->request->data as &$cusmSlBkNewCollection) {
     $sampelTypes = array();
-    foreach($cusmMelanomaBkNewCollection['SampleMaster'] as $cusmMelanomaBkNewSample) {
-        $sampelTypes[$cusmMelanomaBkNewSample['initial_specimen_sample_type']] = __($cusmMelanomaBkNewSample['initial_specimen_sample_type']);
+    foreach($cusmSlBkNewCollection['SampleMaster'] as $cusmSlBkNewSample) {
+        $sampelTypes[$cusmSlBkNewSample['initial_specimen_sample_type']] = __($cusmSlBkNewSample['initial_specimen_sample_type']);
     }
-    $cusmMelanomaBkNewCollection['Generated']['cusm_collection_specimens'] = implode(' & ', $sampelTypes);
+    $cusmSlBkNewCollection['Generated']['cusm_sl_bk_collection_specimens'] = implode(' & ', $sampelTypes);
 }
