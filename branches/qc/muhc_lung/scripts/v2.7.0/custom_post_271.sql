@@ -276,7 +276,7 @@ INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_acti
 `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) 
 VALUES
 (null, 'lung bank participant number', 1, 50, '', '', 
-0, 0, 1, 0, '^[A-Z]+\-[0-9]{2}\-[0-9]{4}$', 'AA...-00-0000', 0);
+0, 0, 1, 0, '^JS\-[0-9]{2}\-[0-9]{4}$', 'JS-00-0000', 0);
 INSERT IGNORE  into i18n (id,en,fr)
 VALUES
 ('lung bank participant number', 'Lung Bank - Participant#', 'Banque Poumon - Participant#');
