@@ -1,7 +1,10 @@
 <?php
 
-class TreatmentDetail extends ClinicalAnnotationAppModel {
-	var $useTable = false;
-}
+/**
+ * Class TreatmentDetail
+ */
+class TreatmentDetail extends ClinicalAnnotationAppModel
+{
 
-?>
+    public $useTable = false;
+}

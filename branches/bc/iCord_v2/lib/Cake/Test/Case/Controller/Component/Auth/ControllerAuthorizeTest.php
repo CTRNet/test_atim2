@@ -13,7 +13,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Test.Case.Controller.Component.Auth
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Controller', 'Controller');
@@ -21,6 +21,11 @@ App::uses('ControllerAuthorize', 'Controller/Component/Auth');
 App::uses('CakeRequest', 'Network');
 App::uses('CakeResponse', 'Network');
 
+/**
+ * ControllerAuthorizeTest
+ *
+ * @package       Cake.Test.Case.Controller.Component.Auth
+ */
 class ControllerAuthorizeTest extends CakeTestCase {
 
 /**
@@ -40,14 +45,24 @@ class ControllerAuthorizeTest extends CakeTestCase {
 	}
 
 /**
+ * testControllerTypeError
+ *
  * @expectedException PHPUnit_Framework_Error
  * @return void
+ * @throws PHPUnit_Framework_Error
  */
 	public function testControllerTypeError() {
-		$this->auth->controller(new StdClass());
+		try {
+			$this->auth->controller(new StdClass());
+			$this->fail('No exception thrown');
+		} catch (TypeError $e) {
+			throw new PHPUnit_Framework_Error('Raised an error', 100, __FILE__, __LINE__);
+		}
 	}
 
 /**
+ * testControllerErrorOnMissingMethod
+ *
  * @expectedException CakeException
  * @return void
  */

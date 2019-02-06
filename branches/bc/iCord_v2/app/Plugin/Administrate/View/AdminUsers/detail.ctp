@@ -1,17 +1,22 @@
-<?php 
-	if($_SESSION['Auth']['User']['id'] == $atim_menu_variables['User.id']){
-		$structure_links = array(
-			'bottom'=>array(
-				'edit'=>'/Administrate/AdminUsers/edit/'.$atim_menu_variables['Group.id'].'/%%User.id%%', 
-				'list'=>'/Administrate/AdminUsers/listall/'.$atim_menu_variables['Group.id'])
-		);
-	}else{
-		$structure_links = array(
-			'bottom'=>array(
-				'edit'=>'/Administrate/AdminUsers/edit/'.$atim_menu_variables['Group.id'].'/%%User.id%%', 
-				'delete'=>'/Administrate/AdminUsers/delete/'.$atim_menu_variables['Group.id'].'/%%User.id%%', 
-				'list'=>'/Administrate/AdminUsers/listall/'.$atim_menu_variables['Group.id'])
-		);
-	}
-	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>
+<?php
+if ($_SESSION['Auth']['User']['id'] == $atimMenuVariables['User.id']) {
+    $structureLinks = array(
+        'bottom' => array(
+            'edit' => '/Administrate/AdminUsers/edit/' . $atimMenuVariables['Group.id'] . '/%%User.id%%'
+        )
+    );
+} else {
+    $structureLinks = array(
+        'bottom' => array(
+            'edit' => '/Administrate/AdminUsers/edit/' . $atimMenuVariables['Group.id'] . '/%%User.id%%',
+            'change group' => array(
+                'link' => '/Administrate/AdminUsers/changeGroup/' . $atimMenuVariables['Group.id'] . '/%%User.id%%',
+                'icon' => 'users'
+            ),
+            'delete' => '/Administrate/AdminUsers/delete/' . $atimMenuVariables['Group.id'] . '/%%User.id%%'
+        )
+    );
+}
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
+));
