@@ -7,10 +7,10 @@
  * Clinical Annotation plugin custom code
  *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
- * @since 2019-02-05
+ * @since 2019-01-31
  */
 
-// Hide the Treatment and Event selection sections
-$structureSettings['form_bottom'] = true;
-$structureSettings['actions'] = true;
-$finalOptions['settings'] = $structureSettings;
+// Hide the 'participant identifier' section
+unset($finalOptions['links']['bottom']['add identifier']);
+$finalOptions['settings']['actions'] = true;
+$isAjax = true;
