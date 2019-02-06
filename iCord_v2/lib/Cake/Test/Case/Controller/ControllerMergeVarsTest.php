@@ -15,14 +15,14 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Controller
  * @since         CakePHP(tm) v 1.2.3
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('Controller', 'Controller');
 
 /**
  * Test case AppController
  *
- * @package       Cake.Test.Case.Controller
  * @package       Cake.Test.Case.Controller
  */
 class MergeVarsAppController extends Controller {
@@ -47,7 +47,7 @@ class MergeVarsAppController extends Controller {
  *
  * @package       Cake.Test.Case.Controller
  */
-class MergeVarComponent extends Object {
+class MergeVarComponent extends CakeObject {
 
 }
 
@@ -57,13 +57,6 @@ class MergeVarComponent extends Object {
  * @package       Cake.Test.Case.Controller
  */
 class MergeVariablesController extends MergeVarsAppController {
-
-/**
- * name
- *
- * @var string
- */
-	public $name = 'MergeVariables';
 
 /**
  * uses
@@ -115,13 +108,6 @@ class MergeVarPluginAppController extends MergeVarsAppController {
  * @package       Cake.Test.Case.Controller
  */
 class MergePostsController extends MergeVarPluginAppController {
-
-/**
- * name
- *
- * @var string
- */
-	public $name = 'MergePosts';
 
 /**
  * uses

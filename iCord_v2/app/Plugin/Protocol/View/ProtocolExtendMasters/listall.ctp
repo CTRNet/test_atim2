@@ -1,23 +1,26 @@
-<?php 
-	
-	$structure_links = array(
-		'index'=>array(
-			'detail'=>'/Protocol/ProtocolExtendMasters/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
-			'delete'=>'/Protocol/ProtocolExtendMasters/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/'
-		),
-		'bottom'=>array('add' => '/Protocol/ProtocolExtendMasters/add/'.$atim_menu_variables['ProtocolMaster.id'])
-	);
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links'=>$structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-	
-?>
+<?php
+$structureLinks = array(
+    'index' => array(
+        'detail' => '/Protocol/ProtocolExtendMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/',
+        'edit' => '/Protocol/ProtocolExtendMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/',
+        'delete' => '/Protocol/ProtocolExtendMasters/delete/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/'
+    ),
+    'bottom' => array(
+        'add' => '/Protocol/ProtocolExtendMasters/add/' . $atimMenuVariables['ProtocolMaster.id']
+    )
+);
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

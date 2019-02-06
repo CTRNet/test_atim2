@@ -1,40 +1,85 @@
 <?php
 
-class StructureFormatsController extends AdministrateAppController {
-	
-	var $uses = array('StructureFormat');
-	var $paginate = array('StructureFormat'=>array('limit' => pagination_amount,'order'=>'StructureFormat.id ASC')); 
-	
-	function listall( $structure_id ) {
-		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
-		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id) );
-		
-		$this->hook();
-		
-		$this->request->data = $this->paginate($this->StructureFormat, array('StructureFormat.structure_id'=>$structure_id));
-	}
-	
-	function detail( $structure_id, $structure_format_id ) {
-		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
-		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id, 'StructureFormat.id'=>$structure_format_id) );
-		
-		$this->hook();
-		
-		$this->request->data = $this->StructureFormat->find('first',array('conditions'=>array('StructureFormat.id'=>$structure_format_id)));
-	}
-	
-	function edit( $structure_id, $structure_format_id ) {
-		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
-		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id, 'StructureFormat.id'=>$structure_format_id) );
-		
-		$this->hook();
-		
-		if ( !empty($this->request->data) ) {
-			if ( $this->StructureFormat->save($this->request->data) ) $this->atimFlash(__('your data has been updated'),'/Administrate/StructureFormats/detail/'.$structure_id.'/'.$structure_format_id );
-		} else {
-			$this->request->data = $this->StructureFormat->find('first',array('conditions'=>array('StructureFormat.id'=>$structure_format_id)));
-		}
-	}	
-}
+/**
+ * Class StructureFormatsController
+ */
+class StructureFormatsController extends AdministrateAppController
+{
 
-?>
+    public $uses = array(
+        'StructureFormat'
+    );
+
+    public $paginate = array(
+        'StructureFormat' => array(
+            'order' => 'StructureFormat.id ASC'
+        )
+    );
+
+    /**
+     *
+     * @param $structureId
+     */
+    public function listall($structureId)
+    {
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
+        $this->set('atimMenuVariables', array(
+            'Structure.id' => $structureId
+        ));
+        
+        $this->hook();
+        
+        $this->request->data = $this->paginate($this->StructureFormat, array(
+            'StructureFormat.structure_id' => $structureId
+        ));
+    }
+
+    /**
+     *
+     * @param $structureId
+     * @param $structureFormatId
+     */
+    public function detail($structureId, $structureFormatId)
+    {
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
+        $this->set('atimMenuVariables', array(
+            'Structure.id' => $structureId,
+            'StructureFormat.id' => $structureFormatId
+        ));
+        
+        $this->hook();
+        
+        $this->request->data = $this->StructureFormat->find('first', array(
+            'conditions' => array(
+                'StructureFormat.id' => $structureFormatId
+            )
+        ));
+    }
+
+    /**
+     *
+     * @param $structureId
+     * @param $structureFormatId
+     */
+    public function edit($structureId, $structureFormatId)
+    {
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
+        $this->set('atimMenuVariables', array(
+            'Structure.id' => $structureId,
+            'StructureFormat.id' => $structureFormatId
+        ));
+        
+        $this->hook();
+        
+        if (! empty($this->request->data)) {
+            if ($this->StructureFormat->save($this->request->data))
+                $this->atimFlash(__('your data has been updated'), '/Administrate/StructureFormats/detail/' . $structureId . '/' . $structureFormatId);
+        } else {
+            $this->request->data = $this->StructureFormat->find('first', array(
+                'conditions' => array(
+                    'StructureFormat.id' => $structureFormatId
+                )
+            ));
+        }
+    }
+}

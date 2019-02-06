@@ -1,5 +1,8 @@
 <?php
 
-class Version extends AdministrateAppModel {
-	
+/**
+ * Class Version
+ */
+class Version extends AdministrateAppModel
+{
 }
