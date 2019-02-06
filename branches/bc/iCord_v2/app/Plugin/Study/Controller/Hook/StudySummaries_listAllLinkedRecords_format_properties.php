@@ -7,7 +7,7 @@
  * Iventory Management plugin custom code
  *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
- * @since 2019-01-31
+ * @since 2019-02-05
  */
 
 // Remove any object that can not be linked to a study by user through the customized ATiM interface.

@@ -11,7 +11,7 @@
 -- Issue#869 : Add 'tube' as aliquot type
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : Consider that formalin is a storage solution for csf tube
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ VALUES
 -- Issue#788: Add 'Thawed' to the Tube Stock Detail dropdown list
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : Will change the aliquot in stock detail list from fix to custom
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE stru
 -- Issue#854: Add additional specimen types to collections
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ UPDATE realiquoting_controls SET flag_active=true WHERE id IN('71');
 -- Hide  any diagnosis controls not used by iCORD
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : It seams that iCORD just used animal diagnosis - Hide other diagnosis types
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ WHERE flag_active = 1 AND id NOT IN (
 -- Hide any diagnosis masters fields not used by iCORD then move Notes field to the other column
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : To simplfy the data entry.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Diagnosis
 -- Make all fields visible in search/index view to let them searchable and readable in data browser result forms.
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -278,7 +278,7 @@ WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('cd_biobanks', 
 -- Changed ATiM to not allow people to link a collection to both treatment and annotation
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : See also app\Plugin\ClinicalAnnotation\View\ClinicalCollectionLinks\Hook.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -291,7 +291,7 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` IN ('Tr
 -- Add corrections to database custom fields that generate errrors according to SQL_MODE 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -302,7 +302,7 @@ ALTER TABLE collections_revs MODIFY autopsy_datetime_accuracy char(1) NOT NULL D
 -- Add corrections to databse custom fields based on ATiM database validation tool
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -333,7 +333,7 @@ ALTER TABLE sample_masters_revs DROP COLUMN icord_actual_timepoint;
 -- Hide menu (and linked field) of unused tools 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -392,7 +392,7 @@ UPDATE menus SET flag_active = IF((@does_tool_exist + flag_active) = 2, 1, 0) WH
 -- Hide any event controls not used by iCORD
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -412,7 +412,7 @@ AND event_type != 'animal data';
 -- Add correcion to storage control properties of 'FreezerShelf'.
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : See 'atim_v2.6.8_upgrade.sql' script comment ### 12 # Added new controls on storage_controls: coord_x_size 
 --      and coord_y_size should be bigger than 1 if set.
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -486,7 +486,7 @@ SELECT 'Please review migration script' AS '### Error #iCord_0001 ###' FROM tma_
 -- Hide collection protocol
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -510,17 +510,17 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collectio
 -- Add missing custom fields in revs table.
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : Activate batch actions.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE participants_revs ADD COLUMN icord_species varchar(100) DEFAULT NULL;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Hid any treatment controls not used by iCORD
+-- Hide any treatment controls not used by iCORD
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -538,7 +538,7 @@ WHERE flag_active = 1 AND id NOT IN (
 -- Update databrowser configuration.
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : Activate databrowser relation links.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -571,7 +571,7 @@ WHERE (id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND i
 -- Update batch actions configuration.
 --
 -- @author: Nicolas Luc
--- @date: 2019-02-04
+-- @date: 2019-02-05
 -- @notes : Activate batch actions.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -591,7 +591,7 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 -- Hide MiscIdentifier data. 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : -
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -605,7 +605,7 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/MiscId
 -- Databrowser configuraton. 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : Remove any object and objects link not used.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -636,7 +636,7 @@ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHisto
 -- Report configuraton. 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : Remove any unusefull reports.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -649,7 +649,7 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 -- Batch Actions configuraton. 
 --
 -- @author: Nicolas Luc
--- @date: 2019-01-31
+-- @date: 2019-02-05
 -- @notes : Remove any unusefull batch actions.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -684,7 +684,53 @@ UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_ac
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'create use/event (applied to all)';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Hide the participant identifier in 'add' form.
+--
+-- @author: Nicolas Luc
+-- @date: 2019-02-05
+-- @notes : Fix warning message 'no data for [Participant.participant_identifier]'.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Databrowser configuraton. 
+--
+-- @author: Nicolas Luc
+-- @date: 2019-02-05
+-- @notes : Add OrderLine.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- i18n: Update core_installname.
+--
+-- @author: Nicolas Luc
+-- @date: 2019-02-05
+-- @notes : -
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE i18n SET en = 'iCord', fr = 'iCord' WHERE id = 'core_installname';
+
+TODO: Annotation
+-------------------------------------------------------------
+Animal Data - General 
+Warning: no data for [EventDetail.compression]
+Check field exists in database.
+
+TODO: Consent
+-------------------------------------------------------------
+Biobank Consent
+Warning: no data for [ConsentDetail.postmortum_interval]
+Check field exists in database.
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = 'xxxx' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7563' WHERE version_number = '2.7.1';
