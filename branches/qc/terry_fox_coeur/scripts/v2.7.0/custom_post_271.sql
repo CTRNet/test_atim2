@@ -201,6 +201,8 @@ VALUES
 ALTER TABLE study_summaries MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
 ALTER TABLE study_summaries_revs MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
 
+UPDATE `versions` SET branch_build_number = '7569' WHERE version_number = '2.7.1';
+
 
 Tous les blocs chum de Coeur, n'ont pas été créer dans axe Onco avec un flagg donnée à COEUR. Todo pour CPCBN & QBCF aussi.
 Vérifier que les patients CHUM coeur sont tous dans ATiM.
