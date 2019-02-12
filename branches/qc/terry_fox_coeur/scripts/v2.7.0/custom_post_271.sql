@@ -238,3 +238,41 @@ FROM aliquot_masters, ad_blocks
 WHERE id = aliquot_master_id AND modified = @created AND modified_by = @created_by);
 
 UPDATE `versions` SET branch_build_number = '7570' WHERE version_number = '2.7.1';
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) VALUES
+('Aliquot In Stock Details', 1, 30, 'inventory');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot In Stock Details');
+
+SET @user_id = 2;
+
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("empty", "Empty", "Vide", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("reserved for order", "Reserved For Order", "Réservé pour une commande", "6", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("lost", "Lost", "Perdu", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("used", "Used", "Utilisé", "8", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("on loan", "On Loan", "Prêté", "4", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("other", "Other", "Autre", "9", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("shipped", "Shipped", "Envoyé", "7", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("contaminated", "Contaminated", "Contaminé", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("reserved for study", "Reserved For Study/Project", "Réservé pour une Étude/Projet", "5", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("qc_tf_coeur_awaiting_reception", "Awaiting reception", "En attente de réception", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("shipped &amp; returned", "Shipped &amp; Returned", "Enovyé &amp; Retourné", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("wrong block (1st migration)", "Wrong block (created by 1st coeur data migration batch)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("sent back", "Sent back", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+UPDATE structure_permissible_values_custom_controls 
+ SET values_used_as_input_counter = 13, values_counter = 13 WHERE name = 'Aliquot In Stock Details';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Aliquot In Stock Details\')' WHERE domain_name = 'aliquot_in_stock_detail';
+
+SET @id = (SELECT id FROM structure_value_domains WHERE domain_name = 'aliquot_in_stock_detail');
+
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = @id;
+
+UPDATE `versions` SET branch_build_number = '7571' WHERE version_number = '2.7.1';

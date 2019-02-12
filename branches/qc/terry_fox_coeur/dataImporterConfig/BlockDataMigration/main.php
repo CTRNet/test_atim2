@@ -121,12 +121,11 @@ $query = "UPDATE aliquot_masters
     WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
     AND deleted <> 1
     AND (in_stock_detail IS NULL OR in_stock_detail = '')
-    AND in_stock = 'no'";
+    AND in_stock != 'no'";
 customQuery($query);    
 
 $query = "UPDATE aliquot_masters
     SET in_stock = 'no',
-    in_stock_detail = 'wrong block (1st migration)',
     storage_master_id = null,
     storage_coord_x = null,
     storage_coord_y = null,
@@ -136,7 +135,7 @@ $query = "UPDATE aliquot_masters
     WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
     AND deleted <> 1
     AND (in_stock_detail IS NOT NULL AND in_stock_detail != '')
-    AND in_stock = 'no'";
+    AND in_stock != 'no'";
 customQuery($query);
     
 $query = "UPDATE sample_masters
@@ -177,6 +176,15 @@ $query = "SELECT GROUP_CONCAT(DISTINCT id  SEPARATOR ',' ) res_ids, GROUP_CONCAT
     WHERE deleted <> 1
     AND participant_id IS NOT NULL
 --    AND collection_datetime IS NOT NULL
+    AND id IN 
+    (
+       SELECT DISTINCT Collection.id
+       FROM collections Collection
+       INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id AND SampleMaster.deleted <> 1
+       INNER JOIN sd_spe_tissues SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+       WHERE Collection.deleted <> 1
+       AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+    )
     GROUP BY participant_id, collection_datetime, collection_datetime_accuracy";
 $atimCollectionsToMerge = getSelectQueryResult($query);
 foreach($atimCollectionsToMerge as $new_collections_set) {
@@ -780,7 +788,16 @@ foreach($atimBlocks as $participantTfriNbr => $allBlocksLvl1) {
 $query = "SELECT GROUP_CONCAT(DISTINCT id  SEPARATOR ',' ) res_ids, GROUP_CONCAT(DISTINCT collection_notes SEPARATOR '#||#' ) res_notes, participant_id, collection_datetime, collection_datetime_accuracy
     FROM collections
     WHERE deleted <> 1
-    AND participant_id IS NOT NULL
+    AND participant_id IS NOT NULL    
+    AND id IN 
+    (
+       SELECT DISTINCT Collection.id
+       FROM collections Collection
+       INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id AND SampleMaster.deleted <> 1
+       INNER JOIN sd_spe_tissues SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+       WHERE Collection.deleted <> 1
+       AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+    )
     GROUP BY participant_id, collection_datetime, collection_datetime_accuracy";
 $atimCollectionsToMerge = getSelectQueryResult($query);
 foreach($atimCollectionsToMerge as $new_collections_set) {
