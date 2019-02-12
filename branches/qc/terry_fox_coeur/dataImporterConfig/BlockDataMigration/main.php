@@ -1,5 +1,5 @@
-<?php
-
+<?php    
+    
 // *******************************************************************************************************************************************************
 //
 //    TFRI-COEUR
@@ -40,7 +40,7 @@ foreach($atim_qc_tf_bank_data as $new_bank_data) {
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
-// Collection cleanup: Delete all existing blocks (unused) plus merge collection
+// Collection cleanup: Set block in stock value to no plus merge collection
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 $query = "SELECT count(*) tt FROM specimen_review_masters;";
@@ -52,59 +52,97 @@ $countRev = getSelectQueryResult($query);
 if($countRev[0]['tt']) { pr($countRev);die('ERR8584211274338');}
 
 // Blocks
-//----------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+$query = "SELECT id, barcode, aliquot_label
+	FROM aliquot_masters	
+	WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
+    AND deleted <> 1
+	AND in_stock = 'no';";
+foreach(getSelectQueryResult($query) as $newRecord) {
+    recordErrorAndMessage(
+        'Collections, tissues samples and blocks clean-up :: pre-migration',
+        '@@WARNING@@',
+        "Block defined as not in stock before migration. Block information (including the reason) won't be copied then past to the new created block. To migrate manually after the migration if required.",
+        "Block TFRI# ".$newRecord['barcode']." (Aliquot TFRI Label : ".$newRecord['aliquot_label'].").");
+}
+
+$query = "SELECT id, barcode, aliquot_label
+	FROM aliquot_masters
+	WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
+    AND deleted <> 1
+	AND id IN (
+        SELECT aliquot_master_id FROM (
+            SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1
+            UNION ALL
+            SELECT aliquot_master_id FROM source_aliquots WHERE deleted <> 1
+            UNION ALL
+            SELECT child_aliquot_master_id FROM realiquotings WHERE deleted <> 1
+            UNION ALL
+            SELECT parent_aliquot_master_id FROM realiquotings WHERE deleted <> 1
+            UNION ALL
+            SELECT aliquot_master_id FROM quality_ctrls WHERE deleted <> 1
+            UNION ALL
+            SELECT aliquot_master_id FROM order_items WHERE deleted <> 1
+            UNION ALL
+            SELECT aliquot_master_id FROM aliquot_review_masters WHERE deleted <> 1
+        ) res
+    )";
+foreach(getSelectQueryResult($query) as $newRecord) {
+    recordErrorAndMessage(
+        'Collections, tissues samples and blocks clean-up :: pre-migration',
+        '@@WARNING@@',
+        "Block defined as used before migration. Block uses data won't be copied then past to the new created block. To migrate manually after the migration if required.",
+        "Block TFRI# ".$newRecord['barcode']." (Aliquot TFRI Label : ".$newRecord['aliquot_label'].").");
+}
 
 $query = "SELECT COUNT(*) nbr_of_blocks
     FROM aliquot_masters
     WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-    AND deleted <> 1";
+    AND deleted <> 1
+    AND in_stock != 'no'";
 $atimNbrOfBlocks = getSelectQueryResult($query);
 $atimNbrOfBlocks = $atimNbrOfBlocks[0]['nbr_of_blocks'];
-$query = "SELECT COUNT(*) nbr_of_tubes
-    FROM aliquot_masters
-    WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-tube']['id']."
-    AND deleted <> 1";
-$atimNbrOfTissueTubes = getSelectQueryResult($query);
-$atimNbrOfTissueTubes= $atimNbrOfTissueTubes[0]['nbr_of_tubes'];
-$query = "SELECT COUNT(*) nbr_of_tissues
-    FROM sample_masters
-    WHERE sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
-    AND deleted <> 1";
-$atimNbrOfTissues = getSelectQueryResult($query);
-$atimNbrOfTissues = $atimNbrOfTissues[0]['nbr_of_tissues'];
+recordErrorAndMessage(
+    'Collections, tissues samples and blocks clean-up :: pre-migration',
+    '@@WARNING@@',
+    "Changed the in stock value to 'no' for all existing blocks migrated before 2019 and that should be replaced by the data of the current migration.",
+    "$atimNbrOfBlocks blocks updated");
 
-$query = "SELECT COUNT(*) nbr_of_tissue_collections
-    FROM collections
-    WHERE id IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']." AND deleted <> 1)
-    AND deleted <> 1";
-$atimNbrOfTissueCollections = getSelectQueryResult($query);
-$atimNbrOfTissueCollections = $atimNbrOfTissueCollections[0]['nbr_of_tissue_collections'];
-
-$queries = array(
-    "UPDATE aliquot_masters 
-    SET deleted = 1
+$query = "UPDATE aliquot_masters
+    SET in_stock = 'no',
+    in_stock_detail = 'wrong block (1st migration)',
+    storage_master_id = null,
+    storage_coord_x = null,
+    storage_coord_y = null,
+    notes = CONCAT('Created by the 1st blocks migration script (before 2019) and supposed to be replaced by the new migration of blocks on ".$import_date.". ', IFNULL(notes, '')),
+    modified = '".$import_date."',
+    modified_by = ".$imported_by."
     WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
     AND deleted <> 1
-    AND id NOT IN (
-        SELECT aliquot_master_id FROM (
-            SELECT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1
-    		UNION ALL
-            SELECT aliquot_master_id FROM source_aliquots WHERE deleted <> 1
-    		UNION ALL
-    		SELECT child_aliquot_master_id FROM realiquotings WHERE deleted <> 1
-    		UNION ALL
-    		SELECT parent_aliquot_master_id FROM realiquotings WHERE deleted <> 1
-    		UNION ALL
-            SELECT aliquot_master_id FROM quality_ctrls WHERE deleted <> 1
-    		UNION ALL
-            SELECT aliquot_master_id FROM order_items WHERE deleted <> 1
-    		UNION ALL
-            SELECT aliquot_master_id FROM aliquot_review_masters WHERE deleted <> 1
-        ) res
-    )",
+    AND (in_stock_detail IS NULL OR in_stock_detail = '')
+    AND in_stock = 'no'";
+customQuery($query);    
+
+$query = "UPDATE aliquot_masters
+    SET in_stock = 'no',
+    in_stock_detail = 'wrong block (1st migration)',
+    storage_master_id = null,
+    storage_coord_x = null,
+    storage_coord_y = null,
+    notes = CONCAT('Created by the 1st blocks migration script (before 2019) and supposed to be replaced by the new migration of blocks on ".$import_date.". ', IFNULL(notes, '')),
+    modified = '".$import_date."',
+    modified_by = ".$imported_by."
+    WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
+    AND deleted <> 1
+    AND (in_stock_detail IS NOT NULL AND in_stock_detail != '')
+    AND in_stock = 'no'";
+customQuery($query);
     
-    "UPDATE sample_masters
-    SET deleted = 1
+$query = "UPDATE sample_masters
+    SET deleted = 1,
+    modified = '".$import_date."',
+    modified_by = ".$imported_by."
     WHERE sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
     AND id NOT IN (
         SELECT sample_master_id FROM (
@@ -117,79 +155,33 @@ $queries = array(
             SELECT parent_id FROM sample_masters WHERE deleted <> 1 AND parent_id IS NOT NULL
         ) res
     ) 
-    AND deleted <> 1",
+    AND deleted <> 1";
+customQuery($query);
     
-    "UPDATE collections
-    SET deleted = 1
+$query = "UPDATE collections
+    SET deleted = 1,
+    modified = '".$import_date."',
+    modified_by = ".$imported_by."
     WHERE id NOT IN (
         SELECT collection_id FROM sample_masters WHERE deleted <> 1 
         UNION ALL
         SELECT collection_id FROM specimen_review_masters WHERE deleted <> 1
-    ) AND deleted <> 1"
-);
-foreach($queries as $query)	{
-    customQuery($query);
-}
-
-$query = "SELECT COUNT(*) nbr_of_blocks
-    FROM aliquot_masters
-    WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-    AND deleted <> 1";
-$atimAfterNbrOfBlocks = getSelectQueryResult($query);
-$atimAfterNbrOfBlocks = $atimAfterNbrOfBlocks[0]['nbr_of_blocks'];
-$query = "SELECT COUNT(*) nbr_of_tubes
-    FROM aliquot_masters
-    WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-tube']['id']."
-    AND deleted <> 1";
-$atimAfterNbrOfTissueTubes = getSelectQueryResult($query);
-$atimAfterNbrOfTissueTubes= $atimAfterNbrOfTissueTubes[0]['nbr_of_tubes'];
-$query = "SELECT COUNT(*) nbr_of_tissues
-    FROM sample_masters
-    WHERE sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
-    AND deleted <> 1";
-$atimAfterNbrOfTissues = getSelectQueryResult($query);
-$atimAfterNbrOfTissues = $atimAfterNbrOfTissues[0]['nbr_of_tissues'];
-
-$query = "SELECT COUNT(*) nbr_of_tissue_collections
-    FROM collections
-    WHERE id IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']." AND deleted <> 1)
-    AND deleted <> 1";
-$atimAfterNbrOfTissueCollections = getSelectQueryResult($query);
-$atimAfterNbrOfTissueCollections = $atimAfterNbrOfTissueCollections[0]['nbr_of_tissue_collections'];
-
-recordErrorAndMessage(
-    'Collections and blocks clean-up pre-migration',
-    '@@WARNING@@',
-    "Deletion of 'unused' ATiM blocks before migration.",
-    "Deleted ".($atimNbrOfBlocks-$atimAfterNbrOfBlocks)."/$atimNbrOfBlocks blocks, ".($atimNbrOfTissues-$atimAfterNbrOfTissues)."/$atimNbrOfTissues tissues and ".($atimNbrOfTissueCollections-$atimAfterNbrOfTissueCollections)."/$atimNbrOfTissueCollections collections");
-
-$query = "SELECT id, barcode, aliquot_label, patho_dpt_block_code
-    FROM aliquot_masters
-    INNER JOIN ".$atim_controls['aliquot_controls']['tissue-block']['detail_tablename']." ON id = aliquot_master_id
-    WHERE aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-    AND deleted <> 1";
-$atimBlocks = getSelectQueryResult($query);
-foreach($atimBlocks as $atimBlockKeep) {
-    recordErrorAndMessage(
-        'Collections and blocks clean-up pre-migration',
-        '@@WARNING@@',
-        "Undeleted block (because they are probably flagged as used into ATiM). Will try to link them to an Excel block. Please validate.",
-        "Block TFRI# ".$atimBlockKeep['barcode']." (Aliquot TFRI Label : ".$atimBlockKeep['aliquot_label'].", Pathology number : ".$atimBlockKeep['patho_dpt_block_code']."). ");
-}
+    ) AND deleted <> 1";
+customQuery($query);
 
 // Collection fusion (pre-process)
-//-----------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 $query = "SELECT GROUP_CONCAT(DISTINCT id  SEPARATOR ',' ) res_ids, GROUP_CONCAT(DISTINCT collection_notes SEPARATOR '#||#' ) res_notes, participant_id, collection_datetime, collection_datetime_accuracy
     FROM collections
     WHERE deleted <> 1
     AND participant_id IS NOT NULL
+--    AND collection_datetime IS NOT NULL
     GROUP BY participant_id, collection_datetime, collection_datetime_accuracy";
 $atimCollectionsToMerge = getSelectQueryResult($query);
 foreach($atimCollectionsToMerge as $new_collections_set) {
     if(preg_match('/,/', $new_collections_set['res_ids'])) {
         $all_ids = explode(',',$new_collections_set['res_ids']);
-        $coll_counter = sizeof($all_ids);
         $collection_id_to_keep = array_shift($all_ids);
         $collection_ids_to_delete = implode(',',$all_ids);
         $notes = explode('#||#', $new_collections_set['res_notes']);
@@ -218,105 +210,112 @@ foreach($atimCollectionsToMerge as $new_collections_set) {
             modified_by = ".$imported_by."
             WHERE collection_id IN ($collection_ids_to_delete) AND deleted <> 1");
         recordErrorAndMessage(
-            'Collections and blocks clean-up pre-migration',
-            '@@WARNING@@',
+            'Collections, tissues samples and blocks clean-up :: pre-migration',
+            '@@MESSAGE@@',
             "Merged participant collections with same dates. Please validate.",
             "See Participant TFRI# ".$new_collections_set['participant_id'] .
-            (strlen($new_collections_set['collection_datetime'])? " and collection date ".str_replace(' 00:00:00', '', $new_collections_set['collection_datetime'])."." : ""));
+            (strlen($new_collections_set['collection_datetime'])? " and collection date ".str_replace(' 00:00:00', '', $new_collections_set['collection_datetime'])."." : " and collection with no date."));
     }
 }
 
-//----------------------------------------------------
+// Sample Tissue fusion (pre-process)
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+$query = "SELECT 
+    Collection.participant_id,
+    Collection.collection_datetime,
+    Collection.collection_datetime_accuracy,
+    SampleMaster.collection_id, 
+    GROUP_CONCAT(DISTINCT SampleMaster.id  SEPARATOR ',' ) sample_master_ids, 
+    SampleDetail.tissue_source,
+    SampleDetail.qc_tf_tissue_type,
+    SampleDetail.tissue_laterality
+    FROM collections Collection
+    INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+    INNER JOIN sd_spe_tissues SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+    WHERE SampleMaster.deleted <> 1
+    AND Collection.deleted <> 1
+    AND sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+    GROUP BY SampleMaster.collection_id, 
+    Collection.participant_id,
+    Collection.collection_datetime,
+    Collection.collection_datetime_accuracy,
+    SampleDetail.tissue_source,
+    SampleDetail.qc_tf_tissue_type,
+    SampleDetail.tissue_laterality;";
+
+$atimSamplesToMerge = getSelectQueryResult($query);
+foreach($atimSamplesToMerge as $new_samples_set) {
+    if(preg_match('/,/', $new_samples_set['sample_master_ids'])) {
+        $all_ids = explode(',',$new_samples_set['sample_master_ids']);
+        $sample_id_to_keep = array_shift($all_ids);
+        $sample_ids_to_delete = implode(',',$all_ids);
+        customQuery("UPDATE sample_masters
+            SET deleted = 1,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE sample_masters
+            SET parent_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE parent_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE sample_masters
+            SET initial_specimen_sample_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE initial_specimen_sample_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE aliquot_masters
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        $query = "SELECT count(*) tt from quality_ctrls WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1";
+        $countRes = getSelectQueryResult($query);
+        $andQualtyCtrlMsg = ($countRes[0]['tt'])? " plus quality controls " : "";
+        customQuery("UPDATE quality_ctrls
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        $query = "SELECT count(*) tt from source_aliquots WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1";
+        $countRes = getSelectQueryResult($query);
+        if($countRes[0]['tt']) die('ERR 93939383');
+        customQuery("UPDATE source_aliquots
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        $sampleMsg = array();
+        if($new_samples_set['tissue_source']) $sampleMsg[] = "tissue source = '".$new_samples_set['tissue_source']."'";
+        if($new_samples_set['qc_tf_tissue_type']) $sampleMsg[] = "tissue type = '".$new_samples_set['qc_tf_tissue_type']."'";
+        if($new_samples_set['tissue_laterality']) $sampleMsg[] = "tissue laterality = '".$new_samples_set['tissue_laterality']."'";
+        if(!$sampleMsg) $sampleMsg[] = 'with no tissue property';
+        $sampleMsg = implode(' ', $sampleMsg);
+        recordErrorAndMessage(
+            'Collections, tissues samples and blocks clean-up :: pre-migration',
+            '@@MESSAGE@@',
+            "Merged tissue samples $andQualtyCtrlMsg for tissue of the same collection with same source, laterality and type. Please validate.",
+            "See Participant TFRI# ".$new_samples_set['participant_id'] .
+            (strlen($new_samples_set['collection_datetime'])? ", collection date ".str_replace(' 00:00:00', '', $new_collections_set['collection_datetime'])."." : ", collection with no date ".
+            "and tissue sample with $sampleMsg."));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 addToModifiedDatabaseTablesList('Collections', null);
-addToModifiedDatabaseTablesList('sample_masters', $atim_controls['aliquot_controls']['tissue-block']['detail_tablename']);
-addToModifiedDatabaseTablesList('aliquot_masters', $atim_controls['sample_controls']['tissue']['detail_tablename']);
+addToModifiedDatabaseTablesList('sample_masters', $atim_controls['sample_controls']['tissue']['detail_tablename']);
+addToModifiedDatabaseTablesList('aliquot_masters', $atim_controls['aliquot_controls']['tissue-block']['detail_tablename']);
+addToModifiedDatabaseTablesList('source_aliquots', null);
+addToModifiedDatabaseTablesList('quality_ctrls', null);
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 // Main Process
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// Data match definition
-//----------------------------------------------------
-
-$latMatch = array(
-    "Latérality block" => array("Tissue Source", "Tissue Type", "Laterality"),
-    "unknown" => array("unknown", "unknown", "unknown"),
-    "right" => array("", "    ", "right"),
-    "ov left" => array("ovary", "", "left"),
-    "left" => array("", "", "left"),
-    "Cul de sac de Douglas" => array("", "", ""),
-    "pelvis left" => array("", "", "left"),
-    "mass annexe left" => array("", "", "left"),
-    "ov right" => array("ovary", "", "right"),
-    "omentum" => array("", "", ""),
-    "left (ov ou tr)" => array("", "", "left"),
-    "rectum " => array("", "", ""),
-    "sigmoide" => array("", "", ""),
-    "Ep" => array("", "", ""),
-    "not applicable" => array("", "", ""),
-    "G" => array("", "", "left"),
-    "annexe left" => array("", "", "left"),
-    "annexe right" => array("", "", "right"),
-    "FT right" => array("", "", "right"),
-    "masse pelvienne" => array("", "", ""),
-    "péritoine" => array("", "", ""),
-    "tr left" => array("", "", "left"),
-    "ov D" => array("ovary", "", "right"),
-    "peritoneum" => array("", "", ""),
-    "ov G" => array("ovary", "", "left"),
-    "Douglas" => array("", "", ""),
-    "left(zone excroissance)" => array("", "", "left"),
-    "OV-tr right" => array("ovary", "", "right"),
-    "pelvic mass" => array("", "", ""),
-    "FTube left" => array("", "", "left"),
-    "Ov Gauche" => array("ovary", "", "left"),
-    "grele" => array("", "", ""),
-    "appendix" => array("", "", ""),
-    "peritoneum pelvic left" => array("", "", "left"),
-    "masse tumorale" => array("", "", ""),
-    "paracolic nodule" => array("", "", ""),
-    "FT left" => array("", "", "left"),
-    "implant pelvien" => array("", "", ""),
-    "intra pelvien" => array("", "", ""),
-    "omentum mets mixte HGSC-EC" => array("", "", ""),
-    "hepathic kystic  mass" => array("", "", ""),
-    "FT" => array("", "", ""),
-    "péritoeum, BX bassin" => array("", "", ""),
-    "epiploon" => array("", "", ""),
-    "ovarian mass" => array("ovary", "", ""),
-    "mesenter" => array("", "", ""),
-    "pelvic et sigmoide" => array("", "", ""),
-    "annexe left +ut" => array("", "", "left"),
-    "annexe nodule" => array("", "", ""),
-    "uterus" => array("", "", ""),
-    "ganglions lymph. Gauche" => array("", "", "left"),
-    "ganglions lymph. Droit" => array("", "", "right"),
-    "FT D" => array("", "", ""),
-    "retroperitoneum" => array("", "", ""),
-    "Lymph Node iliac left" => array("", "", "left"),
-    "sac herniaire " => array("", "", ""),
-    "small bowel" => array("", "", ""),
-    "lymph node left" => array("", "", "left"),
-    "FT distal" => array("", "", ""),
-    " ileo-caeca" => array("", "", ""),
-    "lymph node" => array("", "", ""),
-    "ov L ou R?" => array("ovary", "", ""),
-    "mesentere" => array("", "", ""),
-    "epiplon" => array("", "", ""),
-    "méso " => array("", "", ""),
-    "bladder" => array("", "", ""),
-    "unknown " => array("", "", ""),
-    "right " => array("", "", "right"),
-    "ovary" => array("ovary", "", ""),
-    "0" => array("", "", ""),
-    "#N/A" => array("", "", ""),
-    "ovary right" => array("ovary", "", "right"),
-    "ovary left" => array("ovary", "", "left"),
-    "fallopian tub" => array("", "", ""));
-
 // Create storage
-//----------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 $created_storage_counter = 0;
 $created_storage_counter++;
@@ -383,14 +382,15 @@ $storage_data = array(
 $r12_112_storage_master_id = customInsertRecord($storage_data);
 
 // Block migration - Main code
-//----------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 $atimBlocks = getATiMBlocks();
 $atimTissues = getATiMTissues();
 
 $blocksControl = array();
-$created_aliquot_counter = 0;
+$created_collection_counter = 0;
 $created_sample_counter = 0;
+$created_aliquot_counter = 0;
 $created_slide_counter = 0;
 $dataUpdateCreationSummary = array();
 
@@ -400,8 +400,9 @@ $file_name_for_summary = "file '<b>$file_name :: $worksheetName</b>";
 while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     list($excel_line_counter, $excel_line_block_data) = $exceldata;
     
-    // Check participant
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Check participant (if exists)
+    // If not, next line.
+    //--------------------------------------------------
     
     if($excel_line_block_data['availability blocks'] == 'control') {
         $blocksControl[] = array('line' => $excel_line_counter, 'excel_data' => $excel_line_block_data);
@@ -451,119 +452,155 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             "See excel banq '<b>".$excel_line_block_data['Bank']."</b>' and ATiM bank '".$atim_qc_tf_bank_name_from_id[$atimTissues[$participantTfriNbr]['qc_tf_bank_id']]."' defined for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
         continue;
     }
+    
+    // Participant found
+    $participant_id = $atimTissues[$participantTfriNbr]['participant_id'];
        
-    // Block Match
+    // Block Match : Try to match block with a block in ATiM based on the pathology nbr
+    // $atim_blocks structure:
+    //    - $atim_blocks[$new_block['participant_identifier']][$new_block['patho_dpt_block_code']][$new_block['aliquot_master_id']] = $new_block;
+    //    - $atim_blocks[$new_block['participant_identifier']][$new_block['patho_dpt_block_code']][$new_block['aliquot_master_id']]['matched_excel_block_on_patho_nbr'] = false;
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     
     $excel_block_pathology_nbr = $excel_line_block_data['SampleID (Bloc pour TMA Lili)'];
-    
-    $atim_block_data = null;
-    if(!isset($atimBlocks[$participantTfriNbr])) {
-        // Participant block does not exist into ATiM (warning: no test on participant has been done at this level)
-        // Keep aliquot_master_id to null to create a new one
-    } else {
-        // Participant block already exists into ATiM
-        if(sizeof($atimBlocks[$participantTfriNbr]) > 1) {
-            // ATiM participant is associated to many blocks with different pathology numbers
-            die('ERR File ' . __FILE__ .' Line ' . __LINE__);   // Case to support
-        } else {
-            $pathoNbrs = array_keys($atimBlocks[$participantTfriNbr]);
-            if(sizeof($pathoNbrs) > 1) {
-                // Should never happen (see above)
-                die('ERR File ' . __FILE__ .' Line ' . __LINE__);
-            } else {
-                // ATiM participant is associated to one block
-                $pathoNbr = $pathoNbrs[0];
-                if(sizeof($atimBlocks[$participantTfriNbr][$pathoNbr]) > 1) {
-                    // ATiM participant is associated to many blocks with the same pathology number
-                    die('ERR File ' . __FILE__ .' Line ' . __LINE__);   // Case to support
-                } else {
-                    // At this level: Excel participant TFRI# match an ATiM participant with only one block pathology number and only one block for this pathology number
-                    // Compare pathology nbr of the excel block and the unique atim block
-                    $aliquot_master_id = array_keys($atimBlocks[$participantTfriNbr][$pathoNbr]);
-                    $aliquot_master_id = $aliquot_master_id[0];
-                    $excel_block_pathology_nbr_for_preg_match = str_replace(array( '-', ' ', '/', "\\"), array('.{0,1}', '.{0,1}', '.{0,1}', '.{0,1}'), $excel_block_pathology_nbr);
-                    $atim_patho_label = $atimBlocks[$participantTfriNbr][$pathoNbr][$aliquot_master_id]['patho_dpt_block_code'];
-                    $patternNumber = null;
-                    if(preg_match('/^((CBCF)|(OHRI))\-'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__ . " - Exact match";                      
-                    } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^'.str_replace('SF', 'CBCF\-SF\-', $excel_block_pathology_nbr_for_preg_match).'(\ [AB]){0,1}$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^'.str_replace('VOA', 'OVCARE\-', $excel_block_pathology_nbr_for_preg_match).'(\ [AB]){0,1}$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(strlen($excel_block_pathology_nbr) > 4 && preg_match('/'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(!strlen($atim_patho_label)) {
-                        $patternNumber = __LINE__ . " - 1 block in ATiM with no pathology number";
-                    } else if(preg_match('/^(.*)\.\{0\,1\}[A-Z][0-9]{1,2}$/', $excel_block_pathology_nbr_for_preg_match, $matches) && preg_match('/^'.$matches[1].'$/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^CHUM\-(.*)$/', $atim_patho_label, $matches) && preg_match('/'.str_replace(array('-', ' '),array('\-','\-'), $matches[1]).'$/',$excel_block_pathology_nbr)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/'. str_replace(array(' ', '-', '/'), array('', '',''), $atim_patho_label) .'$/', str_replace(array(' ', '-'), array('', ''), $excel_block_pathology_nbr))) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'/',$atim_patho_label)) {
-                        $patternNumber = __LINE__;
-                    } else if(preg_match('/^CHUM.*\-([0-9]+)\-([AZa-z0-9]+)$/', $atim_patho_label, $matches) && preg_match('/'.$matches[1].'.*'.$matches[2].'$/',$excel_block_pathology_nbr)) {
-                        $patternNumber = __LINE__;
-                    }
-                    if($patternNumber) {
-                        if($atimBlocks[$participantTfriNbr][$pathoNbr][$aliquot_master_id]['matched_excel_block']) {
-                            // Match done previously on an other excel block
-                            die('ERR File ' . __FILE__ .' Line ' . __LINE__);   // Case to support
-                        } else {
-                            // Match done
-                            $atim_block_data = $atimBlocks[$participantTfriNbr][$pathoNbr][$aliquot_master_id];
-                            $atimBlocks[$participantTfriNbr][$pathoNbr][$aliquot_master_id]['matched_excel_block'] = true;
-                        }
-                    } else {
-                        $atimBlocksUnusedAtLeastOnce = $atimBlocks[$participantTfriNbr][$pathoNbr][$aliquot_master_id];
-                        recordErrorAndMessage(
-                            'ATiM and Excel block match',
-                            '@@WARNING@@',
-                            "The excel block pathology nbr does not match the unique ATiM block that already exists into ATiM. A second block will be created. Please validate and clean up data after the migration.",
-                            "See excel block '<b>$excel_block_pathology_nbr</b>' and ATiM block ".$atimBlocksUnusedAtLeastOnce['barcode']." (Aliquot TFRI Label : ".$atimBlocksUnusedAtLeastOnce['aliquot_label']." / Pathology label <b>".$atimBlocksUnusedAtLeastOnce['patho_dpt_block_code']."</b>) for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-                    }
+
+    $tissue_sample_master_ids = array();
+    $tissue_collection_ids = array();
+    $all_atim_block_pathology_nbrs = array();
+    if(isset($atimBlocks[$participantTfriNbr]) && strlen(trim($excel_block_pathology_nbr))) {
+        $aliquot_master_id = null;
+        foreach($atimBlocks[$participantTfriNbr] as $atim_aliquot_patho_dpt_block_code => $all_aliquots) {
+            if(strlen($atim_aliquot_patho_dpt_block_code)) {
+                $all_atim_block_pathology_nbrs[] = $atim_aliquot_patho_dpt_block_code;
+                $excel_block_pathology_nbr_for_preg_match = str_replace(array( '-', ' ', '/', "\\"), array('.{0,1}', '.{0,1}', '.{0,1}', '.{0,1}'), $excel_block_pathology_nbr);
+                $patternNumber = null;
+                if(preg_match('/^((CBCF)|(OHRI))\-'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__ . " - Exact match";
+                } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^'.str_replace('SF', 'CBCF\-SF\-', $excel_block_pathology_nbr_for_preg_match).'(\ [AB]){0,1}$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^'.str_replace('VOA', 'OVCARE\-', $excel_block_pathology_nbr_for_preg_match).'(\ [AB]){0,1}$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(strlen($excel_block_pathology_nbr) > 4 && preg_match('/'.$excel_block_pathology_nbr_for_preg_match.'$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(!strlen($atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__ . " - 1 block in ATiM with no pathology number";
+                } else if(preg_match('/^(.*)\.\{0\,1\}[A-Z][0-9]{1,2}$/', $excel_block_pathology_nbr_for_preg_match, $matches) && preg_match('/^'.$matches[1].'$/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^CHUM\-(.*)$/', $atim_aliquot_patho_dpt_block_code, $matches) && preg_match('/'.str_replace(array('-', ' '),array('\-','\-'), $matches[1]).'$/',$excel_block_pathology_nbr)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/'. str_replace(array(' ', '-', '/'), array('', '',''), $atim_aliquot_patho_dpt_block_code) .'$/', str_replace(array(' ', '-'), array('', ''), $excel_block_pathology_nbr))) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^'.$excel_block_pathology_nbr_for_preg_match.'/',$atim_aliquot_patho_dpt_block_code)) {
+                    $patternNumber = __LINE__;
+                } else if(preg_match('/^CHUM.*\-([0-9]+)\-([AZa-z0-9]+)$/', $atim_aliquot_patho_dpt_block_code, $matches) && preg_match('/'.$matches[1].'.*'.$matches[2].'$/',$excel_block_pathology_nbr)) {
+                    $patternNumber = __LINE__;
                 }
-            }
+                if(!$patternNumber) {
+                    // Pas de match avec le pathologi nbr.... message?
+                    recordErrorAndMessage(
+                        'Collection/Tissue/block definition',
+                        '@@WARNING@@',
+                        "No match between ATiM participant block and Excel block can be done on pathology number. Please confirm no match should be done.",
+                        "See ATiM participant tissue linked to block with pathology nbr <b>$atim_aliquot_patho_dpt_block_code</b> and the excel block pathology nbr <b>$excel_block_pathology_nbr</b> ".
+                        "for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+                } else {
+                    foreach($all_aliquots as $atim_aliquot_master_id => $aliquot_data) {
+                        $tissue_sample_master_ids[$aliquot_data['sample_master_id']] = $aliquot_data['sample_master_id'];
+                        $tissue_collection_ids[$aliquot_data['collection_id']] = $aliquot_data['collection_id'];
+                        $atimBlocks[$participantTfriNbr][$atim_aliquot_patho_dpt_block_code][$atim_aliquot_master_id]['matched_excel_block_on_patho_nbr'] = true;
+                    }
+                    recordErrorAndMessage(
+                        'Collection/Tissue/block definition',
+                        '@@MESSAGE@@',
+                        "Match between ATiM participant block and Excel block can be done on pathology number. Please confirm.",
+                        "See ATiM participant tissue linked to block with pathology nbr <b>$atim_aliquot_patho_dpt_block_code</b> and the excel block pathology nbr <b>$excel_block_pathology_nbr</b> ".
+                        "for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+                }
+            }   
         }
     } 
     
-    // Block Creation/update
+    $collection_id = null;
+    $tissue_sample_master_id = null;
+    if($tissue_sample_master_ids) {
+        if(sizeof($tissue_sample_master_ids) > 1) {
+            die('ERR 8388383838 - To support but should never happen');
+        } else {
+            // Perfect match
+            $collection_id = array_shift($tissue_collection_ids);
+            $tissue_sample_master_id = array_shift($tissue_sample_master_ids);
+        }     
+    } elseif(sizeof($atimTissues[$participantTfriNbr]['collections']) == 1) {
+
+        // Block Match : Try to match block with a tissue in ATiM 
+        //--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        $keys = array_keys($atimTissues[$participantTfriNbr]['collections']);
+        if(sizeof($atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues']) == 1) {
+            $keys2 = array_keys($atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues']);
+            $collection_id = $atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues'][$keys2[0]]['collection_id'];
+            $tissue_sample_master_id = $atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues'][$keys2[0]]['sample_master_id'];
+            recordErrorAndMessage(
+                'Collection/Tissue/block definition',
+                '@@ERROR@@',
+                "No match between ATiM participant block and Excel block can be done on pathology number but only one ATiM tissue exists into ATiM. New block created from excel will be linked to this unique ATiM tissue.",
+                "See unique ATiM participant tissue linked to block with ".(empty($all_atim_block_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_block_pathology_nbrs)).
+                " and Excel block with ".(empty($excel_block_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_block_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+        } else {
+            recordErrorAndMessage(
+                'Collection/Tissue/block definition',
+                '@@WARNING@@',
+                "No match between ATiM participant block and Excel block can be done on pathology number. Only one tissue colllection exists but many ATiM collection tissues exist into this ATiM collection. New block created from excel will be linked to this unique ATiM tissue collection but to a new created tissue.",
+                "See unique ATiM participant tissue linked to block with ".(empty($all_atim_block_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_block_pathology_nbrs)).
+                " and Excel block with ".(empty($excel_block_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_block_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+        }
+    } else {
+        recordErrorAndMessage(
+            'Collection/Tissue/block definition',
+            '@@WARNING@@',
+            "No match between ATiM participant block and Excel block can be done on pathology number and many tissue colllections exists. New block created from excel will be linked to a new ATiM tissue collection and a new created tissue.",
+            "See unique ATiM participant tissue linked to block with ".(empty($all_atim_block_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_block_pathology_nbrs)).
+            " and Excel block with ".(empty($excel_block_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_block_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+    }
+    
+    // Excel Block Data Validation
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     
     // Collection date
     $excel_field = "Block date";
-    
-    list($excel_collection_date, $excel_collection_date_accuracy) = validateAndGetDateAndAccuracy(
-        $excel_line_block_data[$excel_field],
-        'Block creation/update',
-        "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-        "See value [".$excel_line_block_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+    $excel_collection_date = null;
+    $excel_collection_date_accuracy = '';
+    if($excel_line_block_data[$excel_field] && preg_match('/^((19)|(20))[0-9]{2}$/', $excel_line_block_data[$excel_field])) {
+        $excel_collection_date = $excel_line_block_data[$excel_field];
+        $excel_collection_date_accuracy = 'm';
+        if($collection_id && !preg_match("/^$excel_collection_date/", $atimTissues[$participantTfriNbr]['collections'][$collection_id]['collection_datetime'])) {
+            recordErrorAndMessage(
+                'Collection/Tissue/block definition',
+                '@@WARNING@@',
+                "Collection date between a selected collection and the excel block collection date are different. New collection will be created.",
+                "See excel collection on '$excel_collection_date' and ATiM collection on ".$atimTissues[$participantTfriNbr]['collections'][$collection_id]['collection_datetime']." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter."); 
+            $collection_id = null;
+            $tissue_sample_master_id = null;
+        }
+        $excel_collection_date .= '-01-01 01:01:01';
+    } else if($excel_line_block_data[$excel_field]) {
+        die('ERR237862378236');
+        list($excel_collection_date, $excel_collection_date_accuracy) = validateAndGetDateAndAccuracy(
+            $excel_line_block_data[$excel_field],
+            'Block creation/update',
+            "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
+            "See value [".$excel_line_block_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+    }
     
     // Tissue laterality - source - type
     $excel_field = "Latérality block";
     
-    $excel_tissue_source = null;
-    $excel_qc_tf_tissue_type = null;
-    $excel_tissue_laterality = null;
-    $excel_laterality_msg = strlen($excel_line_block_data[$excel_field])? "Latérality block value in excel '".$excel_line_block_data[$excel_field]."'." : '';
-    if($excel_line_block_data[$excel_field]) {
-        if(isset($latMatch[$excel_line_block_data[$excel_field]])) {
-            list($excel_tissue_source, $excel_qc_tf_tissue_type ,$excel_tissue_laterality) = $latMatch[$excel_line_block_data[$excel_field]];
-        } else {
-            recordErrorAndMessage(
-                'Block creation/update',
-                '@@ERROR@@',
-                "The 'Latérality block' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-                "See value [".$excel_line_block_data[$excel_field]."].",
-                $excel_line_block_data[$excel_field]);
-        }
-    }
-    
+    $excel_laterality_msg = strlen($excel_line_block_data[$excel_field])? "Latérality block value in excel [".$excel_line_block_data[$excel_field]."]." : '';
+
     // Block in stock detail
     $excel_field = 'availability blocks';
     
@@ -657,118 +694,20 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
         "See value [".$excel_line_block_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
 
-    // Process
+    // Block Creation
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    $participant_id = null;
-    $collection_id = null;
-    $sample_master_id = null;
-    $aliquot_master_id = null;
-    
-    if($atim_block_data) {
-        $participant_id = $atimTissues[$participantTfriNbr]['participant_id'];
-        $collection_id = $atim_block_data['collection_id'];
-        $sample_master_id = $atim_block_data['sample_master_id'];
-        $aliquot_master_id = $atim_block_data['aliquot_master_id'];
-        if(!isset($atimTissues[$participantTfriNbr]['collections'][$collection_id]) || !isset($atimTissues[$participantTfriNbr]['collections'][$collection_id]['tissues'][$sample_master_id])) {
-            die('ERR File ' . __FILE__ .' Line ' . __LINE__);
-        }
-        $atimCollectionData = $atimTissues[$participantTfriNbr]['collections'][$collection_id];
-        $atimDataUpdateMsg = array();
-        // Compare collection data
-        if($excel_collection_date && $excel_collection_date != $atimCollectionData['collection_datetime']) {
-            $atimDataUpdateMsg['collection_datetime'] = "Collection date from '".$atimCollectionData['collection_datetime']."' to '$excel_collection_date'";
-            updateTableData($collection_id, array(
-                'collections' => array(
-                    'collection_datetime' => $excel_collection_date,
-                    'collection_datetime_accuracy' => $excel_collection_date_accuracy
-                )
-            ));
-        }
-        // Compare tissue data
-        $tmp_properties = array(
-            array('tissue_source', $excel_tissue_source, 'Tissue source'),
-            array('qc_tf_tissue_type', $excel_qc_tf_tissue_type, 'Tissue type'),
-            array('tissue_laterality', $excel_tissue_laterality, 'Tissue laterality'));
-        $tissuedetailsToUpdate = array();
-        foreach($tmp_properties as $tmp_property) {
-            list($dbfield, $newvalue, $fieldmsg) = $tmp_property;
-            if($newvalue != $atimTissues[$participantTfriNbr]['collections'][$collection_id]['tissues'][$sample_master_id][$dbfield]) {
-                $tissuedetailsToUpdate[$dbfield] = $newvalue;
-                $atimDataUpdateMsg[$dbfield] = "$fieldmsg from '".$atimTissues[$participantTfriNbr]['collections'][$collection_id]['tissues'][$sample_master_id][$dbfield]."' to '$newvalue'";
-            }
-        }
-        if($tissuedetailsToUpdate) {
-            updateTableData($sample_master_id, array(
-                'sample_masters' => array(),
-                $atim_controls['sample_controls']['tissue']['detail_tablename'] => $tissuedetailsToUpdate
-            ));
-        }
-        // compare aliquot
-        $atim_block_data['notes'] = str_replace("'", "''", $atim_block_data['notes']);
-        $new_notes = array(
-            $atim_block_data['notes'], 
-            str_replace("'", "''", $excel_laterality_msg),
-            str_replace("'", "''", $excel_line_block_data['notes from biobank']),
-            str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
-        );
-        $new_notes = array_filter($new_notes);
-        $new_notes = implode('. ',$new_notes);
-        $detaiTablename = $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'];
-        $tmp_properties = array(
-            array('aliquot_masters.storage_master_id', $storage_master_id, 'Block Storage#'),
-            array('aliquot_masters.storage_coord_x', '', 'Block position x'),
-            array('aliquot_masters.storage_coord_y', '', 'Block position y'),
-            array('aliquot_masters.in_stock', $in_stock, 'Block in stock'),
-            array('aliquot_masters.notes', $new_notes, 'Block notes'),
-            array($detaiTablename.'.block_type', 'paraffin', 'Block type'),
-            array($detaiTablename.'.patho_dpt_block_code', str_replace("'", "''", $excel_block_pathology_nbr), 'block patho# modified'),
-            array($detaiTablename.'.qc_tf_cellularity', $qc_tf_cellularity, 'Block cellularity'),
-            array($detaiTablename.'.qc_tf_quantity_available', $qc_tf_quantity_available, 'Block quantity'));
-        $blockdataToUpdate = array();
-        foreach($tmp_properties as $tmp_property) {
-            list($dbfield, $newvalue, $fieldmsg) = $tmp_property;
-            list($table ,$dbfield) = explode('.',$dbfield);
-            if($newvalue != $atim_block_data[$dbfield]) {
-                $blockdataToUpdate[$table][$dbfield] = $newvalue;
-                $atimDataUpdateMsg[$dbfield] = "$fieldmsg from '".$atim_block_data[$dbfield]."' to '$newvalue'";
-            }
-        }
-        if($blockdataToUpdate) {
-            if(!isset($blockdataToUpdate['aliquot_masters'])) $blockdataToUpdate['aliquot_masters'] = array();
-            if(!isset($blockdataToUpdate[$detaiTablename])) $blockdataToUpdate[$detaiTablename] = array();
-            updateTableData($aliquot_master_id,$blockdataToUpdate);
-        }
-        if($atimDataUpdateMsg) {
-            $precison = '';
-            $mainMessage = "See updated data for block TFRI# '".$atim_block_data['aliquot_label']."' with %%patho%% of the Participant TFRI# '<b>$participantTfriNbr</b>' (line $excel_line_counter):";
-            if(isset($atimDataUpdateMsg['patho_dpt_block_code'])) {
-                $mainMessage = str_replace('%%patho%%', $atimDataUpdateMsg['patho_dpt_block_code'], $mainMessage);
-                unset($atimDataUpdateMsg['patho_dpt_block_code']);
-                $precison = ' including the pathology number';
-            } else {
-                $mainMessage = str_replace('%%patho%%', 'patho # '.$atim_block_data['patho_dpt_block_code'], $mainMessage);
-            }
-            if($atimDataUpdateMsg) {
-                foreach($atimDataUpdateMsg as $newChange) {
-                    $mainMessage .= "<br> ..... $newChange.";
-                }
-            } else {
-                $mainMessage .= ' N/A.';
-            }
-            recordErrorAndMessage(
-                'Tissue block update summary',
-                '@@MESSAGE@@',
-                "Existing tissue block has been updated. Please validate and clean up data after the migration$precison.",
-                $mainMessage);
-        }
-    } else {
-        $participant_id = $atimTissues[$participantTfriNbr]['participant_id'];
+    if(!$collection_id) {
+        $created_collection_counter++;
         $collection_id = customInsertRecord(array(
             'collections' => array(
                 'participant_id' => $participant_id,
                 'collection_property' => 'participant collection',
                 'collection_datetime' => $excel_collection_date,
                 'collection_datetime_accuracy' => $excel_collection_date_accuracy)));
+    }
+    
+    if(!$tissue_sample_master_id) {
         $created_sample_counter++;
         $sample_data = array(
             'sample_masters' => array(
@@ -777,58 +716,63 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
                 "initial_specimen_sample_type" => 'tissue',
                 "collection_id" => $collection_id),
             'specimen_details' => array(),
-            $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
-                'tissue_source' => $excel_tissue_source,
-                'qc_tf_tissue_type' => $excel_qc_tf_tissue_type,
-                'tissue_laterality' => $excel_tissue_laterality));
-        $sample_master_id = customInsertRecord($sample_data);
-        $created_aliquot_counter++;
-        $new_notes = array(
-            str_replace("'", "''", $excel_laterality_msg),
-            str_replace("'", "''", $excel_line_block_data['notes from biobank']),
-            str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
-        );
-        $new_notes = array_filter($new_notes);
-        $new_notes = implode('. ',$new_notes);
-        $aliquot_data = array(
-            'aliquot_masters' => array(
-                "barcode" => 'tmp_'.$created_aliquot_counter,
-                'aliquot_label' => str_replace("'", "''", $excel_block_pathology_nbr), //"FFPE $participantTfriNbr",
-                "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
-                "collection_id" => $collection_id,
-                "sample_master_id" => $sample_master_id,
-                'storage_master_id' => $storage_master_id,
-                'in_stock' => $in_stock,
-                'in_stock_detail' => '',
-                'notes' => $new_notes
-            ),
-            $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
-                'block_type' => 'paraffin',
-                'patho_dpt_block_code' => str_replace("'", "''", $excel_block_pathology_nbr),
-                'qc_tf_cellularity' => $qc_tf_cellularity,
-                'qc_tf_quantity_available' => $qc_tf_quantity_available,
-            ));
-        $aliquot_master_id = customInsertRecord($aliquot_data);
+            $atim_controls['sample_controls']['tissue']['detail_tablename'] => array());
+        $tissue_sample_master_id = customInsertRecord($sample_data);
     }
+
+    $created_aliquot_counter++;
+    $new_notes = array(
+        str_replace("'", "''", $excel_laterality_msg),
+        str_replace("'", "''", $excel_line_block_data['notes from biobank']),
+        str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
+    );
+    $new_notes = array_filter($new_notes);
+    $new_notes = implode('. ',$new_notes);
+    $aliquot_data = array(
+        'aliquot_masters' => array(
+            "barcode" => 'tmp_'.$created_aliquot_counter,
+            'aliquot_label' => str_replace("'", "''", $excel_block_pathology_nbr), //"FFPE $participantTfriNbr",
+            "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
+            "collection_id" => $collection_id,
+            "sample_master_id" => $tissue_sample_master_id,
+            'storage_master_id' => $storage_master_id,
+            'in_stock' => $in_stock,
+            'in_stock_detail' => '',
+            'notes' => $new_notes
+        ),
+        $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
+            'block_type' => 'paraffin',
+            'patho_dpt_block_code' => str_replace("'", "''", $excel_block_pathology_nbr),
+            'qc_tf_cellularity' => $qc_tf_cellularity,
+            'qc_tf_quantity_available' => $qc_tf_quantity_available,
+        ));
+    $aliquot_master_id = customInsertRecord($aliquot_data);
     
-    completeBlockEvents($excel_line_block_data, $excel_line_counter, $participantTfriNbr, $collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
+    completeBlockEvents($excel_line_block_data, $excel_line_counter, $participantTfriNbr, $collection_id, $tissue_sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
 }
 
 // List ATiM block not used
 foreach($atimBlocks as $participantTfriNbr => $allBlocksLvl1) {
     foreach($allBlocksLvl1 as $pathoNbr => $allBlocksLvl2) {
         foreach($allBlocksLvl2 as $aliquot_master_id => $blockData) {
-            if(!$blockData['matched_excel_block']) {
-                recordErrorAndMessage(
-                    'ATiM and Excel block match',
-                    '@@WARNING@@',
-                    "ATiM block not re-used (not found into excel). Please validate block should be keep into ATiM or if this one has been used as control then clean up data after the migration.",
-                    "ATiM Block TFRI# ".$blockData['barcode']." (Aliquot TFRI Label : ".$blockData['aliquot_label']." / Pathology label <b>".$blockData['patho_dpt_block_code']."</b>).");
+            if(!$blockData['matched_excel_block_on_patho_nbr']) {
+                if($blockData['patho_dpt_block_code']) {
+                    recordErrorAndMessage(
+                        'ATiM and Excel block match',
+                        '@@WARNING@@',
+                        "ATiM block not re-used (not found into excel) based on patho nbr. Please validate block should be keep into ATiM or if this one has been used as control then clean up data after the migration.",
+                        "ATiM Block TFRI# ".$blockData['barcode']." (Aliquot TFRI Label : ".$blockData['aliquot_label']." / Pathology label <b>".$blockData['patho_dpt_block_code']."</b>).");
+                } else {
+                    recordErrorAndMessage(
+                        'ATiM and Excel block match',
+                        '@@WARNING@@',
+                        "ATiM block not re-used (not found into excel) based on patho nbr cause this one is unknown. Please validate block should be keep into ATiM or if this one has been used as control then clean up data after the migration.",
+                        "ATiM Block TFRI# ".$blockData['barcode']." (Aliquot TFRI Label : ".$blockData['aliquot_label']." / Pathology label <b>".$blockData['patho_dpt_block_code']."</b>).");
+                }
             }
         }
     }
 }
-
 
 // Collection fusion (post-process)
 //-----------------------------------------
@@ -842,7 +786,6 @@ $atimCollectionsToMerge = getSelectQueryResult($query);
 foreach($atimCollectionsToMerge as $new_collections_set) {
     if(preg_match('/,/', $new_collections_set['res_ids'])) {
         $all_ids = explode(',',$new_collections_set['res_ids']);
-        $coll_counter = sizeof($all_ids);
         $collection_id_to_keep = array_shift($all_ids);
         $collection_ids_to_delete = implode(',',$all_ids);
         $notes = explode('#||#', $new_collections_set['res_notes']);
@@ -873,6 +816,76 @@ foreach($atimCollectionsToMerge as $new_collections_set) {
     }
 }
 
+// Sample fusion (post-process)
+//-----------------------------------------
+
+$query = "SELECT
+    Collection.participant_id,
+    Collection.collection_datetime,
+    Collection.collection_datetime_accuracy,
+    SampleMaster.collection_id,
+    GROUP_CONCAT(DISTINCT SampleMaster.id  SEPARATOR ',' ) sample_master_ids,
+    SampleDetail.tissue_source,
+    SampleDetail.qc_tf_tissue_type,
+    SampleDetail.tissue_laterality
+    FROM collections Collection
+    INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+    INNER JOIN sd_spe_tissues SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+    WHERE SampleMaster.deleted <> 1
+    AND Collection.deleted <> 1
+    AND sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+    GROUP BY SampleMaster.collection_id,
+    Collection.participant_id,
+    Collection.collection_datetime,
+    Collection.collection_datetime_accuracy,
+    SampleDetail.tissue_source,
+    SampleDetail.qc_tf_tissue_type,
+    SampleDetail.tissue_laterality;";
+$atimSamplesToMerge = getSelectQueryResult($query);
+foreach($atimSamplesToMerge as $new_samples_set) {
+    if(preg_match('/,/', $new_samples_set['sample_master_ids'])) {
+        $all_ids = explode(',',$new_samples_set['sample_master_ids']);
+        $sample_id_to_keep = array_shift($all_ids);
+        $sample_ids_to_delete = implode(',',$all_ids);
+        customQuery("UPDATE sample_masters
+            SET deleted = 1,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE sample_masters
+            SET parent_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE parent_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE sample_masters
+            SET initial_specimen_sample_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE initial_specimen_sample_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        customQuery("UPDATE aliquot_masters
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        $query = "SELECT count(*) tt from quality_ctrls WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1";
+        $countRes = getSelectQueryResult($query);
+        $andQualtyCtrlMsg = ($countRes[0]['tt'])? " plus quality controls " : "";
+        customQuery("UPDATE quality_ctrls
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+        $query = "SELECT count(*) tt from source_aliquots WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1";
+        $countRes = getSelectQueryResult($query);
+        if($countRes[0]['tt']) die('ERR 93939383');
+        customQuery("UPDATE source_aliquots
+            SET sample_master_id = $sample_id_to_keep,
+            modified = '".$import_date."',
+            modified_by = ".$imported_by."
+            WHERE sample_master_id IN ($sample_ids_to_delete) AND deleted <> 1");
+    }
+}
+
 // Block control
 //-----------------------------------------
 
@@ -888,23 +901,8 @@ if($blocksControl) {
         
         // Tissue laterality - source - type
         $excel_field = "Latérality block";
-        
-        $excel_tissue_source = null;
-        $excel_qc_tf_tissue_type = null;
-        $excel_tissue_laterality = null;
+
         $excel_laterality_msg = strlen($excel_line_block_data[$excel_field])? "Latérality block value in excel '".$excel_line_block_data[$excel_field]."'." : '';
-        if($excel_line_block_data[$excel_field]) {
-            if(isset($latMatch[$excel_line_block_data[$excel_field]])) {
-                list($excel_tissue_source, $excel_qc_tf_tissue_type ,$excel_tissue_laterality) = $latMatch[$excel_line_block_data[$excel_field]];
-            } else {
-                recordErrorAndMessage(
-                    'Block control creation',
-                    '@@ERROR@@',
-                    "The 'Latérality block' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-                    "See value [".$excel_line_block_data[$excel_field]."].",
-                    $excel_line_block_data[$excel_field]);
-            }
-        }
         
         // Block in stock detail
         $excel_field = 'availability blocks';
@@ -954,10 +952,8 @@ if($blocksControl) {
                 "initial_specimen_sample_type" => 'tissue',
                 "collection_id" => $control_collection_id),
             'specimen_details' => array(),
-            $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
-                'tissue_source' => $excel_tissue_source,
-                'qc_tf_tissue_type' => $excel_qc_tf_tissue_type,
-                'tissue_laterality' => $excel_tissue_laterality));
+            $atim_controls['sample_controls']['tissue']['detail_tablename'] => array());
+        
         $sample_master_id = customInsertRecord($sample_data);
         $created_aliquot_counter++;
         $excel_block_pathology_nbr = $excel_line_block_data['SampleID (Bloc pour TMA Lili)'];
@@ -995,6 +991,7 @@ if($blocksControl) {
 // Stat
 //-----------------------------------------
 
+recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Collections : '.$created_collection_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Samples : '.$created_sample_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Blocks : '.$created_aliquot_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Slides : '.$created_slide_counter);
@@ -1074,7 +1071,7 @@ function completeBlockEvents($excel_line_block_data, $excel_line_counter, $parti
                 "collection_id" => $collection_id,
                 "sample_master_id" => $sample_master_id,
                 'storage_master_id' => $slide_storage_master_id,
-                'in_stock' => 'yes - available',
+                'in_stock' => ($slide_storage_master_id? 'yes - available' : 'no'),
                 'notes' => $slide_notes),
             $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array(
                 'immunochemistry' => 'H&E',));
@@ -1280,7 +1277,7 @@ function getATiMBlocks() {
     $atim_blocks = array();
     foreach(getSelectQueryResult($query) as $new_block) {
         $atim_blocks[$new_block['participant_identifier']][$new_block['patho_dpt_block_code']][$new_block['aliquot_master_id']] = $new_block; 
-        $atim_blocks[$new_block['participant_identifier']][$new_block['patho_dpt_block_code']][$new_block['aliquot_master_id']]['matched_excel_block'] = false;
+        $atim_blocks[$new_block['participant_identifier']][$new_block['patho_dpt_block_code']][$new_block['aliquot_master_id']]['matched_excel_block_on_patho_nbr'] = false;
     }
     return $atim_blocks;
 }
