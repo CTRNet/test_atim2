@@ -15,9 +15,9 @@ $excel_files_paths = 'C:\_NicolasLuc\Server\www\tfri_coeur\dataImporterConfig\Bl
 
 $is_serveur = false;
 if($is_serveur) {
-    $db_pwd			= "";
-    $db_schema		= "atimtfricoeur";
-    $excel_files_paths = "/ATiM/atim-tfri/dataUpdate/coeur/data/";
+    $db_pwd			= "am3-y-4606";
+    $db_schema		= "atimtfricoeurtest";
+    $excel_files_paths = "/ATiM/atim-tfri-coeur/Test/dataImporterConfig/BlockDataMigration/";
 }
 $migration_user_id = 2;
 
@@ -25,5 +25,5 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'file' => 'inventaire FFPE (2018-11-27).xls'
+    'file' => 'inventaire FFPE (2018-11-27)_nl_revised_20190211.xls'
 );

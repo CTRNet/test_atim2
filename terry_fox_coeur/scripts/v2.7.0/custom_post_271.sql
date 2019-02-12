@@ -23,8 +23,67 @@ UPDATE menus SET flag_active=false WHERE id IN('collection_template');
 UPDATE `versions` SET branch_build_number = '7378' WHERE version_number = '2.7.1';
 UPDATE `versions` SET branch_build_number = '7398' WHERE version_number = '2.7.1';
 
+-- ---------------------------------------------------------------------------------------------------------------------------------------------
+-- 2019-02-08 : New fields
+-- ---------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Study Sumamry
+
+ALTER TABLE study_summaries 
+  ADD COLUMN qc_tf_pubmed_ids TEXT DEFAULT NULL,
+  ADD COLUMN qc_tf_study_full_title varchar(500) DEFAULT NULL,
+  ADD COLUMN qc_tf_contact_email varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_ethical_approved char(1) DEFAULT '',
+  ADD COLUMN qc_tf_ethical_number varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_ethical_details varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_return_of_data_to_coeur char(1) DEFAULT '';
+ ALTER TABLE study_summaries_revs
+  ADD COLUMN qc_tf_pubmed_ids TEXT DEFAULT NULL,
+  ADD COLUMN qc_tf_study_full_title varchar(500) DEFAULT NULL,
+  ADD COLUMN qc_tf_contact_email varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_ethical_approved char(1) DEFAULT '',
+  ADD COLUMN qc_tf_ethical_number varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_ethical_details varchar(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_return_of_data_to_coeur char(1) DEFAULT '';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_pubmed_ids', 'textarea',  NULL , '0', 'cols=40,rows=2', '', '', 'pubmed ids', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_study_full_title', 'input',  NULL , '0', 'size=60', '', '', 'study_title', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_contact_email', 'input',  NULL , '0', '', '', '', 'mail', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_approved', 'yes_no',  NULL , '0', '', '', '', 'qc tf ethical approved', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_number', 'input',  NULL , '0', 'size=10', '', '', 'qc tf ethical number', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_details', 'input',  NULL , '0', 'size=50', '', '', 'qc tf ethical details', ''), 
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_return_of_data_to_coeur', 'yes_no',  NULL , '0', '', '', '', 'qc tf return of data to coeur', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_pubmed_ids' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=2' AND `default`='' AND `language_help`='' AND `language_label`='pubmed ids' AND `language_tag`=''), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_study_full_title' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='study_title' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_contact_email' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mail' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_approved' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical approved' AND `language_tag`=''), '2', '13', 'ethic', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical number' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical details' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_return_of_data_to_coeur' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf return of data to coeur' AND `language_tag`=''), '2', '20', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='code' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='abstract' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='100', `language_heading`='details' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='abstract' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='102', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_return_of_data_to_coeur' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_pubmed_ids' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORe INTO i18n (id,en,fr)
+VALUES
+("ethic", "Ethic", ""),
+("qc tf ethical approved", "Approved", ""),
+("qc tf ethical number", "Number", ""),
+("qc tf ethical details", "Details", ""),
+("pubmed ids", "PubMed Ids", ""),
+("qc tf return of data to coeur", "Return of Data to Coeur", "");
+
+ALTER TABLE study_summaries MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
+ALTER TABLE study_summaries_revs MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
+
+UPDATE `versions` SET branch_build_number = '7569' WHERE version_number = '2.7.1';
+
 -- --------------------------------------------------------------------------------
--- 2018-11-26
+-- 2018-02-11
 -- --------------------------------------------------------------------------------
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
@@ -142,71 +201,40 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES
 ("slide revision","slide revision","",'1', @control_id, NOW(), NOW(), 1, 1);
 
-UPDATE `versions` SET branch_build_number = '7525' WHERE version_number = '2.7.1';
+--
 
--- ---------------------------------------------------------------------------------------------------------------------------------------------
--- 2019-02-08 : New fields
--- ---------------------------------------------------------------------------------------------------------------------------------------------
-
--- Study Sumamry
-
-ALTER TABLE study_summaries 
-  ADD COLUMN qc_tf_pubmed_ids TEXT DEFAULT NULL,
-  ADD COLUMN qc_tf_study_full_title varchar(500) DEFAULT NULL,
-  ADD COLUMN qc_tf_contact_email varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_ethical_approved char(1) DEFAULT '',
-  ADD COLUMN qc_tf_ethical_number varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_ethical_details varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_return_of_data_to_coeur char(1) DEFAULT '';
- ALTER TABLE study_summaries_revs
-  ADD COLUMN qc_tf_pubmed_ids TEXT DEFAULT NULL,
-  ADD COLUMN qc_tf_study_full_title varchar(500) DEFAULT NULL,
-  ADD COLUMN qc_tf_contact_email varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_ethical_approved char(1) DEFAULT '',
-  ADD COLUMN qc_tf_ethical_number varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_ethical_details varchar(250) DEFAULT NULL,
-  ADD COLUMN qc_tf_return_of_data_to_coeur char(1) DEFAULT '';
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_pubmed_ids', 'textarea',  NULL , '0', 'cols=40,rows=2', '', '', 'pubmed ids', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_study_full_title', 'input',  NULL , '0', 'size=60', '', '', 'study_title', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_contact_email', 'input',  NULL , '0', '', '', '', 'mail', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_approved', 'yes_no',  NULL , '0', '', '', '', 'qc tf ethical approved', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_number', 'input',  NULL , '0', 'size=10', '', '', 'qc tf ethical number', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_ethical_details', 'input',  NULL , '0', 'size=50', '', '', 'qc tf ethical details', ''), 
-('Study', 'StudySummary', 'study_summaries', 'qc_tf_return_of_data_to_coeur', 'yes_no',  NULL , '0', '', '', '', 'qc tf return of data to coeur', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_pubmed_ids' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=2' AND `default`='' AND `language_help`='' AND `language_label`='pubmed ids' AND `language_tag`=''), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_study_full_title' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='study_title' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_contact_email' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mail' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_approved' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical approved' AND `language_tag`=''), '2', '13', 'ethic', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical number' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_ethical_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='qc tf ethical details' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_return_of_data_to_coeur' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf return of data to coeur' AND `language_tag`=''), '2', '20', 'details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `flag_override_label`='1', `language_label`='code' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='abstract' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_column`='3', `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_column`='3', `display_order`='100', `language_heading`='details' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='abstract' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_column`='3', `display_order`='102', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_return_of_data_to_coeur' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_column`='3', `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_pubmed_ids' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT IGNORe INTO i18n (id,en,fr)
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("wrong block (1st migration)", "wrong block (1st coeur migration)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail"), (SELECT id FROM structure_permissible_values WHERE value="wrong block (1st migration)" AND language_alias="wrong block (1st coeur migration)"), "1", "1");
+INSERT INTO i18n (id,en,fr)
 VALUES
-("ethic", "Ethic", ""),
-("qc tf ethical approved", "Approved", ""),
-("qc tf ethical number", "Number", ""),
-("qc tf ethical details", "Details", ""),
-("pubmed ids", "PubMed Ids", ""),
-("qc tf return of data to coeur", "Return of Data to Coeur", "");
+("wrong block (1st coeur migration)", "Wrong block (created by 1st coeur data migration batch)", "");
 
-ALTER TABLE study_summaries MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
-ALTER TABLE study_summaries_revs MODIFY qc_tf_coeur_principal_investigator varchar(500) DEFAULT NULL;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("sent back", "sent back");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail"), (SELECT id FROM structure_permissible_values WHERE value="sent back" AND language_alias="sent back"), "1", "1");
+INSERT INTO i18n (id,en,fr)
+VALUES
+("sent back", "Sent back", "");
 
-UPDATE `versions` SET branch_build_number = '7569' WHERE version_number = '2.7.1';
+SET @created_by = (SELECT id FROM users WHERE username = 'system');
+SET @created = (SELECT NOW() FROM users WHERE username = 'system');
+UPDATE aliquot_masters, ad_blocks
+SET in_stock_detail = 'sent back',
+modified = @created,
+modified_by = @created_by
+WHERE aliquot_control_id = 8
+AND deleted <> 1
+AND in_stock = 'no'
+AND notes LIKE '%sent back%'
+AND id = aliquot_master_id;
+INSERT INTO aliquot_masters_revs
+(id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id,
+storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, modified_by, version_created)
+(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id,
+storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, modified_by, modified
+FROM aliquot_masters WHERE modified = @created AND modified_by = @created_by);
+INSERT INTO ad_blocks_revs (aliquot_master_id, block_type, patho_dpt_block_code, qc_tf_cellularity, qc_tf_quantity_available, version_created)
+(SELECT aliquot_master_id, block_type, patho_dpt_block_code, qc_tf_cellularity, qc_tf_quantity_available, modified
+FROM aliquot_masters, ad_blocks
+WHERE id = aliquot_master_id AND modified = @created AND modified_by = @created_by);
 
-
-Tous les blocs chum de Coeur, n'ont pas été créer dans axe Onco avec un flagg donnée à COEUR. Todo pour CPCBN & QBCF aussi.
-Vérifier que les patients CHUM coeur sont tous dans ATiM.
-
-
-
-
+UPDATE `versions` SET branch_build_number = '7570' WHERE version_number = '2.7.1';
