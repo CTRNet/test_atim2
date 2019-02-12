@@ -25,5 +25,5 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'file' => 'inventaire FFPE (2018-11-27)_nl_revised_20190211.xls'
+    'file' => 'inventaire FFPE (2018-11-27)_nl_revised_20190212.xls'
 );
