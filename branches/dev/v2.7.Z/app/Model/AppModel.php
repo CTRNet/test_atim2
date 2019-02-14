@@ -1071,7 +1071,9 @@ class AppModel extends Model
             $modelTemp = "FunctionManagement";
             foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
                 if (isset($this->data[$modelTemp][$field]) && empty($this->data[$modelTemp][$field])){
-                    $this->validationErrors[$field][]= $message;
+                    if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                        $this->validationErrors[$field][]= $message;
+                    }
                 }
             }
         }
