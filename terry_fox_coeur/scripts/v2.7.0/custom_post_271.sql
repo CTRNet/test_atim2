@@ -276,3 +276,78 @@ SET @id = (SELECT id FROM structure_value_domains WHERE domain_name = 'aliquot_i
 UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = @id;
 
 UPDATE `versions` SET branch_build_number = '7571' WHERE version_number = '2.7.1';
+
+-- --------------------------------------------------------------------------------
+-- 2018-02-13
+-- --------------------------------------------------------------------------------
+
+-- TMA Block
+
+UPDATE aliquot_controls SET flag_active=true WHERE id IN('32');
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN('33');
+
+-- Tissue Core Revision
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='pathologist/reviewer' WHERE model='SpecimenReviewMaster' AND tablename='specimen_review_masters' AND field='pathologist' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+INSERT INTO aliquot_review_controls (review_type,flag_active,detail_form_alias,detail_tablename,aliquot_type_restriction,databrowser_label)
+VALUES
+('tissue core review', 1, 'qc_tf_ar_tissue_cores', 'qc_tf_ar_tissue_cores', 'core,slide,block', 'tissue core review');
+INSERT INTO specimen_review_controls (sample_control_id, aliquot_review_control_id, review_type, flag_active, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue'), (SELECT id FROM aliquot_review_controls WHERE review_type = 'tissue core review'),
+'core review', 1, '', 'qc_tf_spr_tissue_cores', 'tissue|core review');
+
+DROP TABLE IF EXISTS `qc_tf_spr_tissue_cores`;
+CREATE TABLE `qc_tf_spr_tissue_cores` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  KEY `FK_qc_tf_spr_tissue_cores_specimen_review_masters` (`specimen_review_master_id`),
+  CONSTRAINT `FK_qc_tf_spr_tissue_cores_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `qc_tf_spr_tissue_cores_revs`;
+CREATE TABLE `qc_tf_spr_tissue_cores_revs` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `qc_tf_ar_tissue_cores`;
+CREATE TABLE `qc_tf_ar_tissue_cores` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+  `site_revision` varchar(100) NOT NULL,
+  KEY `FK_qc_tf_ar_tissue_cores_aliquot_review_masters` (`aliquot_review_master_id`),
+  CONSTRAINT `FK_qc_tf_ar_tissue_cores_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `qc_tf_ar_tissue_cores_revs`;
+CREATE TABLE `qc_tf_ar_tissue_cores_revs` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+  `site_revision` varchar(100) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_ar_tissue_cores');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'qc_tf_ar_tissue_cores', 'site_revision', 'input',  NULL , '0', 'size=30', '', '', 'site revision', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ar_tissue_cores'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_tf_ar_tissue_cores' AND `field`='site_revision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='site revision' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES 
+(NULL, (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_tf_ar_tissue_cores' AND `field`='site_revision' ), 'notBlank', '', '');
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('site revision', 'Site Revision', ''),
+('pathologist/reviewer', 'Pathologist/Reviewer', ''),
+('core review', 'Core Review', '');
+
+UPDATE `versions` SET branch_build_number = '7574' WHERE version_number = '2.7.1';

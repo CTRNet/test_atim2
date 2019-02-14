@@ -11,7 +11,7 @@ $db_pwd			= "";
 $db_schema		= "tfricoeur";
 $db_charset		= "utf8";
 
-$excel_files_paths = 'C:\_NicolasLuc\Server\www\tfri_coeur\dataImporterConfig\BlockDataMigration/';
+$excel_files_paths = 'C:\_NicolasLuc\Server\www\tfri_coeur\dataImporterConfig\TmaCreation/';
 
 $is_serveur = false;
 if($is_serveur) {
@@ -25,5 +25,5 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'file' => 'inventaire FFPE (2018-11-27)_nl_revised_20190212_CC_20190214.xls'
+    'file' => 'COEUR_TMA_ATiM_pourimport_nl_revised_20190213_CC20190214.xls'
 );
