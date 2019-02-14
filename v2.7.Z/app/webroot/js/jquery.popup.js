@@ -110,31 +110,20 @@ FmPopup.prototype.retainFocus = function(event){
 };
 
 function setMainFormTabIndex(){
-//    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
-//        var $this = $(this);
-//        var tabIndex = $this.attr("tabindex");
-//        if (tabIndex ==-9999){
-//                tabIndex = -9999;
-//        }else if (tabIndex ==-8888){
-//            tabIndex ="";
-//        }else{
-//                tabIndex = -tabIndex;
-//        }
-//        $this.attr("tabindex", tabIndex);
-//    });
+    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
+        var $this = $(this);
+        var tabIndex = $this.attr("data-tabindex-old");
+        $this.attr("tabindex", tabIndex);
+    });
 }
 
 function setPopUpTabIndex(){
-//    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
-//        var $this = $(this);
-//        var tabIndex = $this.attr("tabindex");
-//        if (tabIndex<0){
-//                tabIndex = -9999;
-//        }else if (tabIndex =="" || tabIndex == 0 || isNaN(tabIndex)){
-//            tabIndex =-8888;
-//        }else{
-//                tabIndex = -tabIndex;
-//        }
-//        $this.attr("tabindex", tabIndex);
-//    });
+    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
+        var $this = $(this);
+        var tabIndex = $this.attr("tabindex");
+        if (tabIndex =="" || tabIndex == 0 || isNaN(tabIndex) || tabIndex>0){
+            $this.attr("data-tabindex-old", tabIndex);
+            $this.attr("tabindex", -9999);
+        }
+    });
 }
