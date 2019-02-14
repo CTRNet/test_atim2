@@ -9,7 +9,10 @@ class FormBuildersController extends AdministrateAppController
 {
     public $uses = array(
         'ClinicalAnnotation.ConsentControl',
-        'Administrate.FormBuilder'
+        'Administrate.FormBuilder',
+        'StructureField',
+        'StructureFormat',
+        'StructureValueDomain'
     );
     
     public $components = array(
@@ -77,7 +80,6 @@ class FormBuildersController extends AdministrateAppController
     {
         
         $formBuilderItems = $this->FormBuilder->getOrRedirect($formBuilderId);
-        
         $model = $formBuilderItems['FormBuilder']['model'];
         $plugin = $formBuilderItems['FormBuilder']['plugin'];
         $master = (isset($formBuilderItems['FormBuilder']['master']))?$formBuilderItems['FormBuilder']['master']:"";
@@ -85,8 +87,7 @@ class FormBuildersController extends AdministrateAppController
 
         $modelInstance = AppModel::getInstance($plugin, $model);
         
-        $controlItem = $modelInstance->getOrRedirectFormBuilder($controlId, $this->Structures->getSingleStructure($alias));
-
+        $controlItem = $modelInstance->getOrRedirect($controlId);
         $detailFormAliases = explode(",", $controlItem[$model]["detail_form_alias"]);
         $masterFormAliases = explode(",", $controlItem[$model]["form_alias"]);
         $masterFormAliases = array_diff($masterFormAliases, $detailFormAliases);
@@ -104,11 +105,10 @@ class FormBuildersController extends AdministrateAppController
             $result["detail"][] = $this->Structures->getSingleStructure($aliasName);
         }
 
-        $this->request->data = $this->FormBuilder->getDataFromAlias($result);
+        $this->request->data = $this->FormBuilder->getDataFromAlias($result, $master);
         $this->request->data['control'] = $controlItem;
         
-        $aliases = "form_builder_structure";
-        $this->Structures->set($aliases, "atimStructureForControl");
+        $this->Structures->set("form_builder_structure", "atimStructureForControl");
         
         $this->Structures->set($alias, "atimStructureForDetailControl");
         
@@ -124,6 +124,56 @@ class FormBuildersController extends AdministrateAppController
         $this->set("formData", $data);
         
 
+    }
+
+    public function add($formBuilderId) 
+    {
+        $formBuilderItems = $this->FormBuilder->getOrRedirect($formBuilderId);
+        
+        $model = $formBuilderItems['FormBuilder']['model'];
+        $plugin = $formBuilderItems['FormBuilder']['plugin'];
+        $master = (isset($formBuilderItems['FormBuilder']['master']))?$formBuilderItems['FormBuilder']['master']:"";
+        $alias = $formBuilderItems['FormBuilder']['alias'];
+        $defaultAlias = $formBuilderItems['FormBuilder']['default_alias'];
+
+        $this->Structures->set("form_builder_structure", "atimStructureForControl");
+
+        
+        $modelInstance = AppModel::getInstance($plugin, $model);
+        $this->Structures->set($alias);
+
+        $data = $this->request->data;
+
+        $formData = array(
+            'indexData' => $data,
+            'model' => $model,
+            'plugin' => $plugin,
+            'master' => $master,
+            'formBuilderId' => $formBuilderId
+        );
+        $options = array(
+            'prefix-common' =>'common'
+        );
+        $this->set('formData', $formData);
+        $this->set('options', $options);
+
+        $modelInstance->data = $data;
+        $this->StructureField->data = $data;
+
+        
+//$modelInstance->validates(); --> OK
+//$this->StructureField->validatesFormBuilder($options); --> Should work on is_structure_value_domain
+//$this->StructureFormat->validates();
+        
+//        if (!empty($data) && $modelInstance->validates()){
+             //&& $this->StructureField->validates() /*&& $this->StructureFormat->validates()*/){
+//        }
+//            $modelInstance->setDataBeforeSave($data);
+//            $modelInstance->valiateLabels($data);
+            
+//            if ($modelInstance->save($data)){
+//                $this->atimFlashConfirm("the control add successfully", "/Administrate/FormBuilders/detail/".$formBuilderId);
+//            }
     }
 
     public function edit($formBuilderId, $controlId) 
@@ -146,36 +196,7 @@ class FormBuildersController extends AdministrateAppController
         
     }
 
-    public function add($formBuilderId) 
-    {
-        $formBuilderItems = $this->FormBuilder->getOrRedirect($formBuilderId);
-        
-        $model = $formBuilderItems['FormBuilder']['model'];
-        $plugin = $formBuilderItems['FormBuilder']['plugin'];
-        $master = (isset($formBuilderItems['FormBuilder']['master']))?$formBuilderItems['FormBuilder']['master']:"";
-        $alias = $formBuilderItems['FormBuilder']['alias'];
-        $modelInstance = AppModel::getInstance($plugin, $model);
-        $this->Structures->set($alias);
-        $data = $this->request->data;
-
-        $formData = array(
-            'indexData' => $data,
-            'model' => $model,
-            'plugin' => $plugin,
-            'master' => $master,
-            'formBuilderId' => $formBuilderId
-        );
-        $this->set('formData', $formData);
-        $modelInstance->data = $data;
-        if (!empty($data) && $modelInstance->validates()){
-            $modelInstance->setDataBeforeSave($data);
-            $modelInstance->valiateLabels($data);
-            if ($modelInstance->save($data)){
-                $this->atimFlashConfirm("the control add successfully", "/Administrate/FormBuilders/detail/".$formBuilderId);
-            }
-        }
-    }
-
+    /*
     public function getI18n()
     {
         if ($this->request->is('ajax')){
@@ -189,11 +210,48 @@ class FormBuildersController extends AdministrateAppController
             $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
         }
     }
+    */
     
     public function AutocompleteDropDownList()
     {
-        //Todo
-        //To be completed to return the list of value/domain
-
+        $term = $_GET['term'];
+        $result = $this->StructureValueDomain->find('all', array(
+            'conditions' => array(
+                "StructureValueDomain.domain_name like" => "%$term%"
+            ),
+            'fields' => array(
+                "StructureValueDomain.domain_name",
+                "StructureValueDomain.id"
+            )
+        ));
+        $result = $this->StructureValueDomain->normalized($result);
+        $this->set("result", $result);
+    }
+    
+    public function valueDomain()
+    {
+        if ($this->request->is('ajax') || true){
+            $this->Structures->set("form_builder_value_domain", "formBuilderValueDomain");
+        }else{
+            $this->atimFlashError(__('You are not authorized to access that location.'), "/Menus");
+        }
+    }
+    
+    public function addValidation($type)
+    {
+        if ($this->request->is('ajax')){
+            $activeValidations = $this->FormBuilder->checkValidation($type);
+            $this->Structures->set("form_builder_validation", "formBuilderValidationStructure");
+            $this->set("activeValidations", $activeValidations);
+            $this->set("type", $type);
+        }else{
+            $this->atimFlashError(__('You are not authorized to access that location.'), "/Menus");
+        }
+    }
+    
+    public function normalised($type)
+    {
+        $this->autoRender = false ;
+        return $this->FormBuilder->normalised($this->request->data, $type);
     }
 }

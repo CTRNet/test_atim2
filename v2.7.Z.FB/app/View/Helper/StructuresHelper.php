@@ -29,7 +29,7 @@ class StructuresHelper extends AppHelper
         "datetime",
         "time",
         "integer",
-        "interger_positive",
+        "integer_positive",
         "float",
         "float_positive",
         "tetarea",
@@ -766,8 +766,9 @@ class StructuresHelper extends AppHelper
         $tableIndex = $this->buildStack($atimStructure, $options);
         // display table...
         $stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
+        $alias = isset($atimStructure["Structure"]["alias"])?$atimStructure["Structure"]["alias"]:(isset($atimStructure["Structure"][0]["alias"])?$atimStructure["Structure"][0]["alias"]:"noAlias");
         echo '
-			<table class="structure" cellspacing="0"' . $stretch . '>
+			<table class="structure" cellspacing="0"' . $stretch . ' atim-structure = "'.$alias.'" >
 			<tbody>
 				<tr>
 		';
@@ -798,7 +799,7 @@ class StructuresHelper extends AppHelper
                 $tableRowCount = 0;
                 $newLine = true;
                 $endOfLine = "";
-                $display = "";
+                $display = array();
                 $help = null; // keeps the help if hidden fields are in the way
                 foreach ($tableColumn as $tableRow) {
                     foreach ($tableRow as $tableRowPart) {
@@ -1124,6 +1125,9 @@ class StructuresHelper extends AppHelper
                         $display .= ' ';
                     }
                 }
+            } elseif ($tableRowPart['type'] == 'button') {
+                $display = "<button  {$tableRowPart["setting"]}>{$tableRowPart["label"]}</button>";
+                $currentValue = "";
             }
             $display .= $tableRowPart['format']; // might contain hidden field if the current one is disabled
             
@@ -1249,6 +1253,20 @@ class StructuresHelper extends AppHelper
      */
     private function buildTable(array $atimStructure, array $options, array $data, $type)
     {
+        if(isset($options["settings"]["name_prefix"]) && !empty($options["settings"]["name_prefix"])){
+            if(isset($data["common"])){
+                $mainData = $data["common"];
+                unset($data["common"]);
+                if (is_array($mainData)){
+                    foreach ($mainData as $key=>$value){
+                        $data[$key] = $value;
+                    }
+                }else{
+                    $data[] = $value;
+                }
+            }
+        }
+
         // attach PER PAGE pagination param to PASSED params array...
         if (isset($this->request->params['named']) && isset($this->request->params['named']['per'])) {
             $this->request->params['pass']['per'] = $this->request->params['named']['per'];
@@ -1266,11 +1284,14 @@ class StructuresHelper extends AppHelper
         if ($options['type'] == 'index') {
             $class .= ' lineHighlight';
         }
+        $alias = isset($atimStructure["Structure"]["alias"])?$atimStructure["Structure"]["alias"]:(isset($atimStructure["Structure"][0]["alias"])?$atimStructure["Structure"][0]["alias"]:"noAlias");
         echo '
-			<table class="' . $class . '" cellspacing="0"' . $stretch . '>
+			<table class="' . $class . '" cellspacing="0"' . $stretch . ' atim-structure = "'.$alias.'" >
 				<tbody>
 					<tr>
 		';
+        
+
         foreach ($structureIndex as $tableKey => $tableIndex) {
             $structureCount ++;
             if (is_array($tableIndex)) {
@@ -1300,9 +1321,19 @@ class StructuresHelper extends AppHelper
                     }
                     $rowNum = 1;
                     $defaultSettingsWoClass = self::$defaultSettingsArr;
+                    $count = 0;
+                    foreach ($data as $key => $dataUnit) {
+                        if(is_numeric($key) || $key=="%d"){
+                            $count++;
+                        }
+                    }
+
                     unset($defaultSettingsWoClass['class']);
                     foreach ($data as $key => $dataUnit) {
-                        if ($addLineCtrl && $rowNum == count($data)) {
+                        if(!is_numeric($key) && $key!="%d"){
+                            continue;
+                        }
+                        if ($addLineCtrl && $rowNum == $count) {
                             echo "<tr class='hidden'>";
                         } else {
                             echo "<tr>";
@@ -1441,7 +1472,7 @@ class StructuresHelper extends AppHelper
                         echo '<tr>
 								<td class="right" colspan="', $headerData['count'], '">
 									<a class="addLineLink icon16 add_mini" href="#" title="', __('click to add a line'), '"></a>
-									<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
+									<input class="addLineCount" type="number" size="1" min = "1"  max = "99" value="1" maxlength="2"/> line(s)
 								</td>
 							</tr>
 						';
@@ -1801,8 +1832,9 @@ class StructuresHelper extends AppHelper
         }
         
         $stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
+        $alias = isset($atimStructure["Structure"]["alias"])?$atimStructure["Structure"]["alias"]:(isset($atimStructure["Structure"][0]["alias"])?$atimStructure["Structure"][0]["alias"]:"noAlias");
         echo '
-			<table class="structure" cellspacing="0"' . $stretch . '>
+			<table class="structure" cellspacing="0"' . $stretch . ' atim-structure = "'.$alias.'" >
 			<tbody>
 				<tr>
 		';
@@ -2498,6 +2530,8 @@ class StructuresHelper extends AppHelper
                                 }
                             }
                         } elseif ($sfs['type'] == "display") {
+                            $current["format"] = "%s";
+                        } elseif ($sfs['type'] == "button") {
                             $current["format"] = "%s";
                         } else {
                             if (Configure::read('debug') > 0) {
