@@ -734,8 +734,11 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         str_replace("'", "''", $excel_line_block_data['notes from biobank']),
         str_replace("'", "''", $excel_line_block_data['NOTES (other)'])
     );
+    if(strlen($excel_line_block_data['Block number'])) $new_notes[] = "Block number from XLS file : " . $excel_line_block_data['Block number'];
+    
     $new_notes = array_filter($new_notes);
     $new_notes = implode('. ',$new_notes);
+    if($new_notes) $new_notes .='.';
     $aliquot_data = array(
         'aliquot_masters' => array(
             "barcode" => 'tmp_'.$created_aliquot_counter,
