@@ -48,16 +48,21 @@ function initCopyControl(){
  * @return
  */
 function copyLine(line){
+        $(line).closest("table").find("*").removeClass("copy-cell");
+
 	copyBuffer = new Object();
 	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled), input.accuracy").each(function(){
+                $(this).closest("td").addClass("copy-cell");
+
 		var nameArray = $(this).prop("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-		if($(this).prop("type") == "checkbox"){
+                if($(this).prop("type") == "checkbox"){
 			name += $(this).val();
 			copyBuffer[name] = $(this).prop("checked");
 		}else{
 			copyBuffer[name] = $(this).val();
 		}
+                
 	});
 }
 
@@ -67,17 +72,30 @@ function copyLine(line){
  * @return
  */
 function pasteLine(line){
-	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
+        $(line).closest("table").find("*").removeClass("copy-cell");
+    
+	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled), input.accuracy").each(function(){
+
 		if(!$(this).prop("readonly") && !$(this).prop("disabled")){
+                    $(this).closest("td").addClass("paste-cell");
 			var nameArray = $(this).prop("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-			if($(this).prop("type") == "checkbox"){
+                        if($(this).prop("type") == "checkbox"){
 				name += $(this).val(); 
 				if(copyBuffer[name] != undefined){
+                                        var oldValue = $(this).prop("checked");
 					$(this).prop("checked", copyBuffer[name]);
+                                        if (oldValue !=copyBuffer[name]){
+                                            $(this).trigger("change");
+                                        }
 				}
 			}else if(copyBuffer[name] != undefined){
+                                var oldValue = $(this).val();
 				$(this).val(copyBuffer[name]);
+                                if (oldValue !=copyBuffer[name]){
+                                    $(this).trigger("change", "autoTriger");
+                                }
+                                
 			}
 			
 			if(name.indexOf("][month]") != -1){
@@ -91,6 +109,14 @@ function pasteLine(line){
 			}
 		}
 	});
+
+        var $tds = $(line).find("td.paste-cell");
+        setTimeout(function(){
+            $tds.removeClass("paste-cell");
+            $tds.addClass("paste-cell-fade-out");
+        }, 3000);
+        
+        
 }
 
 /**

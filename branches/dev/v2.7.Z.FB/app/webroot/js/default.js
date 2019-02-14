@@ -9,9 +9,11 @@ var checkedData = [];
 var DEBUG_MODE_JS = 0;
 var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
-//window.alert = function(a){
-//    console.log(a);
-//}
+
+if (window.name !== "ATiM - Advanced Tissue Management"){
+    window.name = "ATiM - Advanced Tissue Management";
+    location.reload(true);
+}
 
 $(document).ready(function () {
     $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
@@ -679,10 +681,25 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
-                        }                        
-                        response(JSON.parse(data));
+                        }
+                        data = JSON.parse(data);
+                        var temp = [];
+                        data = data.map(function(item){
+                            temp = item.split("|||");
+                            if (temp.length==2){
+                                return {id: temp[1], label: temp[0]};
+                            }else{
+                                return temp[0];
+                            }
+                        });
+                        response(data);
                     });
-            }
+            },
+            select: function( event, ui ) {
+                if (typeof ui.item.id !="undefined"){
+                    $(event.target).data("id", ui.item.id);
+                }
+            }            
         });
     });
 }
@@ -1399,6 +1416,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
     
     $(scope).find("input[type=checkbox]").each(function(){
+        var $requiredYN = false;
+        var $checked = false;
+        var $checkBox;
+        $(this).parent().children('input[type=checkbox]').each(function(){
+            $checkBox = $(this);
+            if ($checkBox.prop('required')){
+                $requiredYN = true;
+            }
+            if ($checkBox.prop('checked')){
+                $checked = true;
+            }
+        });
+        
+        if ($requiredYN && $checked){
+            $(this).parent().children('input[type=checkbox]').each(function(){
+                $checkBox = $(this);
+                if ($checkBox.prop('checked')){
+                    $checkBox.prop('required', true);
+                }else{
+                    $checkBox.prop('required', false);
+                }
+                
+            });
+        }
+                
         $(this).click(function(){
             $currentCheckBox=$(this);            
             $parent=$currentCheckBox.parent();

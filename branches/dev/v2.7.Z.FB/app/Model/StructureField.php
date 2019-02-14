@@ -94,4 +94,21 @@ class StructureField extends AppModel
         
         return $return;
     }
+    
+    public function validatesFormBuilder($options = array()) {
+        if (isset($options["prefix-common"])){
+            $data = isset($this->data[$options["prefix-common"]])?$this->data[$options["prefix-common"]]:array();
+            unset ($options["prefix-common"]);
+        }
+        $valid = true;
+        $validationErrors = [];
+        foreach($data as $key=>$value){
+            if(is_numeric($key)){
+                $this->set($value);
+                $valid &= parent::validates($options);
+                $this->validationErrors = array_merge($validationErrors, $this->validationErrors);
+                $validationErrors = $this->validationErrors;
+            }
+        }
+    }
 }
