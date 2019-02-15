@@ -166,3 +166,36 @@ UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_co
 UPDATE misc_identifier_controls SET misc_identifier_format = 'B-%%key_increment%%' WHERE misc_identifier_name = 'adrenal bank no lab';
 
 UPDATE versions SET branch_build_number = '7501' WHERE version_number = '2.7.1';
+
+INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_laterality`, `sample_type_matching`, `tissue_source_matching`, `nature_matching`, `laterality_matching`) 
+VALUES
+('SU', '', 'tissue', 'adrenal', 'unknown', ''),
+('SU', 'D', 'tissue', 'adrenal', 'unknown', 'right'),
+('SU', 'G', 'tissue', 'adrenal', 'unknown', 'left'),
+('SUN', '', 'tissue', 'adrenal', 'normal', ''),
+('SUN', 'D', 'tissue', 'adrenal', 'normal', 'right'),
+('SUN', 'G', 'tissue', 'adrenal', 'normal', 'left'),
+('SUT', '', 'tissue', 'adrenal', 'malignant', ''),
+('SUT', 'D', 'tissue', 'adrenal', 'malignant', 'right'),
+('SUT', 'G', 'tissue', 'adrenal', 'malignant', 'left');
+INSERT IGNORE INTO i18n (id, en,fr) VALUES ('adrenal', 'Adrenal', 'Surrenal');
+UPDATE versions set permissions_regenerated = 0;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 20190215 : Add new nolabo to identifiers report
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'provaq_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'provaq bank no lab', ''), 
+('Datamart', '0', '', 'adrenal_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'adrenal bank no lab', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='provaq_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='provaq bank no lab' AND `language_tag`=''), '0', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='adrenal_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='adrenal bank no lab' AND `language_tag`=''), '0', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='no labo' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovary_gyneco_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='confidential identifiers' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ramq_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `language_heading`='other' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_center_id_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('confidential identifiers', 'Confidential Identifiers', 'Identifiants confidentiels');
+
+UPDATE versions SET branch_build_number = '7575' WHERE version_number = '2.7.1';
