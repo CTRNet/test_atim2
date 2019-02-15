@@ -98,6 +98,8 @@ class ReportsControllerCustom extends ReportsController
                         'melanoma_and_skin_bank_no_lab' => null,
                         'colorectal_bank_no_lab' => null,
                         'pulmonary_bank_no_lab' => null,
+                        'provaq_bank_no_lab' => null,
+                        'adrenal_bank_no_lab' => null,
                         'ramq_nbr' => null,
                         'hotel_dieu_id_nbr' => null,
                         'notre_dame_id_nbr' => null,
