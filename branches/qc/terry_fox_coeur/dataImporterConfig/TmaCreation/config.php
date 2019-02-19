@@ -25,5 +25,7 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'file' => 'COEUR_TMA_ATiM_pourimport_nl_revised_20190213_CC20190214.xls'
+    'block' => 'COEUR_TMA_ATiM_pourimport_nl_revised_20190215_CC20190214.xls',
+    'tma' => 'TFcoeur_TMAlist_nl_revised.xls',
+    'slide' => 'TF-COEUR.cut.slides_nl_revised.xls'
 );
