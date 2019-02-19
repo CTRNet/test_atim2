@@ -351,3 +351,76 @@ VALUES
 ('core review', 'Core Review', '');
 
 UPDATE `versions` SET branch_build_number = '7574' WHERE version_number = '2.7.1';
+
+-- --------------------------------------------------------------------------------
+-- 2018-02-13
+-- --------------------------------------------------------------------------------
+
+ALTER TABLE storage_masters MODIFY `short_label` varchar(20) DEFAULT NULL;
+ALTER TABLE storage_masters_revs MODIFY `short_label` varchar(20) DEFAULT NULL;
+
+ALTER TABLE storage_masters MODIFY `selection_label` varchar(250) DEFAULT '';
+ALTER TABLE storage_masters_revs MODIFY `selection_label` varchar(250) DEFAULT '';
+
+-- --------------------------------------------------------------------------------
+-- 2018-02-13
+-- --------------------------------------------------------------------------------
+
+ALTER TABLE tma_slides
+   ADD COLUMN qc_tf_qc_tf_parrafin_protection char(1) NOT NULL DEFAULT '',
+   ADD COLUMN qc_tf_quality_assessment varchar(20) DEFAULT NULL,
+   ADD COLUMN qc_tf_sectionning_date date DEFAULT NULL,
+   ADD COLUMN qc_tf_sectionning_date_accuracy char(1) NOT NULL DEFAULT '',
+   ADD COLUMN qc_tf_sectionning_done_by varchar(50) DEFAULT NULL;  
+ALTER TABLE tma_slides_revs
+   ADD COLUMN qc_tf_qc_tf_parrafin_protection char(1) NOT NULL DEFAULT '',
+   ADD COLUMN qc_tf_quality_assessment varchar(20) DEFAULT NULL,
+   ADD COLUMN qc_tf_sectionning_date date DEFAULT NULL,
+   ADD COLUMN qc_tf_sectionning_date_accuracy char(1) NOT NULL DEFAULT '',
+   ADD COLUMN qc_tf_sectionning_done_by varchar(50) DEFAULT NULL;  
+   
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES
+('TMA Slides Quality Assessments', 1, 20, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TMA Slides Quality Assessments');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("2", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("3", "", "", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("?", "", "", "99", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("1", "", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+UPDATE structure_permissible_values_custom_controls SET values_max_length = 20, values_used_as_input_counter = 4, values_counter = 4 WHERE name = 'TMA Slides Quality Assessments';
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('qc_tf_tma_slide_quality_assessments', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TMA Slides Quality Assessments\')');
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaSlide', 'tma_slides', 'qc_tf_qc_tf_parrafin_protection', 'yes_no',  NULL , '0', '', '', '', 'parrafin protection', ''), 
+('StorageLayout', 'TmaSlide', 'tma_slides', 'qc_tf_quality_assessment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tma_slide_quality_assessments') , '0', '', '', '', 'quality assessment', ''), 
+('StorageLayout', 'TmaSlide', 'tma_slides', 'qc_tf_sectionning_date', 'date',  NULL , '0', '', '', '', 'qc tf sectionning date', ''), 
+('StorageLayout', 'TmaSlide', 'tma_slides', 'qc_tf_sectionning_done_by', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'qc tf sectionning done by', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_qc_tf_parrafin_protection' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='parrafin protection' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_quality_assessment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tma_slide_quality_assessments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='quality assessment' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_sectionning_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf sectionning date' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_sectionning_done_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc tf sectionning done by' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='markers' WHERE model='TmaSlide' AND tablename='tma_slides' AND field='immunochemistry' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tma_slide_sop_list') AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('parrafin protection', 'Parrafin Protection', ''),
+('quality assessment', 'Quality Assessment', ''),
+('qc tf sectionning date', 'Sectionning Date', ''),
+('qc tf sectionning done by', 'Sectionning Done By', ''),
+('markers', 'Markers', '');
+  
+ALTER TABLE tma_slides ADD COLUMN qc_tf_notes varchar(250) DEFAULT NULL;
+ALTER TABLE tma_slides_revs ADD COLUMN qc_tf_notes varchar(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaSlide', 'tma_slides', 'qc_tf_notes', 'input',  NULL , '0', '', 'other', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_notes' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='other' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE `versions` SET branch_build_number = '7576' WHERE version_number = '2.7.1';
