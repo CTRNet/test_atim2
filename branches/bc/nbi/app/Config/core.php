@@ -40,7 +40,7 @@ Configure::write('debug', $debug);
  * 1: Core install name color will be changed to red and 'Test' word will be added to the install name.
  * 0: Install name will be displayed as usual.
  */
-$isTest = 0;
+$isTest = 1;
 Configure::write('IsTest', $isTest);
 
 /**

@@ -40,6 +40,12 @@ UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/MiscId
 UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/ReproductiveHistories/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/FamilyHistories/%';
 
+SELECT 'ParticipantContacts' AS 'TODO: Change users access permission to let people to access following modules'
+UNION ALL
+SELECT 'TreatmentMasterExtends' AS 'TODO: Change users access permission to let people to access following modules'
+UNION ALL
+SELECT 'ReproductiveHistories' AS 'TODO: Change users access permission to let people to access following modules';
+
 UPDATE datamart_reports SET flag_active = '1' WHERE name = 'list all related diagnosis';
 
 UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'DiagnosisMaster' AND label = 'number of elements per participant';
@@ -62,7 +68,6 @@ UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 10 AND id2 =4) OR (id1 = 4 AND id2 =10);
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 2 AND id2 =9) OR (id1 = 9 AND id2 =2);
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 19 AND id2 =4) OR (id1 = 4 AND id2 =19);
-UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 11 AND id2 =4) OR (id1 = 4 AND id2 =11);
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Participant contacts
@@ -816,33 +821,14 @@ UPDATE structure_fields SET  `language_help`='bc_nbi_help_bcca_cod' WHERE model=
 UPDATE structure_fields SET  `language_help`='bc_nbi_help_death_cause_original' WHERE model='Participant' AND tablename='participants' AND field='bc_nbi_death_cause_original_icd_89_desc' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `language_help`='bc_nbi_help_death_sec_cause' WHERE model='Participant' AND tablename='participants' AND field='bc_nbi_death_sec_cause_89_desc' AND `type`='input' AND structure_value_domain  IS NULL ;
 
-ALTER TABLE participants
-    ADD COLUMN bc_nbi_brdeath varchar(250) DEFAULT NULL;
-ALTER TABLE participants_revs
-    ADD COLUMN bc_nbi_brdeath varchar(250) DEFAULT NULL;
-INSERT INTO structure_permissible_values_custom_controls 
-(name, flag_active, values_max_length, category) VALUES
-('Breast Cancer Cause of Death', 1, 250, 'clinical annotation');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Breast Cancer Cause of Death');
-SET @user_id = 2;
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
-("1", "1 - Death from breast cancer", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("2", "2 - Death from other than breast cancer", "", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("3", "3 - Alive", "", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
-UPDATE structure_permissible_values_customs SET value = LOWER(en) WHERE control_id = @control_id;
-UPDATE structure_permissible_values_custom_controls 
-SET values_max_length = 250, values_used_as_input_counter = 3, values_counter = 3 WHERE name = 'Breast Cancer Cause of Death';
-INSERT INTO structure_value_domains (domain_name, override, category, source) values
-('bc_nbi_brdeath', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'Breast Cancer Cause of Death\')');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'Participant', 'participants', 'bc_nbi_brdeath', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_brdeath') , '0', '', '', 'bc_nbi_help_brdeath', 'br ca cause of death', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_brdeath' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_brdeath')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='bc_nbi_help_brdeath' AND `language_label`='br ca cause of death' AND `language_tag`=''), '3', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT IGNORE INTO i18n (id,en,fr)
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("death from breast cancer", "death from breast cancer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="death from breast cancer" AND language_alias="death from breast cancer"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("death from other than breast cancer", "death from other than breast cancer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="health_status"), (SELECT id FROM structure_permissible_values WHERE value="death from other than breast cancer" AND language_alias="death from other than breast cancer"), "2", "1");
+INSERT IGNORE INTO i18n (id,en, fr) 
 VALUES
-("bc_nbi_help_brdeath", "Calculated variable using BCCA, DVS Primary, DVS Underlying COD; BCCA taking precedence", ""),
-("br ca cause of death", "Breast Cancer", "");
+("death from breast cancer", "Death from breast cancer", ''),
+("death from other than breast cancer", "Death from other than breast cancer", '');
 
 UPDATE structure_formats SET `display_column`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_modification' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -919,13 +905,13 @@ ALTER TABLE reproductive_histories_revs ADD COLUMN bc_nbi_meno_status_desc varch
 -- Participant Identifier
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, 
-`flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) VALUES
-(null, 'bcca id', 1, 0, '', '', 
-1, 1, 1, 0, '', '', 0);
-INSERT INTO i18n (id,en,fr)
-VALUES
-('bcca id', 'BC Cancer Agency Id', ''); 
+-- INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, 
+-- `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, `flag_link_to_study`) VALUES
+-- (null, 'bcca id', 1, 0, '', '', 
+-- 1, 1, 1, 0, '', '', 0);
+-- INSERT INTO i18n (id,en,fr)
+-- VALUES
+-- ('bcca id', 'BC Cancer Agency Id', ''); 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Participant Treatment - Radiotherapy
@@ -2244,6 +2230,286 @@ VALUES
        	    	
 UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='bc_nbi_txd_radiations_at_dx');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2019-02-20 : New Customization
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Participants
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE participants
+   ADD COLUMN bc_nbi_phn_number VARCHAR(200) DEFAULT NULL,
+   ADD COLUMN bc_nbi_bc_cancer_agency_id varchar(200) DEFAULT NULL,
+   ADD COLUMN bc_nbi_retrospective_bank char(1) NOT NULL DEFAULT 'n';
+ALTER TABLE participants_revs
+   ADD COLUMN bc_nbi_phn_number VARCHAR(200) DEFAULT NULL,
+   ADD COLUMN bc_nbi_bc_cancer_agency_id varchar(200) DEFAULT NULL,
+   ADD COLUMN bc_nbi_retrospective_bank char(1) NOT NULL DEFAULT 'n';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'bc_nbi_bc_cancer_agency_id', 'input',  NULL , '1', '', '', '', 'bc cancer agency id', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'bc_nbi_retrospective_bank', 'yes_no',  NULL , '0', '', '', '', 'retrospective bank', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'bc_nbi_phn_number', 'input',  NULL , '1', '', '', '', 'phn number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_bc_cancer_agency_id' ), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_retrospective_bank'), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_phn_number'), '1', '-1', 'clin_demographics', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET language_heading = '', `display_order`='-3',`flag_add`='0', `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-2' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_retrospective_bank' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='Participant'  AND `field`='bc_nbi_retrospective_bank'), 'notBlank', '');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('phn number', 'PHN#', 'PHN#'),
+('bc cancer agency id', 'BCCA#', 'BCCA#'),
+('retrospective bank', 'Retrospective Bank', '');
+UPDATE i18n SET en = 'ATiM-Participant#', fr = 'ATiM-Participant#' WHERE id = 'participant identifier';
+
+UPDATE participants SET bc_nbi_phn_number = participant_identifier;
+UPDATE participants_revs SET bc_nbi_phn_number = participant_identifier;
+
+UPDATE participants SET bc_nbi_retrospective_bank = 'y', participant_identifier = CONCAT('ATiM-P#', id);
+UPDATE participants_revs SET bc_nbi_retrospective_bank = 'y', participant_identifier = CONCAT('ATiM-P#', id);
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('you are not allowed to edit participant of the retrospective bank', "You are not allowed to edit participant of the 'Retrospective Bank'.", ''),
+('your search will be limited to participant of the prospective bank only', "Your search will be limited to participant of the 'Prospective Bank' only.", ''),
+('more than one participants have the same phn number into atim', 'More than one participants have the same PHN number into atim.', ''),
+('more than one participants have the same bcca number into atim', 'More than one participants have the same BCCA number into atim.', '');
+
+-- Treatment Surgery
+
+INSERT INTO treatment_extend_controls (detail_tablename, detail_form_alias, flag_active, type, databrowser_label)
+VALUES
+('bc_nbi_txe_surgeries', 'bc_nbi_txe_surgeries', '1', 'surgical procedure', 'surgical procedure');
+DROP TABLE IF EXISTS `bc_nbi_txe_surgeries`;
+CREATE TABLE `bc_nbi_txe_surgeries` (
+  `surgery_code` varchar(5) DEFAULT NULL,
+  `surgery_code_description` varchar(100) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  KEY `FK_bc_nbi_txe_surgeries_treatment_extend_masters` (`treatment_extend_master_id`),
+  CONSTRAINT `FK_bc_nbi_txe_surgeries_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `bc_nbi_txe_surgeries_revs`;
+CREATE TABLE `bc_nbi_txe_surgeries_revs` (
+  `surgery_code` varchar(5) DEFAULT NULL,
+  `surgery_code_description` varchar(100) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO structures(`alias`) VALUES ('bc_nbi_txe_surgeries');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'bc_nbi_txe_surgeries', 'surgery_code', 'input',  NULL , '0', 'size=5', '', 'bc_nbi_help_txe_surgery_code', 'surgery code', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'bc_nbi_txe_surgeries', 'surgery_code_description', 'input',  NULL , '0', '', '', '', 'surgery code description', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='bc_nbi_txe_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='bc_nbi_txe_surgeries' AND `field`='surgery_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='bc_nbi_help_txe_surgery_code' AND `language_label`='surgery code' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txe_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='bc_nbi_txe_surgeries' AND `field`='surgery_code_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgery code description' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail'  AND `field`='surgery_code'), 'notBlank', '');
+INSERT IGNORE i18n (id,en,fr)
+VALUES
+('bc_nbi_help_txe_surgery_code', "Statistics Canada Canadian Classification of Diagnostic, Therapeutic, and Surgical Procedures", "Statistics Canada Canadian Classification of Diagnostic, Therapeutic, and Surgical Procedures"),
+('surgery code', "Code", "Code"),
+('surgery code description', "Description", "Description");
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) 
+VALUES
+(null, 'surgery', '', 1, 'bc_nbi_txd_surgeries', 'bc_nbi_txd_surgeries', 0, NULL, NULL, 'surgery', 1, (SELECT id FROM treatment_extend_controls WHERE detail_tablename  = 'bc_nbi_txe_surgeries'), 0, 1);
+DROP TABLE IF EXISTS `bc_nbi_txd_surgeries`;
+CREATE TABLE `bc_nbi_txd_surgeries` (
+  `surg_treat_intent_desc` varchar(100) DEFAULT NULL,
+  `surg_treat_plan_code` varchar(100) DEFAULT NULL,
+  `surg_treat_plan_desc` varchar(100) DEFAULT NULL,
+  `surgeon_msc_id` integer(25) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `bc_nbi_txd_surgeries_revs`;
+CREATE TABLE `bc_nbi_txd_surgeries_revs` (
+  `surg_treat_intent_desc` varchar(100) DEFAULT NULL,
+  `surg_treat_plan_code` varchar(100) DEFAULT NULL,
+  `surg_treat_plan_desc` varchar(100) DEFAULT NULL,
+  `surgeon_msc_id` integer(25) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `bc_nbi_txd_surgeries`
+  ADD KEY `tx_master_id` (`treatment_master_id`),
+  ADD CONSTRAINT `bc_nbi_txd_surgeries_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+ALTER TABLE `bc_nbi_txd_surgeries_revs`
+  ADD PRIMARY KEY (`version_id`),
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='intent' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="palliative" AND language_alias="palliative");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("diagnostic", "diagnostic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="intent"), (SELECT id FROM structure_permissible_values WHERE value="diagnostic" AND language_alias="diagnostic"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="intent"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="intent"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "9", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("bc_nbi_surg_treat_plan", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("initial", "initial");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_treat_plan"), (SELECT id FROM structure_permissible_values WHERE value="initial" AND language_alias="initial"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("subsequent", "subsequent");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_treat_plan"), (SELECT id FROM structure_permissible_values WHERE value="subsequent" AND language_alias="subsequent"), "5", "1");
+INSERT INTO structures(`alias`) VALUES ('bc_nbi_txd_surgeries');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_intent' AND `language_label`='intent' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries', 'surg_treat_intent_desc', 'input',  NULL , '0', '', '', '', 'intent description', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries', 'surg_treat_plan_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_treat_plan') , '0', '', '', '', 'plan', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries', 'surg_treat_plan_desc', 'input',  NULL , '0', '', '', '', 'plan description', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries', 'surgeon_msc_id', 'integer',  NULL , '0', 'size=11', '', '', 'MSC ID', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries' AND `field`='surg_treat_intent_desc' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='intent description' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries' AND `field`='surg_treat_plan_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_treat_plan')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='plan' AND `language_tag`=''), '2', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries' AND `field`='surg_treat_plan_desc' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='plan description' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries' AND `field`='surgeon_msc_id' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=11' AND `default`='' AND `language_help`='' AND `language_label`='MSC ID' AND `language_tag`=''), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id, en,fr)
+VALUES
+('initial', 'Initial', ''),
+('subsequent', 'Subsequent', ''),
+('diagnostic', 'Diagnostic', 'Diagnostique'),
+('diagnostic', 'Diagnostic', 'Diagnostique'),
+('diagnostic', 'Diagnostic', 'Diagnostique'),
+('diagnostic', 'Diagnostic', 'Diagnostique'),
+('intent description', 'Intent Description', ''),
+('plan description', 'Plan Description', '');
+
+-- Treatment Surgery At Dx
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'surgery', 'at diagnosis', 1, 'bc_nbi_txd_surgeries_at_dx', 'bc_nbi_txd_surgeries_at_dx', 0, NULL, NULL, 'surgery|at diagnosis', 1, NULL, 0, 1);
+DROP TABLE IF EXISTS `bc_nbi_txd_surgeries_at_dx`;
+CREATE TABLE `bc_nbi_txd_surgeries_at_dx` (
+  `finsurg` varchar(50) DEFAULT NULL,
+  `init_alnd` varchar(50) DEFAULT NULL,
+  `init_nodal_proc` varchar(50) DEFAULT NULL,
+  `init_partial_mastec` varchar(50) DEFAULT NULL,
+  `init_compl_mastec` varchar(50) DEFAULT NULL,
+  `init_corebx` char(1) DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE IF EXISTS `bc_nbi_txd_surgeries_at_dx_revs`;
+CREATE TABLE `bc_nbi_txd_surgeries_at_dx_revs` (
+  `finsurg` varchar(50) DEFAULT NULL,
+  `init_alnd` varchar(50) DEFAULT NULL,
+  `init_nodal_proc` varchar(50) DEFAULT NULL,
+  `init_partial_mastec` varchar(50) DEFAULT NULL,
+  `init_compl_mastec` varchar(50) DEFAULT NULL,
+  `init_corebx` char(1) DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `bc_nbi_txd_surgeries_at_dx`
+  ADD KEY `tx_master_id` (`treatment_master_id`),
+  ADD CONSTRAINT `bc_nbi_txd_surgeries_at_dx_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+ALTER TABLE `bc_nbi_txd_surgeries_at_dx_revs`
+  ADD PRIMARY KEY (`version_id`),
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("bc_nbi_surg_finsurg", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0 = no initial breast surg", "0 = no initial breast surg"),
+("1 = initial bcs", "1 = initial bcs"),
+("2 = initial complete mastect", "2 = initial complete mastect");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_finsurg"), (SELECT id FROM structure_permissible_values WHERE value="0 = no initial breast surg" AND language_alias="0 = no initial breast surg"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_finsurg"), (SELECT id FROM structure_permissible_values WHERE value="1 = initial bcs" AND language_alias="1 = initial bcs"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_finsurg"), (SELECT id FROM structure_permissible_values WHERE value="2 = initial complete mastect" AND language_alias="2 = initial complete mastect"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("bc_nbi_surg_init_alnd", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0 = no alnd performed", "0 = no alnd performed"),
+("1 = alnd performed", "1 = alnd performed");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_alnd"), (SELECT id FROM structure_permissible_values WHERE value="0 = no alnd performed" AND language_alias="0 = no alnd performed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_alnd"), (SELECT id FROM structure_permissible_values WHERE value="1 = alnd performed" AND language_alias="1 = alnd performed"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("bc_nbi_surg_init_nodal_proc", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0 = no nodal procedure performed", "0 = no nodal procedure performed"),
+("1 = nodal procedure performed", "1 = nodal procedure performed");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_nodal_proc"), (SELECT id FROM structure_permissible_values WHERE value="0 = no nodal procedure performed" AND language_alias="0 = no nodal procedure performed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_nodal_proc"), (SELECT id FROM structure_permissible_values WHERE value="1 = nodal procedure performed" AND language_alias="1 = nodal procedure performed"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("bc_nbi_surg_init_partial_mastec", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0 = no partial mastectomy", "0 = no partial mastectomy"),
+("1 = partial mastec performed", "1 = partial mastec performed");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_partial_mastec"), (SELECT id FROM structure_permissible_values WHERE value="0 = no partial mastectomy" AND language_alias="0 = no partial mastectomy"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_partial_mastec"), (SELECT id FROM structure_permissible_values WHERE value="1 = partial mastec performed" AND language_alias="1 = partial mastec performed"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("bc_nbi_surg_init_compl_mastec", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("0 = no total/ mastec", "0 = no total/ mastec"),
+("1 = total/complete mastec", "1 = total/complete mastec");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_compl_mastec"), (SELECT id FROM structure_permissible_values WHERE value="0 = no total/ mastec" AND language_alias="0 = no total/ mastec"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_surg_init_compl_mastec"), (SELECT id FROM structure_permissible_values WHERE value="1 = total/complete mastec" AND language_alias="1 = total/complete mastec"), "1", "1");
+INSERT INTO structures(`alias`) VALUES ('bc_nbi_txd_surgeries_at_dx');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'finsurg', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_finsurg') , '0', '', '', '', 'definitive surg at init dx', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'init_alnd', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_alnd') , '0', '', '', '', 'alnd at init dx', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'init_nodal_proc', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_nodal_proc') , '0', '', '', '', 'nodal proc at init dx', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'init_partial_mastec', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_partial_mastec') , '0', '', '', '', 'partial mastec at init dx', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'init_compl_mastec', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_compl_mastec') , '0', '', '', '', 'complete mastec at init dx', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'bc_nbi_txd_surgeries_at_dx', 'init_corebx', 'yes_no',  NULL , '0', '', '', '', 'core bx at init dx', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '3', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='finsurg' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_finsurg')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='definitive surg at init dx' AND `language_tag`=''), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='init_alnd' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_alnd')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='alnd at init dx' AND `language_tag`=''), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='init_nodal_proc' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_nodal_proc')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nodal proc at init dx' AND `language_tag`=''), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='init_partial_mastec' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_partial_mastec')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='partial mastec at init dx' AND `language_tag`=''), '2', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='init_compl_mastec' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_surg_init_compl_mastec')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complete mastec at init dx' AND `language_tag`=''), '2', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_nbi_txd_surgeries_at_dx'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='bc_nbi_txd_surgeries_at_dx' AND `field`='init_corebx' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core bx at init dx' AND `language_tag`=''), '2', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('definitive surg at init dx', 'Definitive Surg', ''),
+('alnd at init dx', 'ALND', ''),
+('nodal proc at init dx', 'Nodal Proc', ''),
+('partial mastec at init dx', 'Partial Mastec', ''),
+('complete mastec at init dx', 'Complete Mastec', ''),
+('core bx at init dx', 'Core Bx', ''),
+("0 = no initial breast surg", "0 = No initial breast surg", ''),
+("1 = initial bcs", "1 = Initial BCS", ''),
+("2 = initial complete mastect", "2 = Initial complete mastect", ''),
+("0 = no alnd performed", "0 = No ALND performed", ''),
+("1 = alnd performed", "1 = ALND performed", ''),
+("0 = no nodal procedure performed", "0 = No nodal procedure performed", ''),
+("1 = nodal procedure performed", "1 = Nodal procedure performed", ''),
+("0 = no partial mastectomy", "0 = No partial mastectomy", ''),
+("1 = partial mastec performed", "1 = Partial mastec performed", ''),
+("0 = no total/ mastec", "0 = No total/ mastec", ''),
+("1 = total/complete mastec", "1 = Total/complete mastec", '');
 
 
 
@@ -2280,6 +2546,19 @@ UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM
 
 
 
+
+
+
+
+
+Concerning "Clinical Annotation" part: can we add here some of the entries from the Main data dictionary?
+1) Referred Case
+2) NHA  case
+3) Diagnosis date
+4) Admission date
+5) Status at referral
+6) Cancer site (i.e. primary location of malignant tumor in the body)
+7) Province of Residence.
 
 
 
@@ -2297,20 +2576,13 @@ SELECT 'Activate Contact' AS TODO
 UNION ALL
 SELECT 'Activate Consent' AS TODO
 UNION ALL
-SELECT 'Activate FamilyHistories' AS TODO
-UNION ALL
 SELECT 'Activate TreatmentExtendMasters' AS TODO;
 
 
 
 
-Projet retrospective.
 
-Actuellement Viktor entre les path review des blocs FFPE.
-Les données cliniques des blocs vont venir du BC Cancer Agency et rentrer dans les champs du datadictionnary.
-On devra lier l'info sur les numéro hopitaux etc... après il faudra anonymiser.
-
-Ensuite l'année prochaine ATiM pourrait E^tre utiliser pour saisir des données d'une banque prospective:
+Add province of residence
  
  
  
