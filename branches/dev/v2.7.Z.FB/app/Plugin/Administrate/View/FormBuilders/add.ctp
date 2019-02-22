@@ -28,7 +28,7 @@ $structureOptions = array(
     'links' => $structureLinks,
     'type' => 'addgrid',
     'settings' =>array(
-        'header' => __("control information"),
+        'header' => __("control detail"),
         'add_fields' => true,
         'del_fields' => true
     )
@@ -52,8 +52,8 @@ $this->Structures->build($atimStructureForControl, $structureOptions);
     var errorToFromMesage = "<?php echo __("should complete both or none of them");?>";
     var validationData = '<?php echo (isset($this->request->data['validationData'])?$this->request->data['validationData']:""); ?>';
     var valueDomainData = '<?php echo (isset($this->request->data['valueDomainData'])?$this->request->data['valueDomainData']:""); ?>';
-    
-    
+    var errorsGrid = '<?php echo (isset($errorsGrid)?$errorsGrid:""); ?>';
+
     var copyStr = "<?php echo(__("copy", null)); ?>";
     var pasteStr = "<?php echo(__("paste")); ?>";
     var copyingStr = "<?php echo(__("copying")); ?>";

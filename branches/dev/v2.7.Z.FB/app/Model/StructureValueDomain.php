@@ -108,18 +108,4 @@ class StructureValueDomain extends AppModel
             }
         }
     }
-    
-    public function normalized($data)
-    {
-        $result = array();
-        foreach ($data as $key => $value) {
-            if (is_numeric($key)){
-                $domainName = $value["StructureValueDomain"]["domain_name"];
-                $id = $value["StructureValueDomain"]["id"];
-                $result[] = $domainName."|||$id";
-            }
-        }
-        $result = json_encode($result);
-        return $result;
-    }
 }

@@ -194,8 +194,6 @@
     function normalised(type, data, e){
         if (type == 'validation'){
             url = root_url + 'Administrate/FormBuilders/normalised/validation';
-        }else if(type == 'valuedomain'){
-            url = root_url + 'Administrate/FormBuilders/normalised/valueDomain';
         }
 
         $.ajax({
@@ -214,6 +212,7 @@
     function makeInactiveLink(selector){
         selector.css("opacity", "0.5");
         selector.css("cursor", "not-allowed");
+        selector.siblings("span.user-friendly-data").text("");
     }
     
     function makeActiveLink(selector){
@@ -227,7 +226,7 @@
                 return false;
             }
         });
-        $addButton = $("<a class='fb_has_validation icon16 add_mini copy-paste-enable' href='javascript:void(0)' title='"+addValidationMessage+"'></a><span class ='user-friendly-data'></span>");
+        $addButton = $("<a name-data = 'has_validation' class='fb_has_validation icon16 add_mini copy-paste-enable' href='javascript:void(0)' title='"+addValidationMessage+"'></a><span class ='user-friendly-data'></span>");
         $("button.fb_has_validation").each(function(){
             $(this).replaceWith($addButton.clone());
         });
@@ -236,7 +235,7 @@
             return false;
         });
 
-        $addButton = $("<a class='fb_is_structure_value_domain_input icon16 add_mini copy-paste-enable' href='javascript:void(0)' title='"+addValueDomainMessage+"'></a><span class ='user-friendly-data'></span>");
+        $addButton = $("<a name-data = 'is_structure_value_domain' class='fb_is_structure_value_domain_input icon16 add_mini copy-paste-enable' href='javascript:void(0)' title='"+addValueDomainMessage+"'></a><span class ='user-friendly-data'></span>");
         $("button.fb_is_structure_value_domain_input").each(function(){
             $(this).replaceWith($addButton.clone());
         });
@@ -267,17 +266,27 @@
         } else {
             makeInactiveLink($parent.find(".fb_has_validation"));
         }
-        if (b != "autoTriger" && JSON.stringify($parent.find(".fb_has_validation").data()) != "{}" && $parent.find(".fb-validation-warning").length == 0) {
+
+        if ([""].indexOf(val) == 0){
+            $parent.find(".fb_has_validation").parent().find(".fb-validation-warning").remove();
+        }else if (b != "autoTriger" && JSON.stringify($parent.find(".fb_has_validation").data())!="{}" && $parent.find(".fb_has_validation").data("validation") != "" && $parent.find(".fb-validation-warning").length == 0) {
             $parent.find(".fb_has_validation").parent().prepend("<span class='fb-validation-warning icon16 warning' title = '" + warningValidationMessage + "'></span>");
         }
 
-        if (b != "autoTriger" && JSON.stringify($valueDomainInput.data()) == "{}" && $parent.find(".fb-value-domain-warning").length == 0 && val == 'select') {
-            $valueDomainInput.parent().prepend("<span class='fb-value-domain-warning icon16 warning' title = '" + warningValueDomainMessage + "'></span>");
-        } else if (b != "autoTriger" && val !== 'select') {
-            $valueDomainInput.parent().find(".fb-value-domain-warning").remove();
-            $valueDomainInput.parent().find(".user-friendly-data").text("");
-        } else if (b != "autoTriger" && val == 'select' && $valueDomainInput.siblings("span.user-friendly-data").attr("title")!="") {
-            $valueDomainInput.siblings("span.user-friendly-data").text($valueDomainInput.siblings("span.user-friendly-data").attr("title"));
+        $emptyValueDomainData = (typeof $valueDomainInput.data("valueDomain") == "undefined" || typeof $valueDomainInput.data("valueDomain")["value"] == "undefined" || $valueDomainInput.data("valueDomain")["value"] == "");
+        
+        if (b != "autoTriger"){
+            if (val == 'select'){
+                if ($emptyValueDomainData && $parent.find(".fb-value-domain-warning").length == 0){
+                    $valueDomainInput.parent().prepend("<span class='fb-value-domain-warning icon16 warning' title = '" + warningValueDomainMessage + "'></span>");
+                }else if(!$emptyValueDomainData){
+                    $parent.find(".fb_is_structure_value_domain_input").siblings("span.user-friendly-data").text($valueDomainInput.data("valueDomain").value);
+                    $parent.find(".fb_is_structure_value_domain_input").siblings("span.user-friendly-data").attr("title", $valueDomainInput.data("valueDomain").value);
+                }
+            }else{
+                $valueDomainInput.parent().find(".fb-value-domain-warning").remove();
+                $valueDomainInput.parent().find(".user-friendly-data").text("");
+            }
         }
 
     }
@@ -305,19 +314,36 @@
             valueDomainData.forEach(function(valueDomain, index){
                 var $this = $("table[atim-structure=form_builder_structure] a.fb_is_structure_value_domain_input").eq(index);
                 $this.data("valueDomain", valueDomain);
-                $this.siblings("span.user-friendly-data").text(valueDomain["value"]);
-                $this.siblings("span.user-friendly-data").attr("title", valueDomain["value"]);
+                if ($this.closest("tr").find("select.fb_type_select").val()=="select"){
+                    $this.siblings("span.user-friendly-data").text(valueDomain["value"]);
+                    $this.siblings("span.user-friendly-data").attr("title", valueDomain["value"]);
+                }
 
                 if (valueDomain["value"].trim()!=""){
                     $this.parent().find(".fb-value-domain-warning").remove();
-                }else if ($this.parent().find(".fb-value-domain-warning").length == 0 && $this.closest("tr select.fb_type_select").val()=="select"){
+                }else if ($this.parent().find(".fb-value-domain-warning").length == 0 && $this.closest("tr").find("select.fb_type_select").val()=="select"){
                     $this.parent().prepend("<span class='fb-value-domain-warning icon16 warning' title = '" + warningValueDomainMessage + "'></span>");
                 }
 
             });
         }
-        
-    }
+
+        if (errorsGrid != "") {
+            errorsGrid = JSON.parse(errorsGrid);
+            var $trs = $("table[atim-structure=form_builder_structure]  table tbody tr");
+            $trs.find("*").removeClass("error");
+            var $elem;
+            errorsGrid["common"].forEach(function (error, index) {
+                error.forEach(function (field) {
+                    $elem = $trs.eq(index).find("[name$='][" + field + "]']");
+                    if ($elem.length == 0) {
+                        $elem = $trs.eq(index).find("[name-data=" + field + "]").closest("td");
+                    }
+                    $elem.addClass("form-builder-flash-error");
+                });
+            });
+        }
+}
 
     function clickONPlusButton(){
         $(".addLineLink").click(function(){

@@ -12,7 +12,9 @@ class FormBuildersController extends AdministrateAppController
         'Administrate.FormBuilder',
         'StructureField',
         'StructureFormat',
-        'StructureValueDomain'
+        'StructureValueDomain',
+        'StructureValidation',
+        'StructurePermissibleValuesCustomControl'
     );
     
     public $components = array(
@@ -157,23 +159,38 @@ class FormBuildersController extends AdministrateAppController
         $this->set('formData', $formData);
         $this->set('options', $options);
 
-        $modelInstance->data = $data;
-        $this->StructureField->data = $data;
+        if (!empty($data)){
+            $valid = true;
+            $modelInstance->setDataBeforeSaveFB($data);
+            $modelInstance->data = $data;
+            $valid &= $modelInstance->validates();
+            if ($valid){
+                $this->StructureField->setDataBeforeSaveFB($data, $options);
 
+                $this->StructureField->data = $data;
+                $errors = "";
+                $valid &= $this->StructureField->validatesFormBuilder($options, $errors);
+                
+                $this->StructureFormat->data = $data;
+                $valid &= $this->StructureFormat->validatesFormBuilder($options, $errors);
+                
+                $this->StructureValidation->data = $data;
+                $this->StructureValidation->setDataBeforeSaveFB($data, $options);
+                $valid &= $this->StructureValidation->validatesFormBuilder($options, $errors);
+                
+                $this->set("errorsGrid", json_encode($errors));
+            }
+            if ($valid){
+                $data["models"] = array(
+                    'main'=> array("plugin" => $plugin, "model" => $model)
+                );
+                
+                $data["others"] = $formBuilderItems;
+                $data["options"] = $options;
+                $this->FormBuilder->normalisedAndSave($data);
+            }
+        }
         
-//$modelInstance->validates(); --> OK
-//$this->StructureField->validatesFormBuilder($options); --> Should work on is_structure_value_domain
-//$this->StructureFormat->validates();
-        
-//        if (!empty($data) && $modelInstance->validates()){
-             //&& $this->StructureField->validates() /*&& $this->StructureFormat->validates()*/){
-//        }
-//            $modelInstance->setDataBeforeSave($data);
-//            $modelInstance->valiateLabels($data);
-            
-//            if ($modelInstance->save($data)){
-//                $this->atimFlashConfirm("the control add successfully", "/Administrate/FormBuilders/detail/".$formBuilderId);
-//            }
     }
 
     public function edit($formBuilderId, $controlId) 
@@ -214,23 +231,23 @@ class FormBuildersController extends AdministrateAppController
     
     public function AutocompleteDropDownList()
     {
-        $term = $_GET['term'];
-        $result = $this->StructureValueDomain->find('all', array(
+        $term = (isset($_GET['term']))?str_replace(array("\\",'%','_'), array("\\\\",'\%','\_'), $_GET['term']):"";
+        $result = $this->StructurePermissibleValuesCustomControl->find('all', array(
             'conditions' => array(
-                "StructureValueDomain.domain_name like" => "%$term%"
+                "StructurePermissibleValuesCustomControl.name like" => "%$term%"
             ),
             'fields' => array(
-                "StructureValueDomain.domain_name",
-                "StructureValueDomain.id"
+                "StructurePermissibleValuesCustomControl.name",
+                "StructurePermissibleValuesCustomControl.id"
             )
         ));
-        $result = $this->StructureValueDomain->normalized($result);
+        $result = $this->StructurePermissibleValuesCustomControl->normalized($result);
         $this->set("result", $result);
     }
     
     public function valueDomain()
     {
-        if ($this->request->is('ajax') || true){
+        if ($this->request->is('ajax')){
             $this->Structures->set("form_builder_value_domain", "formBuilderValueDomain");
         }else{
             $this->atimFlashError(__('You are not authorized to access that location.'), "/Menus");
