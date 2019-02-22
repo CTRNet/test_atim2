@@ -1396,6 +1396,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
     
     $(scope).find("input[type=checkbox]").each(function(){
+        var $requiredYN = false;
+        var $checked = false;
+        var $checkBox;
+        $(this).parent().children('input[type=checkbox]').each(function(){
+            $checkBox = $(this);
+            if ($checkBox.prop('required')){
+                $requiredYN = true;
+            }
+            if ($checkBox.prop('checked')){
+                $checked = true;
+            }
+        });
+        
+        if ($requiredYN && $checked){
+            $(this).parent().children('input[type=checkbox]').each(function(){
+                $checkBox = $(this);
+                if ($checkBox.prop('checked')){
+                    $checkBox.prop('required', true);
+                }else{
+                    $checkBox.prop('required', false);
+                }
+                
+            });
+        }
+                
         $(this).click(function(){
             $currentCheckBox=$(this);            
             $parent=$currentCheckBox.parent();
