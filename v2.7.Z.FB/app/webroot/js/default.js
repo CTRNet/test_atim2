@@ -118,6 +118,12 @@ $(document).ready(function () {
         treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
         findDuplicatedSamples(treeTable);
     }
+    $("a.help_link").each(function(){
+        var $this = $(this);
+        $this.attr("target", "_blank");
+        $this.attr("href", root_url+$this.attr("href"));
+        $this.text(here);
+    });
 });
 
 jQuery.fn.fullWidth = function () {

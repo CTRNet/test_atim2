@@ -1548,21 +1548,22 @@ class AppController extends Controller
         $i18n = $i18nModel->find('all');
         foreach ($i18n as &$i18nLine) {
             // Takes information returned by query and creates variable for each field
-            $id = $i18nLine[0]['id'];
-            $en = $i18nLine[0]['en'];
-            $fr = $i18nLine[0]['fr'];
-            if (strlen($en) > 1014) {
+            $id = preg_replace('/\s\s+/', ' ', $i18nLine[0]['id']);
+            $en = preg_replace('/\s\s+/', ' ', $i18nLine[0]['en']);
+            $fr = preg_replace('/\s\s+/', ' ', $i18nLine[0]['fr']);
+            $error = "";
+            if (strlen($en) > 2048) {
                 $error = "msgid    \"$id\"\nen    \"$en\"\n";
-                $en = substr($en, 0, 1014);
+                $en = substr($en, 0, 2048);
             }
             
-            if (strlen($fr) > 1014) {
+            if (strlen($fr) > 2048) {
                 if (strlen($error) > 2) {
                     $error = "$error\\nmsgstr    \"$fr\"\n";
                 } else {
                     $error = "msgid    \"$id\"\nmsgstr=\"$fr\"\n";
                 }
-                $fr = substr($fr, 0, 1014);
+                $fr = substr($fr, 0, 2048);
             }
             $english = "msgid    \"$id\"\nmsgstr   \"$en\"\n";
             $french = "msgid    \"$id\"\nmsgstr   \"$fr\"\n";

@@ -47,7 +47,8 @@ VALUES
 	('flag_detail', 'Detail', 'Détail'),
 	('display_column', 'Position', 'Position'),
 	('display_order', 'Row number', 'Numéro de ligne'),
--- 	('control information', '', ''),
+ 	('control information', '', ''),
+ 	('control detail', '', ''),
 	('click to add the validation rules', 'Click to add the validation rules.', 'Cliquez pour ajouter les règles de validation.'),
 	('language_heading', 'Heading title', 'Titre de rubrique'),
 	('checkbox', 'Checkbox', 'Case à cocher'),
@@ -89,6 +90,8 @@ CREATE TABLE `form_builders` (
   `plugin` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
   `model` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
   `master` varchar(255) COLLATE 'latin1_swedish_ci' NULL,
+  `detail` varchar(255) COLLATE 'latin1_swedish_ci' NULL,
+  `master_table` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
   `table` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
   `alias` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
   `default_alias` varchar(255) COLLATE 'latin1_swedish_ci' NOT NULL,
@@ -100,9 +103,9 @@ CREATE TABLE `form_builders` (
 -- -------------------------------------------------------------------------------------
 --	initializing the form_builders table
 -- -------------------------------------------------------------------------------------
-INSERT INTO `form_builders` (`plugin`, `model`, `master`, `table`, `alias`, `default_alias`, `note`, `flag_active`)
-VALUES ('ClinicalAnnotation', 'ConsentControl', 'ConsentMaster', 'consent_controls', 'form_builder_consent', 'consent_masters', 'consent control description', '1'),
-       ('ClinicalAnnotation', 'DiagnosisControl', 'DiagnosisMaster', 'diagnosis_controls', 'form_builder_diagnosis', 'diagnosismasters', 'diagnosis control description', '1');
+INSERT INTO `form_builders` (`plugin`, `model`, `master`, `detail`, `master_table`, `table`, `alias`, `default_alias`, `note`, `flag_active`)
+VALUES ('ClinicalAnnotation', 'ConsentControl', 'ConsentMaster', 'ConsentDetail', 'consent_masters', 'consent_controls', 'form_builder_consent', 'consent_masters', 'consent control description', '1'),
+       ('ClinicalAnnotation', 'DiagnosisControl', 'DiagnosisMaster', 'DiagnosisDetail', 'diagnosis_masters', 'diagnosis_controls', 'form_builder_diagnosis', 'diagnosismasters', 'diagnosis control description', '0');
 
 -- -------------------------------------------------------------------------------------
 --	Create form_builder_index alias
@@ -179,9 +182,6 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="form_builder_type_list"), (SELECT id FROM structure_permissible_values WHERE value="validateIcdo3MorphoCode" AND language_alias="validateIcdo3MorphoCode"), "19", "1");
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("validateIcdo3TopoCode", "validateIcdo3TopoCode");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="form_builder_type_list"), (SELECT id FROM structure_permissible_values WHERE value="validateIcdo3TopoCode" AND language_alias="validateIcdo3TopoCode"), "20", "1");
-INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("icd_0_3_topography_categories", "icd_0_3_topography_categories");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="form_builder_type_list"), (SELECT id FROM structure_permissible_values WHERE value="icd_0_3_topography_categories" AND language_alias="icd_0_3_topography_categories"), "21", "1");
-
 
 
 -- -------------------------------------------------------------------------------------
@@ -191,8 +191,9 @@ INSERT INTO structures(`alias`) VALUES ('form_builder_structure');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Administrate', 'StructureField', 'structure_fields', 'language_label', 'input',  NULL , '0', 'class=pasteDisabled', '', 'language_label_help', 'language_label', ''),
+('Administrate', 'StructureField', 'structure_fields', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='form_builder_type_list') , '0', 'class=fb_type_select,class=pasteDisabled', '', 'language_field_type_help', 'field type', ''), 
+('Administrate', 'StructureField', 'structure_fields', 'language_help', 'input',  NULL , '0', 'class=pasteDisabled', '', 'language_help_help', 'language_help', ''),
 ('Administrate', 'StructureField', 'structure_fields', 'flag_confidential', 'checkbox',  NULL , '0', 'class=pasteDisabled', '', 'flag_confidential_help', 'flag_confidential', ''), 
-('Administrate', 'StructureField', 'structure_fields', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='form_builder_type_list') , '0', 'class=fb_type_select,class=pasteDisabled', '', '', 'field type', ''), 
 ('Administrate', 'StructureFormat', 'structure_formats', 'flag_add', 'checkbox',  NULL , '0', '', '', 'flag_add_help', 'flag_add', ''), 
 ('Administrate', 'StructureFormat', 'structure_formats', 'flag_edit', 'checkbox',  NULL , '0', '', '', 'flag_edit_help', 'flag_edit', ''), 
 ('Administrate', 'StructureFormat', 'structure_formats', 'flag_search', 'checkbox',  NULL , '0', '', '', 'flag_search_help', 'flag_search', ''), 
@@ -205,10 +206,10 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Core', 'FunctionManagement', '', 'fb_has_validation', 'button',  NULL , '0', 'class=fb_has_validation', '', 'has_validation_help', 'has_validation', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='flag_confidential' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='class=pasteDisabled' AND `default`='' AND `language_help`='flag_confidential_help' AND `language_label`='flag_confidential' AND `language_tag`=''), '1', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='language_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='class=pasteDisabled' AND `default`='' AND `language_help`='language_label_help' AND `language_label`='language_label' AND `language_tag`='' AND `setting`='class=pasteDisabled'), '1', '10', 'general information', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '1'),
-((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='language_help' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '30', '', '0', '1', 'language_help', '1', '', '0', '', '1', 'textarea', '1', 'class=pasteDisabled', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='form_builder_type_list')  AND `flag_confidential`='0' AND `setting`='class=fb_type_select,class=pasteDisabled' AND `default`='' AND `language_help`='' AND `language_label`='field type' AND `language_tag`=''), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='form_builder_type_list')  AND `flag_confidential`='0' AND `setting`='class=fb_type_select,class=pasteDisabled' AND `default`='' AND `language_help`='language_field_type_help' AND `language_label`='field type' AND `language_tag`=''), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='flag_confidential' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='class=pasteDisabled' AND `default`='' AND `language_help`='flag_confidential_help' AND `language_label`='flag_confidential' AND `language_tag`=''), '1', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureField' AND `tablename`='structure_fields' AND `field`='language_help' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `language_help` = 'language_help_help'), '1', '30', '', '0', '1', 'language_help', '1', '', '0', 'language_help_help', '1', 'textarea', '1', 'class=pasteDisabled', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureFormat' AND `tablename`='structure_formats' AND `field`='flag_add' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='flag_add_help' AND `language_label`='flag_add' AND `language_tag`=''), '1', '50', 'forms type', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureFormat' AND `tablename`='structure_formats' AND `field`='flag_edit' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='flag_edit_help' AND `language_label`='flag_edit' AND `language_tag`=''), '1', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_structure'), (SELECT id FROM structure_fields WHERE `model`='StructureFormat' AND `tablename`='structure_formats' AND `field`='flag_search' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='flag_search_help' AND `language_label`='flag_search' AND `language_tag`=''), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
@@ -246,9 +247,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Core', 'FunctionManagement', '', 'range_from', 'integer_positive',  NULL , '0', '', '', '', 'range_from', ''), 
 ('Core', 'FunctionManagement', '', 'range_to', 'integer_positive',  NULL , '0', '', '', 'range_help', '', 'range_to'), 
 ('Core', 'FunctionManagement', '', 'between_from', 'integer_positive',  NULL , '0', '', '', '', 'between_from', ''), 
-('Core', 'FunctionManagement', '', 'between_to', 'integer_positive',  NULL , '0', '', '', 'between_help', '', 'between_to')
--- ,('Core', 'FunctionManagement', '', 'alpha_numeric', 'checkbox',  NULL , '0', '', '', 'alpha_numeric_help', 'alpha_numeric', '')
-;
+('Core', 'FunctionManagement', '', 'between_to', 'integer_positive',  NULL , '0', '', '', 'between_help', '', 'between_to');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='is_unique' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='is_unique_help' AND `language_label`='is_unique' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
@@ -256,40 +255,73 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='range_from' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='range_from' AND `language_tag`=''), '1', '3', 'range_heading', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='range_to' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='range_help' AND `language_label`='' AND `language_tag`='range_to'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='between_from' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='between_from' AND `language_tag`=''), '1', '5', 'between_heading', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='between_to' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='between_help' AND `language_label`='' AND `language_tag`='between_to'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0')
--- ,((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='alpha_numeric' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='alpha_numeric_help' AND `language_label`='alpha_numeric' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0')
-;
+((SELECT id FROM structures WHERE alias='form_builder_validation'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='between_to' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='between_help' AND `language_label`='' AND `language_tag`='between_to'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 INSERT IGNORE INTO 
     i18n (id,en,fr)
 VALUES 	
     ('is_unique', "Unique Value", "Unique valeur"),
---    ('is_unique_help', "", ""),
+    ('is_unique_help', "Check this box if the value is unique. <br>Example: Social Insurance Number.", "Cochez cette case si la valeur est unique. <br> Exemple: Numéro d'Assurance Sociale."),
     ('not_blank', "Required field", "Champs requis"),
---    ('not_blank_help', "", ""),
---    ('range_heading', "", ""),
+    ('not_blank_help', "Check this Box if the value is required. <br>Example: Participant Name.", "Cochez cette case si la valeur est requise. <br> Exemple: Nom de Participant."),
+    ('range_heading', "Range Number", "Intervalle"),
     ('range_from', "From", "De"),
     ('range_to', "To", "À"),
---    ('range_help', "", ""),
---    ('between_heading', "", ""),
+    ('range_help', "For the numbers value if there is a boundry limitation. <br>Attention: the max boundry is exclu.<br>Example: <ul><li>Body Temperature from: 33, to:42</li><li>Number of children is positive: from: 0 to: blank</li></ul>", "Pour la valeur des nombres s'il y a une limite. <br>Attention: la limite maximale est exclue <br>Exemple:<ul><li>Température corporelle de: 33 à 42</li><li>Le nombre d'enfants est positif: de: 0 à: blanc</li></ul>"),
+    ('between_heading', "The text length limit", "La limite de longueur du texte"),
     ('between_from', "From", "De"),
     ('between_to', "To", "À"),
---    ('between_help', "", ""),
+    ('between_help', "The text length limit<br>Example: first name", "La limite de longueur de texte <br> Exemple: prénom"),
     ('alpha_numeric', "Numeric / Alphabetic", "Numérique / Alphabétique"),
     ('alpha_numeric_help', "Should contains the Numeric and the Alphabetic combination", "Devrait contenir la combinaison Numérique et Alphabétique"),
-    ('validation rules', "", "");
+    ('error-the %s should be between %s and %s', "The %s should be between %s and %s (exclude).", "Le %s doit être compris entre %s et %s (exclure)."),
+    ('validation rules', "Validation rules", "Règles de validation");
 
 INSERT IGNORE INTO 
     i18n (id,en,fr)
 VALUES 	
-	('flag_confidential_help', '', ''),
+	('flag_confidential_help', 'The confidential value will not be shown for un authorized users. <br>Example: <ul><li>Firstname and Lastname</li><li>Birthdate</li><li>Hospital number</li><li>Social Insurance Number</li></ul>',"La valeur confidentielle ne sera pas affichée pour les utilisateurs non autorisés. <br> Exemple: <ul><li> Prénom et Nom</li><li>Date de naissance</li><li>Numéro d'hôpital</li><li>Numéro d'assurance sociale</li></ul>"),
 	('general information', 'Field', 'Champ'),
-	('language_label_help', '', ''),
-	('language_field_type_help', '', ''), 
-	('flag_add_help', '', ''),
-	('forms type', '', ''), 
-	('flag_edit_help', '', ''),
-	('flag_search_help', '', ''),
+	('language_label_help', 'This field will be shown in the form as label.', "Ce champ sera affiché dans le formulaire en tant qu'étiquette."),
+	('language_field_type_help', 
+         '<b>The data type for the current field.</b>
+            <ul>
+                <li><b>Checkbox:</b>for the field with two possibility, like aggreement check</li>
+                <li><b>Date:</b>for the date field (it does not consist time information), like the date of acepting the aggreement</li>
+                <li><b>Date / Time:</b>for the date and time field, like the time of taking sample</li>
+                <li><b>Decimal number:</b>for the decimal fields contain fraction, like sample volume. For configuring the list, see <a class= \"help_link\" href=\"Administrate/Dropdowns/index\">link</a></li>
+                <li><b>Textbox:</b>for the text value, like name</li>
+                <li><b>Integer:</b>for the integer number, like number of children</li>
+                <li><b>List:</b>for the list value that are fix, like sample type</li>
+                <li><b>Textarea:</b>for the long texts, like description</li>
+                <li><b>Time:</b>for hour and minute</li>
+                <li><b>Yes / No</b>yes, no or none of them</li>
+                <li><b>ICD-10:</b></li>
+                <li><b>ICD-o-3 Morpho:</b></li>
+                <li><b>ICD-o-3 Topo:</b></li>
+            </ul>', 
+         "<b> Le type de données du champ actuel. </b>
+            <ul>
+                <li><b>Case à cocher:</b>pour le champ avec deux possibilités, comme le contrôle d'agrément</li>
+                <li><b>Date:</b>pour le champ de date (il ne s'agit pas d'informations temporelles), comme la date d'acceptation de l'accord</li>
+                <li><b>Date / Heure:</b>pour le champ de date et heure, comme l'heure de prélèvement de l'échantillon</li>
+                <li><b>Nombre décimal:</b>pour les champs décimaux contenant une fraction, comme le volume d'échantillon.  Pour la configuration d<une liste, visitez <a class= \"help_link\" href=\"Administrate/Dropdowns/index\">lien</a></li>
+                <li><b>Zone de texte:</b>pour la valeur du texte, comme le nom</li>
+                <li><b>Entier:</b>pour le nombre entier, tel que le nombre d'enfants</li>
+                <li><b>List:</b>pour la valeur de liste qui est fixe, comme le type d'échantillon</li>
+                <li><b>Zone de texte:</b>pour les textes longs, comme la description</li>
+                <li><b>heure:</b>pour heure et minute</li>
+                <li><b>Oui / Non </b> Oui, non ou aucun d’entre eux</li>
+                <li><b>CIM-10:</b></li>
+                <li><b>Morpho CIM-o-3:</b></li>
+                <li><b>Topo CIM-o-3:</b></li>
+            </ul>"
+        ), 
+	('language_help_help', 'The description that will be appeared as help.', "La description qui sera présentée à titre d'aide."),
+	('flag_add_help', 'Whether the field will be appeared in add forms', "Si le champ sera affiché sous le formulaire de saisie"),
+	('forms type', 'Forms type', 'Type des formulaires'), 
+	('flag_edit_help', 'Whether the field will be appeared in edit forms', "Si le champ sera affiché sous le formulaire de modification"),
+	('flag_search_help', 'Whether the field will be appeared in search forms', "Si le champ sera affiché sous le formulaire de modification"),
 	('flag_index_help', '', ''),
 	('flag_detail_help', '', ''),
 	('display_column_help', '', ''),
@@ -314,6 +346,8 @@ VALUES
 	('there is no validation rule for %s datatype', 'There is no validation rule for %s data type.', "Il n'y a pas de règle de validation pour le type de données%s."),
 	('list name', '', ''),
  	('please select the list items', 'Please select the list items.', 'Veuillez sélectionner les éléments de la liste.'),
+ 	('here', 'here', 'ici'),
+ 	('for customising this list click <b>%s</b>', 'For customising this list click <b>%s</b>', 'Pour personnaliser cette liste, cliquez <b>%s</b>'),
 	('list_name_help', '', '');
 -- 	('', '', ''),
 -- 	('', '', ''),

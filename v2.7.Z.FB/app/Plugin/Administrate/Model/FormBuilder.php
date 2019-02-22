@@ -89,4 +89,207 @@ class FormBuilder extends AdministrateAppModel
         $response = json_encode(array("text" => $response, "title" => str_replace(" & ", "\n", $response)));
         return $response;
     }
+    
+    public function normalisedAndSave($data = null, $validate = false, $fieldList = array())
+    {
+        $this->createTable($data);
+        $models = $data["models"];
+        
+        $modelInstance = AppModel::getInstance($models["main"]["plugin"], $models["main"]["model"]);
+        
+        
+        $structureModelInstance = AppModel::getInstance('', 'Structure');
+        $StructureFieldModelInstance = AppModel::getInstance("", "StructureField");
+        $StructureFormatModelInstance = AppModel::getInstance("", "StructureFormat");
+        $structureValidationModelInstance = AppModel::getInstance("", "StructureValidation");
+        $StructureValueDomainModelInstance = AppModel::getInstance("", "StructureValueDomain");
+        $StructurePermissibleValuesCustomControlModelInstance = AppModel::getInstance("", "StructurePermissibleValuesCustomControl");
+
+        $options = $data["options"];
+        $relatedData = $data["others"]['FormBuilder'];
+        $modelName = $modelInstance->name;
+        $alias = $data[$modelName]['detail_form_alias'];
+        $structureValidationData = $data['StructureValidation'];
+        
+        $saveResult = $modelInstance->save($data);
+        if (!$saveResult){
+            AppController::getInstance()->atimFlashError(__("error in saving %s", $modelName), "javascript:history.back();");
+        }
+
+        $data['Structure'] = array(
+            'alias' => $data[$modelName]['detail_form_alias'],
+            'description' => $data[$modelName]['detail_form_alias']
+        );
+        $structureModelInstance->addWritableField(array("alias", "description"));
+        $saveResult = $structureModelInstance->save($data, true);
+        $structureId = "";
+        if (!$saveResult){
+            AppController::getInstance()->atimFlashError(__("error in saving %s", $structureModelInstance->name), "javascript:history.back();");
+        }else{
+            $structureId = $saveResult['Structure']['id'];
+        }
+        
+
+        $commonPrefix = $options["prefix-common"];
+        
+        
+        $tableName = $data[$modelName]['detail_tablename'];
+        $index=0;
+        $sfid=array();
+
+        foreach ($data[$commonPrefix] as $key => $value) {
+            $FunctionManagementData = $value['FunctionManagement'];
+            $StructureFieldData = $value["StructureField"];
+            $StructureFieldData["plugin"] = $relatedData["plugin"];
+            $StructureFieldData["model"] = $relatedData["detail"];
+            $StructureFieldData["tablename"] = $tableName;
+            $StructureFieldData["language_tag"] = "";
+            $StructureFieldData["default"] = "";
+            $StructureFieldData["setting"] = (isset($StructureFieldData["setting"])) ? $StructureFieldData["setting"] : "";
+            $StructureFieldData["field"] = $tableName . "_" . ($index + 1);
+
+            $svdId = $StructureFieldData["structure_value_domain"];
+            if ($StructureFieldData["type"] == "select"){
+                if (empty($StructureFieldData["structure_value_domain"])){
+                    $spvccData = array(
+                        'name' => $StructureFieldData["structure_value_domain_value"],
+                        'flag_active' => 1,
+                        'values_max_length' =>1000,
+                        'category' => $alias,
+                        'values_used_as_input_counter' => 0,
+                        'values_counter' => 0
+                    );
+
+                    $spvccData = array("StructurePermissibleValuesCustomControl" => $spvccData);
+                    $StructurePermissibleValuesCustomControlModelInstance->addWritableField(array("name", "flag_active", "values_max_length", "category", "values_used_as_input_counter", "values_counter"));
+                    $StructurePermissibleValuesCustomControlModelInstance->id = null;
+                    $saveResult = $StructurePermissibleValuesCustomControlModelInstance->save($spvccData);
+                    if (!$saveResult){
+                        AppController::getInstance()->atimFlashError(__("error in saving %s", $StructurePermissibleValuesCustomControlModelInstance->name), "javascript:history.back();");
+                    }
+                }
+                $svdData = array(
+                    'domain_name' => $alias."_".$StructureFieldData["structure_value_domain_value"],
+                    'category' => $alias,
+                    'source' => "StructurePermissibleValuesCustom::getCustomDropdown('".$StructureFieldData["structure_value_domain_value"]."')"
+                );
+                
+                $svdData = array("StructureValueDomain" => $svdData);
+                $StructureValueDomainModelInstance->addWritableField(array("domain_name", "category", "source"));
+                $StructureValueDomainModelInstance->id = null;
+                $saveResult = $StructureValueDomainModelInstance->save($svdData);
+
+                if (!$saveResult){
+                    AppController::getInstance()->atimFlashError(__("error in saving %s", $StructureValueDomainModelInstance->name), "javascript:history.back();");
+                }else{
+                    $svdId = $saveResult['StructureValueDomain']['id'];
+                }
+            }
+
+            $StructureFieldModelInstance->id = null;
+            $StructureFieldData["structure_value_domain"] = $svdId;
+            $StructureFieldData = array("StructureField" => $StructureFieldData, "FunctionManagement" => $FunctionManagementData);
+            $StructureFieldModelInstance->addWritableField(array("plugin", "model", "tablename", "language_tag", "default", "setting", "field", "structure_value_domain"));
+            $StructureFieldModelInstance->id = null;
+            $saveResult = $StructureFieldModelInstance->save($StructureFieldData, true);
+
+            if (!$saveResult){
+                AppController::getInstance()->atimFlashError(__("error in saving %s", $StructureFieldModelInstance->name), "javascript:history.back();");
+            }
+
+            $sfid[$index] = $saveResult["StructureField"]["id"];
+            $StructureFormatData = $value["StructureFormat"];
+            $StructureFormatData["structure_id"] = $structureId;
+            $StructureFormatData["structure_field_id"] = $sfid[$index];
+            $StructureFormatData["language_label"] = "";
+            $StructureFormatData["language_tag"] = "";
+            $StructureFormatData["language_help"] = "";
+            $StructureFormatData = array("StructureFormat" => $StructureFormatData, "FunctionManagement" => $FunctionManagementData);
+            $StructureFormatModelInstance->addWritableField(array("structure_id", "structure_field_id", "language_label", "language_tag", "language_help"));
+            $StructureFormatModelInstance->id = null;
+            $saveResult = $StructureFormatModelInstance->save($StructureFormatData);
+
+            if (!$saveResult){
+                AppController::getInstance()->atimFlashError(__("error in saving %s", $StructureFormatModelInstance->name), "javascript:history.back();");
+            }
+            $index++;
+        }
+
+        foreach ($structureValidationData as $key => $value) {
+            $value["structure_field_id"] = $sfid[$value["structure_field_id"]];
+            $value = array("StructureValidation" => $value);
+            $structureValidationModelInstance->addWritableField(array("structure_field_id", "rule", "on_action", "language_message"));
+            $structureValidationModelInstance->id = null;
+            $structureValidationModelInstance->save($value);
+        }
+        
+        if (true){
+            $this->createTable($data);
+        }else{
+            $this->addFieldsToTable($data);
+        }
+    }
+    
+    private function addFieldsToTable($data)
+    {
+        
+    }
+
+    private function createTable($data)
+    {
+
+        $model = $data["models"]["main"]["model"];
+        $detailTableName =  $data[$model]["detail_tablename"];
+        $options = $data["options"];
+        $relatedData = $data["others"]['FormBuilder'];
+        $fieldsList = $data[$options["prefix-common"]];
+        
+        $refrenceTable = $relatedData["master_table"];
+        $fk = Inflector::underscore($relatedData["master"]) ."_id";
+        
+        $query = "CREATE TABLE IF NOT EXISTS `{$detailTableName}` (\n\t"
+        . "{$fk} int NOT NULL, \n\t";
+        
+        $index = 0;
+        $currentFieldQuery = array();
+        foreach ($fieldsList as $field){
+            $type = $field['StructureField']['type'];
+            $fieldName = $detailTableName . "_" . ($index + 1);
+            if ($type == 'checkbox'){
+                $currentFieldQuery[] = $fieldName . " tinyint";
+            }elseif ($type=='date'){
+                $currentFieldQuery[] = $fieldName . " date ," . $fieldName . "_accuracy char(1) NOT NULL DEFAULT ''";
+            }elseif ($type=='datetime'){
+                $currentFieldQuery[] = $fieldName . " datetime";
+            }elseif ($type=='float'){
+                $currentFieldQuery[] = $fieldName . " decimal(10, 5)";
+            }elseif ($type=='input'){
+                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
+            }elseif ($type=='integer'){
+                $currentFieldQuery[] = $fieldName . " int";
+            }elseif ($type=='select'){
+                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
+            }elseif ($type=='textarea'){
+                $currentFieldQuery[] = $fieldName . " text";
+            }elseif ($type=='time'){
+                $currentFieldQuery[] = $fieldName . " time";
+            }elseif ($type=='validateIcd10WhoCode'){
+                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
+            }elseif ($type=='validateIcdo3MorphoCode'){
+                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
+            }elseif ($type=='validateIcdo3TopoCode'){
+                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
+            }
+            $index ++;
+        }
+        
+        $query .= implode(" ,\n\t", $currentFieldQuery) . " ,\n\t";
+        
+        $query .= "FOREIGN KEY (`{$fk}`) REFERENCES `{$refrenceTable}` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT \n";
+        
+        $query .= ") ENGINE='InnoDB' COLLATE 'latin1_swedish_ci';\n\n";
+
+        $this->query($query);
+    }
+    
 }

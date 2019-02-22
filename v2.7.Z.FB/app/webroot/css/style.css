@@ -35,6 +35,11 @@ ol, ul {
 	list-style: none;
 }
 
+ol b, ul b{
+    color: #ddd;
+}
+
+
 blockquote, q {
 	quotes: none;
 }
@@ -907,17 +912,8 @@ div.error-message {
 }
 
 div.wrapper span.help div {
-	display: none;
-	white-space: normal;
-}
-
-div.wrapper th span.help.right:hover div {
-	left: 10px;
-	border-radius: 0 15px 15px 15px;
-}
-
-div.wrapper span.help:hover div {
-	display: block;
+    /*white-space: normal;*/
+    
 	text-indent: 0;
 	top: 10px;
 	right: 10px;
@@ -932,7 +928,26 @@ div.wrapper span.help:hover div {
 	text-align: left;
 	line-height: 1.3em;
 	border-radius: 15px 0 15px 15px;
-	z-index: 200;
+    
+    
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    z-index: -200;
+    -webkit-transition: visibility .5s, opacity .5s, z-index 1s;
+    transition: visibility .5s, opacity .5s, z-index 1s;
+
+}
+
+div.wrapper th span.help.right div {
+	left: 10px;
+	border-radius: 0 15px 15px 15px;
+}
+
+div.wrapper span.help:hover div {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1000;
 }
 
 div.wrapper span.help div p {
