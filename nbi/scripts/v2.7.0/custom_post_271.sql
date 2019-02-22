@@ -2758,6 +2758,10 @@ VALUES
 ('biopsy', 'Biopsy', 'Biospie'),
 ("bc_nbi_help_init_fwlbx", "In the case that the location of the breast mass cannot be felt, this indicates whether the radiologists used a very fine needle to target the breast abnormality in order for the surgeon to remove the right tissue for biopsy. Non-referred manually abstracted cases.", "");
 
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('you are not allowed to define a particpant as a participant of the retrospecitve bank', 'You are not allowed to define a particpant as a participant of the retrospecitve bank.', '');
+
 UPDATE versions SET branch_build_number = '7578' WHERE version_number = '2.7.0';
 
 
@@ -2769,6 +2773,52 @@ UPDATE versions SET branch_build_number = '7578' WHERE version_number = '2.7.0';
 
 
 
+Retrospective Vs Prospective Participants Business Rules
+
+No data into the database are encrypted. All rules are managed at the ATiM controller’s level.
+
+1- Participant creation
+
+No specific business rule.
+
+2- Participant profile information display
+
+When a participant is flagged as 'Retrospective Bank' participant, only users of the 'Administrators' users group will have access to the following information:
+- PHN#
+- BCCA#
+- First Name
+- Middle Name
+- Last Name
+- Date of Birth
+
+For the users of the other users group, all profile information of participants flagged as participants of the 'Retrospective Bank' will be replaced by 'Confidential'.
+
+3- Participant profile search
+
+When a participant is flagged as 'Retrospective Bank' participant, only users of the 'Administrators' users group can search on retrospective bank participants based on the following information:
+- PHN#
+- BCCA#
+- First Name
+- Middle Name
+- Last Name
+- Date of Birth
+
+When the users of the other users groups are looking for participants based on criteria linked to fields listed above, then the system will limit the results to the participants of the ‘Prospective Bank’ only.
+
+4- Participant profile modification
+
+When a participant is flagged as 'Retrospective Bank' participant, only users of the 'Administrators' users group can change profile information of the participant.
+
+5- PHN and BCCA numbers are unique
+
+No control is in place to block duplication of PHN or BCCA numbers but when use is displaying the profile of a participant a warning message is displayed when:
+-	The user is part of the 'Administrators' users group and the number is duplaiceted.
+-	The user is not part of the 'Administrators' users group, the displayed participant is not a participant of the ‘Retrospective Bank’ and at least two participants of the ‘Prospective Bank’ have the same number.
+
+
+6- Participant Contact
+
+Only users of the 'Administrators' users group can access confidential participant contacts for participants of the ‘Retrospective Bank’.
 
 
 
