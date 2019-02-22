@@ -12,7 +12,8 @@
 
 // Manage profil change of the proifle data of the particiants of the retropsecitve bank
 if($_SESSION['Auth']['User']['group_id'] != '1') {
-    if($participantData['Participant']['bc_nbi_retrospective_bank'] != 'n') {
-        $this->atimFlashWarning(__('you are not allowed to edit participant of the retrospective bank'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
+    if($this->request->data['Participant']['bc_nbi_retrospective_bank'] != 'n') {
+        $submittedDataValidates = false;
+        $this->Participant->validationErrors['bc_nbi_retrospective_bank'][] = __('you are not allowed to define a particpant as a participant of the retrospecitve bank');
     }
 }
