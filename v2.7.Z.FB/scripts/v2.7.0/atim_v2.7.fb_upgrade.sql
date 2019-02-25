@@ -348,6 +348,9 @@ VALUES
  	('please select the list items', 'Please select the list items.', 'Veuillez sélectionner les éléments de la liste.'),
  	('here', 'here', 'ici'),
  	('for customising this list click <b>%s</b>', 'For customising this list click <b>%s</b>', 'Pour personnaliser cette liste, cliquez <b>%s</b>'),
+ 	('error- %s field is required', '%s field is required.', 'Le champ %s est requis.'),
+ 	('error- %s must be unique', '%s must be unique.', '%s doit être unique.'),
+ 	('error-the %s length should be between %s and %s', 'The length of %s should be between %s and %s', 'La longueur de% s doit être comprise entre %s et %s.'),
 	('list_name_help', '', '');
 -- 	('', '', ''),
 -- 	('', '', ''),

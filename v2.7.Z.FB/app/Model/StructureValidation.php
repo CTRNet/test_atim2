@@ -34,11 +34,12 @@ class StructureValidation extends AppModel
                             "language_message" => $errorMessage
                         );
                         $value['StructureField']['type'] = "autocomplete";
+                        $value['StructureField']['setting'] = $setting;
                     }
                     $validation = $validationData[$index];
                     if (is_array($validation)){
                         foreach ($validation as $k1 => $v1){
-                            if ($v1['name'] == "data[FunctionManagement][between_from]"){
+                            if ($v1['name'] == "data[FunctionManagement][between_from]"  && isset($v1['value']) && $v1['value'] != ""){
                                 $vFrom = $v1['value'];
                                 $vTo = "";
                                 foreach ($validation as $k2 => $v2){
@@ -57,7 +58,7 @@ class StructureValidation extends AppModel
                                     );
                                 }
                             }
-                            elseif ($v1['name'] == "data[FunctionManagement][range_from]"){
+                            if ($v1['name'] == "data[FunctionManagement][range_from]" && isset($v1['value']) && $v1['value'] != ""){
                                 $vFrom = $v1['value'];
                                 $vTo = "";
                                 foreach ($validation as $k2 => $v2){
@@ -68,32 +69,43 @@ class StructureValidation extends AppModel
                                         break;
                                     }
                                 }
+                                $vf=0;
+                                $vt=0;
+                                if ($value['StructureField']['type'] == "float"){
+                                    $vf = $vFrom - 0.00001;
+                                    $vt = $vTo + 0.00001;
+                                }else{
+                                    $vf = $vFrom - 1;
+                                    $vt = $vTo + 1;
+                                }
                                 if (!empty($vTo)){
                                     $validationNormalizedData[] = array(
                                         "structure_field_id" => $index,
-                                        "rule" => "range,$vFrom,$vTo",
+                                        "rule" => "range,$vf,$vt",
                                         "language_message" => __("error-the %s should be between %s and %s", $value['StructureField']['language_label'], $vFrom, $vTo)
                                     );
                                 }
                             }
-                            elseif($v1['name'] == "data[FunctionManagement][is_unique]"){
+                            if($v1['name'] == "data[FunctionManagement][is_unique]"  && isset($v1['value']) && $v1['value'] == 1){
                                 $validationNormalizedData[] = array(
                                     "structure_field_id" => $index,
-                                    "rule" => "notBlank",
-                                    "language_message" => "error-{$value['StructureField']['language_label']} must be unique"
+                                    "rule" => "isUnique",
+                                    "language_message" => "error- {$value['StructureField']['language_label']} must be unique"
                                 );
                                 
-                            }elseif($v1['name'] == "data[FunctionManagement][not_blank]"){
+                            }
+
+                            if($v1['name'] == "data[FunctionManagement][not_blank]" && isset($v1['value']) && $v1['value'] ==1){
                                 $validationNormalizedData[] = array(
                                     "structure_field_id" => $index,
                                     "rule" => "notBlank",
-                                    "language_message" => "error-{$value['StructureField']['language_label']} required"
+                                    "language_message" => "error- {$value['StructureField']['language_label']} field is required"
                                 );
                             }
                         }
                     }
+                    $index++;
                 }
-                $index++;
             }
             unset ($data["validationData"]);
             $data["StructureValidation"] = $validationNormalizedData;
