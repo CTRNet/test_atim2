@@ -132,6 +132,7 @@ class StructureField extends AppModel
         if (isset($options["prefix-common"])) {
             $dataCommon = isset($data[$options["prefix-common"]]) ? $data[$options["prefix-common"]] : array();
             $index = 0;
+            $now = date('Y_m_s_H_i_s');
             foreach ($dataCommon as $key => &$value) {
                 if (is_numeric($key)) {
                     $value['FunctionManagement']['is_structure_value_domain'] = "";
@@ -139,7 +140,6 @@ class StructureField extends AppModel
                         if (isset($valueDomainData[$index]['value']) && !empty($valueDomainData[$index]['value'])){
                             $value['StructureField']['structure_value_domain'] = $valueDomainData[$index]['id'];
                             $value['StructureField']['structure_value_domain_value'] = $valueDomainData[$index]['value'];
-//                            $this->removeWritableField(array("is_structure_value_domain"));
                             $value['FunctionManagement']['is_structure_value_domain'] = "OK";
                         }
                     }else{
@@ -147,11 +147,14 @@ class StructureField extends AppModel
                             AppController::addWarningMsg(__("just for the list data type can have the value list"));
                         }
                         $value['StructureField']['structure_value_domain'] = null;
-//                        $this->removeWritableField(array("is_structure_value_domain"));
                         $value['FunctionManagement']['is_structure_value_domain'] = "OK";
                     }
+                    $name = preg_replace('/\s+/', '_', $value['StructureField']['language_label']);
+                    $fieldName = sprintf("%02d", ($index + 1)) . "_" . substr($name, 0, 20)."_".$now;
+
+                    $value["StructureField"]["field"] = $fieldName;
+                    $index++;
                 }
-                $index++;
             }
             unset ($data["valueDomainData"]);
             $data[$options["prefix-common"]] = $dataCommon;

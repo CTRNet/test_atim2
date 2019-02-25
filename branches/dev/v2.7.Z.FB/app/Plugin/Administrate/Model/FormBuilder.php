@@ -92,7 +92,6 @@ class FormBuilder extends AdministrateAppModel
     
     public function normalisedAndSave($data = null, $validate = false, $fieldList = array())
     {
-        $this->createTable($data);
         $models = $data["models"];
         
         $modelInstance = AppModel::getInstance($models["main"]["plugin"], $models["main"]["model"]);
@@ -146,7 +145,6 @@ class FormBuilder extends AdministrateAppModel
             $StructureFieldData["language_tag"] = "";
             $StructureFieldData["default"] = "";
             $StructureFieldData["setting"] = (isset($StructureFieldData["setting"])) ? $StructureFieldData["setting"] : "";
-            $StructureFieldData["field"] = $tableName . "_" . ($index + 1);
 
             $svdId = $StructureFieldData["structure_value_domain"];
             if ($StructureFieldData["type"] == "select"){
@@ -205,7 +203,7 @@ class FormBuilder extends AdministrateAppModel
             $StructureFormatData["language_tag"] = "";
             $StructureFormatData["language_help"] = "";
             $StructureFormatData = array("StructureFormat" => $StructureFormatData, "FunctionManagement" => $FunctionManagementData);
-            $StructureFormatModelInstance->addWritableField(array("structure_id", "structure_field_id", "language_label", "language_tag", "language_help"));
+            $StructureFormatModelInstance->addWritableField(array("structure_id", "structure_field_id", "language_label", "language_tag", "language_help", "setting"));
             $StructureFormatModelInstance->id = null;
             $saveResult = $StructureFormatModelInstance->save($StructureFormatData);
 
@@ -248,13 +246,13 @@ class FormBuilder extends AdministrateAppModel
         $fk = Inflector::underscore($relatedData["master"]) ."_id";
         
         $query = "CREATE TABLE IF NOT EXISTS `{$detailTableName}` (\n\t"
-        . "{$fk} int NOT NULL, \n\t";
+            . "{$fk} int NOT NULL PRIMARY KEY, \n\t";
         
         $index = 0;
         $currentFieldQuery = array();
         foreach ($fieldsList as $field){
+            $fieldName = $field['StructureField']['field'];
             $type = $field['StructureField']['type'];
-            $fieldName = $detailTableName . "_" . ($index + 1);
             if ($type == 'checkbox'){
                 $currentFieldQuery[] = $fieldName . " tinyint";
             }elseif ($type=='date'){
@@ -273,11 +271,9 @@ class FormBuilder extends AdministrateAppModel
                 $currentFieldQuery[] = $fieldName . " text";
             }elseif ($type=='time'){
                 $currentFieldQuery[] = $fieldName . " time";
-            }elseif ($type=='validateIcd10WhoCode'){
-                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
-            }elseif ($type=='validateIcdo3MorphoCode'){
-                $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
-            }elseif ($type=='validateIcdo3TopoCode'){
+            }elseif ($type=='yes_no'){
+                $currentFieldQuery[] = $fieldName . " char(1)";
+            }elseif ($type=='autocomplete'){
                 $currentFieldQuery[] = $fieldName . " varchar(1000) COLLATE 'latin1_swedish_ci' ";
             }
             $index ++;
@@ -288,7 +284,6 @@ class FormBuilder extends AdministrateAppModel
         $query .= "FOREIGN KEY (`{$fk}`) REFERENCES `{$refrenceTable}` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT \n";
         
         $query .= ") ENGINE='InnoDB' COLLATE 'latin1_swedish_ci';\n\n";
-
         $this->query($query);
     }
     

@@ -54,7 +54,7 @@ class ConsentControl extends ClinicalAnnotationAppModel
         $field = "controls_type";
 
         $name = preg_replace('/\s+/', '_', $data[$model][$field]);
-        $aliasPart = substr($name, 0, min(10, strlen($name)));
+        $aliasPart = substr($name, 0, 10);
 
         $detailTableName = 'cd_'.$aliasPart."_".date('YmsHis');
         $data[$model]["detail_tablename"] = $detailTableName;
