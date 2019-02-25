@@ -1045,6 +1045,10 @@ class AppModel extends Model
                     }
                     $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
 
+                    $detailClassInstance->primaryKey = $settings['master_foreign'];
+                    if (isset($associated[$detailClass][$detailClassInstance->primaryKey])){
+                        $detailClassInstance->id = $associated[$detailClass][$detailClassInstance->primaryKey];
+                    }
 
                     $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
 
@@ -1071,7 +1075,9 @@ class AppModel extends Model
             $modelTemp = "FunctionManagement";
             foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
                 if (isset($this->data[$modelTemp][$field]) && empty($this->data[$modelTemp][$field])){
-                    $this->validationErrors[$field][]= $message;
+                    if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                        $this->validationErrors[$field][]= $message;
+                    }
                 }
             }
         }
