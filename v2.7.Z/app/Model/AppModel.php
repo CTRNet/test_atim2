@@ -1045,6 +1045,10 @@ class AppModel extends Model
                     }
                     $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
 
+                    $detailClassInstance->primaryKey = $settings['master_foreign'];
+                    if (isset($associated[$detailClass][$detailClassInstance->primaryKey])){
+                        $detailClassInstance->id = $associated[$detailClass][$detailClassInstance->primaryKey];
+                    }
 
                     $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
 
