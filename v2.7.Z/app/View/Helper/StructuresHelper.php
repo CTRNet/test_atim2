@@ -29,7 +29,7 @@ class StructuresHelper extends AppHelper
         "datetime",
         "time",
         "integer",
-        "interger_positive",
+        "integer_positive",
         "float",
         "float_positive",
         "tetarea",
@@ -824,6 +824,11 @@ class StructuresHelper extends AppHelper
                             }
                             $help = null;
                             $margin = '';
+                            
+                            if (in_array($options["type"], array("add", "edit"))!==false && isset($tableRowPart["settings"]["required"])&& $tableRowPart["settings"]["required"]=="required"){
+                            $tableRowPart['label'].=" *";
+                            }
+                            
                             if ($tableRowPart['margin'] > 0) {
                                 $margin = 'style="padding-left: ' . ($tableRowPart['margin'] * 10 + 10) . 'px"';
                             }
@@ -870,7 +875,12 @@ class StructuresHelper extends AppHelper
                                 if ($tableRowPart['type'] == 'textarea') {
                                     $display[0] .= '<span>' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix);
                                 } else {
-                                    $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
+
+                                    if (($tableRowPart["type"] != "yes_no" && $tableRowPart["type"] != "y_n_u") || !isset($tableRowPart["settings"]["class"]) || strpos($tableRowPart["settings"]["class"], "required")===false){
+                                        $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
+                                    }else {
+                                        $display[0] .= '<span><span class="nowrap required">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
+                                    }
                                 }
                                 
                                 if (strlen($suffix) > 0 && ($tableRowPart['type'] == 'input' || $tableRowPart['type'] == 'integer' || $tableRowPart['type'] == 'integer_positive' || $tableRowPart['type'] == 'float' || $tableRowPart['type'] == 'float_positive')) {
@@ -2174,6 +2184,10 @@ class StructuresHelper extends AppHelper
                                 }
                             } else {
                                 $returnString .= $tableRowPart['label'];
+
+                                if (in_array($options["type"], array("addgrid", "editgrid"))!==false && isset($tableRowPart["settings"]["required"])&& $tableRowPart["settings"]["required"]=="required"){
+                                    $returnString .= " *";
+                                }
                             }
                             
                             if (SHOW_HELP) {
