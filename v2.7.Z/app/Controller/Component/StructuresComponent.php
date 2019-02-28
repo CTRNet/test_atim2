@@ -113,10 +113,11 @@ $parameters);
                                             }
                                         }
                                     }
-                                    if (isset(AppModel::$requiredFields[$model])){
-                                        AppModel::$requiredFields[$model][$field] = $rule["message"];
+                                    $aliasTemp = strtolower($aliasUnit ? trim($aliasUnit) : str_replace('_', '', $this->controller->params['controller']));
+                                    if (isset(AppModel::$requiredFields[$model."||".$aliasTemp])){
+                                        AppModel::$requiredFields[$model."||".$aliasTemp][$field] = $rule["message"];
                                     }else{
-                                        AppModel::$requiredFields[$model] = array($field => $rule["message"]);
+                                        AppModel::$requiredFields[$model."||".$aliasTemp] = array($field => $rule["message"]);
                                     }
                                 }
                             }

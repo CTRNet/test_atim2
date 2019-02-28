@@ -433,6 +433,17 @@ class StructuresHelper extends AppHelper
         return $samplifiedAliasStructure;
     }
 
+    private function checkRequiredField (array $atimStructure = array(), array $options = array())
+    {
+        $type = $options['type'];
+        $alias = isset($atimStructure["Sfs"][0]['structure_alias'])?$atimStructure["Sfs"][0]['structure_alias']:"";
+        if (in_array($type, array("add", "edit", "addgrid", "editgrid"))!==false){
+            if (!empty($alias)){
+                $_SESSION["aliases"][$alias]["type"] = $type;
+            }
+        }
+    }
+    
     /**
      * Builds a structure
      *
@@ -454,6 +465,9 @@ class StructuresHelper extends AppHelper
         }
         
         $data = $this->request->data;
+        
+        $this->checkRequiredField($data, $atimStructure, $options);
+
         if (is_array($options['data'])) {
             $data = $options['data'];
         }
