@@ -246,8 +246,45 @@ class AppModel extends Model
 
     private function checkRequiredFields($data)
     {
+        $conditions = array();
         if (empty($this->id)){
-            foreach (self::$requiredFields as $model => $rules) {
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $fields = array();
+                foreach ($rules as $field => $rule) {
+                    $fields[] = $field;
+                }
+                $conditions[] = array(
+                    "model" => explode("||", $modelALias)[0],
+                    "structure_alias" => explode("||", $modelALias)[1],
+                    "field" => $fields
+                );
+            }
+            
+            if (!empty($conditions)){
+                App::uses('Sfs', 'Model');
+                $Sfs = new Sfs();
+                $sfsData = $Sfs->find("all", array(
+                    "conditions" => array('OR' => $conditions)
+                ));
+                if (!empty($sfsData)){
+                    foreach ($sfsData as $sfs) {
+                        $alias = strtolower($sfs["Sfs"]["structure_alias"]);
+                        $model = $sfs["Sfs"]["model"];
+                        $field = $sfs["Sfs"]["field"];
+                        $type = isset($_SESSION["aliases"][$alias]["type"])?$_SESSION["aliases"][$alias]["type"]:"";
+                        if (!empty($alias) && !empty($type)){
+                            $flag = isset($sfs["Sfs"]["flag_" . $type])?$sfs["Sfs"]["flag_" . $type]:1;
+                            if (empty($flag)){
+                                unset(self::$requiredFields["{$model}||{$alias}"]["{$field}"]);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $model = explode("||", $modelALias)[0];
+                $alias = explode("||", $modelALias)[1];
                 foreach ($rules as $field => $rule) {
                     if ($this->name == $model || $model == 'FunctionManagement'){
                         if (isset($data[$model])){
