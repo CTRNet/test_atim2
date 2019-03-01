@@ -198,4 +198,33 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('confidential identifiers', 'Confidential Identifiers', 'Identifiants confidentiels');
 
-UPDATE versions SET branch_build_number = '7575' WHERE version_number = '2.7.1';
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 20190228 : Add new Consent for melanome
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_melanoma_skins', 'tissue_from_clinical_act', 'yes_no',  NULL , '0', '', '', '', 'tissue from clinical act', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_melanoma_skins', 'tissue_for_banking_only', 'yes_no',  NULL , '0', '', '', '', 'tissue for banking only', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_melanoma_skins', 'blood', 'yes_no',  NULL , '0', '', '', '', 'blood', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_melanoma_skins', 'stool', 'yes_no',  NULL , '0', '', '', '', 'stool', '');
+
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_melanoma_skins'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_melanoma_skins' AND `field`='tissue_from_clinical_act' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue from clinical act' AND `language_tag`=''), '2', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_melanoma_skins'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_melanoma_skins' AND `field`='tissue_for_banking_only' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue for banking only' AND `language_tag`=''), '2', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_melanoma_skins'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_melanoma_skins' AND `field`='blood' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blood' AND `language_tag`=''), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_melanoma_skins'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_melanoma_skins' AND `field`='stool' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stool' AND `language_tag`=''), '2', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+
+ALTER TABLE `qc_nd_cd_chum_melanoma_skins`
+ADD `tissue_from_clinical_act` char(1) COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT '',
+ADD `tissue_for_banking_only` char(1) COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT '' AFTER `tissue_from_clinical_act`,
+ADD `blood` char(1) COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT '' AFTER `tissue_for_banking_only`,
+ADD `stool` char(1) COLLATE 'latin1_swedish_ci' NOT NULL DEFAULT '' AFTER `blood`;
+
+
+
+
+
+UPDATE versions SET branch_build_number = '7586' WHERE version_number = '2.7.1';
