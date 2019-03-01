@@ -889,12 +889,7 @@ class StructuresHelper extends AppHelper
                                 if ($tableRowPart['type'] == 'textarea') {
                                     $display[0] .= '<span>' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix);
                                 } else {
-
-                                    if (($tableRowPart["type"] != "yes_no" && $tableRowPart["type"] != "y_n_u") || !isset($tableRowPart["settings"]["class"]) || strpos($tableRowPart["settings"]["class"], "required")===false){
-                                        $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
-                                    }else {
-                                        $display[0] .= '<span><span class="nowrap required">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
-                                    }
+                                    $display[0] .= '<span><span class="nowrap">' . $this->getPrintableField($tableRowPart, $options, $currentValue, null, $suffix) . '</span>';
                                 }
                                 
                                 if (strlen($suffix) > 0 && ($tableRowPart['type'] == 'input' || $tableRowPart['type'] == 'integer' || $tableRowPart['type'] == 'integer_positive' || $tableRowPart['type'] == 'float' || $tableRowPart['type'] == 'float_positive')) {
