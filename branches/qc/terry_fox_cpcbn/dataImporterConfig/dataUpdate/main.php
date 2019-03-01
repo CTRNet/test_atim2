@@ -21,6 +21,15 @@ require_once 'system.php';
 global $atim_drugs;
 $atim_drugs = array();
 
+$commitAll = true;
+if(isset($argv[1])) {
+    if($argv[1] == 'test') {
+        $commitAll = false;
+    } else {
+        die('ERR ARG : '.$argv[1].' (should be test or nothing)');
+    }
+}
+
 //==============================================================================================
 // Main Code
 //==============================================================================================
@@ -33,6 +42,8 @@ if(!testExcelFile(array_keys($excel_files_names))) {
 }
 
 // *** PARSE EXCEL FILES ***
+pr("<font color='red'>Any body mass info recorded into Excel will be created as a new record into ATiM. No mismatch analysis betweem excel data and ATiM data will be executed. Please confirm.</font>");
+pr("<font color='red'>Any ECOG or ASA info recorded into Excel will be created as a new record into ATiM. No mismatch analysis betweem excel data and ATiM data will be executed. Please confirm.</font>");
 
 $dateCheckDone = false;
 
@@ -59,7 +70,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 				//Get Excel Value
 				$excel_patient_data = array();
 				$excel_field = 'Death from prostate cancer';
-				$excel_patient_data['qc_tf_death_from_prostate_cancer'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('unknown' => '', 'yes' => 'y', 'no' => 'n'), true, $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_patient_data['qc_tf_death_from_prostate_cancer'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('-' => '', 'unknown' => '', 'yes' => 'y', 'no' => 'n'), true, $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				$excel_field = 'Death status';
 				$excel_patient_data['vital_status'] = validateAndGetStructureDomainValue(str_replace(array('dead'), array('deceased'), strtolower($excel_line_data[$excel_field])), 'health_status', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				$excel_field = "Registered Date of Death Date";
@@ -68,19 +79,86 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 				$excel_field = "Suspected Date of Death Date";
 				list($excel_patient_data['qc_tf_suspected_date_of_death'], $excel_patient_data['qc_tf_suspected_date_of_death_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				$excel_patient_data['qc_tf_suspected_date_of_death_accuracy'] = updateWithExcelAccuracy($excel_patient_data['qc_tf_suspected_date_of_death_accuracy'], $excel_line_data["Suspected Date of Death Accuracy"]);
-				$excel_field = "Date of last contact Date";
+				$excel_field = "Last contact (overall) Date";
 				list($excel_patient_data['qc_tf_last_contact'], $excel_patient_data['qc_tf_last_contact_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				if(!$dateCheckDone && $excel_patient_data['qc_tf_last_contact']) {
 				    pr("<font color='red'>Date of last contact for date format check : Line $line_number / Date " .$excel_patient_data['qc_tf_last_contact']. "</font>");
 				    $dateCheckDone = true;
 				}
-				$excel_patient_data['qc_tf_last_contact_accuracy'] = updateWithExcelAccuracy($excel_patient_data['qc_tf_last_contact_accuracy'], $excel_line_data["Date of last contact Accuracy"]);
-				$excel_field = 'Family History (prostatite/cancer)';
+				$excel_patient_data['qc_tf_last_contact_accuracy'] = updateWithExcelAccuracy($excel_patient_data['qc_tf_last_contact_accuracy'], $excel_line_data["Last contact (overall) Accuracy"]);
+				$excel_patient_data['qc_tf_last_ct_ov_dept_visited'] = $excel_line_data["Last contact (overall) Department visited"];
+				$excel_field = "Last contact (overall) Evidence of PC progression at last contact (yes, no, unknown - use last PC follow-up)";
+				$excel_patient_data['qc_tf_last_ct_ov_evidence_of_pc_prog'] = validateAndGetStructureDomainValue(str_replace(array('unknown - use last PC follow-up'), array('unknown'), strtolower($excel_line_data[$excel_field])), 'yesnounknown', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_field = "Last contact PC related (urology/radiology/PSA/treatment) Date";
+				list($excel_patient_data['qc_tf_last_pc_rel_date'], $excel_patient_data['qc_tf_last_pc_rel_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_patient_data['qc_tf_last_pc_rel_date_accuracy'] = updateWithExcelAccuracy($excel_patient_data['qc_tf_last_pc_rel_date_accuracy'], $excel_line_data["Last contact PC related (urology/radiology/PSA/treatment) Accuracy"]);
+				$excel_field = "Last contact PC related (urology/radiology/PSA/treatment) Reason for visit (PSA, Clinic, Imaging)";
+				$excel_patient_data['qc_tf_last_pc_rel_reason_for_visit'] = validateAndGetStructureDomainValue(str_replace(array('follow-up in clinic'), array('clinic'), strtolower($excel_line_data[$excel_field])), 'reason_last_contact_pc', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_field = "Last contact PC related (urology/radiology/PSA/treatment) Evidence of PC progression at last PC contact (yes, no)";
+				$excel_patient_data['qc_tf_last_pc_rel_evidence_of_pc_prog'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('unknown' => '', 'yes' => 'y', 'no' => 'n'), true, $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+                if(strlen($excel_line_data['notes'])) {
+                    if(!strpos($atim_patient_data['notes'], $excel_line_data['notes'])) {
+                        $excel_patient_data['notes'] = $excel_line_data['notes'].'. '.$atim_patient_data['notes'];
+                    }
+                }
+                $excel_field = 'Ethnicity Caucasian, African American, Asian, Hispanic, other';
+                $excel_patient_data['qc_tf_ethnicity'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_ethnicity', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+                $excel_field = 'Family History (prostatite/cancer)';
 				$excel_patient_data['qc_tf_family_history'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_fam_hist_prostate_cancer', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				//Get ATiM Patient Data to Update
 				$data_to_update = getDataToUpdate($atim_patient_data, $excel_patient_data);		
 				updateTableData($atim_patient_data['id'], array('participants' => $data_to_update));
 				addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Updated  participant field(s)', $data_to_update);
+    			//BMI
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "No check on existing record into ATiM will be done. New record will be created when data exists into Excel. Please confirm.", "Rule applied to BMI.",'bmi');
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "No check on existing record into ATiM will be done. New record will be created when data exists into Excel. Please confirm.", "Rule applied to ECOG.",'ecog');
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "No check on existing record into ATiM will be done. New record will be created when data exists into Excel. Please confirm.", "Rule applied to ASA.",'asa');
+				$query = "SELECT * FROM event_masters WHERE deleted <> 1 AND participant_id = ".$atim_patient_data['id']." AND event_control_id IN (".$atim_controls['event_controls']['bmi']['id'].",".$atim_controls['event_controls']['physical status']['id'].")";
+				$queryRes = getSelectQueryResult($query) ;
+				if($queryRes) {
+				    recordErrorAndMessage($summary_section_title, '@@WARNING@@', "No check on existing record into ATiM will be done. New record will be created when data exists into Excel. Please confirm.", "Either BMI or Physical Status seams to exist into ATiM for participant $summary_details_add_in. Please check data has not been duplicated.");
+				}
+				$excel_field = "Body Mass Index Info (at time of CPCBN specimen collection) Date (yyyy-mm-dd)";
+				list($event_date, $event_date_accuracy) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$event_date_accuracy = updateWithExcelAccuracy($event_date_accuracy, $excel_line_data["Body Mass Index Info (at time of CPCBN specimen collection) Accuracy"]);
+				$excel_field = "Body Mass Index Info (at time of CPCBN specimen collection) Height (m)";
+				$height_m  = validateAndGetDecimal($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_field = "Body Mass Index Info (at time of CPCBN specimen collection) Weight (kg)";
+				$weight_kg  = validateAndGetDecimal($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				if(strlen($height_m.$weight_kg.$event_date)) {
+				    $event_data = array(
+				        'event_masters' => array(
+			                'participant_id' => $atim_patient_data['id'],
+			                'event_control_id' => $atim_controls['event_controls']['bmi']['id'],
+			                'event_date' => $event_date,
+			                'event_date_accuracy' => $event_date_accuracy),
+				        $atim_controls['event_controls']['bmi']['detail_tablename'] => array(
+				            'height_m' => $height_m,
+				            'weight_kg' => $weight_kg));
+				    if(strlen($height_m) && strlen($weight_kg) && $height_m != '0') {
+				        $event_data[$atim_controls['event_controls']['bmi']['detail_tablename']]['bmi'] = $weight_kg / ($height_m * $height_m);
+				    }
+				    customInsertRecord($event_data);
+				    addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created BMI', array_merge(array('event_date' => $event_date, 'event_date_accuracy' => $event_date_accuracy), $event_data[$atim_controls['event_controls']['bmi']['detail_tablename']]));
+				}
+				//physical status
+				$excel_field = "ECOG (refer to list and reference sheet) at time of CPCBN specimen collection";
+				$ecog  = validateAndGetStructureDomainValue(str_replace(array(''), array(''), strtolower($excel_line_data[$excel_field])), 'qc_tf_ed_ecog', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_field = "ASA at time of CPCBN specimen collection";
+				$asa  = validateAndGetStructureDomainValue(str_replace(array('1','2','3'), array('I', 'II', 'III'), strtolower($excel_line_data[$excel_field])), 'qc_tf_ed_asa', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				if(strlen($ecog.$asa)) {
+				    $event_data = array(
+				        'event_masters' => array(
+				            'participant_id' => $atim_patient_data['id'],
+				            'event_control_id' => $atim_controls['event_controls']['physical status']['id'],
+				            'event_date' => $event_date,
+				            'event_date_accuracy' => $event_date_accuracy),
+				        $atim_controls['event_controls']['physical status']['detail_tablename'] => array(
+				            'ecog' => $ecog,
+				            'asa' => $asa));
+				    customInsertRecord($event_data);
+				    addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created BMI', array_merge(array('event_date' => $event_date, 'event_date_accuracy' => $event_date_accuracy), $event_data[$atim_controls['event_controls']['physical status']['detail_tablename']]));
+				}
 			} else {
 				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient unknown", "No ATim Patient matches excel patient. Patient data won't be parsed. $summary_details_add_in");
 			}
@@ -228,6 +306,9 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			} else {
 				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Patient data won't be parsed. $summary_details_add_in");
 			}
+			if(strlen($excel_line_data['notes'])) {
+			    recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Diagnosis Note exists but won't be mirgated", "See note [".$excel_line_data['notes']."]. $summary_details_add_in");
+			}
 		} else {
 			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "'Patient # in biobank' column missing", "'Patient # in biobank' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
 		}
@@ -312,17 +393,21 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 					if(!strlen($excel_event_dates['finish_date'])) {
 					    unset($excel_event_dates['finish_date']);
 					}
+					$notes = $excel_line_data['Note'];
 					//1-PSA Update
 					$excel_field = "PSA (ng/ml)";
 					$excel_psa = validateAndGetDecimal($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 					if(strlen($excel_psa)) {
 						$nbr_of_defined_treatement_types_on_row++;
-						if(isset($atim_psa[$atim_participant_id][$excel_event_dates['start_date']])) {
+						if(isset($excel_event_dates['start_date']) && isset($atim_psa[$atim_participant_id][$excel_event_dates['start_date']])) {
 							if($atim_psa[$atim_participant_id][$excel_event_dates['start_date']] != $excel_psa) {
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "PSA values don't match", "See PSA values on '".$excel_event_dates['start_date']."': ATiM value [".$atim_psa[$atim_participant_id][$excel_event_dates['start_date']]."] != Excel value [$excel_psa] . Data won't be updated. $summary_details_add_in");	
 							}
+							if(strlen($notes)) {
+							    recordErrorAndMessage($summary_section_title, '@@WARNING@@', "PSA already defined into ATiM but new notes exist into Excel. These notes won't be migrated. To migrate manually", "See PSA notes [$notes] on '".$excel_event_dates['start_date']."'. Data won't be updated. $summary_details_add_in");
+							}
 						} else {
-							$event_dates = array('event_date' => $excel_event_dates['start_date'], 'event_date_accuracy' => $excel_event_dates['start_date_accuracy']);
+							$event_dates = array('event_date' => (isset($excel_event_dates['start_date'])? $excel_event_dates['start_date'] : ''), 'event_date_accuracy' => $excel_event_dates['start_date_accuracy']);
 							if(!$event_dates['event_date']) {
 							    $event_dates = array();
 							}							
@@ -330,12 +415,14 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 								'event_masters' => array_merge(
 									array('participant_id' => $atim_participant_id,
 										'diagnosis_master_id' => $diagnosis_master_id,
-										'event_control_id' => $atim_controls['event_controls']['psa']['id']),
+										'event_control_id' => $atim_controls['event_controls']['psa']['id'],
+									    'event_summary' => $notes
+									),
 									$event_dates),
 								 $atim_controls['event_controls']['psa']['detail_tablename'] => array(
 									'psa_ng_per_ml' => $excel_psa));
 							customInsertRecord($psa_data);
-							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created PSA', array_merge($event_dates, array('psa_ng_per_ml' => $excel_psa)));
+							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created PSA', array_merge($event_dates, array('psa_ng_per_ml' => $excel_psa), (strlen($notes)? array('event_summary' => $notes) : array())));
 						}
 					}
 					//2-Radiotherapy
@@ -354,19 +441,23 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 								$diff_strg = implode (' & ', $diff_strg);
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Radiation value(s) does not match", "Radiation value(s) on '".$excel_event_dates['start_date']."' does not match ($diff_strg). Data won't be updated. Please check and update if required. $summary_details_add_in");
 							}
-							
+							if(strlen($notes)) {
+							    recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Radiation already defined into ATiM but new notes exist into Excel. These notes won't be migrated. To migrate manually", "See Radiation notes [$notes] on '".$excel_event_dates['start_date']."'. Data won't be updated. $summary_details_add_in");
+							}
 						} else {
 							$tx_data = array(
 								'treatment_masters' => array_merge(
 									array('participant_id' => $atim_participant_id, 
 										'diagnosis_master_id' => $diagnosis_master_id, 
-										'treatment_control_id' => $atim_controls['treatment_controls']['radiation']['id']), 
+										'treatment_control_id' => $atim_controls['treatment_controls']['radiation']['id'],
+									    'notes' => $notes
+									), 
 									$excel_event_dates),
 								$atim_controls['treatment_controls']['radiation']['detail_tablename'] => (strlen($qc_tf_dose_cg)?
 								    array('qc_tf_type' => $qc_tf_type, 'qc_tf_dose_cg' => $qc_tf_dose_cg) :
     								array('qc_tf_type' => $qc_tf_type)));
 							customInsertRecord($tx_data);
-							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created radiotherpay', array_merge($excel_event_dates, $tx_data[$atim_controls['treatment_controls']['radiation']['detail_tablename']]));
+							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created radiotherpay', array_merge($excel_event_dates, $tx_data[$atim_controls['treatment_controls']['radiation']['detail_tablename']], (strlen($notes)? array('notes' => $notes) : array())));
 						}
 					}	
 					//3-Treatment Linked To Drugs
@@ -407,7 +498,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 						if($excel_line_data[$excel_field] == 'yes') {
 							$nbr_of_defined_treatement_types_on_row++;
 							$treatment_with_drug_detected = true;
-							if(isset($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) {
+							if(isset($excel_event_dates['start_date']) && isset($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) {
 								if(sizeof(isset($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) > 1) {
 									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Too many $atim_treatment_type on same date", "More than one $atim_treatment_type exists into ATiM on '".$excel_event_dates['start_date']."' for the patient. Migration process won't be able to select the good one. The $atim_treatment_type data won't be updated. Please process manually after migration. $summary_details_add_in");
 								} else {
@@ -430,7 +521,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 									        updateTableData($matching_atim_treatment['treatment_master_id'], array(
                                                 'treatment_masters' => array(), 
                                                 $atim_controls['treatment_controls'][$atim_treatment_type]['detail_tablename'] => array('type' => $hormonotherapy_type)));
-									    } else if($matching_atim_treatment['type'] != $excel_event_dates['type']) {
+									    } else if($matching_atim_treatment['type'] != $hormonotherapy_type) {
 									        recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $atim_treatment_type Types does not match", "The types of the $atim_treatment_type started on '".$excel_event_dates['start_date']."' are different ('".$matching_atim_treatment['type']."'(ATiM) != '$hormonotherapy_type'(Excel)). Migration process won't be able to select the good one. Date won't be updated. $summary_details_add_in");
 									    }
 									}
@@ -470,6 +561,9 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 										addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Updated  $atim_treatment_type started on ".$excel_event_dates['start_date'], $updated_tx_data);
 									}
 								}
+								if(strlen($notes)) {
+								    recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Treatment $atim_treatment_type already defined into ATiM but new notes exist into Excel. These notes won't be migrated. To migrate manually", "See treatment notes [$notes] on '".$excel_event_dates['start_date']."'. Data won't be updated. $summary_details_add_in");
+								}
 							} else {
 								//TreatmentMaster
 								$td_detail_data = (is_null($hormonotherapy_type) || !strlen($hormonotherapy_type))? array() : array('type' => $hormonotherapy_type);
@@ -477,7 +571,9 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 									'treatment_masters' => array_merge(
 										array('participant_id' => $atim_participant_id, 
 											'diagnosis_master_id' => $diagnosis_master_id, 
-											'treatment_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['id']),
+											'treatment_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['id'],
+										    'notes' => $notes
+										),
 										$excel_event_dates),
 									$atim_controls['treatment_controls'][$atim_treatment_type]['detail_tablename'] =>$td_detail_data);
 								$treatment_master_id = customInsertRecord($tx_data);
@@ -496,7 +592,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 										}
 									}
 								}
-								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Created $atim_treatment_type", array_merge($excel_event_dates, $excel_drug_list));
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Created $atim_treatment_type", array_merge($excel_event_dates, $excel_drug_list, (strlen($notes)? array('notes' => $notes) : array())));
 							}
 						} else if(strlen($excel_line_data[$excel_field])) {
 							recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $excel_field value not supported", "See value [".$excel_line_data[$excel_field]."]. Treatment won't be parsed. $summary_details_add_in");
@@ -564,21 +660,25 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 				$excel_field = "cancer type";
 				$excel_diagnosis_data['type'] = validateAndGetStructureDomainValue(str_replace('non - hodgkin', 'non-hodgkin', strtolower(str_replace('-',' - ', $excel_line_data[$excel_field]))), 'ctrnet_submission_disease_site', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				if($excel_diagnosis_data['type'] == 'prostate') die("ERR_PROSTATE_OTHER_DIAGNOSIS: ".$summary_details_add_in);
+				$notes = $excel_line_data['Note'];
 				if($excel_diagnosis_data['type'] || $excel_diagnosis_data['dx_date']) {
 					if($excel_diagnosis_data['type'] == 'other - primary unknown') {
 						//1--Unknown diagnosis
 						if(!isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
 							if(isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id])) {
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists", "No new one will be created. Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+								if(strlen($notes)) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists and a note in excel has been found. The note won't be migrated. Please add note manually.", "Note [$notes] won't be migrated. $summary_details_add_in");
 							} else {
 								$unknown_dx = array(
 									'diagnosis_masters' => array(
 										'participant_id' => $atim_participant_id,
 										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['id'],
 										'dx_date' => $excel_diagnosis_data['dx_date'],
-										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
+										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy'],
+									   'notes' => $notes),
 									$atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['detail_tablename'] => array());
 								customInsertRecord($unknown_dx);
+								if(strlen($notes)) $excel_diagnosis_data['notes'] = $notes;
 								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in Biobank Number (required)'], 'Created unknown primary diagnosis', $excel_diagnosis_data);
 							}
 						}
@@ -587,20 +687,25 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 						if(!isset($atim_other_primary_diagnosis_data['sorted_by_dates_and_sites'][$atim_participant_id][$excel_diagnosis_data['dx_date'].'|'.$excel_diagnosis_data['type']])) {
 							if(isset($atim_other_primary_diagnosis_data['sorted_by_dates'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An other primary diagnosis already exists on the same date", "No ".(empty($excel_diagnosis_data['type'])? "new other primary diagnosis" : "new '".$excel_diagnosis_data['type']."' other primary diagnosis")." will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+							     if(strlen($notes)) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists and a note in excel has been found. The note won't be migrated. Please add note manually.", "Note [$notes] won't be migrated. $summary_details_add_in");
 							} else if(isset($atim_other_primary_diagnosis_data['sorted_by_sites'][$atim_participant_id][$excel_diagnosis_data['type']])) {
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An other primary diagnosis already exists for the same site", "No new '".$excel_diagnosis_data['type']."' other primary diagnosis will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+							     if(strlen($notes)) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists and a note in excel has been found. The note won't be migrated. Please add note manually.", "Note [$notes] won't be migrated. $summary_details_add_in");
 							} else if(isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
 								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis exists on the same date of a new other primary", "No ".(empty($excel_diagnosis_data['type'])? "new other primary diagnosis" : "new '".$excel_diagnosis_data['type']."' other primary diagnosis")." will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one or change the unknown diagnosis to other diagnosis if required. $summary_details_add_in");
+							     if(strlen($notes)) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists and a note in excel has been found. The note won't be migrated. Please add note manually.", "Note [$notes] won't be migrated. $summary_details_add_in");
 							} else {
 								$other_primary_dx = array(
 									'diagnosis_masters' => array(
 										'participant_id' => $atim_participant_id,
 										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-other']['id'],
 										'dx_date' => $excel_diagnosis_data['dx_date'],
-										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
+										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy'],
+									   'notes' => $notes),
 									$atim_controls['diagnosis_controls']['primary-other']['detail_tablename'] => array(
 										'type' => $excel_diagnosis_data['type']));
 								customInsertRecord($other_primary_dx);
+								if(strlen($notes)) $excel_diagnosis_data['notes'] = $notes;
 								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in Biobank Number (required)'], 'Created other primary diagnosis', $excel_diagnosis_data);
 							}
 						} 
@@ -739,7 +844,7 @@ dislayErrorAndMessage(false, 'Migration Errors/Warnings/Messages');
 
 $import_summary = $update_summary;
 
-dislayErrorAndMessage(false, 'Update Summary');
+dislayErrorAndMessage($commitAll, 'Update Summary');
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
@@ -959,7 +1064,7 @@ function executeEndProcessSourceCode(){
 		if(isset($current_atim_dfs_tx_ids[$updated_participant_id]) && isset($dfs_tx_ids[$updated_participant_id])) {
 			if($current_atim_dfs_tx_ids[$updated_participant_id] != $dfs_tx_ids[$updated_participant_id]) {
 				//Update
-				updateTableData($current_atim_dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '')));
+				updateTableData($current_atim_dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '0')));
 				updateTableData($dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '1')));
 				addUpdatedDataToSummary($label_data['bank'], $label_data['qc_tf_bank_participant_identifier'], 'Changed DFS start from one treatment to another one', array('from_treatment_master_id' => $current_atim_dfs_tx_ids[$updated_participant_id], 'to_treatment_master_id' => $dfs_tx_ids[$updated_participant_id]));
 				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Changed DFS start from one treatment to another one", "See patient ".$label_data['label_for_summary']);
@@ -1103,10 +1208,12 @@ function executeEndProcessSourceCode(){
 		
 		// Data to update
 		$data_to_update = array();//getDataToUpdate() can not be used because we have to erase value if the new one is empty
-		if($row['survival_in_months'] != $new_survival) $data_to_update['survival_in_months'] = $new_survival;
-		if($row['bcr_in_months'] != $new_bcr) $data_to_update['bcr_in_months'] = $new_bcr;
-		updateTableData($row['diagnosis_master_id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']  => $data_to_update));
-		addUpdatedDataToSummary($all_updated_participants_labels[$row['participant_id']]['bank'], $all_updated_participants_labels[$row['participant_id']]['qc_tf_bank_participant_identifier'], 'Updated  primary diagnosis BCR or Survival', $data_to_update);
+		if($row['survival_in_months'] != $new_survival) $data_to_update['survival_in_months'] = (strlen($new_survival)? $new_survival : null);
+		if($row['bcr_in_months'] != $new_bcr) $data_to_update['bcr_in_months'] = (strlen($new_bcr)? $new_bcr : null);
+		if($data_to_update) {
+		  updateTableData($row['diagnosis_master_id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']  => $data_to_update));
+		  addUpdatedDataToSummary($all_updated_participants_labels[$row['participant_id']]['bank'], $all_updated_participants_labels[$row['participant_id']]['qc_tf_bank_participant_identifier'], 'Updated  primary diagnosis BCR or Survival', $data_to_update);
+		}
 	}
 	
 	//Final test to check only one DFS start exists per primary diagnosis

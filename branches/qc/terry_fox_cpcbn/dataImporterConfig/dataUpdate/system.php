@@ -291,7 +291,7 @@ function dislayErrorAndMessage($commit = false, $title = 'Migration Summary') {
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
-		$ccl = 'But Not Commited';
+		$ccl = '</FONT><FONT COLOR=\"red\"><b>But Not Commited</b></FONT><FONT COLOR=\"blue\">';
 	}
 	echo "<br><FONT COLOR=\"blue\">
 		=====================================================================<br>
@@ -370,13 +370,20 @@ function customInsertRecord($tables_data) {
 	$details_tables_data = array();
 //TODO: Add control on detail table based on _control_id
 	foreach($tables_data as &$sub_table) {
-    	$sub_table = array_filter($sub_table, function($var){
-    	    return (!($var == '' || is_null($var)));
-    	});
+	    $sub_table = array_filter($sub_table, function($var){
+	        return (!($var == '' || is_null($var)));
+	    });
 	}
-	array_filter($tables_data);	
+	array_filter($tables_data);
 	if($tables_data) {
 		$tables_data_keys = array_keys($tables_data);
+		//Flush empty field
+		//Should be done above
+		//foreach($tables_data as $table_name => $table_fields_and_data) {
+		//	foreach($table_fields_and_data as $field => $data) {
+		//		if(!strlen($data)) unset($tables_data[$table_name][$field]);
+		//	}
+		//}
 		//--1-- Check data
 		switch(sizeof($tables_data)) {
 			case '1':
@@ -494,6 +501,13 @@ function updateTableData($id, $tables_data) {
 	if($tables_data) {
 		$tables_data_keys = array_keys($tables_data);
 		$to_update = false;
+		//Flush empty field
+		//Should not be done in case we want to erase a data
+		//foreach($tables_data as $table_name => $table_fields_and_data) {
+		//	foreach($table_fields_and_data as $field => $data) {
+		//		if(!strlen($data)) unset($tables_data[$table_name][$field]);
+		//	}
+		//}
 		//Check data passed in args
 		$main_or_master_tablename = null;
 		switch(sizeof($tables_data)) {
@@ -522,11 +536,13 @@ function updateTableData($id, $tables_data) {
 			$table_data = $tables_data[$main_or_master_tablename];
 			unset($tables_data[$main_or_master_tablename]);
 			$set_sql_strings = array();
-            foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) {
+			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) {
 			    if(!is_null($value) && strlen($value)) {
 			        $set_sql_strings[] = "`$key` = \"$value\"";
+			    } elseif(!is_null($value)) {
+			        $set_sql_strings[] = "`$key` = ''";
 			    } else {
-			        "`$key` = null";
+			        $set_sql_strings[] = "`$key` = NULL";
 			    }
 			}
 			$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `id` = $id;";
@@ -540,9 +556,11 @@ function updateTableData($id, $tables_data) {
 					foreach($table_data  as $key => $value) {
 					    if(!is_null($value) && strlen($value)) {
 					        $set_sql_strings[] = "`$key` = \"$value\"";
-					    } else {
-					        "`$key` = null";
-					    }
+					    } elseif(!is_null($value)) {
+        			        $set_sql_strings[] = "`$key` = ''";
+        			    } else {
+        			        $set_sql_strings[] = "`$key` = NULL";
+        			    }
 					}
 					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";
 					customQuery($query);
