@@ -466,7 +466,7 @@ class StructuresHelper extends AppHelper
         
         $data = $this->request->data;
         
-        $this->checkRequiredField($data, $atimStructure, $options);
+        $this->checkRequiredField($atimStructure, $options);
 
         if (is_array($options['data'])) {
             $data = $options['data'];
