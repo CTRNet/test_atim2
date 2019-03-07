@@ -69,7 +69,9 @@
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
 Collection.cusm_collection_type,
-MiscIdentifier.identifier_value
+MiscIdentifier.identifier_value,
+			 
+			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
 			
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -86,6 +88,5 @@ MiscIdentifier.identifier_value
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
-            WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-            
+			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 }

@@ -440,3 +440,403 @@ UPDATE aliquot_review_controls SET flag_active = 0;
 UPDATE specimen_review_controls SET flag_active = 0;
 
 UPDATE versions SET branch_build_number = '7548' WHERE version_number = '2.7.1';
+UPDATE versions SET branch_build_number = '7554' WHERE version_number = '2.7.1';
+
+-- ===================================================================================================================================
+-- New Dev 2019-01-21 (Including Tumor Registry Form)
+-- ===================================================================================================================================
+
+-- Event
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/listall/lab/%' OR use_link LIKE '/ClinicalAnnotation/EventMasters/listall/Clinical/%';
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 2 AND id2 =14) OR (id1 = 14 AND id2 =2);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 14 AND id2 =4) OR (id1 = 4 AND id2 =14);
+
+-- Diagnosis
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/DiagnosisMasters%';
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 2 AND id2 =14) OR (id1 = 14 AND id2 =2);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 14 AND id2 =4) OR (id1 = 4 AND id2 =14);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 9 AND id2 =4) OR (id1 = 4 AND id2 =9);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 9 AND id2 =9) OR (id1 = 9 AND id2 =9);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 14 AND id2 =9) OR (id1 = 9 AND id2 =14);
+
+-- Blood testing 
+-- [Clinical Annotation - Event]
+-- # ATiM Only #
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'lab', 'blood testing', 1, 'cusm_ed_lab_blood_testing', 'cusm_ed_lab_blood_testings', 0, 'lab|blood testing', 1, 1, 1);
+DROP TABLE IF EXISTS cusm_ed_lab_blood_testings;
+CREATE TABLE `cusm_ed_lab_blood_testings` (
+	wbc decimal(10,1) DEFAULT NULL,
+	wbc_unit varchar(20) DEFAULT NULL,
+	platelets decimal(10,1) DEFAULT NULL,
+	platelets_unit varchar(20) DEFAULT NULL,
+	neutrophil decimal(10,1) DEFAULT NULL,
+	neutrophil_unit varchar(20) DEFAULT NULL,
+	lymphocyte decimal(10,1) DEFAULT NULL,
+	lymphocyte_unit varchar(20) DEFAULT NULL,
+	monocyte decimal(10,1) DEFAULT NULL,
+	monocyte_unit varchar(20) DEFAULT NULL,
+	eosinophil decimal(10,1) DEFAULT NULL,
+	eosinophil_unit varchar(20) DEFAULT NULL,
+	basophil decimal(10,1) DEFAULT NULL,
+	basophil_unit varchar(20) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `cusm_ed_lab_blood_testings`
+  ADD KEY `event_master_id` (`event_master_id`),
+  ADD CONSTRAINT `cusm_ed_lab_blood_testings_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+  DROP TABLE IF EXISTS cusm_ed_lab_blood_testings_revs;
+CREATE TABLE `cusm_ed_lab_blood_testings_revs` (
+	wbc decimal(10,1) DEFAULT NULL,
+	wbc_unit varchar(20) DEFAULT NULL,
+	platelets decimal(10,1) DEFAULT NULL,
+	platelets_unit varchar(20) DEFAULT NULL,
+	neutrophil decimal(10,1) DEFAULT NULL,
+	neutrophil_unit varchar(20) DEFAULT NULL,
+	lymphocyte decimal(10,1) DEFAULT NULL,
+	lymphocyte_unit varchar(20) DEFAULT NULL,
+	monocyte decimal(10,1) DEFAULT NULL,
+	monocyte_unit varchar(20) DEFAULT NULL,
+	eosinophil decimal(10,1) DEFAULT NULL,
+	eosinophil_unit varchar(20) DEFAULT NULL,
+	basophil decimal(10,1) DEFAULT NULL,
+	basophil_unit varchar(20) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `cusm_ed_lab_blood_testings_revs`
+  ADD PRIMARY KEY (`version_id`),
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO structures(`alias`) VALUES ('cusm_ed_lab_blood_testing');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'wbc', 'float',  NULL , '0', '', '', '', 'wbc', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'platelets', 'float',  NULL , '0', '', '', '', 'platelets', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'neutrophil', 'float',  NULL , '0', '', '', '', 'neutrophil', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'lymphocyte', 'float',  NULL , '0', '', '', '', 'lymphocyte', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'monocyte', 'float',  NULL , '0', '', '', '', 'monocyte', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'eosinophil', 'float',  NULL , '0', '', '', '', 'eosinophil', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'basophil', 'float',  NULL , '0', '', '', '', 'basophil', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'cols=20,rows=1', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='wbc'), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='platelets'), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='neutrophil'), '1', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='lymphocyte'), '1', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='monocyte'), '1', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='eosinophil'), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='basophil'), '1', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("cusm_blood_testing_units", "", "", "StructurePermissibleValuesCustom::getCustomDropdown('Blood Testing Units')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Blood Testing Units', 1, 20, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood Testing Units');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified_by`, `created`, `created_by`, `modified`)
+VALUES
+("", "", "", '1', @control_id, 2, NOW(),2, NOW()),
+("10e9/L", "", "", '1', @control_id, 2, NOW(),2, NOW()),
+("10e12/L", "", "", '1', @control_id, 2, NOW(),2, NOW()),
+("g/L", "", "", '1', @control_id, 2, NOW(),2, NOW()),
+("%", "", "", '1', @control_id, 2, NOW(),2, NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'wbc_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'platelets_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'neutrophil_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'lymphocyte_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'monocyte_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'eosinophil_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'cusm_ed_lab_blood_testings', 'basophil_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cusm_blood_testing_units') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='wbc_unit'), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='platelets_unit'), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='neutrophil_unit'), '1', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='lymphocyte_unit'), '1', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='monocyte_unit'), '1', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='eosinophil_unit'), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_ed_lab_blood_testing'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='cusm_ed_lab_blood_testings' AND `field`='basophil_unit'), '1', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('blood testing', 'Blood Testing', 'Test sanguin'),
+('wbc', 'WBC', ''),
+('platelets', 'Platelets', ''),
+('neutrophil', 'Neutrophil', ''),
+('lymphocyte', 'Lymphocyte', ''),
+('monocyte', 'Monocyte', ''),
+('eosinophil', 'Eosinophil', ''),
+('basophil', 'Basophil', '');
+
+-- Profile 
+-- [Clinical Annotation - Profile]
+-- # Tumor Registry Only #
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_column`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND `display_order` >= '99' AND display_column = 3;
+
+ALTER TABLE participants 
+  ADD COLUMN cusm_tumor_registery_accession_number VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_first_contact_at_muhc DATE DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_first_contact_at_muhc_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_last_contact_at_muhc DATE DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_last_contact_at_muhc_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_data_conflict CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_data_conflict_details TEXT,
+  ADD COLUMN cusm_tumor_registery_last_migration DATE DEFAULT NULL;
+ALTER TABLE participants_revs
+  ADD COLUMN cusm_tumor_registery_accession_number VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_first_contact_at_muhc DATE DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_first_contact_at_muhc_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_last_contact_at_muhc DATE DEFAULT NULL,
+  ADD COLUMN cusm_tumor_registery_last_contact_at_muhc_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_data_conflict CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN cusm_tumor_registery_data_conflict_details TEXT,
+  ADD COLUMN cusm_tumor_registery_last_migration DATE DEFAULT NULL;
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_accession_number', 'input',  NULL , '0', '', '', '', 'accession number', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_first_contact_at_muhc', 'date',  NULL , '0', '', '', '', 'first contact at muhc', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_last_contact_at_muhc', 'date',  NULL , '0', '', '', '', 'last contact at muhc', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_data_conflict', 'yes_no',  NULL , '0', '', '', '', 'data conflict', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_data_conflict_details', 'textarea',  NULL , '0', 'cols=40,rows=1', '', '', 'data conflict details', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_tumor_registery_last_migration', 'date',  NULL , '0', '', '', '', 'last migration', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_accession_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='accession number' AND `language_tag`=''), '3', '63', 'tumor registery - data migration', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_first_contact_at_muhc' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first contact at muhc' AND `language_tag`=''), '3', '64', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_last_contact_at_muhc' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last contact at muhc' AND `language_tag`=''), '3', '66', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_data_conflict' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='data conflict' AND `language_tag`=''), '3', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_data_conflict_details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=1' AND `default`='' AND `language_help`=''), '3', '72', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_tumor_registery_last_migration' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last migration' AND `language_tag`=''), '3', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('tumor registery - data migration', 'Tumors Registery (Data Migration)', 'Registre des tumeurs (migration de données)'),
+('tumor registery', 'Tumors Registery', 'Registre des tumeurs'),
+('accession number', 'Accession #', 'Accession #'),
+('last contact at muhc', 'Last Contact (at MUHC)', 'Dernier contact (au CUSM)'),
+('first contact at muhc', 'First Contact (at MUHC)', 'Premier contact (au CUSM)'),
+('data conflict', 'Data Conflict', 'Conflit de données'),
+('data conflict details', 'Conflict Details', 'Détails conflits'),	
+('last migration', 'Last Migration', 'Dernière migration');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND flag_edit = 1;
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Profile 
+-- [Clinical Annotation - Profile]
+-- # ATiM Only #
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE participants 
+  ADD COLUMN cusm_last_contact DATE DEFAULT NULL,
+  ADD COLUMN cusm_last_contact_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs
+  ADD COLUMN cusm_last_contact DATE DEFAULT NULL,
+  ADD COLUMN cusm_last_contact_accuracy CHAR(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'cusm_last_contact', 'date',  NULL , '0', '', '', '', 'last contact', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cusm_last_contact' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last contact' AND `language_tag`=''), '3', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('last contact', 'Last Contact', 'Dernier contact');
+  
+-- Race
+
+UPDATE structure_fields SET  `type`='input',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='race') ,  `setting`='size=15',  `language_label`='ethnicity' WHERE model='Participant' AND tablename='participants' AND field='race' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='race');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('ethnicity', 'Ethnicity', 'Ethnicité');
+
+-- Tumor Registry Diagnosis 
+-- [Clinical Annotation - Diagnosis]
+-- # ATiM & Tumor Registry #
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'primary', 'tumor registry', 1, 'cusm_lung_dxd_tumor_registry', 'cusm_lung_dxd_tumor_registry', 0, 'primary|tumor registry', 0);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE diagnosis_masters 
+   ADD COLUMN cusm_lung_topography_description VARCHAR(500) DEFAULT NULL,
+   ADD COLUMN cusm_lung_morphology_description VARCHAR(500) DEFAULT NULL,
+   ADD COLUMN cusm_lung_tumor_size_source VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN cusm_lung_clinical_stage_descriptor VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN cusm_lung_path_stage_descriptor VARCHAR(250) DEFAULT NULL,
+   MODIFY dx_method varchar(250) DEFAULT NULL,
+   ADD COLUMN cusm_sequence_number varchar(5) DEFAULT NULL,
+   ADD COLUMN cusm_class_of_case varchar(5) DEFAULT NULL,
+   ADD COLUMN cusm_facility varchar(250) DEFAULT NULL,
+   ADD COLUMN cusm_dx_confirmation_method varchar(500) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs 
+   ADD COLUMN cusm_lung_topography_description VARCHAR(500) DEFAULT NULL,
+   ADD COLUMN cusm_lung_morphology_description VARCHAR(500) DEFAULT NULL,
+   ADD COLUMN cusm_lung_tumor_size_source VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN cusm_lung_clinical_stage_descriptor VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN cusm_lung_path_stage_descriptor VARCHAR(250) DEFAULT NULL,
+   MODIFY dx_method varchar(250) DEFAULT NULL,
+   ADD COLUMN cusm_sequence_number varchar(5) DEFAULT NULL,
+   ADD COLUMN cusm_class_of_case varchar(5) DEFAULT NULL,
+   ADD COLUMN cusm_facility varchar(250) DEFAULT NULL,
+   ADD COLUMN cusm_dx_confirmation_method varchar(500) DEFAULT NULL;
+
+DROP TABLE IF EXISTS `cusm_lung_dxd_tumor_registry`;
+CREATE TABLE `cusm_lung_dxd_tumor_registry` (
+  `diagnosis_master_id` int(11) NOT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  lymph_vascular_invasion char(1) DEFAULt '',
+  KEY `diagnosis_master_id` (`diagnosis_master_id`),
+  CONSTRAINT `cusm_lung_dxd_tumor_registry_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `cusm_lung_dxd_tumor_registry_revs`;
+CREATE TABLE `cusm_lung_dxd_tumor_registry_revs` (
+  `diagnosis_master_id` int(11) NOT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  lymph_vascular_invasion char(1) DEFAULt '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO structures(`alias`) VALUES ('cusm_lung_dxd_tumor_registry');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_lung_topography_description', 'input',  NULL , '0', 'size=20', '', '', '', 'details'), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_method', 'input',  NULL , '0', '', '', '', 'dx method', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_sequence_number', 'input',  NULL , '0', 'size=2', '', '', 'sequence number', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_dx_confirmation_method', 'input',  NULL , '0', '', '', '', '', 'confirmation'), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_lung_morphology_description', 'input',  NULL , '0', 'size=20', '', '', '', 'details'), 
+('ClinicalAnnotation', 'DiagnosisDetail', 'cusm_lung_dxd_tumor_registry', 'lymph_vascular_invasion', 'yes_no',  NULL , '0', '', '', '', 'lymph vascular invasion', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'input',  NULL , '0', 'size=2', '', 'help_tumour grade', 'tumour grade', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_lung_clinical_stage_descriptor', 'input',  NULL , '0', 'size=20', '', '', 'descriptor', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_class_of_case', 'input',  NULL , '0', 'size=2', '', '', 'class of case', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_lung_path_stage_descriptor', 'input',  NULL , '0', 'size=20', '', '', 'descriptor', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_facility', 'input',  NULL , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'DiagnosisDetail', 'cusm_lung_dxd_tumor_registry', 'laterality', 'input',  NULL , '0', 'size=20', '', '', 'laterality', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'cusm_lung_tumor_size_source', 'input',  NULL , '0', 'size=20', '', '', '', '');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumor_size_greatest_dimension', 'float',  NULL , '0', '', '', '', 'size of the tunor (mm)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_sequence_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='sequence number' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_class_of_case' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='class of case' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '5', '', '0', '1', 'facility', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dx method' AND `language_tag`=''), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_dx_confirmation_method' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='confirmation'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '6', 'coding', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_topography_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '2', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='help_tumour grade' AND `language_label`='tumour grade' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '10', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='cusm_lung_dxd_tumor_registry' AND `field`='lymph_vascular_invasion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_morphology_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='clinical stage' AND `language_tag`='t stage'), '2', '19', 'staging', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_nstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='help_clinical_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_clinical_stage_descriptor'), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tstage' AND `type`='input'), '2', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage' AND `type`='input'), '2', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage' AND `type`='input'), '2', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `type`='input'), '2', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), ((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_path_stage_descriptor'), '2', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='cusm_lung_dxd_tumor_registry' AND `field`='laterality'), '2', '99', 'tissue specific', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_greatest_dimension'), '2', '100', '', '0', '1', 'size of the tunor (mm)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_tumor_size_source'), '2', '101', '', '0', '0', '', '1', 'source', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_topography_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('lymph vascular invasion', 'Lymph-Vascular Invasion', ''),
+('sequence number', 'Sequence Number', 'Numéro de séquence'),
+('class of case', 'Class of Case', 'Classe du cas'),
+('dx method', 'Method', 'Méthode'),
+('confirmation', 'Confirmation', 'Confirmation'),
+('size of the tunor (mm)', 'size of the tunor (mm)', 'Taille de la tumeur (mm)'),
+('source', 'Source', 'Source'),
+('descriptor', 'Descriptor', 'Descripteur'),
+('tumor registry', 'Tumor Registry', 'Registre des tumeurs');
+
+-- Secondary
+
+INSERT INTO `diagnosis_controls` 
+VALUES 
+(null,'secondary - distant','tumor registery',1,'cusm_lung_dxd_tumor_registry_secondary','dxd_secondaries',0,'secondary - distant|tumor registery',0);
+INSERT INTO structures(`alias`) VALUES ('cusm_lung_dxd_tumor_registry_secondary');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '6', 'coding', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_topography_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '2', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_topography_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary');
+
+-- View Diagnosis 
+-- [Clinical Annotation - Diagnosis]
+-- # N/A #
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats 
+SET `flag_search`='0', `flag_index`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code');
+UPDATE structure_formats 
+SET `flag_search`='0', `flag_index`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd_0_3_topography_category');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cusm_lung_topography_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '2', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+
+
+
+
+
+
+
+
+
+
+
+ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry');
+ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_lung_dxd_tumor_registry_secondary');
+
+
+
+
+
+
+Pour permettre tumor registery creation
+
+UPDATE structure_formats SET `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field` LIKe 'cusm_tumor_registery_%');
+
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` IN ('notes', 'dx_date'));
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_dx_primary') ;
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_dx_tumor_registery') ;
+
+UPDATE structure_formats SET `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field` LIKe 'cusm_tumor_registery_%');
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` IN ('notes', 'dx_date'));
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_dx_primary') ;
+UPDATE structure_formats SET  `flag_add`='1',`flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cusm_dx_tumor_registery') ;
+
+
+
+
+
+
+
+
+
+
