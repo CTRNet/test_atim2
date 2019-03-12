@@ -163,6 +163,7 @@ class ReportsControllerCustom extends ReportsController
 				Participant.qc_tf_bank_participant_identifier,
 				Participant.qc_tf_study_exclusions,
 				Participant.vital_status,
+				Participant.qc_tf_ethnicity,
 				Participant.date_of_death,
 				Participant.date_of_death_accuracy,
 				Participant.qc_tf_suspected_date_of_death,
@@ -520,6 +521,12 @@ class ReportsControllerCustom extends ReportsController
         ));
         $radiotherapyTypes = array_merge($tmp['defined'], $tmp['previously_defined']);
         
+        $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $tmp = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+            'Hormonotherapy Types'
+        ));
+        $hormonotherapyTypes = array_merge($tmp['defined'], $tmp['previously_defined']);
+        
         $treatmentsSummaryTemplate = array(
             'Generated' => array(
                 'qc_tf_chemo_flag' => 'n',
@@ -528,13 +535,15 @@ class ReportsControllerCustom extends ReportsController
                 'qc_tf_radiation_details' => '',
                 'qc_tf_radiation_first_date' => '',
                 'qc_tf_hormono_flag' => 'n',
+                'qc_tf_hormono_details' => '',
                 'qc_tf_hormono_first_date' => ''
             )
         );
-        $sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
+        $sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type, HormonoDetails.type
 			FROM treatment_masters TreatmentMaster 
 			INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
 			LEFT JOIN txd_radiations RadiationDetails ON RadiationDetails.treatment_master_id =  TreatmentMaster.id
+            LEFT JOIN qc_tf_txd_hormonotherapies HormonoDetails ON HormonoDetails.treatment_master_id =  TreatmentMaster.id
 			WHERE TreatmentMaster.deleted <> 1
 			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
 			AND TreatmentMaster.participant_id IN (" . implode(',', $participantIds) . ")
@@ -548,6 +557,12 @@ class ReportsControllerCustom extends ReportsController
             switch ($newTrt['TreatmentControl']['tx_method']) {
                 case 'hormonotherapy':
                     $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_flag'] = 'y';
+                    if ($newTrt['HormonoDetails']['type']) {
+                        $hormonoType = isset($hormonotherapyTypes[$newTrt['HormonoDetails']['type']]) ? $hormonotherapyTypes[$newTrt['HormonoDetails']['type']] : $newTrt['HormonoDetails']['type'];
+                        if (! preg_match("/$hormonoType/", $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details'])) {
+                            $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details'] .= (empty($treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details']) ? '' : ', ') . $hormonoType;
+                        }
+                    }
                     if (strlen($newTrt['TreatmentMaster']['start_date']) && ! $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date']) {
                         $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date'] = $this->formatReportDateForDisplay($newTrt['TreatmentMaster']['start_date'], $newTrt['TreatmentMaster']['start_date_accuracy']);
                         $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date_accuracy'] = $newTrt['TreatmentMaster']['start_date_accuracy'];
@@ -557,7 +572,7 @@ class ReportsControllerCustom extends ReportsController
                     $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_flag'] = 'y';
                     if ($newTrt['RadiationDetails']['qc_tf_type']) {
                         $radiationType = isset($radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']]) ? $radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']] : $newTrt['RadiationDetails']['qc_tf_type'];
-                        if (! preg_match('/$radiationType/', $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'])) {
+                        if (! preg_match("/$radiationType/", $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'])) {
                             $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'] .= (empty($treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details']) ? '' : ', ') . $radiationType;
                         }
                     }
@@ -872,6 +887,7 @@ class ReportsControllerCustom extends ReportsController
 			Participant.date_of_birth,
 			Participant.date_of_birth_accuracy,
 			Participant.vital_status,
+            Participant.qc_tf_ethnicity,
 			Participant.date_of_death,
 			Participant.date_of_death_accuracy,
 			Participant.qc_tf_suspected_date_of_death,
@@ -1135,6 +1151,13 @@ class ReportsControllerCustom extends ReportsController
             'radiotherapy types'
         ));
         $radiotherapyTypes = array_merge($tmp['defined'], $tmp['previously_defined']);
+        
+        $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $tmp = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+            'Hormonotherapy Types'
+        ));
+        $hormonotherapyTypes = array_merge($tmp['defined'], $tmp['previously_defined']);
+        
         $treatmentsSummaryTemplate = array(
             'Generated' => array(
                 'qc_tf_chemo_flag' => 'n',
@@ -1143,13 +1166,15 @@ class ReportsControllerCustom extends ReportsController
                 'qc_tf_radiation_details' => '',
                 'qc_tf_radiation_first_date' => '',
                 'qc_tf_hormono_flag' => 'n',
+                'qc_tf_hormono_details' => '',
                 'qc_tf_hormono_first_date' => ''
             )
         );
-        $sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
+        $sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type, HormonoDetails.type
 			FROM treatment_masters TreatmentMaster
 			INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
 			LEFT JOIN txd_radiations RadiationDetails ON RadiationDetails.treatment_master_id =  TreatmentMaster.id
+            LEFT JOIN qc_tf_txd_hormonotherapies HormonoDetails ON HormonoDetails.treatment_master_id =  TreatmentMaster.id
 			WHERE TreatmentMaster.deleted <> 1
 			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
 			AND TreatmentMaster.participant_id IN (" . implode(',', $participantIds) . ")
@@ -1163,6 +1188,12 @@ class ReportsControllerCustom extends ReportsController
             switch ($newTrt['TreatmentControl']['tx_method']) {
                 case 'hormonotherapy':
                     $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_flag'] = 'y';
+                    if ($newTrt['HormonoDetails']['type']) {
+                        $hormonoType = isset($hormonotherapyTypes[$newTrt['HormonoDetails']['type']]) ? $hormonotherapyTypes[$newTrt['HormonoDetails']['type']] : $newTrt['HormonoDetails']['type'];
+                        if (! preg_match("/$hormonoType/", $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details'])) {
+                            $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details'] .= (empty($treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_details']) ? '' : ', ') . $hormonoType;
+                        }
+                    }
                     if (strlen($newTrt['TreatmentMaster']['start_date']) && ! $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date']) {
                         $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date'] = $this->formatReportDateForDisplay($newTrt['TreatmentMaster']['start_date'], $newTrt['TreatmentMaster']['start_date_accuracy']);
                         $treatmentsSummary[$participantId]['Generated']['qc_tf_hormono_first_date_accuracy'] = $newTrt['TreatmentMaster']['start_date_accuracy'];
@@ -1172,7 +1203,7 @@ class ReportsControllerCustom extends ReportsController
                     $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_flag'] = 'y';
                     if ($newTrt['RadiationDetails']['qc_tf_type']) {
                         $radiationType = isset($radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']]) ? $radiotherapyTypes[$newTrt['RadiationDetails']['qc_tf_type']] : $newTrt['RadiationDetails']['qc_tf_type'];
-                        if (! preg_match('/$radiationType/', $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'])) {
+                        if (! preg_match("/$radiationType/", $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'])) {
                             $treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details'] .= (empty($treatmentsSummary[$participantId]['Generated']['qc_tf_radiation_details']) ? '' : ', ') . $radiationType;
                         }
                     }

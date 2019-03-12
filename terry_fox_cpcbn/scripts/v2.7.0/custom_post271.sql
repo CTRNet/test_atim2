@@ -276,3 +276,144 @@ VALUES
 UPDATE structure_fields SET model = 'Participant' WHERE model = 'EventDetail' AND tablename = 'participants' AND field LIKE 'qc_tf_%';
 
 UPDATE versions SET branch_build_number = '7589' WHERE version_number = '2.7.1';
+
+-- ----------------------------------------------------------------------------------
+-- 20190303 : New dev
+-- -------------------------------------------------------------------------------------
+
+-- BMI
+-- -------------------------------------------------------------------------------------
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_ed_clinical_bmi') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_tf_ed_clinical_bmis' AND `field`='bmi' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Report (1)
+-- -------------------------------------------------------------------------------------
+
+-- Add ethnicity
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_ethnicity' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ethnicity')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnicity' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_active_surveillance_report_results'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_ethnicity' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ethnicity')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnicity' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_ethnicity' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ethnicity') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_active_surveillance_report_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_ethnicity' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ethnicity') AND `flag_confidential`='0');
+
+-- Add hormono details
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', '', 'qc_tf_hormono_details', 'input',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_hormono_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '452', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_active_surveillance_report_results'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_hormono_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '452', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='453' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_hormono_first_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='873' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_active_surveillance_report_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_hormono_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Order
+-- -------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 22 AND id2 =24) OR (id1 = 24 AND id2 =22);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 17 AND id2 =22) OR (id1 = 22 AND id2 =17);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 16 AND id2 =22) OR (id1 = 22 AND id2 =16);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 16 AND id2 =1) OR (id1 = 1 AND id2 =16);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 16 AND id2 =23) OR (id1 = 23 AND id2 =16);
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE (id1 = 16 AND id2 =17) OR (id1 = 17 AND id2 =16);
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Order/%';
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('Institutions/Laboratories', 1, 50, 'order');
+UPDATE structure_permissible_values_custom_controls 
+SET values_max_length = 50, values_used_as_input_counter = 0, values_counter = 0 WHERE name = 'Institutions/Laboratories';
+INSERT INTO structure_value_domains (domain_name, override, category, source) values
+('qc_nd_institutions_and_laboratories', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'Institutions/Laboratories\')');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Order', 'orders', 'institution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_institutions_and_laboratories') , '0', '', '', 'the ordering institution', 'laboratory / institution', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='institution' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_institutions_and_laboratories') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='institution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='orders_institution') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='default_required_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='comments' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('researcher', 'Researcher', 'Chercheur'),
+('laboratory / institution', 'Laboratory/Institution', 'Laboratoire/Institution');
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('Researchers', 1, 50, 'order');
+UPDATE structure_permissible_values_custom_controls 
+SET values_max_length = 50, values_used_as_input_counter = 0, values_counter = 0 WHERE name = 'Researchers';
+INSERT INTO structure_value_domains (domain_name, override, category, source) values
+('tfri_cpcbn_researcher', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'Researchers\')');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Order', 'orders', 'tfri_cpcbn_researcher', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_cpcbn_researcher') , '0', '', '', '', 'researcher', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='orders'), (SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='tfri_cpcbn_researcher' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_cpcbn_researcher')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='researcher' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1');
+INSERT INTO structure_validations (structure_field_id, rule, language_message)
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_study_summary_id'), 'notBlank', '');
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders');
+UPDATE structure_formats SET `flag_override_type`='1', `type`='input' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='contact' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='orders_contact') AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE 
+structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='order_number' );
+ALTER TABLE orders ADD COLUMN tfri_cpcbn_researcher varchar(50) DEFAULT NULL;
+ALTER TABLE orders_revs ADD COLUMN tfri_cpcbn_researcher varchar(50) DEFAULT NULL;
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'add to order';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'OrderItem' AND label = 'defined as returned';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'OrderItem' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 16 AND id2 =23) OR (id1 = 23 AND id2 =16);
+
+-- Study to aliquot
+-- -------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 1 AND id2 =24) OR (id1 = 24 AND id2 =1);
+
+UPDATE versions SET branch_build_number = '7589' WHERE version_number = '2.7.1';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://localhost/_atim_tools/atimTools/form_builder/?db=tfricpcbn
+
+
+-- Report (2)
+-- -------------------------------------------------------------------------------------
+
+
+Finir le rapport.
+Serait-il possible de modifier l’export pour avoir des données supplémentaires :
+Export RP classique et aussi export AS serait-il possible d’ajouter ceci : 
+BMI
+Ethnicity
+time to last f/u en uro
+time to last f/u overall
+Interval last PSA and last contact (overall)
+last PSA value
+Pour les traitements, j’aimerais avoir le type (salvage, curative, adjuvant, palliative)
+Peux-tu me sortir les notes en concaténé?
+
+
+Pour les calculs… de survie, BCR, et bone mets serait-il possible de le faire avec ses 2 dates? last contact et last contact overall.PC specific and Overall?
+
+Point a valider avec Vero:
+Pour AS – on aurait plusieurs cTNM un à chaque Bx… serait-il possible de les noter dans ATiM le cTNM apparait à chacune des biopsies – peut-on en avoir des différents
+
+
