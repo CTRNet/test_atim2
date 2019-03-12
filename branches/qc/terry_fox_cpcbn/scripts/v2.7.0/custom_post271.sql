@@ -375,45 +375,4 @@ UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1
 
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 1 AND id2 =24) OR (id1 = 24 AND id2 =1);
 
-UPDATE versions SET branch_build_number = '7589' WHERE version_number = '2.7.1';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-http://localhost/_atim_tools/atimTools/form_builder/?db=tfricpcbn
-
-
--- Report (2)
--- -------------------------------------------------------------------------------------
-
-
-Finir le rapport.
-Serait-il possible de modifier l’export pour avoir des données supplémentaires :
-Export RP classique et aussi export AS serait-il possible d’ajouter ceci : 
-BMI
-Ethnicity
-time to last f/u en uro
-time to last f/u overall
-Interval last PSA and last contact (overall)
-last PSA value
-Pour les traitements, j’aimerais avoir le type (salvage, curative, adjuvant, palliative)
-Peux-tu me sortir les notes en concaténé?
-
-
-Pour les calculs… de survie, BCR, et bone mets serait-il possible de le faire avec ses 2 dates? last contact et last contact overall.PC specific and Overall?
-
-Point a valider avec Vero:
-Pour AS – on aurait plusieurs cTNM un à chaque Bx… serait-il possible de les noter dans ATiM le cTNM apparait à chacune des biopsies – peut-on en avoir des différents
-
-
+UPDATE versions SET branch_build_number = '7594' WHERE version_number = '2.7.1';
