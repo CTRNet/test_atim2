@@ -11,7 +11,7 @@
  */
  
 // --------------------------------------------------------------------------------
-// Limit collection link to consent and identifier
+// No diagnosis to event links
 // --------------------------------------------------------------------------------
 
 $displayNextSubForm = false;

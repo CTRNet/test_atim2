@@ -1,15 +1,21 @@
 <?php
-/** **********************************************************************
+/**
+ * **********************************************************************
  * CUSM
  * ***********************************************************************
  *
  * Clinical Annotation plugin custom code
- * 
+ *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
 
+// --------------------------------------------------------------------------------
+// Collection to participant bank foreign key
+// --------------------------------------------------------------------------------
+
 // Set identifier list
+
 $this->MiscIdentifier = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');
 $miscIdentifierData = $this->MiscIdentifier->find('threaded', array(
     'conditions' => array(
@@ -25,5 +31,4 @@ if (isset($this->request->data['Collection']['misc_identifier_id'])) {
 }
 $this->set('miscIdentifierData', $miscIdentifierData);
 $this->set('foundMId', $foundMId);
-
 $this->Structures->set('miscidentifiers', 'atim_structure_misc_identifier');

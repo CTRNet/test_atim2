@@ -1,14 +1,15 @@
 <?php
-/** **********************************************************************
+/**
+ * **********************************************************************
  * CUSM
  * ***********************************************************************
  *
  * Clinical Annotation plugin custom code
- * 
+ *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
-
+ 
 if (strlen($participant['Participant']['cusm_tumor_registery_first_contact_at_muhc']) > 0) {
     $chronolgyCusmDataToAdd = array(
         'date' => $participant['Participant']['cusm_tumor_registery_first_contact_at_muhc'],
