@@ -1,5 +1,6 @@
 <?php
-/** **********************************************************************
+/**
+ * **********************************************************************
  * CUSM
  * ***********************************************************************
  *
@@ -8,7 +9,7 @@
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
-
+ 
 class ParticipantCustom extends Participant
 {
 
@@ -27,6 +28,7 @@ class ParticipantCustom extends Participant
                 )
             ));
             
+            // Add bank participant numbers to title
             $identifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
             $identifierResults = $identifierModel->find('all', array(
                 'conditions' => array(
@@ -34,7 +36,6 @@ class ParticipantCustom extends Participant
                     'MiscIdentifierControl.misc_identifier_name LIKE' => '%bank participant number'
                 )
             ));
-            
             $title = 'p#' . $result['Participant']['participant_identifier'];
             if (! empty($identifierResults)) {
                 $identifierTitle = array();

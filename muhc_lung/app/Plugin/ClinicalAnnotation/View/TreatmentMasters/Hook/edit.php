@@ -11,7 +11,8 @@
  */
  
 // --------------------------------------------------------------------------------
-// Limit collection link to consent and identifier
+// No diagnosis to treatment links
 // --------------------------------------------------------------------------------
 
-$displayNextSubForm = false;
+$finalOptions['settings']['actions'] = true;
+$finalOptions['settings']['form_bottom'] = true;   

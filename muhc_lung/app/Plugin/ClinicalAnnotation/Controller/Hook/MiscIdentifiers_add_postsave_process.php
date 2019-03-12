@@ -1,10 +1,11 @@
 <?php
-/** **********************************************************************
+/**
+ * **********************************************************************
  * CUSM
  * ***********************************************************************
  *
  * Clinical Annotation plugin custom code
- * 
+ *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
@@ -12,6 +13,7 @@
 // --------------------------------------------------------------------------------
 // Set next participant identifier to complete
 // --------------------------------------------------------------------------------
+
 if ($_SESSION['cusm_next_identifier_controls']) {
     $nextIdentifierName = array_shift($_SESSION['cusm_next_identifier_controls']);
     if ($nextIdentifierName) {

@@ -1,10 +1,11 @@
 <?php
-/** **********************************************************************
+/**
+ * **********************************************************************
  * CUSM
  * ***********************************************************************
  *
  * Clinical Annotation plugin custom code
- * 
+ *
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
@@ -12,6 +13,10 @@
 $cstStructureSettings = $structureSettings;
 $cstFinalOptions = $finalOptions;
 $cstFinalAtimStructure = $finalAtimStructure;
+
+// --------------------------------------------------------------------------------
+// Collection to participant bank foreign key
+// --------------------------------------------------------------------------------
 
 // Identifier----------------
 
@@ -38,6 +43,10 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/li
 }
 
 $this->Structures->build($finalAtimStructure, $finalOptions);
+
+// --------------------------------------------------------------------------------
+// Limit collection link to consent and identifier
+// --------------------------------------------------------------------------------
 
 // Consent----------------
 

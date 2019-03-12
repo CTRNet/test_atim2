@@ -9,9 +9,12 @@
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
- 
+
 // --------------------------------------------------------------------------------
-// Limit collection link to consent and identifier
+// Tumor Registery Data Migration
 // --------------------------------------------------------------------------------
 
-$displayNextSubForm = false;
+if (in_array(AppController::getInstance()->Session->read('Auth.User.username'), array('system'))) {
+    // Add structure to allow Tumor Registry Data migration/update using 'System' user
+    $this->Structures->set('participants,cums_lung_participants_tumor_registry');
+}

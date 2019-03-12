@@ -9,9 +9,10 @@
  * @author N. Luc - CTRNet (nicol.luc@gmail.com)
  * @since 2018-10-15
  */
- 
+
 // --------------------------------------------------------------------------------
-// Limit collection link to consent and identifier
+// No diagnosis to event links
 // --------------------------------------------------------------------------------
 
-$displayNextSubForm = false;
+$finalOptions['settings']['actions'] = true;
+$finalOptions['settings']['form_bottom'] = true;   
