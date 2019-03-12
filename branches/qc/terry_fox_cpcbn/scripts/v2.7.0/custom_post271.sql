@@ -376,3 +376,9 @@ UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1
 UPDATE datamart_browsing_controls set flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE (id1 = 1 AND id2 =24) OR (id1 = 24 AND id2 =1);
 
 UPDATE versions SET branch_build_number = '7594' WHERE version_number = '2.7.1';
+
+-- Create derivative in batch : cop/past ctrl
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+UPDATE versions SET branch_build_number = '7595' WHERE version_number = '2.7.1';
