@@ -84,8 +84,7 @@ $excelCoresCounter = 0;
 global $revisionCounter;
 $revisionCounter = 0;
 
-//TODO
-if(true) {
+$coresNotCreated = array();
 
 foreach($excelWorksheets as $worksheetName) {
     
@@ -202,6 +201,8 @@ foreach($excelWorksheets as $worksheetName) {
         $excelWorksheetCoresCounter++;
         $excelCoresCounter++;
         
+        $coreHasBeenCreated = false;
+        
         // Get ATiM Tissue Block id
         list($atimBlockCollectionId, $atimBlockSampleMasterId, $atimBlockAliquotMasterId) = getATiMBlock($participantIdentifier, $blockAliquotLabel, $coreNbr, $tmaNameAndWorksheet, $excelLineCounter);
         if(!$atimBlockAliquotMasterId) {
@@ -220,10 +221,15 @@ foreach($excelWorksheets as $worksheetName) {
             
             // Create core(s)
             $aliquotLabelSuffix = array();
+            $zone = '';
+            $rank = '';
+            $notes = array();
             if(isset($excelLineCoreData['numero blocs avec Zone']) && strlen($excelLineCoreData['numero blocs avec Zone']) && $excelLineCoreData['numero blocs avec Zone'] != '.') {
                 $regExp = str_replace('-', '\-', $blockAliquotLabel.'-');
                 if(preg_match("/$regExp/", $excelLineCoreData['numero blocs avec Zone'])) {
-                   $aliquotLabelSuffix[] = 'Z#' . str_replace($blockAliquotLabel.'-', '', $excelLineCoreData['numero blocs avec Zone']);
+                    $zone = str_replace($blockAliquotLabel.'-', '', $excelLineCoreData['numero blocs avec Zone']);;
+                   $aliquotLabelSuffix[] = 'Z#' . $zone;
+                   
                 } else {
                     $zone = str_replace($blockAliquotLabel.'-', '', $excelLineCoreData['numero blocs avec Zone']);
                     if(strlen($zone)) {
@@ -231,12 +237,22 @@ foreach($excelWorksheets as $worksheetName) {
                     }
                 }
             }
+            if(!preg_match('/^[0-9]*$/', $zone)) {
+                $notes[] = "Zone = '$zone'.";
+                $zone = '';
+            }          
             if(isset($excelLineCoreData['Rang global']) && strlen($excelLineCoreData['Rang global']) && $excelLineCoreData['Rang global'] != '.') {
                 $aliquotLabelSuffix[] =  'R#'  . $excelLineCoreData['Rang global'];
+                $rank = $excelLineCoreData['Rang global'];
             }
+            if(!preg_match('/^[0-9]*$/', $rank)) {
+                $notes[] = "Rank = '$rank'.";
+                $rank = '';
+            } 
             if(isset($excelLineCoreData['post chimio']) && strlen($excelLineCoreData['post chimio']) && $excelLineCoreData['post chimio'] != '.') {
                 if($excelLineCoreData['post chimio'] == '(post chimio)') {
                     $aliquotLabelSuffix =  'Post Chemo';
+                    $notes[] = 'Post Chemo.';
                 } else {
                     pr('ERR 823982379872 : '.$excelLineCoreData['post chimio']);
                 }
@@ -262,9 +278,14 @@ foreach($excelWorksheets as $worksheetName) {
                         'storage_master_id' => getATiMTmaBlock($tmaBlockName.($nbrOfTmaBlocksToCreate == 1? '' : ".$tmaBlockSuffix")),
                         'storage_coord_x' => $storageCoordX,
                         'storage_coord_y' => $storageCoordY,
-                        'notes' => ''),
-                    $atim_controls['aliquot_controls']['tissue-core']['detail_tablename'] => array());
+                        'notes' => implode(' ', $notes)),
+                    $atim_controls['aliquot_controls']['tissue-core']['detail_tablename'] => array(
+                        'qc_tf_zone' => $zone,
+                        'qc_tf_rank' => $rank
+                    ));
                 $coreAliquotMasterId = customInsertRecord($aliquot_data);
+                $coreHasBeenCreated = true;
+                
                 $realiquoting_data = array('realiquotings' => array(
                     'parent_aliquot_master_id' => $atimBlockAliquotMasterId,
                     'child_aliquot_master_id' => $coreAliquotMasterId));
@@ -272,6 +293,9 @@ foreach($excelWorksheets as $worksheetName) {
                 // Revision
                 if($tmaBlockSuffix == 1) createRevision($participantIdentifier, $blockAliquotLabel, $atimBlockCollectionId, $atimBlockSampleMasterId, $coreAliquotMasterId, $excelLineCoreData, $excelLineCounter);
             }
+        }
+        if(!$coreHasBeenCreated) {
+            $coresNotCreated[$tmaNameAndWorksheet][] = $excelLineCoreData;
         }
     }
     recordErrorAndMessage(
@@ -283,7 +307,7 @@ foreach($excelWorksheets as $worksheetName) {
         $tmaNameAndWorksheet,
         '@@MESSAGE@@',
         "Cores created",
-        "$tmaNameAndWorksheet : $createdExcelWorksheetCoresCounter/$excelWorksheetCoresCounter cores created (X$nbrOfTmaBlocksToCreate Blocks).");  
+        "$tmaNameAndWorksheet : $createdExcelWorksheetCoresCounter/$excelWorksheetCoresCounter cores created (X$nbrOfTmaBlocksToCreate Blocks).");
 }
 
 if($tmaReplicatsInfo) {
@@ -307,9 +331,6 @@ recordErrorAndMessage(
     '@@MESSAGE@@',
     "Cores created",
     "$revisionCounter cores revisions have been created.");
-
-//TODO
-}//tmp false
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 // Main Code :: TMA Slide
@@ -384,7 +405,7 @@ while($exceldata = getNextExcelLineData($fileName, $worksheetName, 1, $mac_xls_o
     }
     
     if($tmaBlockStorageMasterId) {
-        $barcode = "$block #".$excelLineTmaSlideData['ID Section'];
+        $barcode = "$block #".str_pad($excelLineTmaSlideData['ID Section'], 3, "0", STR_PAD_LEFT);
         
         $parrafinProtection = '';
         switch($excelLineTmaSlideData['parrafin protection']) {
@@ -546,6 +567,30 @@ foreach($lastQueriesToExecute as $query)	customQuery($query);
 
 dislayErrorAndMessage($commitAll);
 
+echo "<br><FONT COLOR=\"blue\">
+=====================================================================<br>
+<b>CORE NOT CREATED : TO REVIEW</b><br>
+=====================================================================</FONT><br><br>";
+
+foreach($coresNotCreated AS $tmpWorkSheet => $cores) {
+    $firstRecord = true;
+    foreach($cores as $newCore) {
+        if($firstRecord) {
+            echo "<br><br>\"TMA : $tmpWorkSheet\"<br><br>";
+            $newLineToDisplay = "\"";
+            $headers = array_keys($newCore);
+            $newLineToDisplay .= implode("\";\"", $headers);
+            $newLineToDisplay .= "\"<br>";
+            echo $newLineToDisplay;
+        }
+        $firstRecord = false;
+        $newLineToDisplay = "\"";
+        $newLineToDisplay .= implode("\";\"", $newCore);
+        $newLineToDisplay .= "\"<br>";
+        echo $newLineToDisplay;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 //Functions
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -583,7 +628,7 @@ function getATiMBlock($participantIdentifier, $blockAliquotLabel, $coreNbr, $tma
         $blockCollectionMasterId = null;
         $blockSampleMasterId = null;
         $blockAliquotMasterId = null;
-        if(($participantIdentifier == '.' || $participantIdentifier == '') && ($coreNbr == '.' || $coreNbr == '')) {
+        if(($participantIdentifier == '.' || $participantIdentifier == '')) { // && ($coreNbr == '.' || $coreNbr == '')) {
             
             // We are looking for a control block
             if(!$atimControlCollectionId) {
@@ -608,6 +653,7 @@ function getATiMBlock($participantIdentifier, $blockAliquotLabel, $coreNbr, $tma
             
                 WHERE Collection.deleted <> 1
                 AND Collection.id = $atimControlCollectionId
+                AND AliquotMaster.deleted <> 1
                 AND AliquotMaster.aliquot_control_id = 8
                 AND AliquotMaster.aliquot_label = 'CONTROL ".str_replace("'", "''", $blockAliquotLabel)."'";
             $atimControlBlocks = getSelectQueryResult($query);
