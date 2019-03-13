@@ -424,3 +424,109 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qc_tf_notes' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='other' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
 UPDATE `versions` SET branch_build_number = '7576' WHERE version_number = '2.7.1';
+
+-- --------------------------------------------------------------------------------
+-- 2018-02-13
+-- --------------------------------------------------------------------------------
+
+ALTER TABLE ad_tissue_cores
+   ADD COLUMN qc_tf_zone int(4) DEFAULT NULL,
+   ADD COLUMN qc_tf_rank int(4) DEFAULT NULL;
+ALTER TABLE ad_tissue_cores_revs
+   ADD COLUMN qc_tf_zone int(4) DEFAULT NULL,
+   ADD COLUMN qc_tf_rank int(4) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tissue_cores', 'qc_tf_zone', 'integer',  NULL , '0', 'size=3', '', '', 'zone', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_tissue_cores', 'qc_tf_rank', 'integer',  NULL , '0', 'size=3', '', '', 'rank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_cores'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tissue_cores' AND `field`='qc_tf_zone' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='zone' AND `language_tag`=''), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_cores'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tissue_cores' AND `field`='qc_tf_rank' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='rank' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('zone', 'Zone', 'Zone'),
+('rank', 'Rank', 'Rang');
+   
+-- --------------------------------------------------------------------------------
+-- 2019-03-13
+-- --------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `default`='' WHERE model='Participant' AND tablename='participants' AND field='qc_tf_is_control' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot In Stock Details');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("wrong tube (1st migration)", "Wrong tube (created by 1st coeur data migration batch)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id); 
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("RnaLater", "RnaLater");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_storage_solution"), (SELECT id FROM structure_permissible_values WHERE value="RnaLater" AND language_alias="RnaLater"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_storage_solution"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "1", "1");
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_storage_method"), (SELECT id FROM structure_permissible_values WHERE value="frozen" AND language_alias="frozen"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("liquid nitrogen", "liquid nitrogen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_storage_method"), (SELECT id FROM structure_permissible_values WHERE value="liquid nitrogen" AND language_alias="liquid nitrogen"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("-80", "-80");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_storage_method"), (SELECT id FROM structure_permissible_values WHERE value="-80" AND language_alias="-80"), "3", "1");
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("OCT", "OCT", "OCT"),
+("RnaLater", "RnaLater", "RnaLater"),
+("liquid nitrogen", "Liquid Nitrogen", "Azote Liquide");
+
+
+
+Liquid nitrogen
+
+
+
+
+
+
+
+   
+   
+ UPDATE `versions` SET branch_build_number = '??????' WHERE version_number = '2.7.1';
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 1- rouler le script sql depuis branch_build_number = '7574'
+ 2- \tfri_coeur\dataImporterConfig\TmaCreation
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  UPDATE `versions` SET branch_build_number = '??????' WHERE version_number = '2.7.1';
+ TODO: les 3000 et + dans la migration des TMA sont des controles. A Mettre dans controle et remettre en test.
+ Migrer DNA, etc.
+ Fusionner des patients. Debuger erreur.
+ 
+ Vérifier avec christine ce qui peut E^tre supprimer dans les repertoire de migrations (fichier qu'elle avait mis avant sa premiere maternitié).

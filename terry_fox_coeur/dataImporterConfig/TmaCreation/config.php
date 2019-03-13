@@ -17,7 +17,7 @@ $is_serveur = false;
 if($is_serveur) {
     $db_pwd			= "am3-y-4606";
     $db_schema		= "atimtfricoeurtest";
-    $excel_files_paths = "/ATiM/atim-tfri-coeur/Test/dataImporterConfig/BlockDataMigration/";
+    $excel_files_paths = "/ATiM/atim-tfri-coeur/Test/scripts/";
 }
 $migration_user_id = 2;
 
