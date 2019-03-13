@@ -603,7 +603,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
 //            var name = $(cell).find("input:last").prop("name");
             var name = $(this).prop("name");
-            name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            if (name.substr(name.length-3,name.length-1)=="][]"){
+                name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            }else{
+                name = name.substr(0, name.length - 1) + "_with_file_upload]";
+            }
             $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 
         });
