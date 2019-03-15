@@ -40,6 +40,8 @@ foreach($atim_qc_tf_bank_data as $new_bank_data) {
 }
 
 pr("<font color='red'>Validate rack used = rack16</font>");
+pr("<font color='red'>Validate no block OCT exists</font>");
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 // Collection cleanup: Set tube in stock value to no plus merge collection
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -332,9 +334,15 @@ $boxeParentIdCheck = array();
 $file_name = $bank_excel_files['0'];
 $worksheetName = "inventaire";
 $file_name_for_summary = "file '<b>$file_name :: $worksheetName</b>";
+$aliquotNotMigrated = array();
 while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     list($excel_line_counter, $excel_line_tube_data) = $exceldata;
     
+    if(empty($aliquotNotMigrated)) {
+        $headers = array_keys($excel_line_tube_data);
+        $headers[] = 'Excel Line';
+        $aliquotNotMigrated[] = $headers;
+    }
     // Check participant (if exists)
     // If not, next line.
     //--------------------------------------------------
@@ -346,6 +354,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             '@@ERROR@@',
             "Excel participant not found into ATiM based on Participant TFRI#. No data of the line will be migrated.",
             "See excel participant with Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+        $allValues = array_values($excel_line_tube_data);
+        $allValues[] = $excel_line_counter;
+        $aliquotNotMigrated[] = $allValues;
         continue;
     }
     if(empty($excel_line_tube_data['participantBank#'])) {
@@ -361,6 +372,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             '@@ERROR@@',
             "Excel and ATiM participants match on Participant TFRI# but are different based on Participant Bank#. The identity of the participant can not be validated. No data of the line will be migrated.",
             "For Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter, check the different Participant Bank# : (xls) ".$excel_line_tube_data['participantBank#']." != (atim) ".$atimTissues[$participantTfriNbr]['qc_tf_bank_identifier']." - line $excel_line_counter.");
+        $allValues = array_values($excel_line_tube_data);
+        $allValues[] = $excel_line_counter;
+        $aliquotNotMigrated[] = $allValues;
         continue;
         
     }
@@ -375,6 +389,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             '@@ERROR@@',
             "Bank defined into Excel is unknwon. No data of the line will be migrated.",
             "See excel banq '<b>".$excel_line_tube_data['Bank']."</b>' associated to the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+        $allValues = array_values($excel_line_tube_data);
+        $allValues[] = $excel_line_counter;
+        $aliquotNotMigrated[] = $allValues;
         continue;
     } else {
         $atim_qc_tf_bank_id = $atim_qc_tf_bank_id_from_name[$excel_line_tube_data['Bank']];
@@ -389,6 +406,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             '@@ERROR@@',
             "Participant match on Participant TFRI# but bank is different in ATiM and Excel. No data of the line will be migrated.",
             "See excel banq '<b>".$excel_line_tube_data['Bank']."</b>' and ATiM bank '".$atim_qc_tf_bank_name_from_id[$atimTissues[$participantTfriNbr]['qc_tf_bank_id']]."' defined for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+        $allValues = array_values($excel_line_tube_data);
+        $allValues[] = $excel_line_counter;
+        $aliquotNotMigrated[] = $allValues;
         continue;
     }
     
@@ -441,16 +461,6 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
         "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
     
-    $sampleNotes = array();
-    foreach(array('Other name', 'Sample. number', 'histology') AS $excel_field) {
-        if(strlen($excel_line_tube_data[$excel_field])) $sampleNotes[] = "$excel_field : ".$excel_line_tube_data[$excel_field];
-    }
-    if($sampleNotes) {
-        $sampleNotes = 'Excel note(s) : ' . implode('. ', $sampleNotes).'.';
-    } else {
-        $sampleNotes = '';
-    }
-    
     $created_sample_counter++;
     $sample_data = array(
         'sample_masters' => array(
@@ -458,7 +468,7 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             "sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
             "initial_specimen_sample_type" => 'tissue',
             "collection_id" => $collection_id,
-            'notes' => $sampleNotes),
+            'notes' => ''),
         'specimen_details' => array(),
         $atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
             'tissue_source' => $tissue_source,
@@ -478,8 +488,8 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     } elseif($excel_line_tube_data[$excel_field] == 'not' || $excel_line_tube_data[$excel_field] == 'excluded')  {
         recordErrorAndMessage(
             'Tube creation/update',
-            '@@ERROR@@',
-            "The 'availability tubes' excel value is not supported. Value will be migrated as 'noe'. Please validate and clean up data after the migration.",
+            '@@WARNING@@',
+            "The 'availability tubes' excel value is not supported. Value will be migrated as 'no' (not in stock). Please validate and clean up data after the migration.",
             "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
     } elseif($excel_line_tube_data[$excel_field] != 'yes')  {
         recordErrorAndMessage(
@@ -498,7 +508,14 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     $storage_coord_x = $excel_line_tube_data[$excel_field];
     $excel_field = 'Position letter';
     $storage_coord_y = $excel_line_tube_data[$excel_field];
-    $boxType  = ((!strlen($storage_coord_y) || ($storage_coord_y == '-')) && preg_match('/^(([1-9])|([1-7][0-9])|(8[0-1]))$/', $storage_coord_x))? 'box81' : 'box81 1A-9I'; 
+    $boxType  = ((!strlen($storage_coord_y) || ($storage_coord_y == '-')) && preg_match('/^(([1-9])|([1-7][0-9])|(8[0-1]))$/', $storage_coord_x))? 'box81' : 'box81 1A-9I';
+    if($boxType == 'box81') {
+        recordErrorAndMessage(
+            'Tube creation/update',
+            '@@WARNING@@',
+            "The format of the box used to store aliquot is a 81 Box (1 to 81). Please validate and clean up data after the migration.",
+            "See box [".$excel_line_tube_data['Box']."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+    }
     foreach(array('Freezer' => 'freezer', 'Self' => 'shelf', 'Rack' => 'rack16', 'Box' => $boxType) as $excel_field => $storage_control_type) {
         if(strlen($excel_line_tube_data[$excel_field]) && '-' != $excel_line_tube_data[$excel_field]) {
             $selection_labels = $selection_labels . (strlen($selection_labels)? '-': ''). $excel_line_tube_data[$excel_field];
@@ -581,6 +598,27 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     }    
     //- End Storage -----------------------------------------------------------------------
     
+    $qc_tf_weight_mg = '';
+    $qc_tf_weight_mg_details = '';
+    $qc_tf_size_mm3 = '';
+    $qc_tf_size_mm3_details = '';
+    $new_notes = array();
+    if(preg_match('/mg/', $excel_line_tube_data['Quantity/Size'] )) {
+        $qc_tf_weight_mg_details = $excel_line_tube_data['Quantity/Size'];
+    } else if(preg_match('/mm/', $excel_line_tube_data['Quantity/Size'] )) {
+        $qc_tf_size_mm3_details = $excel_line_tube_data['Quantity/Size'];
+    } elseif(strlen($excel_line_tube_data['Quantity/Size'])) {
+        $new_notes[] = 'Quantity/Size:'.$excel_line_tube_data['Quantity/Size'];
+    }
+    foreach(array('Other name', 'Sample. number', 'histology') AS $excel_field) {
+        if(strlen($excel_line_tube_data[$excel_field])) $new_notes[] = "$excel_field : ".$excel_line_tube_data[$excel_field];
+    }
+    if($new_notes) {
+        $new_notes = 'Excel note(s) : ' . implode('. ', $new_notes).'.';
+    } else {
+        $new_notes = '';
+    }
+       
     $aliquot_master_id = null;
     if(strtolower($excel_line_tube_data['Format (uL)']) == 'block') {
         $aliquot_type = 'block';
@@ -592,7 +630,6 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         if($excel_line_tube_data['Medium'] != 'OCT' && $excel_line_tube_data['Storage'] != 'Frozen') {
             die('ERR 237628762378623');
         }
-        $new_notes = '';
         $aliquot_data = array(
             'aliquot_masters' => array(
                 "barcode" => 'tmp_'.$created_aliquot_counter,
@@ -610,6 +647,10 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             ),
             $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
                 'block_type' => 'OCT',
+                'qc_tf_weight_mg' => $qc_tf_weight_mg,
+                'qc_tf_weight_mg_details' => $qc_tf_weight_mg_details,
+                'qc_tf_size_mm3' => $qc_tf_size_mm3,
+                'qc_tf_size_mm3_details' => $qc_tf_size_mm3_details
             ));
         $created_aliquot_counter++;
         $aliquot_master_id = customInsertRecord($aliquot_data);
@@ -650,340 +691,48 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
                 'qc_tf_storage_solution' => $qc_tf_storage_solution,
                 'qc_tf_storage_method' => $qc_tf_storage_method,
-//                'qc_tf_weight_mg' => $qc_tf_weight_mg,
-//                 'qc_tf_size_mm3' => $qc_tf_size_mm3,
+                'qc_tf_weight_mg' => $qc_tf_weight_mg,    
+                'qc_tf_weight_mg_details' => $qc_tf_weight_mg_details,    
+                'qc_tf_size_mm3' => $qc_tf_size_mm3,    
+                'qc_tf_size_mm3_details' => $qc_tf_size_mm3_details
             ));
         $created_aliquot_counter++;
         $aliquot_master_id = customInsertRecord($aliquot_data);
-        
-        
-        
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    continue;
-    
-    
-    
-    $qc_tf_storage_solution = '';
-//    'qc_tf_tissue_storage_solution'
-    
-    
-    
-    $qc_tf_storage_method = '';
-//'qc_tf_tissue_storage_method'
-    
-    
-    
-     $qc_tf_weight_mg = '';
-     $qc_tf_size_mm3 = '';
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    pr($excel_line_tube_data);
-    pr("list($excel_collection_date, $excel_collection_date_accuracy)");
-    pr($atimTissues[$participantTfriNbr]);
-    pr("id = $collection_id");
-    pr($sample_data);
-    exit;
-    
-    
-    /*
-     *
-     *
-     *
-     Array
-     (
-
-
-     [Box] => Tissue-08
-     [Position letter] => E
-     [Position #] => 2
-     [Freezer] => 152
-     [Self] => -
-     [Rack] => 6
-     
-     
-     
-     
-     [Medium] => OCT
-     [Storage] => Frozen
-     [Contact] => Page
-     [Reception date] => 10/12/2011
-     [Format (uL)] => Block
-     [Quantity/Size] =>
-     [number of defreezing time] =>
-     )
-    
-    
-    
-    
-     */
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    $collection_id = null;
-    $tissue_sample_master_id = null;
-    if($tissue_sample_master_ids) {
-        if(sizeof($tissue_sample_master_ids) > 1) {
-            die('ERR 8388383838 - To support but should never happen');
+    $aliquot_uses = array();
+    if(strlen($excel_line_tube_data['number of defreezing time'])) {
+        $aliquot_uses[] = array('aliquot_master_id' => $aliquot_master_id,
+            'use_code' => $excel_line_tube_data['number of defreezing time'],
+            'type' => 'number of defreezing time'
+        );
+    }
+    if(strlen($excel_line_tube_data['Contact'].$excel_line_tube_data['Reception date'])) {
+        $excel_field = 'Reception date';
+        if(preg_match('/^((200[1-9])|(201[0-9]))$/', $excel_line_tube_data[$excel_field])) {
+            list($excel_use_date, $excel_use_date_accuracy) = array($excel_line_tube_data[$excel_field].'-01-01', 'm');
         } else {
-            // Perfect match
-            $collection_id = array_shift($tissue_collection_ids);
-            $tissue_sample_master_id = array_shift($tissue_sample_master_ids);
-        }     
-    } elseif(sizeof($atimTissues[$participantTfriNbr]['collections']) == 1) {
-
-        // Tube Match : Try to match tube with a tissue in ATiM 
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        $keys = array_keys($atimTissues[$participantTfriNbr]['collections']);
-        if(sizeof($atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues']) == 1) {
-            $keys2 = array_keys($atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues']);
-            $collection_id = $atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues'][$keys2[0]]['collection_id'];
-            $tissue_sample_master_id = $atimTissues[$participantTfriNbr]['collections'][$keys[0]]['tissues'][$keys2[0]]['sample_master_id'];
-            recordErrorAndMessage(
-                'Collection/Tissue/tube definition',
-                '@@ERROR@@',
-                "No match between ATiM participant tube and Excel tube can be done on pathology number but only one ATiM tissue exists into ATiM. New tube created from excel will be linked to this unique ATiM tissue.",
-                "See unique ATiM participant tissue linked to tube with ".(empty($all_atim_tube_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_tube_pathology_nbrs)).
-                " and Excel tube with ".(empty($excel_tube_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_tube_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
-        } else {
-            recordErrorAndMessage(
-                'Collection/Tissue/tube definition',
-                '@@WARNING@@',
-                "No match between ATiM participant tube and Excel tube can be done on pathology number. Only one tissue colllection exists but many ATiM collection tissues exist into this ATiM collection. New tube created from excel will be linked to this unique ATiM tissue collection but to a new created tissue.",
-                "See unique ATiM participant tissue linked to tube with ".(empty($all_atim_tube_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_tube_pathology_nbrs)).
-                " and Excel tube with ".(empty($excel_tube_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_tube_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+            list($excel_use_date, $excel_use_date_accuracy) = validateAndGetDateAndAccuracy(
+                $excel_line_tube_data[$excel_field],
+                'Tube creation/update',
+                "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
+                "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+            if($excel_use_date_accuracy == 'c') $excel_use_date_accuracy = 'h';        
+            $aliquot_uses[] = array('aliquot_master_id' => $aliquot_master_id,
+                'use_code' => 'From : '. ($excel_line_tube_data['Contact']? $excel_line_tube_data['Contact'] : '?'),
+                'type' => 'reception at the CRCHUM',
+                'use_datetime' => $excel_use_date,
+                'use_datetime_accuracy' => $excel_use_date_accuracy
+            );
         }
-    } else {
-        recordErrorAndMessage(
-            'Collection/Tissue/tube definition',
-            '@@WARNING@@',
-            "No match between ATiM participant tube and Excel tube can be done on pathology number and many tissue colllections exists. New tube created from excel will be linked to a new ATiM tissue collection and a new created tissue.",
-            "See unique ATiM participant tissue linked to tube with ".(empty($all_atim_tube_pathology_nbrs)? "no pathology nbr" : "pathology nbrs ". implode(' & ', $all_atim_tube_pathology_nbrs)).
-            " and Excel tube with ".(empty($excel_tube_pathology_nbr)? "<b>no pathology nbr</b>" : "pathology nbr <b>$excel_tube_pathology_nbr</b>")." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter.");
+    }
+    foreach($aliquot_uses as $new_use) {
+        $new_use['aliquot_master_id'] = $aliquot_master_id;
+        customInsertRecord(array('aliquot_internal_uses' => $new_use));
+        
     }
     
-    // Excel Tube Data Validation
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-    // Collection date
-    $excel_field = "Tube date";
-    $excel_collection_date = null;
-    $excel_collection_date_accuracy = '';
-    if($excel_line_tube_data[$excel_field] && preg_match('/^((19)|(20))[0-9]{2}$/', $excel_line_tube_data[$excel_field])) {
-        $excel_collection_date = $excel_line_tube_data[$excel_field];
-        $excel_collection_date_accuracy = 'm';
-        if($collection_id && !preg_match("/^$excel_collection_date/", $atimTissues[$participantTfriNbr]['collections'][$collection_id]['collection_datetime'])) {
-            recordErrorAndMessage(
-                'Collection/Tissue/tube definition',
-                '@@WARNING@@',
-                "Collection date between a selected collection and the excel tube collection date are different. New collection will be created.",
-                "See excel collection on '$excel_collection_date' and ATiM collection on ".$atimTissues[$participantTfriNbr]['collections'][$collection_id]['collection_datetime']." for Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter."); 
-            $collection_id = null;
-            $tissue_sample_master_id = null;
-        }
-        $excel_collection_date .= '-01-01 01:01:01';
-    } else if($excel_line_tube_data[$excel_field]) {
-        die('ERR237862378236');
-        list($excel_collection_date, $excel_collection_date_accuracy) = validateAndGetDateAndAccuracy(
-            $excel_line_tube_data[$excel_field],
-            'Tube creation/update',
-            "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-            "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-    }
-    
-    // Tissue laterality - source - type
-    $excel_field = "Latérality tube";
-    
-    $excel_laterality_msg = strlen($excel_line_tube_data[$excel_field])? "Latérality tube value in excel [".$excel_line_tube_data[$excel_field]."]." : '';
-
-    // Tube in stock detail
-    $excel_field = 'availability tubes';
-    
-    $in_stock = 'yes - available';
-    if($excel_line_tube_data[$excel_field] == 'no') {
-        $in_stock = 'no';
-    } elseif($excel_line_tube_data[$excel_field] != 'yes')  {
-        recordErrorAndMessage(
-            'Tube creation/update',
-            '@@ERROR@@',
-            "The 'availability tubes' excel value is not supported. Please validate and clean up data after the migration.",
-            "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-    }
-    
-    // Tube in stock detail
-    $storageA = strtolower(str_replace('.', '', $excel_line_tube_data['Emplacement-A']));
-    $storageB = strtolower(str_replace('.', '', $excel_line_tube_data['Emplacement-B']));
-    
-    $storage_master_id = null;
-    $shipping_summary = '';
-    if($storageA == 'armoire tf 12e') {
-        if(isset($atim_storage_key_to_storage_master_id[$storageB])) {
-            $storage_master_id = $atim_storage_key_to_storage_master_id[$storageB];
-        } else {
-            recordErrorAndMessage(
-                'Tube creation/update - storage definition',
-                '@@ERROR@@',
-                "The excel 'Emplacement-B' value does not match a CRCHUM cupboard shelf value expected and the 'Emplacement-A' is equalt to 'Armoire TF 12e'. Aliquot won't be defined as stored into a storage. Please validate and clean up data after the migration.",
-                "See storage values [A = '$storageA' & B = '$storageB'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        }        
-    } elseif(strlen($storageA.$storageB)) {
-        // Check B
-        if(isset($atim_storage_key_to_storage_master_id[$storageB])) {
-            recordErrorAndMessage(
-                'Tube creation/update - storage definition',
-                '@@ERROR@@',
-                "The excel 'Emplacement-B' value match a CRCHUM cupboard shelf value but the 'Emplacement-A' is not equal to 'Armoire TF 12e'. Aliquot won't be defined as stored into a storage. Please validate and clean up data after the migration.",
-                "See storage values [A = '$storageA' & B = '$storageB'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        } elseif(strlen($storageB)) {
-            die('ERR File ' . __FILE__ .' Line ' . __LINE__);   // Case to support
-        }
-        // Check A
-        if($storageA == 'A remettre a la biobanque') {
-            recordErrorAndMessage(
-                'Tube creation/update - storage definition',
-                '@@WARNING@@',
-                "The 'Emplacement-A' is equal to 'A remettre a la biobanque'. Information won't be migrated. Aliquot won't be defined as stored into a storage. Please validate and clean up data after the migration.",
-                "See storage values [A = '$storageA' & B = '$storageB'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        } elseif(strlen($storageA)) {
-            $shipping_summary = $storageA;
-            recordErrorAndMessage(
-                'Tube creation/update - storage definition',
-                '@@MESSAGE@@',
-                "Created a shipping message from 'Emplacement-A'. Please validate and clean up data after the migration.",
-                "See shipping message '$shipping_summary' from storage values [A = '$storageA' & B = '$storageB']",
-                "$storageA // $storageB");
-        }
-    } else {
-        // No position
-    }
-    
-    if($in_stock == 'no' && $storage_master_id) {
-        recordErrorAndMessage(
-            'Tube creation/update - storage definition',
-            '@@ERROR@@',
-            "The 'availability tubes' value set to 'no' but storage position is defined based on 'Emplacement-A & B' values. Aliquot won't be defined as stored into a storage. Please validate and clean up data after the migration.",
-            "See storage value [A = '$storageA' & B = '$storageB'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        $storage_master_id = null;
-    }
-    if($in_stock != 'no' && $shipping_summary) {
-        recordErrorAndMessage(
-            'Tube creation/update - storage definition',
-            '@@ERROR@@',
-            "The 'availability tubes' value set to 'available' but shipping info exists (based on 'Emplacement-A & B'). Please validate and clean up data after the migration.",
-            "See value '$shipping_summary' from storage value [A = '$storageA' & B = '$storageB'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-    }
-    
-    // Tube other fields
-    $excel_field= 'cellularity';
-    $qc_tf_cellularity = validateAndGetInteger(
-        str_replace(array('N/A', '#N/A'), array('',''), $excel_line_tube_data[$excel_field]),
-        'Tube creation/update',
-        "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-        "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-    
-    $excel_field= 'Quantity available';
-    $qc_tf_quantity_available = validateAndGetStructureDomainValue(
-        $excel_line_tube_data[$excel_field],
-        'qc_tf_quantity_available',
-        'Tube creation/update',
-        "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-        "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-
-    // Tube Creation
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-
-
-    $created_aliquot_counter++;
-    $new_notes = array(
-        str_replace("'", "''", $excel_laterality_msg),
-        str_replace("'", "''", $excel_line_tube_data['notes from biobank']),
-        str_replace("'", "''", $excel_line_tube_data['NOTES (other)'])
-    );
-    if(strlen($excel_line_tube_data['Tube number'])) $new_notes[] = "Tube number from XLS file : " . $excel_line_tube_data['Tube number'];
-    
-    $new_notes = array_filter($new_notes);
-    $new_notes = implode('. ',$new_notes);
-    if($new_notes) $new_notes .='.';
-    $aliquot_data = array(
-        'aliquot_masters' => array(
-            "barcode" => 'tmp_'.$created_aliquot_counter,
-            'aliquot_label' => str_replace("'", "''", $excel_tube_pathology_nbr), //"FFPE $participantTfriNbr",
-            "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-tube']['id'],
-            "collection_id" => $collection_id,
-            "sample_master_id" => $tissue_sample_master_id,
-            'storage_master_id' => $storage_master_id,
-            'in_stock' => $in_stock,
-            'in_stock_detail' => '',
-            'notes' => $new_notes
-        ),
-        $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
-            'tube_type' => 'paraffin',
-            'patho_dpt_tube_code' => str_replace("'", "''", $excel_tube_pathology_nbr),
-            'qc_tf_cellularity' => $qc_tf_cellularity,
-            'qc_tf_quantity_available' => $qc_tf_quantity_available,
-        ));
-    $aliquot_master_id = customInsertRecord($aliquot_data);
-    
-    completeTubeEvents($excel_line_tube_data, $excel_line_counter, $participantTfriNbr, $collection_id, $tissue_sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
 }
-
-
-
-
-
-//TODO
-dislayErrorAndMessage($commit_all);exit;
-
-
-
-
-
 
 // Collection fusion (post-process)
 //-----------------------------------------
@@ -1106,115 +855,12 @@ foreach($atimSamplesToMerge as $new_samples_set) {
     }
 }
 
-// Tube control
-//-----------------------------------------
-
-if($tubesControl) {
-    $control_collection_id = customInsertRecord(array(
-        'collections' => array(       
-            'collection_property' => 'independent collection',
-            'collection_notes' => 'Controls')));
-    
-    foreach($tubesControl as $new_control) {
-        $excel_line_counter = $new_control['line'];
-        $excel_line_tube_data = $new_control['excel_data'];
-        
-        // Tissue laterality - source - type
-        $excel_field = "Latérality tube";
-
-        $excel_laterality_msg = strlen($excel_line_tube_data[$excel_field])? "Latérality tube value in excel '".$excel_line_tube_data[$excel_field]."'." : '';
-        
-        // Tube in stock detail
-        $excel_field = 'availability tubes';
-        
-        $in_stock = 'yes - available';
-        if($excel_line_tube_data[$excel_field] != 'control') {
-            die('ERR File ' . __FILE__ .' Line ' . __LINE__);
-        }
-        
-        // Tube in stock detail
-        $storageA = strtolower(str_replace('.', '', $excel_line_tube_data['Emplacement-A']));
-        $storageB = strtolower(str_replace('.', '', $excel_line_tube_data['Emplacement-B']));
-        
-        $storage_master_id = null;
-        $shipping_summary = '';
-        if($storageA == 'armoire tf 12e') {
-            if(isset($atim_storage_key_to_storage_master_id[$storageB])) {
-                $storage_master_id = $atim_storage_key_to_storage_master_id[$storageB];
-            } else {
-                die('ERR File ' . __FILE__ .' Line ' . __LINE__);
-            }
-        } elseif(strlen($storageA.$storageB)) {
-            die('ERR File ' . __FILE__ .' Line ' . __LINE__);
-        }
-        
-        // Tube other fields
-        $excel_field= 'cellularity';
-        $qc_tf_cellularity = validateAndGetInteger(
-            str_replace(array('N/A', '#N/A'), array('',''), $excel_line_tube_data[$excel_field]),
-            'Tube creation/update',
-            "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-            "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        
-        $excel_field= 'Quantity available';
-        $qc_tf_quantity_available = validateAndGetStructureDomainValue(
-            $excel_line_tube_data[$excel_field],
-            'qc_tf_quantity_available',
-            'Tube creation/update',
-            "The '$excel_field' excel value is not supported. Information won't be used by migration script. Please validate and clean up data after the migration.",
-            "See value [".$excel_line_tube_data[$excel_field]."] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        
-        $created_sample_counter++;
-        $sample_data = array(
-            'sample_masters' => array(
-                "sample_code" => 'tmp_tissue_'.$created_sample_counter,
-                "sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
-                "initial_specimen_sample_type" => 'tissue',
-                "collection_id" => $control_collection_id),
-            'specimen_details' => array(),
-            $atim_controls['sample_controls']['tissue']['detail_tablename'] => array());
-        
-        $sample_master_id = customInsertRecord($sample_data);
-        $created_aliquot_counter++;
-        $excel_tube_pathology_nbr = $excel_line_tube_data['SampleID (Bloc pour TMA Lili)'];
-        $aliquot_data = array(
-            'aliquot_masters' => array(
-                "barcode" => 'tmp_'.$created_aliquot_counter,
-                'aliquot_label' => "CONTROL ".str_replace("'", "''", $excel_tube_pathology_nbr),
-                "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-tube']['id'],
-                "collection_id" => $control_collection_id,
-                "sample_master_id" => $sample_master_id,
-                'storage_master_id' => $storage_master_id,
-                'in_stock' => $in_stock,
-                'in_stock_detail' => '',
-                'notes' => str_replace("'", "''", $excel_laterality_msg)
-            ),
-            $atim_controls['aliquot_controls']['tissue-tube']['detail_tablename'] => array(
-                'tube_type' => 'paraffin',
-                'patho_dpt_tube_code' => str_replace("'", "''", $excel_tube_pathology_nbr),
-                'qc_tf_cellularity' => $qc_tf_cellularity,
-                'qc_tf_quantity_available' => $qc_tf_quantity_available,
-            ));
-        $aliquot_master_id = customInsertRecord($aliquot_data);
-        
-        recordErrorAndMessage(
-            'Tube control creation',
-            '@@MESSAGE@@',
-            "Tube Control Creation.",
-            "Created ["."CONTROL ".str_replace("'", "''", $excel_tube_pathology_nbr)."] from line $excel_line_counter.");
-        
-
-        completeTubeEvents($excel_line_tube_data, $excel_line_counter, 'CONTROL', $control_collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, $created_slide_counter, $shipping_summary, $in_stock);
-    }
-}
-
 // Stat
 //-----------------------------------------
 
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Collections : '.$created_collection_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Samples : '.$created_sample_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Tubes : '.$created_aliquot_counter);
-recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Slides : '.$created_slide_counter);
 recordErrorAndMessage('Migration Summary', '@@MESSAGE@@', "Number of created records", 'Storages : '.$created_storage_counter);
 
 $last_queries_to_execute = array(
@@ -1228,226 +874,28 @@ foreach($last_queries_to_execute as $query)	customQuery($query);
 
 dislayErrorAndMessage($commit_all);
 
+echo "<br><FONT COLOR=\"blue\">
+=====================================================================<br>
+<b>CORE NOT CREATED : TO REVIEW</b><br>
+=====================================================================</FONT><br><br>";
+$firstRecord = true;
+foreach($aliquotNotMigrated AS $aliquotData) {
+    if($firstRecord) {
+        $newLineToDisplay = "\"";
+        $newLineToDisplay .= implode("\";\"", $aliquotData);
+        $newLineToDisplay .= "\"<br>";
+        echo $newLineToDisplay;
+    }
+    $firstRecord = false;
+    $newLineToDisplay = "\"";
+    $newLineToDisplay .= implode("\";\"", $aliquotData);
+    $newLineToDisplay .= "\"<br>";
+    echo $newLineToDisplay;
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 //Functions
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-function completeTubeEvents($excel_line_tube_data, $excel_line_counter, $participantTfriNbr, $collection_id, $sample_master_id, $aliquot_master_id, $r12_112_storage_master_id, $r12_118_storage_master_id, &$created_slide_counter, $shipping_summary, $in_stock) {
-    global $atim_controls;
-    
-    // reception information
-
-    $excel_field = "Reception date";
-    list($reception_date, $reception_date_accuracy) = validateAndGetDateAndAccuracy(
-        $excel_line_tube_data[$excel_field],
-        'Tube Events and Slides Creation',
-        $excel_field,
-        "Value won't be used by migration process - see line $excel_line_counter.");
-    $excel_field = "Received by";
-    $reception_by = validateAndGetStructureDomainValue(
-        str_replace(array("Cécile", "Liliane Meunier"), array("Cecile", "Liliane"), $excel_line_tube_data[$excel_field]),
-        'custom_laboratory_staff',
-        'Tube Events and Slides Creation',
-        "Reception by",
-        "Value won't be used by migration process - see line $excel_line_counter.");
-    $fromInfo = array();
-    if($excel_line_tube_data['Bank']) $fromInfo[] = $excel_line_tube_data['Bank'];
-    if($excel_line_tube_data['Contact name']) $fromInfo[] = $excel_line_tube_data['Contact name'];
-    $fromInfo = implode(' / ', $fromInfo);
-    if($fromInfo) $fromInfo = "From $fromInfo";
-    if($reception_date.$reception_by.$fromInfo) {
-        customInsertRecord(array(
-            'aliquot_internal_uses' => array(
-                'aliquot_master_id' => $aliquot_master_id,
-                'type' => 'reception (from bank)',
-                'use_code' => $fromInfo,
-                'used_by' => $reception_by,
-                'use_datetime' => $reception_date,
-                'use_datetime_accuracy' => $reception_date_accuracy)));
-    }
-
-    // H&E slide
-
-    $slide_notes = array();
-    if(strlen($excel_line_tube_data['H&E done by']))  $slide_notes[] = 'Done by : ' . $excel_line_tube_data['H&E done by'];
-    if(strlen($excel_line_tube_data['H&E vérified by']))  $slide_notes[] = 'Checked by : ' . $excel_line_tube_data['H&E vérified by'];
-    if(strlen($excel_line_tube_data['H&E available']))  $slide_notes[] = 'Availability : ' . $excel_line_tube_data['H&E available'];
-    $slide_notes = str_replace("'", "''", implode('. ', $slide_notes).'.');
-
-    if(strlen($slide_notes.$excel_line_tube_data['H&E date'])) {
-        $slide_storage_master_id = null;
-        if(preg_match('/R12\.112/', $excel_line_tube_data['H&E available'])) {
-            $slide_storage_master_id = $r12_112_storage_master_id;
-        } else if(preg_match('/R12\.118/', $excel_line_tube_data['H&E available'])) {
-            $slide_storage_master_id = $r12_118_storage_master_id;
-        }
-        $created_slide_counter++;
-        $aliquot_data = array(
-            'aliquot_masters' => array(
-                "barcode" => 'tmp_core_'.$created_slide_counter,
-                'aliquot_label' => "H&E [TFRI#$participantTfriNbr]",
-                "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-slide']['id'],
-                "collection_id" => $collection_id,
-                "sample_master_id" => $sample_master_id,
-                'storage_master_id' => $slide_storage_master_id,
-                'in_stock' => ($slide_storage_master_id? 'yes - available' : 'no'),
-                'notes' => $slide_notes),
-            $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array(
-                'immunochemistry' => 'H&E',));
-        $he_slide_aliquot_master_id = customInsertRecord($aliquot_data);
-
-        $excel_field = 'H&E date';
-        list($realiquoting_datetime, $realiquoting_datetime_accuracy) = validateAndGetDateAndAccuracy($excel_line_tube_data[$excel_field], 'Tube Events and Slides Creation', $excel_field, "Value won't be used by migration process - see line $excel_line_counter.");
-
-        $realiquoting_data = array('realiquotings' => array(
-            'parent_aliquot_master_id' => $aliquot_master_id,
-            'child_aliquot_master_id' => $he_slide_aliquot_master_id,
-            'realiquoting_datetime' => $realiquoting_datetime,
-            'realiquoting_datetime_accuracy' => $realiquoting_datetime_accuracy));
-
-        customInsertRecord($realiquoting_data);
-    }
-
-    // Slide revisions
-    
-    if(strlen($excel_line_tube_data['Révision date at the CHUM'].$excel_line_tube_data['Notes by Dr Rahimi'])) {
-        $use_details = array($excel_line_tube_data['Notes by Dr Rahimi']);
-        $excel_field = 'Révision date at the CHUM';
-        list($use_datetime, $use_datetime_accuracy) = validateAndGetDateAndAccuracy(
-            $excel_line_tube_data[$excel_field],
-            'Tube Events and Slides Creation',
-            $excel_field,
-            "Value won't be used by migration process - see line $excel_line_counter.");
-        if($excel_line_tube_data[$excel_field] && !$use_datetime) {
-            $use_details[] = 'Date info : '.$excel_line_tube_data[$excel_field];
-        }
-        customInsertRecord(array(
-            'aliquot_internal_uses' => array(
-                'aliquot_master_id' => $aliquot_master_id,
-                'type' => 'slide revision',
-                'use_code' => 'H&E Slide',
-                'used_by' => 'dr rahimi',
-                'use_datetime' => $use_datetime,
-                'use_datetime_accuracy' => $use_datetime_accuracy,
-                'use_details' => str_replace("'", "''", implode('. ', $use_details)))));
-    }
-    
-    //return to bank
-    if(strlen($excel_line_tube_data['Shipping to'].$excel_line_tube_data['Shipping by'].$excel_line_tube_data['Shipping date'].$excel_line_tube_data['Shipping fedex #'])) {
-        $excel_field = 'Shipping date';
-        $newdate = '';
-        switch($excel_line_tube_data[$excel_field]) {
-            case 'janvier 2014':
-                $newdate = '2014-01-xx';
-                break;
-            case 'septembre 2013':
-                $newdate = '2013-09-xx';
-                break;
-            case '20 janvier 2016':
-                $newdate = '2016-01-20';
-                break;
-            case 'septembre 2014':
-                $newdate = '2014-09-xx';
-                break;
-            case 'Aout 2018':
-                $newdate = '2018-08-xx';
-                break;
-            case 'juillet 2012':
-                $newdate = '2012-07-xx';
-                break;
-            case '7/2012':
-                $newdate = '2012-07-xx';
-                break;
-            case 'fev 2012':
-                $newdate = '2012-02-xx';
-                break;
-            case '12-06-218':
-                $newdate = '2018-06-12';
-                break;
-        }
-        if($newdate) {
-            recordErrorAndMessage(
-                'Tube Events and Slides Creation',
-                '@@WARNING@@',
-                "Changed wrong $excel_field format to a good one. Please validate",
-                "See value '".$excel_line_tube_data[$excel_field]."' changed to '$newdate'",
-                $excel_line_tube_data[$excel_field]);
-             $excel_line_tube_data[$excel_field]=$newdate;
-        }
-        list($ship_date, $ship_date_accuracy) = validateAndGetDateAndAccuracy(
-            $excel_line_tube_data[$excel_field],
-            'Tube Events and Slides Creation',
-            $excel_field,
-            "Value won't be used by migration process - see line $excel_line_counter.");
-
-        $excel_field = 'Shipping by';
-        $ship_by = validateAndGetStructureDomainValue(
-            str_replace(
-                array('Cecile et Jason' , 'Cecile LePage' , "Cécile", "Liliane Meunier","Cecile Lepage", "Isabelle Clément", 'Cecile LePage et Jason'), 
-                array("Cecile", "Cecile", "Cecile", "Liliane","Cecile", "Isabelle","Cecile"), $excel_line_tube_data[$excel_field]),
-            'custom_laboratory_staff',
-            'Tube Events and Slides Creation',
-            $excel_field,
-            "Value won't be used by migration process - see line $excel_line_counter.");
-        customInsertRecord(array(
-            'aliquot_internal_uses' => array(
-                'aliquot_master_id' => $aliquot_master_id,
-                'type' => 'returned (to bank)',
-                'use_code' => 'To '.(strlen($excel_line_tube_data['Shipping to'])? $excel_line_tube_data['Shipping to'] : '?').($shipping_summary? ' / ' .$shipping_summary : ''),
-                'used_by' => $ship_by,
-                'use_datetime' => $ship_date,
-                'use_datetime_accuracy' => $ship_date_accuracy,
-                'use_details' => (strlen($excel_line_tube_data['Shipping fedex #'])? 'Fedex : ' .$excel_line_tube_data['Shipping fedex #'] : '')))); 
-        if($in_stock != 'no') {
-            recordErrorAndMessage(
-                'Tube Events and Slides Creation',
-                '@@ERROR@@',
-                "The tube has been defined as returned to biobank but in stock value is different than 'no'. Please validate and clean up/create data after the migration.",
-                "See tube  for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-        }
-    }
-    
-    // other slide
-    if(strlen($excel_line_tube_data['Biomarker']) < 6 || preg_match('/,/', $excel_line_tube_data['Biomarker'])) {
-        $biomarkers = explode(',', str_replace(' ', '', $excel_line_tube_data['Biomarker']));
-        $biomarkers = array_filter($biomarkers);
-        foreach($biomarkers as $new_marker) {
-            $created_slide_counter++;
-            $aliquot_data = array(
-                'aliquot_masters' => array(
-                    "barcode" => 'tmp_core_'.$created_slide_counter,
-                    'aliquot_label' => "$new_marker [TFRI#$participantTfriNbr]",
-                    "aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-slide']['id'],
-                    "collection_id" => $collection_id,
-                    "sample_master_id" => $sample_master_id,
-                    'in_stock' => 'yes - available',
-                    'notes' => ''),
-                $atim_controls['aliquot_controls']['tissue-slide']['detail_tablename'] => array(
-                    'immunochemistry' => $new_marker,));
-            $other_slide_aliquot_master_id = customInsertRecord($aliquot_data);
-
-            $realiquoting_data = array('realiquotings' => array(
-                'parent_aliquot_master_id' => $aliquot_master_id,
-                'child_aliquot_master_id' => $other_slide_aliquot_master_id));
-
-            customInsertRecord($realiquoting_data);
-
-            recordErrorAndMessage(
-               'Tube Events and Slides Creation',
-                '@@ERROR@@',
-                "Created other marker slide.",
-                "See value '$new_marker'",
-                $new_marker);
-        }
-    } else if(strlen($excel_line_tube_data['Biomarker'])) {
-        recordErrorAndMessage(
-            'Tube Events and Slides Creation',
-            '@@ERROR@@',
-            "The 'Biomarker' value is not supported. Please validate and clean up/create data after the migration.",
-            "See value '".$excel_line_tube_data['Biomarker']."' for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
-    }
-}
 
 function getATiMTissues() {
     $query = "SELECT Participant.id as participant_id,

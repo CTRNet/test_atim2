@@ -475,56 +475,54 @@ VALUES
 ("liquid nitrogen", "Liquid Nitrogen", "Azote Liquide");
 
 
+ALTER TABLE ad_tubes
+  ADD COLUMN qc_tf_weight_mg_details VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3_details VARCHAR(250) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN qc_tf_weight_mg_details VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3_details VARCHAR(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_tf_weight_mg_details', 'input',  NULL , '0', 'size=20', '', '', '', 'details'), 
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_tf_size_mm3_details', 'input',  NULL , '0', 'size=20', '', '', '', 'details');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_spec_tiss_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_mg_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_spec_tiss_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_size_mm3_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='81' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_ad_spec_tiss_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_mg_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='82' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_ad_spec_tiss_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_size_mm3_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='82' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_ad_spec_tiss_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_size_mm3' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-Liquid nitrogen
+ALTER TABLE ad_blocks
+  ADD COLUMN qc_tf_weight_mg decimal(10,5) DEFAULT NULL,
+  ADD COLUMN qc_tf_weight_mg_details VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3 decimal(10,5) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3_details VARCHAR(250) DEFAULT NULL;
+ALTER TABLE ad_blocks_revs
+  ADD COLUMN qc_tf_weight_mg decimal(10,5) DEFAULT NULL,
+  ADD COLUMN qc_tf_weight_mg_details VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3 decimal(10,5) DEFAULT NULL,
+  ADD COLUMN qc_tf_size_mm3_details VARCHAR(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qc_tf_weight_mg', 'float',  NULL , '0', 'size=3', '', '', 'qc tf weight mg', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qc_tf_weight_mg_details', 'input',  NULL , '0', 'size=20', '', '', '', 'details'), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qc_tf_size_mm3_details', 'input',  NULL , '0', 'size=20', '', '', '', 'details'), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qc_tf_size_mm3', 'float',  NULL , '0', 'size=3', '', '', 'qc tf size mm3', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qc_tf_weight_mg' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='qc tf weight mg' AND `language_tag`=''), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qc_tf_weight_mg_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qc_tf_size_mm3_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='details'), '1', '83', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qc_tf_size_mm3' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='qc tf size mm3' AND `language_tag`=''), '1', '82', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
 
-
-
-
-
-
-
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("number of defreezing time","Number of defreezing time","",'1', @control_id, NOW(), NOW(), 1, 1),
+("reception at the CRCHUM","Reception at the CRCHUM","",'1', @control_id, NOW(), NOW(), 1, 1);
    
-   
- UPDATE `versions` SET branch_build_number = '??????' WHERE version_number = '2.7.1';
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+ UPDATE `versions` SET branch_build_number = '7598' WHERE version_number = '2.7.1';
  
  1- rouler le script sql depuis branch_build_number = '7574'
  2- \tfri_coeur\dataImporterConfig\TmaCreation
- 
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-  UPDATE `versions` SET branch_build_number = '??????' WHERE version_number = '2.7.1';
  TODO: les 3000 et + dans la migration des TMA sont des controles. A Mettre dans controle et remettre en test.
  Migrer DNA, etc.
  Fusionner des patients. Debuger erreur.
