@@ -518,13 +518,4 @@ VALUES
 ("number of defreezing time","Number of defreezing time","",'1', @control_id, NOW(), NOW(), 1, 1),
 ("reception at the CRCHUM","Reception at the CRCHUM","",'1', @control_id, NOW(), NOW(), 1, 1);
    
- UPDATE `versions` SET branch_build_number = '7598' WHERE version_number = '2.7.1';
- 
- 1- rouler le script sql depuis branch_build_number = '7574'
- 2- \tfri_coeur\dataImporterConfig\TmaCreation
-
- TODO: les 3000 et + dans la migration des TMA sont des controles. A Mettre dans controle et remettre en test.
- Migrer DNA, etc.
- Fusionner des patients. Debuger erreur.
- 
- Vérifier avec christine ce qui peut E^tre supprimer dans les repertoire de migrations (fichier qu'elle avait mis avant sa premiere maternitié).
+ UPDATE `versions` SET branch_build_number = '7599' WHERE version_number = '2.7.1';

@@ -370,19 +370,21 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         recordErrorAndMessage(
             'Participant definition',
             '@@ERROR@@',
-            "Excel and ATiM participants match on Participant TFRI# but are different based on Participant Bank#. The identity of the participant can not be validated. No data of the line will be migrated.",
+            "Excel and ATiM participants match on Participant TFRI# but are different based on Participant Bank#. The identity of the participant can not be validated but data of the line will be migrated based on Participant TFRI# (only). Please validate match after the migration",
             "For Participant TFRI# '<b>$participantTfriNbr</b>' on line $excel_line_counter, check the different Participant Bank# : (xls) ".$excel_line_tube_data['participantBank#']." != (atim) ".$atimTissues[$participantTfriNbr]['qc_tf_bank_identifier']." - line $excel_line_counter.");
-        $allValues = array_values($excel_line_tube_data);
-        $allValues[] = $excel_line_counter;
-        $aliquotNotMigrated[] = $allValues;
-        continue;
+//         $allValues = array_values($excel_line_tube_data);
+//         $allValues[] = $excel_line_counter;
+//         $aliquotNotMigrated[] = $allValues;
+//         continue;
         
     }
     $atim_qc_tf_bank_id = null;
-    $excel_line_tube_data['Bank'] = str_replace(
-        array("CBCF-", "CHUQ-", "CHUS-", "MOBP-", "OHRI-", "OVCARE", "MCGILL", 'UHN'),
-        array("CBCF", "CHUQ", "CHUS", "MOBP", "OHRI", "OVCare", "McGill", "UHN-Sunnybrook"),
-        $excel_line_tube_data['Bank']);
+    if($excel_line_tube_data['Bank'] != 'UHN - Not to Used') {
+        $excel_line_tube_data['Bank'] = str_replace(
+            array("CBCF-", "CHUQ-", "CHUS-", "MOBP-", "OHRI-", "OVCARE", "MCGILL", 'UHN'),
+            array("CBCF", "CHUQ", "CHUS", "MOBP", "OHRI", "OVCare", "McGill", "UHN-Sunnybrook"),
+            $excel_line_tube_data['Bank']);
+    }
     if(!isset($atim_qc_tf_bank_id_from_name[$excel_line_tube_data['Bank']])) {
         recordErrorAndMessage(
             'Participant definition',
@@ -540,6 +542,7 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
     
     $excel_field = 'Box';
     $storage_master_id = null;
+    $storage_data_for_notes = '';
     if(strlen($excel_line_tube_data[$excel_field]) && '-' != $excel_line_tube_data[$excel_field]) {
         $storage_master_id = $parent_id;
         if(!$storage_master_id) {
@@ -560,8 +563,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
             recordErrorAndMessage(
                 'Tube creation/update - storage definition',
                 '@@WARNING@@',
-                "The 'availability tubes' value set to 'no' but storage and positions are defined based on excel values. Aliquot won't be defined as stored into a storage. Please validate and clean up data after the migration.",
+                "The 'availability tubes' value set to 'no' but storage and positions are defined based on excel values. Aliquot won't be defined as stored into a storage. Positions will be added to aliquot notes. Please validate and clean up data after the migration.",
                 "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+            $storage_data_for_notes = "Aliquot storage was defined as '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] in excel";
             $storage_master_id = null;
             $storage_coord_x = null;
             $storage_coord_y = null;
@@ -570,27 +574,39 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
                 recordErrorAndMessage(
                     'Tube creation/update - storage definition',
                     '@@ERROR@@',
-                    "Wrong box positions (1 postion missing) are defined based on excel values. Aliquot will be defined as stored into a storage with no position. Please validate and clean up data after the migration.",
+                    "Wrong box positions (1 postion missing) are defined based on excel values. Aliquot will be defined as stored into a storage with no position. Positions will be added to aliquot notes. Please validate and clean up data after the migration.",
                     "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+                $storage_data_for_notes = "Aliquot positions were defined as ['$storage_coord_x'-'$storage_coord_y'] in excel";
                 $storage_coord_x = null;
                 $storage_coord_y = null;
             } elseif($storage_coord_x && (!preg_match('/^[0-9]$/', $storage_coord_x) || !preg_match('/^[A-I]$/', $storage_coord_y))) {
                 recordErrorAndMessage(
                     'Tube creation/update - storage definition',
                     '@@ERROR@@',
-                    "Wrong box positions are defined based on excel values. Aliquot will be defined as stored into a storage with no position. Please validate and clean up data after the migration.",
+                    "Wrong box positions are defined based on excel values. Aliquot will be defined as stored into a storage with no position. Positions will be added to aliquot notes. Please validate and clean up data after the migration.",
                     "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+                $storage_data_for_notes = "Aliquot positions were defined as ['$storage_coord_x'-'$storage_coord_y'] in excel";
                 $storage_coord_x = null;
                 $storage_coord_y = null;
             }
         }
     } else{
-        if($parent_id && $in_stock != 'no') {
-            recordErrorAndMessage(
-                'Tube creation/update - storage definition',
-                '@@ERROR@@',
-                "Aliquot is defined as stored in a storage different than box based on excel values. Aliquot will be defined as not stored into a storage. Please validate and clean up data after the migration.",
-                "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+        if($in_stock != 'no') {
+            if($parent_id) {
+                recordErrorAndMessage(
+                    'Tube creation/update - storage definition',
+                    '@@ERROR@@',
+                    "Aliquot is defined as stored in a storage different than box based on excel values. Aliquot will be defined as not stored into a storage. Positions data will be lost. Please validate and clean up data after the migration.",
+                    "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+            } else {
+                if(strlen($storage_coord_x.$storage_coord_y)) {
+                    recordErrorAndMessage(
+                        'Tube creation/update - storage definition',
+                        '@@ERROR@@',
+                        "Aliquot positions are defined but the storage/box is not defined. Aliquot will be defined as not stored into a storage. Positions data will be lost. Please validate and clean up data after the migration.",
+                        "See storage '$storageIdKey' and positions ['$storage_coord_x'-'$storage_coord_y'] for the Participant TFRI# '<b>$participantTfriNbr</b>' - line $excel_line_counter.");
+                }
+            }
         }
         $storage_master_id = null;
         $storage_coord_x = null;
@@ -609,6 +625,9 @@ while($exceldata = getNextExcelLineData($file_name, $worksheetName)) {
         $qc_tf_size_mm3_details = $excel_line_tube_data['Quantity/Size'];
     } elseif(strlen($excel_line_tube_data['Quantity/Size'])) {
         $new_notes[] = 'Quantity/Size:'.$excel_line_tube_data['Quantity/Size'];
+    }
+    if($storage_data_for_notes) {
+        $new_notes[] = $storage_data_for_notes;
     }
     foreach(array('Other name', 'Sample. number', 'histology') AS $excel_field) {
         if(strlen($excel_line_tube_data[$excel_field])) $new_notes[] = "$excel_field : ".$excel_line_tube_data[$excel_field];
@@ -876,7 +895,7 @@ dislayErrorAndMessage($commit_all);
 
 echo "<br><FONT COLOR=\"blue\">
 =====================================================================<br>
-<b>CORE NOT CREATED : TO REVIEW</b><br>
+<b>TISSUE NOT CREATED : TO REVIEW</b><br>
 =====================================================================</FONT><br><br>";
 $firstRecord = true;
 foreach($aliquotNotMigrated AS $aliquotData) {
