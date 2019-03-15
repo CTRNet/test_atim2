@@ -25,5 +25,5 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'Inventaire TISSU TFRI Coeur.xls'
+    'Inventaire TISSU TFRI Coeur - nl_revised_20190315.xls'
 );
