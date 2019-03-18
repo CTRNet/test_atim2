@@ -113,7 +113,8 @@ if (__('clin_english') == "Anglais") {
 			var maxUploadFileSize = "<?php echo Configure::read('maxUploadFileSize'); ?>";
 			var maxUploadFileSizeError = "<?php echo __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
 			var loadSearchDataMessage = Array("<?php echo __('previous search') ?>", "<?php echo __('reset search') ?>");
-            var DUPLICATED_ALIQUOT = "<?php echo __('this aliquot is registered in another place'); ?>";
+                        var here = "<?php echo __('here'); ?>";
+                        var DUPLICATED_ALIQUOT = "<?php echo __('this aliquot is registered in another place'); ?>";
             <?php if (isset($_SESSION['js_post_data'])){echo ($_SESSION['js_post_data']); unset($_SESSION['js_post_data']);}?>
 		</script>
 <!--[if IE 7]>

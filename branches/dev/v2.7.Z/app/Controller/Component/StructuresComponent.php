@@ -6,6 +6,8 @@
 class StructuresComponent extends Component
 {
 
+    public $StructureValueDomain;
+
     public $controller;
 
     public static $singleton;
@@ -154,6 +156,20 @@ $parameters);
                 $structure['Structure'][] = $structUnit['structure']['Structure'];
                 $structure['Accuracy'] = array_merge_recursive($structUnit['structure']['Accuracy'], $structure['Accuracy']);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
+            }
+
+            if (isset($structUnit['structure']['Sfs']) && is_array($structUnit['structure']['Sfs'])) {
+                App::uses('StructureValueDomain', 'Model');
+                $this->StructureValueDomain = new StructureValueDomain();
+                foreach ($structUnit['structure']['Sfs'] as $sfs) {
+                    if (!empty($sfs['StructureValueDomain'])) {
+                        $dropdownResult = array('defined' => array(""=>""), 'previously_defined' => array());
+                        $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdownResult);
+                        foreach ($dropdownResult['defined'] as $key => $value) {
+                            AppModel::$listValues[$sfs['model']][$sfs['field'] . "||" . $sfs['language_label']][$key] = $value;
+                        }
+                    }
+                }
             }
         }
         if (!empty($validationErrors)){
