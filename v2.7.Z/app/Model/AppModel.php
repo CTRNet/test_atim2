@@ -45,6 +45,8 @@ class AppModel extends Model
     
     // tablename -> accuracy fields
     public static $writableFields = array();
+
+    public static $listValues;
     
     public static $requiredFields = array();
     public $notBlankFields=array();
@@ -1106,6 +1108,8 @@ class AppModel extends Model
         
         $this->checkFloats();
         
+        $this->checkList();
+        
         parent::validates($options);
         
         if (!empty($this->notBlankFields)){
@@ -1124,6 +1128,29 @@ class AppModel extends Model
             return true;
         }
         return false;
+    }
+    
+    private function checkList()
+    {
+        $name = $this->name;
+        $data = $this->data;
+        if (isset (self::$listValues[$name])){
+            $lists = self::$listValues[$name];
+            foreach ($lists as $fieldLabel => $list) {
+                $field = explode("||", $fieldLabel)[0];
+                $label = explode("||", $fieldLabel)[1];
+                if (isset($data[$name][$field]) && !empty($data[$name][$field])){
+                    if (!isset($list[$data[$name][$field]])){
+                        $message = __('the value is not part of the list [%s]', $label);
+                        if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                            $this->validationErrors[$field][]= $message;
+                        }elseif (isset($this->validationErrors[$field])){
+                            $this->validationErrors[$field][]= $message;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function checkMasterDetailRequiredFields(&$master, &$detail)

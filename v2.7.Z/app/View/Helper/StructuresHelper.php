@@ -208,7 +208,9 @@ class StructuresHelper extends AppHelper
         parent::__construct($view, $settings);
         
         App::uses('StructureValueDomain', 'Model');
+        App::uses('StructurePermissibleValuesCustomControl', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();
+        $this->sPVCC = new StructurePermissibleValuesCustomControl();
     }
 
     /**
@@ -2572,6 +2574,16 @@ class StructuresHelper extends AppHelper
                             $dropdownResult['defined'] = $options['dropdown_options'][$modelDotField];
                         } elseif (count($sfs['StructureValueDomain']) > 0) {
                             $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdownResult);
+                            $sPVCCLink = $this->sPVCC->getLink($sfs['StructureValueDomain']);
+                            if (!empty($sPVCCLink)){
+                                $aLink = "<a class= \"help_link\" href=\"{$sPVCCLink["link"]}\">link</a>";
+                                $a = __("for customising the <b>%s</b> list click <b>%s</b>",$sPVCCLink["text"], $aLink);
+                                if ($current['help'] == $emptyHelpBullet){
+                                    $current['help'] = sprintf($helpBullet, $a);
+                                }else{
+                                    $current['help'] = sprintf($helpBullet, __($sfs['language_help'])."<br><br>".$a);
+                                }
+                            }
                         } elseif ($sfs['type'] == "checkbox") {
                             // provide yes/no as default for checkboxes
                             $dropdownResult['defined'] = array(
