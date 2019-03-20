@@ -9,6 +9,7 @@ var FmPopup = function(popup){
 	$(popup).data('FmPopup', this);
 	this.closePop = true;
 	this.closable = true;
+	this.movable = true;
 	this.popupOuter = null;
 	this.retainFocus = FmPopup.prototype.retainFocus;
 };
@@ -18,6 +19,10 @@ jQuery.fn.popup = function(options){
 	var fmPopup = $(this).data('FmPopup') == undefined ? new FmPopup(this) : $(this).data('FmPopup');
 	if(options != undefined && options.closable != undefined){
 		fmPopup.closable = options.closable; 
+	}
+	
+	if(options != undefined && options.movable != undefined){
+		fmPopup.movable = options.movable; 
 	}
 	
 	if(fmPopup.popupOuter == null){
@@ -86,6 +91,9 @@ jQuery.fn.popup = function(options){
 		});
 		
 		fmPopup.popupOuter.find(":tabbable").unbind('keydown', fmPopup.retainFocus).keydown(fmPopup, fmPopup.retainFocus);
+                if (fmPopup.movable){
+                    $(this).closest(".popup_container").draggable({ cancel: 'td,tr,input,a,.popup_close', cursor: "all-scroll"});
+                }
 	}
 	
 	

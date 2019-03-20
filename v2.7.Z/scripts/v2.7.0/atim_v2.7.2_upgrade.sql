@@ -3,7 +3,7 @@
 -- Version: 2.7.2
 --
 -- For more information:
---    ./app/scripts/v2.7.2/ReadMe.txt
+--    ./app/scripts/v2.7.0/ReadMe.txt
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
 -- -------------------------------------------------------------------------------------
 
@@ -48,6 +48,38 @@ VALUES 	(
 
 
 -- -------------------------------------------------------------------------------------
+--	Add link for value domain help message
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+    ('for customising the <b>%s</b> list click <b>%s</b>', 'For customising the "<b>%s</b>" list click <b>%s</b>', 'Pour personnaliser la "<b>%s</b>" liste, cliquez <b>%s</b>'),
+    ('here', 'here', 'ici');
+
+
+-- -------------------------------------------------------------------------------------
+--	List validation error message
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+    ('the value is not part of the list [%s]', 'The value is not part of the list [%s].', 'La valeur ne fait pas partie de la liste [%s].');
+
+
+-- -------------------------------------------------------------------------------------
+--	contacts information in order
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+    ('contacts information', 'Contacts information.', 'Informations des contacts.');
+
+
+
+-- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
@@ -55,4 +87,4 @@ VALUES
 ('2.7.2', NOW(),'XXXX','n/a');
 
 
-UPDATE versions SET trunk_build_number = 'YYYY' WHERE version_number = '2.7.1';
+UPDATE versions SET trunk_build_number = 'YYYY' WHERE version_number = '2.7.2';
