@@ -1233,7 +1233,7 @@ class AppController extends Controller
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
                 self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                $this->redirect('/menus');
+                $this->redirect('/Menus');
                 exit();
             }
             
