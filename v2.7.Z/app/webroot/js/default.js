@@ -2467,6 +2467,17 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.rightPart:first").addClass("at");
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
+
+
+    topFrame = $li.offset().top - $li.closest("table").offset().top;
+    heightTable = $li.closest("table").height();
+    heightFrame = $("#frame").height();
+    if (topFrame + heightFrame > heightTable){
+        $li.closest("table").closest("td").height(topFrame + heightFrame);
+    }
+    $("#frame").css({"position": "relative", "top": topFrame});
+
+    
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
@@ -2476,6 +2487,14 @@ function set_at_state_in_tree_root(new_at_li, json) {
         
         $("#frame").html(data);
         initActions();
+        
+        topFrame = $li.offset().top - $li.closest("table").offset().top;
+        heightTable = $li.closest("table").height();
+        heightFrame = $("#frame").height();
+        if (topFrame + heightFrame > heightTable){
+            $li.closest("table").closest("td").height(topFrame + heightFrame);
+        }
+        $("#frame").css({"position": "relative", "top": topFrame});
     });
 }
 
