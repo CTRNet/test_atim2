@@ -466,10 +466,13 @@ function searchBack(){
  * @return
  */
 function moveItem(draggable, droparea){
-        if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length!=0 ||$(droparea).find("ul.trash").length!=0 || $(droparea).closest("#secondStorageRow").length!=0)){
-		$(draggable).draggable({ revert : true });
-        }   
-	else if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
+    if (draggable.hasClass("just-added") && ($(droparea).find("ul.unclassified").length != 0 || $(droparea).find("ul.trash").length != 0 || $(droparea).closest("#secondStorageRow").length != 0)) {
+        $(draggable).draggable({ revert : true });
+    }
+    else if (draggable.hasClass("popup_container")){
+        $(draggable).draggable({ revert : true });
+    }
+    else if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
 		if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "trash"){
 			deleteItem(draggable);
 		}else if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "unclassified"){
