@@ -179,7 +179,7 @@ class BatchSetsController extends DatamartAppController
         $this->set('lookupKeyName', $lookupKeyName);
         
         if (count($lookupIds) > 0) {
-            $criteria = $batchSet['BatchSet']['model'] . '.' . $batchSet['BatchSet']['lookup_key_name'] . " IN ('" . implode("', '", $lookupIds) . "')";
+            $criteria = array($batchSet['BatchSet']['model'] . '.' . $batchSet['BatchSet']['lookup_key_name'] => array_values($lookupIds));
         }
         
         // set FORM variable, for HELPER call on VIEW
@@ -204,7 +204,7 @@ class BatchSetsController extends DatamartAppController
                 $alternateInfo = Browser::getAlternateStructureInfo($datamartStructure['plugin'], $this->ModelToSearch->getControlName(), $results[0][$datamartStructure['model']][$this->ModelToSearch->getControlForeign()]);
                 
                 $criteria = array(
-                    $datamartStructure['control_master_model'] . ".id IN ('" . implode("', '", $lookupIds) . "')"
+                    $datamartStructure['control_master_model'] . ".id"=> array_values($lookupIds)
                 );
                 // add the control_id to the search conditions to benefit from direct inner join on detail
                 $criteria[$datamartStructure['control_master_model'] . "." . $this->ModelToSearch->getControlForeign()] = $results[0][$datamartStructure['model']][$this->ModelToSearch->getControlForeign()];
