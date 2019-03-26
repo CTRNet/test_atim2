@@ -14,6 +14,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         'ClinicalAnnotation.DiagnosisMaster',
         'ClinicalAnnotation.TreatmentMaster',
         'ClinicalAnnotation.EventMaster',
+        'ClinicalAnnotation.ClinicalAnnotationAppModel',
         
         'InventoryManagement.Collection',
         
@@ -241,6 +242,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         $this->Structures->set('eventmasters', 'atim_structure_event');
         $this->Structures->set('empty', 'emptyStructure');
         
+        $this->set('cclsList', $this->ClinicalAnnotationAppModel->getCCLsList());
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -435,6 +437,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 return;
             }
         }
+        $this->set('cclsList', $this->ClinicalAnnotationAppModel->getCCLsList());
     }
 
     /**
@@ -595,6 +598,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             // Launch Initial Display Process
             $this->request->data = $collectionData;
         }
+        $this->set('cclsList', $this->ClinicalAnnotationAppModel->getCCLsList());
     }
 
     /**
