@@ -2193,6 +2193,12 @@ class AppController extends Controller
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
+         
+        // *** 14 *** Update the structure format for ccl
+        $cclModel = AppModel::getInstance('ClinicalAnnotation', 'ClinicalAnnotationAppModel', true);
+        $cclDatamartData = $cclModel->getCCLsList();
+        $result = $cclModel->deleteFromStructuresDeactiveCCLs($cclDatamartData);
+        // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // update the permissions_regenerated flag and redirect
         $this->Version->data = array(
