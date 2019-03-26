@@ -519,3 +519,152 @@ VALUES
 ("reception at the CRCHUM","Reception at the CRCHUM","",'1', @control_id, NOW(), NOW(), 1, 1);
    
  UPDATE `versions` SET branch_build_number = '7599' WHERE version_number = '2.7.1';
+ 
+-- --------------------------------------------------------------------------------
+-- 2019-03-22
+-- --------------------------------------------------------------------------------
+ 
+-- DNA RNA extraction and deparafinization method
+
+ ALTER TABLE sd_der_dnas
+   ADD COLUMN qc_tf_extraction_method varchar(250) DEFAULT NULL,
+   ADD COLUMN qc_tf_deparafinization_method varchar(250) DEFAULT NULL;
+ ALTER TABLE sd_der_dnas_revs
+   ADD COLUMN qc_tf_extraction_method varchar(250) DEFAULT NULL,
+   ADD COLUMN qc_tf_deparafinization_method varchar(250) DEFAULT NULL; 
+ ALTER TABLE sd_der_rnas
+   ADD COLUMN qc_tf_extraction_method varchar(250) DEFAULT NULL,
+   ADD COLUMN qc_tf_deparafinization_method varchar(250) DEFAULT NULL;
+ ALTER TABLE sd_der_rnas_revs
+   ADD COLUMN qc_tf_extraction_method varchar(250) DEFAULT NULL,
+   ADD COLUMN qc_tf_deparafinization_method varchar(250) DEFAULT NULL; 
+INSERT INTO structures(`alias`) VALUES ('qc_tfri_sd_rna_dna_extraction');
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_tf_deparafinization_methods', 'StructurePermissibleValuesCustom::getCustomDropdown(\'DNA/RNA Deparafinization Methods\')');
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('DNA/RNA Deparafinization Methods', 1, 250, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA/RNA Deparafinization Methods');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("xylene-qiacub", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("heptane-qiacub", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("xylene", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("heptane", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("xylene-methanol", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("heptane-meoh", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_tf_dna_rna_extraction_methods', 'StructurePermissibleValuesCustom::getCustomDropdown(\'DNA/RNA Extraction Methods\')');
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('DNA/RNA Extraction Methods', 1, 250, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA/RNA Extraction Methods');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("All prep DNA-RNA-FFPE", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("Trizol", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("AllprepDNARNAprot", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("Qiacube", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("QiacubAllprepDNaRNAprot", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("QiacubAllprepDNaRNA", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("qiaAmp", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("All prep DNA-RNA-FFPE-Rnase", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("Qiacub-AllprepDNARNAmini", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("AllprepDNARNAmini", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'qc_tf_extraction_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dna_rna_extraction_methods') , '0', '', '', '', 'extraction method', ''), 
+('InventoryManagement', 'SampleDetail', '', 'qc_tf_deparafinization_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_deparafinization_methods') , '0', '', '', '', 'deparafinization method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tfri_sd_rna_dna_extraction'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_tf_extraction_method'), '1', '400', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tfri_sd_rna_dna_extraction'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_tf_deparafinization_method'), '1', '401', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_tfri_sd_rna_dna_extraction') WHERE sample_type IN ('dna', 'rna');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('extraction method', 'Extraction Method', ''),
+('deparafinization method', 'Deparafinization Method', '');
+    
+-- DNA RNA storage solution
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_tf_ad_dna_rna_tubes') WHERE aliquot_type = 'tube' AND sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type IN ('dna', 'rna'));
+ALTER TABLE ad_tubes 
+   MODIFY qc_tf_storage_solution varchar(250) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs 
+   MODIFY qc_tf_storage_solution varchar(250) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('qc_tf_ad_dna_rna_tubes');
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_tf_dna_rna_storage_solutions', 'StructurePermissibleValuesCustom::getCustomDropdown(\'DNA/RNA Storage Mediums\')');
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('DNA/RNA Storage Mediums', 1, 250, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA/RNA Storage Mediums');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("water RNAse free", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("water", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("ATE", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("T1E10", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("T1E11", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("EB", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_tf_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dna_rna_storage_solutions') , '0', '', '', '', 'storage solution', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_dna_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dna_rna_storage_solutions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '85', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+
+-- quantity source used
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("quantity source used","Quantity source used","",'1', @control_id, NOW(), NOW(), 1, 1);
+
+-- Storage_masters table MODIFY
+
+ALTER TABLE storage_masters
+   MODIFY short_label varchar(50) DEFAULT NULL,
+   MODIFY selection_label varchar(250) DEFAULT NULL;
+ALTER TABLE storage_masters_revs
+   MODIFY short_label varchar(50) DEFAULT NULL,
+   MODIFY selection_label varchar(250) DEFAULT NULL;
+
+-- sop_master_id
+
+UPDATE structure_formats SET `flag_search`='0', `flag_batchedit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+
+-- DNA/RNA quantity/concentration
+
+ALTER TABLE ad_tubes
+  ADD COLUMN qc_tf_weight_ug_initial decimal(10,5) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN qc_tf_weight_ug_initial decimal(10,5) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_tf_weight_ug_initial', 'float',  NULL , '0', 'size=3', '', '', '', 'initial');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_dna_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_ug_initial' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='initial'), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_ad_dna_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_ug' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('initial', 'Initial', '');
+INSERT INTO structures(`alias`) VALUES ('qc_tf_ad_rna_tubes');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_ug' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='qc tf weight ug' AND `language_tag`=''), '1', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='url=/Study/StudySummaries/autocompleteStudy' AND `default`='' AND `language_help`='' AND `language_label`='study / project' AND `language_tag`=''), '1', '1201', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1201', '', '0', '1', 'study / project', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_ad_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_ug_initial' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='initial'), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_tf_ad_rna_tubes') WHERE aliquot_type = 'tube' AND sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type IN ('rna'));
+
+
+
+
+
+
+
+
