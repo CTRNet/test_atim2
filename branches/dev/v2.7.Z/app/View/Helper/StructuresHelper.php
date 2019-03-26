@@ -2359,7 +2359,7 @@ class StructuresHelper extends AppHelper
                         "type" => $sfs['type'],
                         "help" => strlen($sfs['language_help']) > 0 ? sprintf($helpBullet, __($sfs['language_help'])) : $emptyHelpBullet,
                         "setting" => $sfs['setting'], // required for icd10 magic
-                        "default" => $sfs['default'],
+                        "default" => ($options['type']!=='search')?$sfs['default']:"",
                         "sortable" => array_key_exists('sortable', $sfs)? $sfs['sortable'] : 0,
                         "flag_confidential" => $sfs['flag_confidential'],
                         "flag_float" => $sfs['flag_float'],
@@ -2533,7 +2533,6 @@ class StructuresHelper extends AppHelper
                             ), $settings));
                         }
                         
-                        $current['default'] = $sfs['default'];
                         $current['settings'] = $settings;
                     } else {
                         $current["format"] = "";
