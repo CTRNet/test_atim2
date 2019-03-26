@@ -91,6 +91,22 @@ VALUES
     ('race', 'Ethnicity', 'Ethnique');
 
 -- -------------------------------------------------------------------------------------
+--	password_format_error_msg_4
+-- -------------------------------------------------------------------------------------
+
+DELETE FROM i18n
+WHERE id in ('passwords minimal length', 'password_format_error_msg_1', 'password_format_error_msg_2', 'password_format_error_msg_3');
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+    ('passwords minimal length', 'Passwords must have a minimal length of 8 characters.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères.'),
+    ('password_format_error_msg_1', 'Passwords must have a minimum length of 8 characters and contain lowercase letters.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres minuscules.'),
+    ('password_format_error_msg_2', 'Passwords must have a minimum length of 8 characters and contain lowercase letters and numbers.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules.'),
+    ('password_format_error_msg_3', 'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters and numbers.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules et de chiffres.'),
+    ('password_format_error_msg_4', 'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters, numbers and special characters.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.');
+
+-- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
