@@ -77,7 +77,18 @@ i18n (id,en,fr)
 VALUES 	
     ('contacts information', 'Contacts information.', 'Informations des contacts.');
 
+-- -------------------------------------------------------------------------------------
+--	Race to ethnicity
+-- -------------------------------------------------------------------------------------
 
+DELETE FROM i18n
+WHERE id in ('race', 'help_race');
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+    ('help_race', "The participant's self declared ethnic origination.", "L'origine ethnique, telle que déclarée par le participant lui-même."),
+    ('race', 'Ethnicity', 'Ethnique');
 
 -- -------------------------------------------------------------------------------------
 
