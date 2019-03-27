@@ -159,6 +159,8 @@ class UsersController extends AppController
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
             }
             $this->_initializeNotificationSessionVariables();
+
+            $this->checkUserLogsFile();
             
             $this->_setSessionSearchId();
             $this->resetPermissions();
