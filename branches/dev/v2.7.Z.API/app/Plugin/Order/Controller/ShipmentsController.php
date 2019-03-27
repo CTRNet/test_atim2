@@ -730,15 +730,13 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    public function manageContact()
+    public function manageContact($searchId = false)
     {
         $this->Structures->set('shipment_recipients');
-        // layout = ajax to avoid printing layout
-        $this->layout = 'ajax';
-        // debug = 0 to avoid printing debug queries that would break the javascript array
-        Configure::write('debug', 0);
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
-        $this->request->data = $contactsModel->find('all');
+
+        $this->set('searchId', $searchId);
+        $this->searchHandler($searchId, $contactsModel, 'shipment_recipients', '/InventoryManagement/Shipments/manageContact');
     }
 
     public function saveContact()

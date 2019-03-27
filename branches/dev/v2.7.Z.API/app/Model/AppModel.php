@@ -45,6 +45,8 @@ class AppModel extends Model
     
     // tablename -> accuracy fields
     public static $writableFields = array();
+
+    public static $listValues;
     
     public static $requiredFields = array();
     public $notBlankFields=array();
@@ -246,8 +248,45 @@ class AppModel extends Model
 
     private function checkRequiredFields($data)
     {
+        $conditions = array();
         if (empty($this->id)){
-            foreach (self::$requiredFields as $model => $rules) {
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $fields = array();
+                foreach ($rules as $field => $rule) {
+                    $fields[] = $field;
+                }
+                $conditions[] = array(
+                    "model" => explode("||", $modelALias)[0],
+                    "structure_alias" => explode("||", $modelALias)[1],
+                    "field" => $fields
+                );
+            }
+            
+            if (!empty($conditions)){
+                App::uses('Sfs', 'Model');
+                $Sfs = new Sfs();
+                $sfsData = $Sfs->find("all", array(
+                    "conditions" => array('OR' => $conditions)
+                ));
+                if (!empty($sfsData)){
+                    foreach ($sfsData as $sfs) {
+                        $alias = strtolower($sfs["Sfs"]["structure_alias"]);
+                        $model = $sfs["Sfs"]["model"];
+                        $field = $sfs["Sfs"]["field"];
+                        $type = isset($_SESSION["aliases"][$alias]["type"])?$_SESSION["aliases"][$alias]["type"]:"";
+                        if (!empty($alias) && !empty($type)){
+                            $flag = isset($sfs["Sfs"]["flag_" . $type])?$sfs["Sfs"]["flag_" . $type]:1;
+                            if (empty($flag)){
+                                unset(self::$requiredFields["{$model}||{$alias}"]["{$field}"]);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $model = explode("||", $modelALias)[0];
+                $alias = explode("||", $modelALias)[1];
                 foreach ($rules as $field => $rule) {
                     if ($this->name == $model || $model == 'FunctionManagement'){
                         if (isset($data[$model])){
@@ -1070,6 +1109,10 @@ class AppModel extends Model
                     }
                     $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
 
+                    $detailClassInstance->primaryKey = $settings['master_foreign'];
+                    if (isset($associated[$detailClass][$detailClassInstance->primaryKey])){
+                        $detailClassInstance->id = $associated[$detailClass][$detailClassInstance->primaryKey];
+                    }
 
                     $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
 
@@ -1090,13 +1133,17 @@ class AppModel extends Model
         
         $this->checkFloats();
         
+        $this->checkList();
+        
         parent::validates($options);
         
         if (!empty($this->notBlankFields)){
             $modelTemp = "FunctionManagement";
             foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
                 if (isset($this->data[$modelTemp][$field]) && empty($this->data[$modelTemp][$field])){
-                    $this->validationErrors[$field][]= $message;
+                    if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                        $this->validationErrors[$field][]= $message;
+                    }
                 }
             }
         }
@@ -1106,6 +1153,29 @@ class AppModel extends Model
             return true;
         }
         return false;
+    }
+    
+    private function checkList()
+    {
+        $name = $this->name;
+        $data = $this->data;
+        if (isset (self::$listValues[$name])){
+            $lists = self::$listValues[$name];
+            foreach ($lists as $fieldLabel => $list) {
+                $field = explode("||", $fieldLabel)[0];
+                $label = explode("||", $fieldLabel)[1];
+                if (isset($data[$name][$field]) && !empty($data[$name][$field])){
+                    if (!isset($list[$data[$name][$field]])){
+                        $message = __('the value is not part of the list [%s]', $label);
+                        if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                            $this->validationErrors[$field][]= $message;
+                        }elseif (isset($this->validationErrors[$field])){
+                            $this->validationErrors[$field][]= $message;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function checkMasterDetailRequiredFields(&$master, &$detail)

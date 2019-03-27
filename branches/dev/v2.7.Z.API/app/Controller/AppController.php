@@ -224,7 +224,7 @@ class AppController extends Controller
     {
         parent::beforeFilter(); 
         $this->checkUrl();
-//$d=$this->request->data;
+
         API::checkData($this);
         if (API::isAPIMode()){
             $this->Components->unload('DebugKit.Toolbar');
@@ -232,13 +232,7 @@ class AppController extends Controller
                 $this->checkApiKey();
             }
         }
-//API::addToBundle($this->request->data, API::$warnings);
-//API::sendTo("TEste");
-//API::addToBundle($d, API::$warnings);
-//if (API::getAction() != 'initialAPI'){
-//API::sendTo('TestTESTtest123123');
-//die("wdiofusiodfjlsdflksd");
-//}
+
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -1336,7 +1330,7 @@ class AppController extends Controller
                 if (!API::isAPIMode()){
                     self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
                     $this->redirect('/Menus');
-                exit();
+                    exit();
                 }else{
                     $_SESSION['ctrapp_core']['search'][$searchId]['criteria']=array();
                 }
@@ -2298,6 +2292,12 @@ class AppController extends Controller
         }
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
+        // ------------------------------------------------------------------------------------------------------------------------------------------
+         
+        // *** 14 *** Update the structure format for ccl
+        $cclModel = AppModel::getInstance('ClinicalAnnotation', 'ClinicalAnnotationAppModel', true);
+        $cclDatamartData = $cclModel->getCCLsList();
+        $result = $cclModel->deleteFromStructuresDeactiveCCLs($cclDatamartData);
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // update the permissions_regenerated flag and redirect

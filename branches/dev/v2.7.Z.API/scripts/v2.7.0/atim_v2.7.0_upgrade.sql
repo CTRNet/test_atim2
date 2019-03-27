@@ -428,4 +428,4 @@ UPDATE i18n SET fr = REPLACE(fr, 'Vos données ne peuvent être supprimées! <br
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.7.0', NOW(),'6856','n/a');
+('2.7.0', NOW(),'6858','n/a');

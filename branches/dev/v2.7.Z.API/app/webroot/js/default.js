@@ -9,9 +9,11 @@ var checkedData = [];
 var DEBUG_MODE_JS = 0;
 var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
-//window.alert = function(a){
-//    console.log(a);
-//}
+
+if (window.name !== "ATiM - Advanced Tissue Management"){
+    window.name = "ATiM - Advanced Tissue Management";
+    location.reload(true);
+}
 
 $(document).ready(function () {
     $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
@@ -102,11 +104,6 @@ $(document).ready(function () {
         }
 
         var errorFunction = function (jqXHR, textStatus, errorThrown) {
-            //$(document).remove('#popupError');
-            //var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            //popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            //$(document).append(popupError);
-//        $(popupError).popup();
             if (DEBUG_MODE_JS > 0) {
                 console.log (jqXHR);
             }
@@ -116,6 +113,12 @@ $(document).ready(function () {
         treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
         findDuplicatedSamples(treeTable);
     }
+    $("a.help_link").each(function(){
+        var $this = $(this);
+        $this.attr("target", "_blank");
+        $this.attr("href", root_url+$this.attr("href"));
+        $this.text(here);
+    });
 });
 
 jQuery.fn.fullWidth = function () {
@@ -601,7 +604,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
 //            var name = $(cell).find("input:last").prop("name");
             var name = $(this).prop("name");
-            name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            if (name.substr(name.length-3,name.length-1)=="][]"){
+                name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            }else{
+                name = name.substr(0, name.length - 1) + "_with_file_upload]";
+            }
             $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 
         });
@@ -1399,6 +1406,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
     
     $(scope).find("input[type=checkbox]").each(function(){
+        var $requiredYN = false;
+        var $checked = false;
+        var $checkBox;
+        $(this).parent().children('input[type=checkbox]').each(function(){
+            $checkBox = $(this);
+            if ($checkBox.prop('required')){
+                $requiredYN = true;
+            }
+            if ($checkBox.prop('checked')){
+                $checked = true;
+            }
+        });
+        
+        if ($requiredYN && $checked){
+            $(this).parent().children('input[type=checkbox]').each(function(){
+                $checkBox = $(this);
+                if ($checkBox.prop('checked')){
+                    $checkBox.prop('required', true);
+                }else{
+                    $checkBox.prop('required', false);
+                }
+                
+            });
+        }
+                
         $(this).click(function(){
             $currentCheckBox=$(this);            
             $parent=$currentCheckBox.parent();
@@ -2434,6 +2466,17 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.rightPart:first").addClass("at");
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
+
+
+    topFrame = $li.offset().top - $li.closest("table").offset().top;
+    heightTable = $li.closest("table").height();
+    heightFrame = $("#frame").height();
+    if (topFrame + heightFrame > heightTable){
+        $li.closest("table").closest("td").height(topFrame + heightFrame);
+    }
+    $("#frame").css({"position": "relative", "top": topFrame});
+
+    
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
@@ -2443,6 +2486,14 @@ function set_at_state_in_tree_root(new_at_li, json) {
         
         $("#frame").html(data);
         initActions();
+        
+        topFrame = $li.offset().top - $li.closest("table").offset().top;
+        heightTable = $li.closest("table").height();
+        heightFrame = $("#frame").height();
+        if (topFrame + heightFrame > heightTable){
+            $li.closest("table").closest("td").height(topFrame + heightFrame);
+        }
+        $("#frame").css({"position": "relative", "top": topFrame});
     });
 }
 
