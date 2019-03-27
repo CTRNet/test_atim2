@@ -142,9 +142,16 @@ function json_encode_js($data, $level = 3, $formattage = 0)
     if (isAssoc($data)) {
         foreach ($data as $key1 => $value1) {
             if (is_array($value1)) {
-                $s .= str_repeat($tab, $level) . "'" . $key1 . "': [" . $newLine;
-                $s .= json_encode_js($value1, $level + 1);
-                $s .= str_repeat($tab, $level) . "]," . $newLine;
+                if(isAssoc($value1)){
+                    $open = '{';
+                    $close='}';
+                }else{
+                    $open = '[';
+                    $close=']';
+                }
+                    $s.= str_repeat($tab, $level) . "'" . $key1 . "': ".$open. $newLine;
+                    $s.=json_encode_js($value1, $level + 1);
+                    $s.= str_repeat($tab, $level) .$close. "," . $newLine;
             } else {
                 if (($value1 == 'true') || ($value1 == 'false') || (is_numeric($value1))) {
                     $s .= str_repeat($tab, $level) . "'" . $key1 . "' : '" . $value1 . "'," . $newLine;
@@ -157,9 +164,17 @@ function json_encode_js($data, $level = 3, $formattage = 0)
     } else {
         foreach ($data as $value1) {
             if (is_array($value1)) {
-                $s .= str_repeat($tab, $level) . "[" . $newLine;
+                if(isAssoc($value1)){
+                    $open = '{';
+                    $close='}';
+                }else{
+                    $open = '[';
+                    $close=']';
+                }
+
+                $s.= str_repeat($tab, $level) . $open . $newLine;
                 $s .= json_encode_js($value1, $level + 1);
-                $s .= str_repeat($tab, $level) . "]," . $newLine;
+                $s.= str_repeat($tab, $level) .$close. "," . $newLine;
             } else {
                 
                 if (($value1 == 'true') || ($value1 == 'false') || (is_numeric($value1))) {
@@ -210,11 +225,8 @@ function d($var, $screen = true, $log = true, $die = false)
     }
     App::uses('Debugger', 'Utility');
     
-    $trace = Debugger::trace(array(
-        'start' => 1,
-        'depth' => 2,
-        'format' => 'array'
-    ));
+    $t=(empty($trace))?0:1;
+    $trace = Debugger::trace(array('start' => 1 + $t, 'depth' => 2 + $t, 'format' => 'array'));
     $file = str_replace(array(
         CAKE_CORE_INCLUDE_PATH,
         ROOT
@@ -272,6 +284,31 @@ function dc($number = 0)
     } else {
         array_splice($_SESSION['debug']['dl'], 0, $number);
     }
+}
+
+/**
+ * @param $text
+ * @return mixed|string
+ */
+function removeHTMLTags($text)
+{
+    $text=strip_tags($text);
+    $text= trim($text);
+    $text=str_replace('&nbsp;', '', $text);
+    return $text;
+}
+
+
+function associateToIndexArray($data)
+{
+    $response = "{";
+    $i=0;
+    foreach ($data as $value){
+        $part = (isAssoc($value))?"{".json_encode_js($value)."}":"[".json_encode_js($value)."]";
+        $response.="'".$i++."':".$part.",";
+    }
+    $response= substr($response, 0, -1).'}';
+    return $response;
 }
 
 /**

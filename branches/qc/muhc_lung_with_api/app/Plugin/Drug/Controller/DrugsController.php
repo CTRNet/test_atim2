@@ -285,6 +285,6 @@ class DrugsController extends DrugAppController
             require ($hookLink);
         }
         
-        $this->set('result', "[" . $result . "]");
+        $this->set('result', "[" . $result . "]", SHOW_IN_API);
     }
 }

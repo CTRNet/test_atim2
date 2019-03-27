@@ -24,10 +24,15 @@ class MergeController extends AdministrateAppController
                 $regexp = '#([\d]+)(/)?$#';
                 $from = array();
                 $to = array();
-                assert(preg_match($regexp, $this->request->data['from'], $from));
-                assert(preg_match($regexp, $this->request->data['to'], $to));
-                $from = $from[1];
-                $to = $to[1];
+                preg_match($regexp, $this->request->data['from'], $from);
+                preg_match($regexp, $this->request->data['to'], $to);
+                $from = isset($from[1])? $from[1] : -1;
+                $to = isset($to[1])? $to[1] : -1;
+                
+                // Check collection exists
+                $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
+                $collectionModel->getOrRedirect($from);
+                $collectionModel->getOrRedirect($to);
                 
                 $toUpdate = array(
                     AppModel::getInstance('InventoryManagement', 'AliquotMaster'),
@@ -73,10 +78,15 @@ class MergeController extends AdministrateAppController
                 $regexp = '#([\d]+)(/)?$#';
                 $from = array();
                 $to = array();
-                assert(preg_match($regexp, $this->request->data['from'], $from));
-                assert(preg_match($regexp, $this->request->data['to'], $to));
-                $from = $from[1];
-                $to = $to[1];
+                preg_match($regexp, $this->request->data['from'], $from);
+                preg_match($regexp, $this->request->data['to'], $to);
+                $from = isset($from[1])? $from[1] : -1;
+                $to = isset($to[1])? $to[1] : -1;
+                
+                // Check participant exists
+                $participantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant');
+                $participantModel->getOrRedirect($from);
+                $participantModel->getOrRedirect($to);
                 
                 // identifiers
                 $identifiersModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');

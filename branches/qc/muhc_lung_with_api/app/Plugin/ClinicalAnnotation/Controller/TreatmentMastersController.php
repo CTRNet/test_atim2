@@ -29,6 +29,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
      */
     public function listall($participantId, $treatmentControlId = null)
     {
+        if (API::isAPIMode()){
+            $treatmentControlId = -1;
+        }
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -100,7 +103,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         
         // MANAGE DATA
         $this->request->data = $treatmentControlId ? $this->paginate($this->TreatmentMaster, $searchCriteria) : array();
-        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenuVariables', array(
             'Participant.id' => $participantId
@@ -225,7 +227,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         
         if (empty($this->request->data)) {
             $this->request->data = $treatmentMasterData;
-            
             $hookLink = $this->hook('initial_display');
             if ($hookLink) {
                 require ($hookLink);
@@ -246,6 +247,21 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 $this->TreatmentMaster->addWritableField(array(
                     'diagnosis_master_id'
                 ));
+                
+                if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                    $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                    $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                    $p = $diagnosisMasterModel->find('first', array(
+                        'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                    ));
+
+                    if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                    }
+
+                }
+
                 if ($this->TreatmentMaster->save($this->request->data)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
@@ -326,7 +342,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         if ($hookLink) {
             require ($hookLink);
         }
-        
         if (empty($this->request->data)) {
             if ($txControlData['TreatmentControl']['use_addgrid'])
                 $this->request->data = array(
@@ -362,6 +377,20 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 }
                 
                 if ($submittedDataValidates) {
+                    if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                        $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                        $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                        $p = $diagnosisMasterModel->find('first', array(
+                            'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                        ));
+
+                        if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                            $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                        }
+
+                    }
+
                     if ($this->TreatmentMaster->save($this->request->data)) {
                         $treatmentMasterId = $this->TreatmentMaster->getLastInsertId();
                         $urlToFlash = '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $treatmentMasterId;

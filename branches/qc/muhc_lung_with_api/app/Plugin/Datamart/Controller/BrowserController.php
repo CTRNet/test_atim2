@@ -14,9 +14,14 @@ class BrowserController extends DatamartAppController
         'Datamart.BrowsingIndex',
         'Datamart.BatchSet',
         'Datamart.SavedBrowsingIndex',
-        'ExternalLink'
+        'ExternalLink',
+        'ApiCmalp'
     );
 
+    public function beforeFilter() {
+        parent::beforeFilter();
+    }
+    
     public function index()
     {
         $this->Structures->set("datamart_browsing_indexes");
@@ -157,7 +162,7 @@ class BrowserController extends DatamartAppController
             $controller = $this->request->params['controller'];
             $action = $this->request->params['action'];
             $param = $controlId . "";
-            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$param])) {
+            if (isset($_SESSION['post_data'][$plugin][$controller][$action][$param]) && !empty($controlId)) {
                 convertArrayToJavaScript($_SESSION['post_data'][$plugin][$controller][$action][$param], 'jsPostData');
             }
         }
@@ -177,7 +182,74 @@ class BrowserController extends DatamartAppController
             )
         ));
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
-        
+
+        if(API::isAPIMode() && !API::isStructMode()){
+            if (strpos($controlId, '-')!==false){
+                list ($controlId, $subStructCtrlId) = explode("-", $controlId);
+            }
+        }
+
+        if (API::isAPIMode() && isset($this->request->data)) {
+            $data = $this->request->data;
+            foreach ($data as $modelName => $values) {
+                $browsingData = $this->DatamartStructure->findByModel($modelName);
+
+                if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])) {
+                    foreach ($values['id'] as $index=>$id) {
+                        $modelInstance = AppModel::getInstance($browsingData['DatamartStructure']['plugin'], $modelName);
+                        $resultat=$modelInstance->find('first', array("conditions"=>array($modelName.".".$modelInstance->primaryKey => $id)));
+                        if (empty($resultat)){
+                            unset($values['id'][$index]);
+                        }
+                    }
+                }
+                if (!empty($values) && is_array($values['id']) && empty($values['id'])){
+                    API::sendDataToAPI(array("errors"=>array("No data matches your search parameters!<br><i>Note the system used the shortest way to browse from the previous data type to the selected one. Be sure no other appropriate way exists to browse your data checking the 'Data Types Relationship Diagram'.<\/i>")));
+                }
+
+                $save = null;
+                if (!empty($browsingData) && isset($values['id']) && is_array($values['id']) && !empty($values['id'])) {
+                    $saveIds = implode(",", array_unique(array_filter($values['id'])));
+                    $save1 = array(
+                        'BrowsingResult' => array(
+                            'user_id' => $this->Session->read('Auth.User.id'),
+                            'parent_id' => 0,
+                            'parent_children' => '',
+                            'browsing_structures_id' => $browsingData['DatamartStructure']['id'],
+                            'id_csv' => $saveIds,
+                            'raw' => 1,
+                            'browsing_type' => 'search'
+                        )
+                    );
+                    $save = $this->BrowsingResult->save($save1);
+                    $this->BrowsingResult->id = null;
+                    $this->BrowsingResult->data = array();
+
+                    if ($save) {
+                        unset($this->request->data[$modelName]);
+                        $save2 = array(
+                            'BrowsingResult' => array(
+                                'user_id' => $this->Session->read('Auth.User.id'),
+                                'parent_id' => $save['BrowsingResult']['id'],
+                                'parent_children' => '',
+                                'browsing_structures_id' => $browsingData['DatamartStructure']['id'],
+                                'id_csv' => $saveIds,
+                                'raw' => 0,
+                                'browsing_type' => 'drilldown'
+                            )
+                        );
+                        $save = $this->BrowsingResult->save($save2);
+                        if ($save) {
+                            $nodeId = $save['BrowsingResult']['id'];
+                            $this->BrowsingResult->id = null;
+                            $this->BrowsingResult->data = array();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         // data handling will redirect to a straight page
         if ($this->request->data) {
             // ->browsing access<- (search form or checklist)
@@ -202,7 +274,7 @@ class BrowserController extends DatamartAppController
             $this->Browser->buildDrillDownIfNeeded($this->request->data, $nodeId);
             
             $lastControlId = $directIdArr[count($directIdArr) - 1];
-            if (! $checkList) {
+            if (! $checkList && !API::isAPIMode()) {
                 // going to a search screen, remove the last direct_id to avoid saving it as direct access
                 array_pop($directIdArr);
             }
@@ -210,7 +282,7 @@ class BrowserController extends DatamartAppController
             $createdNode = null;
             // save nodes (direct and indirect)
             foreach ($directIdArr as $controlId) {
-                $subStructCtrlId = null;
+                $subStructCtrlId = (isset($subStructCtrlId) && API::isAPIMode())?$subStructCtrlId:null;
                 if (isset($subStructureId) /* there is a sub id */ && $directIdArr[count($directIdArr) - 1] == $controlId /* this is the last element */ &&  $checkList)/* this is a checklist */{
                     $subStructCtrlId = $subStructureId;
                 }
@@ -235,7 +307,19 @@ class BrowserController extends DatamartAppController
                 $browsing = $createdNode['browsing'];
                 unset($createdNode);
             }
-            
+            if (API::isAPIMode()) {
+                $browsing = $this->BrowsingResult->getOrRedirect($nodeId);
+                if ($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')) {
+                    $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
+
+                $this->Browser->initDataLoad($browsing, $mergeTo, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
+                if (!$this->Browser->validPermission) {
+                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+                }
+                $this->request->data = $this->Browser->getDataChunk(0, $this->passedArgs);
+                API::sendDataToAPI($this->request->data);
+            }
             // all nodes saved, now load the proper form
             if ($checkList) {
                 $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
@@ -677,7 +761,7 @@ class BrowserController extends DatamartAppController
         ));
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else {
+        } else{
             $this->request->data['BrowsingIndex']['temporary'] = false;
             $this->BrowsingIndex->pkeySafeguard = false;
             $this->BrowsingIndex->checkWritableFields = false;
@@ -850,4 +934,123 @@ class BrowserController extends DatamartAppController
         // done, render the proper node.
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
     }
+    
+    private function getBrowserSearchlist()
+    {
+        if (API::isStructMode()){
+            return $this->Browser->getBrowserDropdownOptions(0, 0, null, null, null, null, null, null);
+        }else{
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+    }
+    
+    private function getControlList()
+    {
+        if (API::isStructMode()){
+            $browsings=$this->DatamartStructure->find('all');
+            $response=array();
+            foreach ($browsings as $browsing) {
+                $browsing= current($browsing);
+                $plugin=isset($browsing['plugin'])?$browsing['plugin']:null;
+                $model=isset($browsing['model'])?$browsing['model']:null;
+                $id=$browsing['id'];
+                $mainModel = AppModel::getInstance($plugin, $model, true);
+                $conditions=array();
+                $ctrlName = $mainModel->getControlName();
+                if (!empty($ctrlName)){
+                    $controlModel = AppModel::getInstance($plugin, $ctrlName, true);
+                    $values=array();
+                    $fields = array($ctrlName . '.id', $ctrlName . '.databrowser_label');
+                    $conditions = $controlModel->hasField('flag_active')?array($ctrlName.'.flag_active' => 1):array();
+                    
+                    $idsFilter=null;
+                    if ($ctrlName == "SampleControl") {
+                        $parentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+                        $idsFilter = $parentToDerivativeSampleControl->getActiveSamples();
+                    }
+
+                    if ($idsFilter != null) {
+                        $idsFilter[] = 0;
+                        $conditions[] = $controlModel->name . '.id IN(' . implode(", ", $idsFilter) . ')';
+                    }
+                    
+                    $values = $controlModel->find('list', array(
+                        'conditions'=>$conditions, 
+                        'fields' =>$fields,
+                        'recursive' => 0
+                    ));
+                    $response[$model]=$values;
+                }
+            }
+            
+           $mainModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
+           $miscIdentifierControls = $mainModel->find("list", array(
+               'conditions' => array("MiscIdentifierControl.flag_active" => "true"),
+               'fields' => array("MiscIdentifierControl.id", "MiscIdentifierControl.misc_identifier_name")
+           ));
+
+            foreach ($miscIdentifierControls as $k => $v) {
+                $miscIdentifierControls[$k] = __($v);
+            }
+
+            $response["MiscIdentifier"] = $miscIdentifierControls;
+
+            return $response;
+        } else {
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+    }
+
+    private function getApiCmalp()
+    {
+        $modelName = $this->ApiCmalp->name;
+        if (API::isAPIMode()){
+            $fields = array('controller', 'model', 'action', 'link', 'parameters');
+            $ApiCmalps = $this->ApiCmalp->find('all', array('fields'=>$fields));
+            $response = array();
+            foreach ($ApiCmalps as $ApiCmalp) {
+                $response[$ApiCmalp[$modelName]['controller']]['model'] = $ApiCmalp[$modelName]['model'];
+                $response[$ApiCmalp[$modelName]['controller']][$ApiCmalp[$modelName]['action']] = array(
+                    'urn' => $ApiCmalp[$modelName]['link'],
+                    'model' => $ApiCmalp[$modelName]['model'],
+                    'parameters' => $ApiCmalp[$modelName]['parameters']
+                );
+            }
+            return $response;
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+         }
+    }
+
+    public function initialAPI()
+    {
+        if (API::isAPIMode()){
+            API::addToBundle($this->getApiCmalp(), "getApiCmalp");
+            API::addToBundle($this->getControlList(), "getControlList");
+            API::addToBundle($this->getBrowserSearchlist(), "getBrowserSearchlist");
+            API::sendDataAndClear();
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+         }
+    }
+
+    public function searchById($plugin, $model, $field, $id = null)
+    {
+        if (API::isAPIMode()){
+            if (!$id){
+                $id = $field;
+                $field = "id";
+            }
+            $modelClass = AppModel::getInstance($plugin, $model);
+            $data = $modelClass->find("first", array(
+                'conditions' => array(
+                    $field => $id
+            )));
+            API::sendDataToAPI($data);            
+        }else{
+           $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+        
+    }
+    
 }

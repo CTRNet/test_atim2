@@ -1,4 +1,5 @@
 <?php
+
 $structureLinks = array(
     'top' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id']
 );

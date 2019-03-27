@@ -1,5 +1,6 @@
 <?php
 // used by browser
+header('Content-Type: application/csv');
 $csv = $this->Csv;
 
 if ($csvHeader) {

@@ -16,14 +16,15 @@ class UserLoginAttempt extends AppModel
      */
     public function saveSuccessfulLogin($username)
     {
+        $serverHttpUserAgent=isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:null;
         $loginData = array(
             "username" => $username,
             "ip_addr" => AppModel::getRemoteIPAddress(),
             "succeed" => true,
-            "http_user_agent" => $_SERVER['HTTP_USER_AGENT'],
+            "http_user_agent" => $serverHttpUserAgent,
             "attempt_time" => date("Y-m-d H:i:s")
         );
-        return $this->save($loginData);
+        return $this->save($loginData, false);
     }
 
     /**

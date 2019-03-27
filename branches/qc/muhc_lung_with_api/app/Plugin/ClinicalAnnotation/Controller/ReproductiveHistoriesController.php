@@ -88,11 +88,11 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
      *
      * @param null $participantId
      */
-    public function add($participantId = null)
+    public function add($participantId)
     {
-        if (! $participantId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        }
+//        if (! $participantId) {
+//            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+//        }
         
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);

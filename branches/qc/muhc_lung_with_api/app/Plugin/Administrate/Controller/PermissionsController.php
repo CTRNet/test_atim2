@@ -19,8 +19,8 @@ class PermissionsController extends AdministrateAppController
     {
         parent::beforeFilter();
         
-        if ($this->Auth->user()) {
-            $this->Auth->allowedActions = array(
+        if ($this->AtimAuth->user()) {
+            $this->AtimAuth->allowedActions = array(
                 'regenerate'
             );
         }

@@ -51,7 +51,7 @@ class OrderByTranslateBehavior extends ModelBehavior
             return $query;
         }
         assert($c == 1) or die("Only supports a single order by");
-        $value = is_array($query['order'][0]) ? $query['order'][0] : $query['order'];
+        $value = isset($query['order'][0]) && is_array($query['order'][0]) ? $query['order'][0] : $query['order'];
         foreach ($value as $key => $direction) {
             if (is_int($key)) {
                 if (strpos($direction, " ") !== false) {

@@ -9,6 +9,7 @@ var FmPopup = function(popup){
 	$(popup).data('FmPopup', this);
 	this.closePop = true;
 	this.closable = true;
+	this.movable = true;
 	this.popupOuter = null;
 	this.retainFocus = FmPopup.prototype.retainFocus;
 };
@@ -18,6 +19,10 @@ jQuery.fn.popup = function(options){
 	var fmPopup = $(this).data('FmPopup') == undefined ? new FmPopup(this) : $(this).data('FmPopup');
 	if(options != undefined && options.closable != undefined){
 		fmPopup.closable = options.closable; 
+	}
+	
+	if(options != undefined && options.movable != undefined){
+		fmPopup.movable = options.movable; 
 	}
 	
 	if(fmPopup.popupOuter == null){
@@ -86,6 +91,9 @@ jQuery.fn.popup = function(options){
 		});
 		
 		fmPopup.popupOuter.find(":tabbable").unbind('keydown', fmPopup.retainFocus).keydown(fmPopup, fmPopup.retainFocus);
+                if (fmPopup.movable){
+                    $(this).closest(".popup_container").draggable({ cancel: 'td,tr,input,a,.popup_close', cursor: "all-scroll"});
+                }
 	}
 	
 	
@@ -110,31 +118,20 @@ FmPopup.prototype.retainFocus = function(event){
 };
 
 function setMainFormTabIndex(){
-//    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
-//        var $this = $(this);
-//        var tabIndex = $this.attr("tabindex");
-//        if (tabIndex ==-9999){
-//                tabIndex = -9999;
-//        }else if (tabIndex ==-8888){
-//            tabIndex ="";
-//        }else{
-//                tabIndex = -tabIndex;
-//        }
-//        $this.attr("tabindex", tabIndex);
-//    });
+    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
+        var $this = $(this);
+        var tabIndex = $this.attr("data-tabindex-old");
+        $this.attr("tabindex", tabIndex);
+    });
 }
 
 function setPopUpTabIndex(){
-//    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
-//        var $this = $(this);
-//        var tabIndex = $this.attr("tabindex");
-//        if (tabIndex<0){
-//                tabIndex = -9999;
-//        }else if (tabIndex =="" || tabIndex == 0 || isNaN(tabIndex)){
-//            tabIndex =-8888;
-//        }else{
-//                tabIndex = -tabIndex;
-//        }
-//        $this.attr("tabindex", tabIndex);
-//    });
+    $(".mainFieldset").find("input, textarea, select, button, a").each(function(){
+        var $this = $(this);
+        var tabIndex = $this.attr("tabindex");
+        if (tabIndex =="" || tabIndex == 0 || isNaN(tabIndex) || tabIndex>0){
+            $this.attr("data-tabindex-old", tabIndex);
+            $this.attr("tabindex", -9999);
+        }
+    });
 }

@@ -41,7 +41,7 @@ class PagesController extends AppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        $this->Auth->allowedActions = array(
+        $this->AtimAuth->allowedActions = array(
             'display'
         );
     }
@@ -84,6 +84,9 @@ class PagesController extends AppController
         } else {
             $useLink = '/menus';
         }
+        
+        API::addToBundle(array('result'=>$results, 'link'=>$useLink), API::$errors);
+        API::sendDataAndClear();
         
         $this->set('atimMenu', $this->Menus->get($useLink));
     }

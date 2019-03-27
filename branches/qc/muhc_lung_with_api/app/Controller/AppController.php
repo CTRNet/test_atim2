@@ -19,6 +19,7 @@
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Controller', 'Controller');
+App::uses('AtimAuthComponent', 'Controller/Component');
 
 /**
  * Application Controller
@@ -50,21 +51,26 @@ class AppController extends Controller
 
     public $uses = array(
         'Config',
-        'SystemVar'
+        'SystemVar',
+        'UserApiKey',
+        'User',
+        'ApiCmalp'
     );
 
     public $components = array(
         'Acl',
         'Session',
         'SessionAcl',
-        'Auth',
+//        'Auth',
+        'AtimAuth',
         'Menus',
         'RequestHandler',
         'Structures',
         'PermissionManager',
         'Paginator',
         'Flash',
-        'DebugKit.Toolbar'
+        'DebugKit.Toolbar',
+        'Cookie'
     );
 
     public $helpers = array(
@@ -119,6 +125,41 @@ class AppController extends Controller
     
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
+
+    /**
+     * @return bool
+     */
+    private function checkApiKey()
+    {
+        $valide=true;
+        if (API::getApiKey()){
+            $condition['UserApiKey.api_key']=API::getApiKey();  
+            $users=$this->UserApiKey->find('all', array('conditions'=>$condition));
+            if (count($users)==1){
+                $user=API::setUser($this->User->findById($users[0]['UserApiKey']['user_id']));
+                unset ($users);
+                $this->AtimAuth->login($user['User']);
+            }else{
+                unset ($users);
+                $valide=false;
+            }
+        }
+        return $valide;
+    }
+
+    private function checkControllerAction()
+    {
+        $modelName = $this->ApiCmalp->name;
+        $fields = array('controller', 'model', 'action', 'link', 'parameters');
+        $conditions = array('action' => API::getAction(), 'controller' => API::getController());
+        $ApiCmalps = $this->ApiCmalp->find('all', array('fields' => $fields, 'conditions' => $conditions));
+
+        if (Count($ApiCmalps) == 1) {
+            return true;
+        } else {
+            $this->atimFlashError(__("You are not authorized to access that location."), '/Menus');
+        }
+    }
 
     private function addUrl($type = "nonAjax")
     {
@@ -181,7 +222,17 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
+        parent::beforeFilter(); 
         $this->checkUrl();
+
+        API::checkData($this);
+        if (API::isAPIMode()){
+            $this->Components->unload('DebugKit.Toolbar');
+            if ($this->checkControllerAction()){
+                $this->checkApiKey();
+            }
+        }
+
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -198,7 +249,7 @@ class AppController extends Controller
             $this->Session->write('Config.language', Configure::read('Config.language'));
         }
         
-        $this->Auth->authorize = 'Actions';
+        $this->AtimAuth->authorize = 'Actions';
         
         // Check password should be reset
         $lowerUrlHere = strtolower($this->request->here);
@@ -248,7 +299,7 @@ class AppController extends Controller
         }
         
         // menu grabbed for HEADER
-        if ($this->request->is('ajax')) {
+        if ($this->request->is('ajax') || API::isAPIMode()) {
             Configure::write('debug', 0);
             $this->Components->unload('DebugKit.Toolbar');
         } else {
@@ -280,17 +331,21 @@ class AppController extends Controller
             $this->set('atimMenu', $this->Menus->get());
         }
         // get default STRUCTRES, used for forms, views, and validation
-        $this->Structures->set();
-        
+        if (!API::isAPIMode()){
+            $this->Structures->set();
+        }else{
+            $structure = $this->Structures->set();
+            API::setStructure($structure);
+		}        
         $this->checkIfDownloadFile();
         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
-        $this->Auth->authError = __('You are not authorized to access that location.');
+        $this->AtimAuth->authError = __('You are not authorized to access that location.');
     }
 
     private function checkIfDownloadFile()
     {
-        if (isset($this->request->query['file']) && $this->Auth->isAuthorized()) {
+        if (isset($this->request->query['file']) && $this->AtimAuth->isAuthorized()) {
             $plugin = $this->request->params['plugin'];
             $modelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
             $fileName = $this->request->query['file'];
@@ -404,6 +459,10 @@ class AppController extends Controller
      */
     public function beforeRender()
     {
+        if (API::isAPIMode() && !API::isStructMode()){
+            $this->autoRender = false;
+            return false;
+        }
         if (isset($this->request->query['file'])) {
             return $this->handleFileRequest();
         }
@@ -451,6 +510,7 @@ class AppController extends Controller
                 $mt->save(); // ignore errors, kind of insert ingnore
             }
         }
+        API::sendDataToAPI($this->request->data);
     }
 
     /**
@@ -485,8 +545,13 @@ class AppController extends Controller
      */
     public function redirect($url, $status = null, $exit = true)
     {
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
-        parent::redirect($url, $status, $exit);
+        if (!API::isAPIMode()){
+	        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+            parent::redirect($url, $status, $exit);
+        }else{
+            API::addToBundle(array('url' => $url, 'status' => $status, 'exit' => $exit), API::$redirect);
+            API::sendDataAndClear();
+        }
     }
 
     /**
@@ -497,33 +562,47 @@ class AppController extends Controller
      */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        if (empty($url)) {
-            $url = "/Menus";
-        }
-        if (strpos(strtolower($url), 'javascript') !== false) {
-            $url = $this->getBackHistoryUrl();
-        }
-        if (strpos(strtolower($url), 'javascript') === false) {
-            if ($type == self::CONFIRM) {
-                $_SESSION['ctrapp_core']['confirm_msg'] = $message;
-            } elseif ($type == self::INFORMATION) {
-                $_SESSION['ctrapp_core']['info_msg'][] = $message;
-            } elseif ($type == self::WARNING) {
-                $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
-            } elseif ($type == self::ERROR) {
-                $_SESSION['ctrapp_core']['error_msg'][] = $message;
+        if (API::isAPIMode()){
+            $messageType=array(
+                self::CONFIRM => 'confirms',
+                self::ERROR => 'errors',
+                self::WARNING => 'warnings',
+                self::INFORMATION => 'informations'
+            );
+            
+            if (!in_array(API::getModelName(), array('missingtranslation', 'userlog'))){
+                API::addToBundle($message, $messageType[$type]);
             }
-            $this->redirect($url);
-        } elseif (false) {
-            // TODO:: Check if can use javascript functions for blue screen message
-            echo '<script type="text/javascript">', 'javascript:history.back();', 'window.location.reload();', '</script>';
-        } else {
-            $this->autoRender = false;
-            $this->set('url', Router::url($url));
-            $this->set('message', $message);
-            $this->set('pageTitle', $message);
-            $this->render(false, "flash");
-        }
+            API::sendDataAndClear();
+        }else{
+	        if (empty($url)) {
+	            $url = "/Menus";
+	        }
+	        if (strpos(strtolower($url), 'javascript') !== false) {
+	            $url = $this->getBackHistoryUrl();
+	        }
+	        if (strpos(strtolower($url), 'javascript') === false) {
+	            if ($type == self::CONFIRM) {
+	                $_SESSION['ctrapp_core']['confirm_msg'] = $message;
+	            } elseif ($type == self::INFORMATION) {
+	                $_SESSION['ctrapp_core']['info_msg'][] = $message;
+	            } elseif ($type == self::WARNING) {
+	                $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
+	            } elseif ($type == self::ERROR) {
+	                $_SESSION['ctrapp_core']['error_msg'][] = $message;
+	            }
+	            $this->redirect($url);
+	        } elseif (false) {
+	            // TODO:: Check if can use javascript functions for blue screen message
+	            echo '<script type="text/javascript">', 'javascript:history.back();', 'window.location.reload();', '</script>';
+	        } else {
+	            $this->autoRender = false;
+	            $this->set('url', Router::url($url));
+	            $this->set('message', $message);
+	            $this->set('pageTitle', $message);
+	            $this->render(false, "flash");
+	        }
+		}
     }
 
     /**
@@ -890,6 +969,9 @@ class AppController extends Controller
      */
     public static function addWarningMsg($msg, $withTrace = false)
     {
+        if (API::isAPIMode()){
+            API::addToBundle($msg, API::$warnings);
+        }
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
                 'msg' => $msg,
@@ -910,6 +992,9 @@ class AppController extends Controller
      */
     public static function addInfoMsg($msg)
     {
+        if (API::isAPIMode()){
+            API::addToBundle($msg, API::$informations);
+        }
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
         } else {
@@ -923,6 +1008,9 @@ class AppController extends Controller
      */
     public static function addErrorMsg($msg)
     {
+        if (API::isAPIMode()){
+            API::addToBundle($msg, API::$errors);
+        }
         $_SESSION['ctrapp_core']['error_msg'][] = $msg;
     }
 
@@ -937,12 +1025,19 @@ class AppController extends Controller
      *
      * @return array
      */
-    public static function getStackTrace()
+    public static function getStackTrace($history=0)
     {
         $bt = debug_backtrace();
         $result = array();
+        $count=0;
         foreach ($bt as $unit) {
             $result[] = (isset($unit['file']) ? $unit['file'] : '?') . ", " . $unit['function'] . " at line " . (isset($unit['line']) ? $unit['line'] : '?');
+            if ($history!==0){
+                $count++;
+                if ($count>=$history){
+                    break;
+                }
+            }
         }
         return $result;
     }
@@ -990,9 +1085,9 @@ class AppController extends Controller
      */
     public static function atimSetCookie($skipExpirationCookie)
     {
-        if (! $skipExpirationCookie) {
             $sessionExpiration = time() + Configure::read("Session.timeout");
             setcookie('last_request', time(), $sessionExpiration, '/');
+        if (! $skipExpirationCookie) {
             setcookie('session_expiration', $sessionExpiration, $sessionExpiration, '/');
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
                 setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");
@@ -1227,18 +1322,23 @@ class AppController extends Controller
             
             $this->Structures->set('empty', 'emptyStructure');
         } else {
-            if ($this->request->data) {
+            if ($this->request->data || API::isAPIMode()) {
                 
                 // newly submitted search, parse conditions and store in session
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
-                self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                $this->redirect('/menus');
-                exit();
+                if (!API::isAPIMode()){
+                    self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
+                    $this->redirect('/Menus');
+                    exit();
+                }else{
+                    $_SESSION['ctrapp_core']['search'][$searchId]['criteria']=array();
+                }
+
             }
             
             // check if the current model is a master/detail one or a similar view
-            if (! $ignoreDetail) {
+            if (! $ignoreDetail && !API::isAPIMode()) {
                 self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$searchId]['criteria'], $structureAlias);
                 $this->Structures->set($structureAlias);
             }
@@ -1439,7 +1539,7 @@ class AppController extends Controller
 
     public function resetPermissions()
     {
-        if ($this->Auth->user()) {
+        if ($this->AtimAuth->user()) {
             $userModel = AppModel::getInstance('', 'User', true);
             $user = $userModel->findById($this->Session->read('Auth.User.id'));
             $this->Session->write('Auth.User.group_id', $user['User']['group_id']);
@@ -2193,6 +2293,12 @@ class AppController extends Controller
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
+         
+        // *** 14 *** Update the structure format for ccl
+        $cclModel = AppModel::getInstance('ClinicalAnnotation', 'ClinicalAnnotationAppModel', true);
+        $cclDatamartData = $cclModel->getCCLsList();
+        $result = $cclModel->deleteFromStructuresDeactiveCCLs($cclDatamartData);
+        // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // update the permissions_regenerated flag and redirect
         $this->Version->data = array(
@@ -2257,6 +2363,28 @@ class AppController extends Controller
             }
         }
         return $answer;
+    }
+
+    /**
+     * @param array|string $one
+     * @param null $two
+     * @param null $three
+     */
+    public function set($one, $two = null, $three=null)
+    {
+        parent::set($one, $two);
+        if ($three != null && API::isAPIMode()) {
+            if (is_array($one)) {
+                if (is_array($two)) {
+                    $data = array_combine($one, $two);
+                } else {
+                    $data = $one;
+                }
+            } else {
+                $data = array($one => $two);
+            }
+            API::addToBundle($data, API::$data);
+        }
     }
 }
 

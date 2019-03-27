@@ -28,6 +28,7 @@ Cache::config('default', array(
 ));
 
 // Load the shared functions and variable between all of the projects Controllers, Model & View
+require 'api.php';
 require 'basic.php';
 
 /**
@@ -119,5 +120,9 @@ CakeLog::config('error', array(
     ),
     'file' => 'error'
 ));
+
+if(!session_status()!=PHP_SESSION_ACTIVE){
+    session_start();
+}
 
 CakePlugin::loadAll(); // Loads all plugins at once
