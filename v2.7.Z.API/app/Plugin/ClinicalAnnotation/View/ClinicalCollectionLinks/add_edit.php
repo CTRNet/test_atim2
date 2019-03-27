@@ -24,7 +24,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/det
     $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$displayNextSubForm = true;
+$displayNextSubForm = $cclsList['ConsentMaster']['active'];
 
 // CUSTOM CODE
 $hookLink = $this->Structures->hook('consent_detail');
@@ -73,7 +73,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/d
     $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$displayNextSubForm = true;
+$displayNextSubForm = $cclsList['DiagnosisMaster']['active'];
 
 // CUSTOM CODE
 $hookLink = $this->Structures->hook('diagnosis_detail');
@@ -111,7 +111,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/d
     $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$displayNextSubForm = true;
+$displayNextSubForm = $cclsList['TreatmentMaster']['active'];
 
 // CUSTOM CODE
 $hookLink = $this->Structures->hook('trt_detail');
@@ -129,8 +129,6 @@ $structureLinks['radiolist'] = array(
 );
 
 $structureSettings['header'] = __('annotation');
-$structureSettings['form_bottom'] = true;
-$structureSettings['actions'] = true;
 
 $finalAtimStructure = $atimStructureEvent;
 $finalOptions = array(
@@ -149,7 +147,7 @@ if (! AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detai
     $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
 }
 
-$displayNextSubForm = true;
+$displayNextSubForm = $cclsList['EventMaster']['active'];
 
 // CUSTOM CODE
 $hookLink = $this->Structures->hook('event_detail');
@@ -158,5 +156,20 @@ if ($hookLink) {
 }
 
 // BUILD FORM
-if ($displayNextSubForm)
+if ($displayNextSubForm){
     $this->Structures->build($finalAtimStructure, $finalOptions);
+}
+
+$formOptions = array(
+    'settings' => array(
+        'actions' => true,
+        'form_bottom' => true
+    ),
+    'links' => array(
+        'top' => $finalOptions['links']['top']
+    )
+);
+if (isset($finalOptions['links']['bottom'])){
+    $formOptions['links']['top'] = $finalOptions['links']['bottom'];
+}
+$this->Structures->build($emptyStructure, $formOptions);
