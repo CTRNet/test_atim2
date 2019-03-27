@@ -24,6 +24,13 @@ if (! headers_sent()) {
     header('Content-type: text/html; charset=utf-8');
     AppController::atimSetCookie(isset($skipExpirationCookie) && $skipExpirationCookie);
 }
+// Add this if because the Print and echo functions cause warning in mode debug.
+//https://stackoverflow.com/questions/8028957#answer-8028987
+if(Configure::read('debug')===0){
+    header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+    header("Pragma: no-cache"); // HTTP 1.0.
+    header("Expires: 0"); // Proxies.
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,19 +62,7 @@ $title = $this->Shell->pageTitle;
 	
 	<title><?php echo $title ? $title.' &laquo ATiM' : __('core_appname'); ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<!--<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Cache-Control"
-	content=" no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0" />
-<meta http-equiv="Expires" content="0" />-->
-<?php
-// Add this if because the Print and echo functions cause warning in mode debug.
-// https://stackoverflow.com/questions/8028957#answer-8028987
-if (Configure::read('debug') === 0) {
-    header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    header("Pragma: no-cache"); // HTTP 1.0.
-    header("Expires: 0"); // Proxies.
-}
-?>
+
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 
@@ -113,7 +108,8 @@ if (__('clin_english') == "Anglais") {
 			var maxUploadFileSize = "<?php echo Configure::read('maxUploadFileSize'); ?>";
 			var maxUploadFileSizeError = "<?php echo __('the file size should be less than %d bytes', Configure::read('maxUploadFileSize')) ?>";
 			var loadSearchDataMessage = Array("<?php echo __('previous search') ?>", "<?php echo __('reset search') ?>");
-            var DUPLICATED_ALIQUOT = "<?php echo __('this aliquot is registered in another place'); ?>";
+                        var here = "<?php echo __('here'); ?>";
+                        var DUPLICATED_ALIQUOT = "<?php echo __('this aliquot is registered in another place'); ?>";
             <?php if (isset($_SESSION['js_post_data'])){echo ($_SESSION['js_post_data']); unset($_SESSION['js_post_data']);}?>
 		</script>
 <!--[if IE 7]>

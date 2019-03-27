@@ -17,7 +17,7 @@ class CollectionProtocolController extends ToolsAppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        $this->Auth->actionPath = 'controllers/';
+        $this->AtimAuth->actionPath = 'controllers/';
     }
 
     /**

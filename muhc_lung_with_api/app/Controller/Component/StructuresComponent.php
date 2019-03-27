@@ -6,6 +6,8 @@
 class StructuresComponent extends Component
 {
 
+    public $StructureValueDomain;
+
     public $controller;
 
     public static $singleton;
@@ -57,12 +59,12 @@ class StructuresComponent extends Component
      * @param null $alias
      * @param string $structureName
      * @param array $parameters
+     * @return array
      */
     public function set($alias = null, $structureName = 'atimStructure', array $parameters = array())
     {
         if (! is_array($alias)) {
             $alias = array_filter(explode(",", $alias));
-            // $alias = array_map('AppController::snakeToCamel', array_values($alias));
             if (! $alias) {
                 $alias[] = '';
             }
@@ -80,20 +82,52 @@ $parameters);
         );
         $allStructures = array();
         
+        $validationErrors = array();
+        $models = array();
         foreach ($alias as $aliasUnit) {
             $structUnit = $this->getSingleStructure($aliasUnit);
             
             $allStructures[] = $structUnit;
             
             if ($parameters['set_validation']) {
-                foreach ($structUnit['rules'] as $model => $rules) {
-                    // reset validate for newly loaded structure models
-                    if (! $this->controller->{ $model }) {
-                        $this->controller->{ $model } = new AppModel();
+                if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                    foreach ($structUnit['rules'] as $model => $rules) {
+                        // reset validate for newly loaded structure models
+                        if (!$this->controller->{ $model }) {
+                            $this->controller->{ $model } = new AppModel();
+                        }
+
+                        $models[$model] = $this->controller->{ $model };
+                        $this->controller->{ $model }->validate = array();
+                        foreach ($rules as $field=> $rls){
+                            foreach ($rls as $rule){
+                                if ($rule["rule"] == "notBlank"){
+                                    if ($model =="FunctionManagement"){
+                                        if (!isset($this->controller->data[$model][$field]) || empty($this->controller->data[$model][$field])){
+                                            $validationErrors[$field] = $rule['message'];
+                                        }else{
+                                            if (is_numeric(key($this->controller->data))){
+                                                foreach (current($this->controller->data) as $k=>$data) {
+                                                    if (isset($data[$model][$field]) && empty($data[$model][$field])){
+                                                        $validationErrors[$field] = $rule['message'];
+                                                    }                                                
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $aliasTemp = strtolower($aliasUnit ? trim($aliasUnit) : str_replace('_', '', $this->controller->params['controller']));
+                                    if (isset(AppModel::$requiredFields[$model."||".$aliasTemp])){
+                                        AppModel::$requiredFields[$model."||".$aliasTemp][$field] = $rule["message"];
+                                    }else{
+                                        AppModel::$requiredFields[$model."||".$aliasTemp] = array($field => $rule["message"]);
+                                    }
+                                }
+                            }
+                            
+                        }
                     }
-                    $this->controller->{ $model }->validate = array();
                 }
-                
+
                 if (isset($structUnit['structure']['Sfs'])) {
                     foreach ($structUnit['structure']['Sfs'] as $sfs) {
                         $tablename = isset($parameters['model_table_assoc'][$sfs['model']]) ? $parameters['model_table_assoc'][$sfs['model']] : $sfs['tablename'];
@@ -123,15 +157,40 @@ $parameters);
                 $structure['Accuracy'] = array_merge_recursive($structUnit['structure']['Accuracy'], $structure['Accuracy']);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
             }
+
+            if (isset($structUnit['structure']['Sfs']) && is_array($structUnit['structure']['Sfs'])) {
+                App::uses('StructureValueDomain', 'Model');
+                $this->StructureValueDomain = new StructureValueDomain();
+                foreach ($structUnit['structure']['Sfs'] as $sfs) {
+                    if (!empty($sfs['StructureValueDomain'])) {
+                        $dropdownResult = array('defined' => array(""=>""), 'previously_defined' => array());
+                        $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdownResult);
+                        foreach ($dropdownResult['defined'] as $key => $value) {
+                            AppModel::$listValues[$sfs['model']][$sfs['field'] . "||" . $sfs['language_label']][$key] = $value;
+                        }
+                    }
+                }
+            }
         }
-        
-        foreach ($allStructures as &$structUnit) {
-            foreach ($structUnit['rules'] as $model => $rules) {
-                // rules are formatted, apply them
-                $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+        if (!empty($validationErrors)){
+            foreach ($models as $modelName => $model) {
+                if ($modelName != "FunctionManagement"){
+                    foreach ($validationErrors as $field => $errorMessage){
+                        $this->controller->{ $modelName }->notBlankFields["FunctionManagement"][$field] = $errorMessage;
+                    }
+                }
             }
         }
         
+        foreach ($allStructures as &$structUnit) {
+            if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                foreach ($structUnit['rules'] as $model => $rules) {
+                    // rules are formatted, apply them
+                    $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+                }
+            }
+        }
+
         if (count($alias) > 1) {
             self::sortStructure($structure);
         } elseif (count($structure['Structure']) == 1) {
@@ -140,6 +199,7 @@ $parameters);
         $structureName = Inflector::variable($structureName);
         // $structureName = AppController::snakeToCamel($structureName);
         $this->controller->set($structureName, $structure);
+        return $structure;
     }
 
     /**
@@ -308,18 +368,19 @@ $parameters);
         }
         
         // seek file fields
-        foreach ($return as $structure) {
-            if (! isset($structure['Sfs'])) {
-                continue;
-            }
-            foreach ($structure['Sfs'] as $field) {
-                if ($field['type'] == 'file') {
-                    $prefix = $field['model'] . '.' . $field['field'];
-                    $this->controller->allowedFilePrefixes[$prefix] = null;
+        if (isset($return) && is_array($return)){
+            foreach ($return as $structure) {
+                if (!isset($structure['Sfs'])) {
+                    continue;
+                }
+                foreach ($structure['Sfs'] as $field) {
+                    if ($field['type'] == 'file') {
+                        $prefix = $field['model'] . '.' . $field['field'];
+                        $this->controller->allowedFilePrefixes[$prefix] = null;
+                    }
                 }
             }
         }
-        
         return $return;
     }
 

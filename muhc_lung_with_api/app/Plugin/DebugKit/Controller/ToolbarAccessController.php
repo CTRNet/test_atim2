@@ -68,8 +68,8 @@ class ToolbarAccessController extends DebugKitAppController {
 		$this->helpers['DebugKit.Toolbar']['cacheKey'] = $this->Toolbar->cacheKey;
 		$this->helpers['DebugKit.Toolbar']['cacheConfig'] = 'debug_kit';
 
-		if (isset($this->Auth) && method_exists($this->Auth, 'mapActions')) {
-			$this->Auth->mapActions(array(
+		if (isset($this->AtimAuth) && method_exists($this->AtimAuth, 'mapActions')) {
+			$this->AtimAuth->mapActions(array(
 				'read' => array('history_state', 'sql_explain')
 			));
 		}

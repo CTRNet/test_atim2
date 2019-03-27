@@ -269,6 +269,18 @@ class EventMastersController extends ClinicalAnnotationAppController
                     $this->atimFlash(__('your data has been updated'), $urlToFlash);
                 }
             } else {
+                if (!empty($this->request->data['EventMaster']['diagnosis_master_id'])){
+                    $diagnosisMasterId = $this->request->data['EventMaster']['diagnosis_master_id'];
+                    $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                    $p = $diagnosisMasterModel->find('first', array(
+                        'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                    ));
+
+                    if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                    }
+                }
                 
                 // 2 - ** Multi lines save **
                 
@@ -293,8 +305,9 @@ class EventMastersController extends ClinicalAnnotationAppController
                             $msgs = is_array($msgs) ? $msgs : array(
                                 $msgs
                             );
-                            foreach ($msgs as $msg)
+                            foreach ($msgs as $msg){
                                 $errorsTracking[$field][$msg][] = $rowCounter;
+                            }
                         }
                     }
                     $dataUnit = $this->EventMaster->data;
@@ -321,8 +334,9 @@ class EventMastersController extends ClinicalAnnotationAppController
                     foreach ($this->request->data as $newDataToSave) {
                         $this->EventMaster->id = null;
                         $this->EventMaster->data = array();
-                        if (! $this->EventMaster->save($newDataToSave, false))
+                        if (! $this->EventMaster->save($newDataToSave, false)){
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                        }
                     }
                     $urlToFlash = '/ClinicalAnnotation/EventMasters/listall/' . $eventGroup . '/' . $participantId . '/';
                     $hookLink = $this->hook('postsave_process_batch');
@@ -411,6 +425,20 @@ class EventMastersController extends ClinicalAnnotationAppController
                 require ($hookLink);
             }
             $this->EventMaster->addWritableField('diagnosis_master_id');
+            
+            if (!empty($this->request->data['EventMaster']['diagnosis_master_id'])){
+                $diagnosisMasterId = $this->request->data['EventMaster']['diagnosis_master_id'];
+                $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                $p = $diagnosisMasterModel->find('first', array(
+                    'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                ));
+
+                if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                    $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                }
+            }
+
             if ($submittedDataValidates && $this->EventMaster->save($this->request->data)) {
                 $hookLink = $this->hook('postsave_process');
                 if ($hookLink) {
