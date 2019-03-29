@@ -661,6 +661,73 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_tf_ad_rna_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_tf_weight_ug_initial' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='initial'), '1', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
 UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_tf_ad_rna_tubes') WHERE aliquot_type = 'tube' AND sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type IN ('rna'));
 
+-- Aliquot Internal uses
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+
+-- Concentration and quality control
+
+ALTER TABLE quality_ctrls 
+   ADD COLUMN qc_tf_concentration decimal(10,2) DEFAULT NULL,
+   ADD COLUMN qc_tf_concentration_unit varchar(20) DEFAULT NULL;
+ALTER TABLE quality_ctrls_revs
+   ADD COLUMN qc_tf_concentration decimal(10,2) DEFAULT NULL,
+   ADD COLUMN qc_tf_concentration_unit varchar(20) DEFAULT NULL;   
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_tf_concentration_unit', 'StructurePermissibleValuesCustom::getCustomDropdown(\'Concentration Units\')');
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) 
+VALUES
+('Concentration Units', 1, 20, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Concentration Units');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("ug/ul", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("ng/ul", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'qc_tf_concentration', 'float_positive',  NULL , '0', 'size=5', '', '', 'concentration', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'qc_tf_concentration_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_concentration_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_tf_concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='concentration' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_tf_concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO structure_permissible_values_custom_controls 
+(name, flag_active, values_max_length, category) VALUES
+('Quality Control Types', 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Quality Control Types');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("agarose gel", "Agarose Gel", "Gel d\'agarose", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("bioanalyzer", "BioAnalyzer", "BioAnalyzer", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("immunohistochemistry", "Immunohistochemistry", "Immunohistochimie", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("pcr", "PCR", "PCR", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("qbit", "QBit", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("spectrophotometer", "Spectrophotometer", "Spectrophotomètre", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("picogreen", "PicoGreen", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("nanodrop", "Nanodrop", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+UPDATE structure_permissible_values_custom_controls 
+ SET values_used_as_input_counter = 6, values_counter = 6 WHERE name = 'Quality Control Types';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Quality Control Types\')' WHERE domain_name = 'quality_control_type';
+SET @id = (SELECT id FROM structure_value_domains WHERE domain_name = 'quality_control_type');
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = @id;
+
+-- Amplification
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("Amplification", "Amplification", "Amplification", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA/RNA Storage Mediums');
+SET @user_id = 2;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+("AE", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+
 
 
 
