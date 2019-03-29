@@ -546,13 +546,20 @@ $parameters);
                                 if (! preg_match('/((\.txt)|(\.csv))$/', $this->controller->data[$model][$key . '_with_file_upload']['name'])) {
                                     $this->controller->redirect('/Pages/err_submitted_file_extension', null, true);
                                 } else {
+                                    $filename = $this->controller->data[$model][$key . '_with_file_upload']['tmp_name'];
+                                    $fileContents = file_get_contents($filename);
+                                    $fileContents = preg_replace('/(\x00|\xFE|\xFF)/', '', $fileContents);
+                                    file_put_contents($filename, $fileContents);
+
                                     // set $DATA array based on contents of uploaded FILE
                                     $handle = fopen($this->controller->data[$model][$key . '_with_file_upload']['tmp_name'], "r");
                                     if ($handle) {
                                         unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
                                         // in each LINE, get FIRST csv value, and attach to DATA array
                                         while (($csvData = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== false) {
-                                            $data[] = $csvData[0];
+                                            if (isset($csvData[0])){
+                                                $data[] = $csvData[0];
+                                            }
                                         }
                                         fclose($handle);
                                     } else {
