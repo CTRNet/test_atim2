@@ -107,6 +107,14 @@ VALUES
     ('password_format_error_msg_4', 'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters, numbers and special characters.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.');
 
 -- -------------------------------------------------------------------------------------
+--	save old recoreds of user_logs into a file
+-- -------------------------------------------------------------------------------------
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+("the log directory does not exist: %s", "The log directory does not exist: %s.", "Le répertoire du journal n'existe pas: %s."),
+("unable to create the backup file for users log", "Unable to create the backup file for users log.", "Impossible de créer le fichier de sauvegarde pour le journal des utilisateurs.");
+-- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
