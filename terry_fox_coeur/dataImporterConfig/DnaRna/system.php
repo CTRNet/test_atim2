@@ -159,6 +159,7 @@ $modified_database_tables_list = array();
 //==================================================================================================================================================================================
 
 function migrationDie($error_messages) {
+    global $db_connection;
 	if(is_array($error_messages)) {
 		foreach($error_messages as $msg) pr($msg);
 	} else {
@@ -170,6 +171,8 @@ function migrationDie($error_messages) {
 		$counter++;
 		pr("$counter- Function ".$debug_data['function']."() [File: ".$debug_data['file']." - Line: ".$debug_data['line']."]");
 	}
+	mysqli_rollback($db_connection);
+	mysqli_close($db_connection);
 	die('Please contact your administrator');	
 }
 
@@ -690,7 +693,7 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 				foreach(getSelectQueryResult($query) as $domain_value) $domains_values[$domain_name][strtolower($domain_value['value'])] = $domain_value['value'];
 			}
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' domain name (list name)".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The '$domain_name' Structure Domain (defined as domain of value '$value') does not exist. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Wrong '$domain_name' domain name (list name)".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The '$domain_name' Structure Domain (defined as domain of value '$value') does not exist. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 			$value = '';
 		}
 	}
@@ -698,7 +701,7 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 		if(array_key_exists(strtolower($value), $domains_values[$domain_name])) {
 			$value = $domains_values[$domain_name][strtolower($value)];	//To set the right case
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
 			$value = '';
 		}
 	}
@@ -723,7 +726,7 @@ function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower
 		if(array_key_exists($value, $values_matches)) {
 			$value = $values_matches[$value];
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Excel Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a supported excel value. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Wrong Excel Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a supported excel value. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
 			$value = '';
 		}
 	}
@@ -818,7 +821,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
                 $res_array = array("$year-$month-01", 'd');
             }
         } else {
-            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update. Clean-up data manually after the migration into ATiM if required.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update. Clean-up data manually after the migration into ATiM if required.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
             $res_array = array('', '');
         }
     } else  if(preg_match('/^([0-3]{0,1}[0-9]){0,1}([a-z]+),(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
@@ -836,7 +839,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
                 $res_array = array("$year-$month-01", 'd');
             }
         } else {
-            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
             $res_array = array('', '');
         }
     } else  if(preg_match('/^([1-3]{0,1}[0-9])\/([1-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
@@ -844,13 +847,13 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	} else  if(preg_match('/^([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
 	    $res_array = array($matches[2].$matches[3].'-'.$matches[1].'-'.'01', 'd');
     } else {
-		recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+		recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		$res_array = array('', '');
 	}
 	list($tmp_date, $tmp_acc) = $res_array;
 	if($tmp_date) {
 	    if(!preg_match('/^((19)|(20))[0-9]{2}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[01]))$/', $tmp_date)) {
-	        recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' (reformated to '$tmp_date') is not supported! The date won't be loaded and used for the update. Clean-up data manually after the migration into ATiM if required.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+	        recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' (reformated to '$tmp_date') is not supported! The date won't be loaded and used for the update. Clean-up data manually after the migration into ATiM if required.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 	        $res_array = array('', '');
 	    }
 	}
@@ -877,7 +880,7 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 	list($formatted_date, $formatted_date_accuracy) = validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in);
 	if(!$formatted_date) {
 		if(!empty($time) && !in_array(strtolower($time), $empty_date_time_values)) {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'DateTime Format Error: Date Is Missing'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'DateTime Format Error: Date Is Missing'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		}
 		return array('', '');
 	} else {
@@ -886,7 +889,7 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 			return array($formatted_date.' 00:00', str_replace('c', 'h', $formatted_date_accuracy));
 		} else {
 			if($formatted_date_accuracy != 'c') {
-				recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Time Set for an Inaccurate Date'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Date and time are set but date is inaccurate. The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Time Set for an Inaccurate Date'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Date and time are set but date is inaccurate. The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 				return array('', '');
 			} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
 				return array($formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'c');
@@ -902,7 +905,7 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 				$time=$hour.':'.$mn;
 				return array($formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'c');
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Time Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Time Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 				return array('', '');
 			}
 		}
@@ -940,7 +943,7 @@ function validateAndGetTime($time, $summary_section_title, $summary_title_add_in
 			$time=$hour.':'.$mn;
 			return (strlen($time) == 5)? $time : '0'.$time;
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Time Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of time '$time' is not supported! The time will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Time Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of time '$time' is not supported! The time will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 			return '';
 		}
 	}
@@ -969,7 +972,7 @@ function validateAndGetDecimal($decimal_value, $summary_section_title, $summary_
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return $decimal_value;
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Decimal Format".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of decimal '$decimal_value' is not supported! The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Wrong Decimal Format".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of decimal '$decimal_value' is not supported! The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 			return '';
 		}
 	} else {
@@ -995,7 +998,7 @@ function validateAndGetInteger($integer_value, $summary_section_title, $summary_
 		if(preg_match('/^[0-9]+$/', $integer_value)) {
 			return $integer_value;
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Integer Format".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of integer '$integer_value' is not supported! The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Wrong Integer Format".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of integer '$integer_value' is not supported! The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 			return '';
 		}
 	} else {
