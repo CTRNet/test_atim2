@@ -100,7 +100,7 @@ foreach($worksheetnames as $worksheetName) {
         if($participantId) {
             list($participantId, $excelParticipantAtimNbr, $excelParticipantBankNbr) = $participantId;   // === Manage data to display in summary ===
 //TODO
-//if(!in_array($participantId, array('116', '117', '468'))) continue;
+//if(!in_array($participantId, array('16', '177'))) continue;
             // Participant Info
             $excelParticipantInfoForMsg = array();
             if($excelParticipantAtimNbr) $excelParticipantInfoForMsg[] = "Participant ATiM# <b>$excelParticipantAtimNbr</b>";
@@ -200,6 +200,9 @@ addToModifiedDatabaseTablesList('shipments', null);
 
 if(!$commitAll) mysqli_rollback($db_connection);
 dislayErrorAndMessage($commitAll);
+
+mysqli_rollback($db_connection);
+mysqli_close($db_connection);
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 // Build data for CSV creation
@@ -309,7 +312,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
         recordErrorAndMessage($worksheetName .' :: ' .
             'Participant Definition',
             '@@ERROR@@',
-            $errorTitle." [Message type #".__LINE__."]",
+            $errorTitle." [Validation Message #".__LINE__."]",
             "See Participant defined in sheet '$worksheetName' line $excelLineCounter.");
         addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $errorTitle);
         return null;
@@ -327,7 +330,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             recordErrorAndMessage($worksheetName .' :: ' .
                 'Participant Definition',
                 '@@ERROR@@',
-                $errorTitle." [Message type #".__LINE__."]",
+                $errorTitle." [Validation Message #".__LINE__."]",
                 "See Participant ATiM # '$participantAtimNbr' ".($participantBankNbr? " and Participant Bank # $participantBankNbr": '')." defined in sheet '$worksheetName' line $excelLineCounter.");
             addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $errorTitle);
             return null;
@@ -339,7 +342,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             $validationOnparticipantBankNbr = false;
             if($participantBankNbr){
                 if(strtolower($participantBankNbr) != strtolower($participant['qc_tf_bank_identifier'])) {
-                    $warningMessage = "ATiM and Excel participants match on Participant ATiM # but the Participant Bank # values do not match. Data of the line will be migrated but please validate."." [Message type #".__LINE__."]";
+                    $warningMessage = "ATiM and Excel participants match on Participant ATiM # but the Participant Bank # values do not match. Data of the line will be migrated but please validate."." [Validation Message #".__LINE__."]";
                     $warningDetail = "See Participant Bank # '$participantBankNbr'(excel) and '".$participant['qc_tf_bank_identifier']."'(ATIM) for Participant ATiM # '$participantAtimNbr' defined in sheet '$worksheetName' line $excelLineCounter.";
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Participant Definition',
@@ -364,7 +367,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             }
             if($bank) {
                 if(strtolower($bank) != strtolower($participant['bank_name'])) {
-                    $warningMessage = "ATiM and Excel participants match on Participant ATiM # but the Bank values do not match. Data of the line will be migrated but please validate."." [Message type #".__LINE__."]";
+                    $warningMessage = "ATiM and Excel participants match on Participant ATiM # but the Bank values do not match. Data of the line will be migrated but please validate."." [Validation Message #".__LINE__."]";
                     $warningDetail = "See banks '$bank'(excel) and '".$participant['bank_name']."'(ATIM) for Participant ATiM# '$participantAtimNbr' ".($participantBankNbr? " and Participant Bank # $participantBankNbr": '')." defined in sheet '$worksheetName' line $excelLineCounter.";
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Participant Definition',
@@ -380,7 +383,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             if(!$validationOnBank && !$validationOnparticipantBankNbr) {
                 if(!$bank && !$participantBankNbr) {
                     $titlePrecision = "but both bank and Participant Bank # are not defined into Excel";
-                    $warningMessage ="ATiM and Excel participants match on Participant ATiM # $titlePrecision. Data of the line will be migrated but please validate."." [Message type #".__LINE__."]";
+                    $warningMessage ="ATiM and Excel participants match on Participant ATiM # $titlePrecision. Data of the line will be migrated but please validate."." [Validation Message #".__LINE__."]";
                     $warningDetail = "See Participant ATiM # '$participantAtimNbr' ".($participantBankNbr? " and Participant Bank # $participantBankNbr": '').($bank? " and bank $bank": '')." defined in sheet '$worksheetName' line $excelLineCounter.";
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Participant Definition',
@@ -415,7 +418,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             recordErrorAndMessage($worksheetName .' :: ' .
                 'Participant Definition',
                 '@@ERROR@@',
-                $errorTitle." [Message type #".__LINE__."]",
+                $errorTitle." [Validation Message #".__LINE__."]",
                 "See Participant Bank # '$participantBankNbr' defined in sheet '$worksheetName' line $excelLineCounter.");
             addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $errorTitle);
             return null;
@@ -432,7 +435,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
             }
             if($bank) {
                 if(strtolower($bank) != strtolower($participant['bank_name'])) {
-                $warningMessage = "ATiM and Excel participants match on Participant Bank # but the Bank values do not match. Data of the line will be migrated but please validate."." [Message type #".__LINE__."]";
+                $warningMessage = "ATiM and Excel participants match on Participant Bank # but the Bank values do not match. Data of the line will be migrated but please validate."." [Validation Message #".__LINE__."]";
                 $warningDetail = "See banks '$bank'(excel) and '".$participant['bank_name']."'(ATIM) for Participant Bank # '$participantBankNbr' defined in sheet '$worksheetName' line $excelLineCounter.";
                 recordErrorAndMessage($worksheetName .' :: ' .
                         'Participant Definition',
@@ -443,7 +446,7 @@ function getParticipantId($excelLineData, $worksheetName, $excelLineCounter) {
                 addMigratedLineToValidate($excelLineData, $worksheetName, $excelLineCounter, $warningMessage, $warningDetail);
                 }
             } else {
-                $warningMessage = "ATiM and Excel participants match on Participant Bank # but bank values can not be validated. Data of the line will be migrated but please validate."." [Message type #".__LINE__."]";
+                $warningMessage = "ATiM and Excel participants match on Participant Bank # but bank values can not be validated. Data of the line will be migrated but please validate."." [Validation Message #".__LINE__."]";
                 $warningDetail = "See Participant ATiM# '$participantAtimNbr' ".($bank? " and bank $bank": '')." defined in sheet '$worksheetName' line $excelLineCounter.";
                 recordErrorAndMessage($worksheetName .' :: ' .
                     'Participant Definition',
@@ -505,7 +508,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
             recordErrorAndMessage($worksheetName .' :: ' .
                 'Aliquot Source Definition',
                 '@@ERROR@@',
-                $errorTitle." [Message type #".__LINE__."]",
+                $errorTitle." [Validation Message #".__LINE__."]",
                 "See excel aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
             addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $errorTitle);
             return null;
@@ -566,7 +569,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                 }
                 if($bfcs) {
                     if(sizeof($bfcs) != 1) die('ERR2382839723987');
-                    $warningMessage = "No $typeOfSourceAliquotForMsg exists into ATiM for the participant but a Buffy Coat sample exists. No tube of Buffy coat will be created but extraction will be linked to this existing sample. (worksheet : $worksheetName)"." [Message type #".__LINE__."]";
+                    $warningMessage = "No $typeOfSourceAliquotForMsg exists into ATiM for the participant but a Buffy Coat sample exists. No tube of Buffy coat will be created but extraction will be linked to this existing sample. (worksheet : $worksheetName)"." [Validation Message #".__LINE__."]";
                     $warningDetail = "See excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Aliquot Source Definition',
@@ -590,7 +593,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                         $bloods[] = $newBlood;
                     }
                     if(sizeof($bloods) == 1) {
-                        $warningMessage = "No $typeOfSourceAliquotForMsg and sample exist into ATiM for the participant but a Blood sample already exists. A Buffy Coat sample will be created (with no tube) for this Blood and extraction will be linked to this buffy Coat sample. (worksheet : $worksheetName)"." [Message type #".__LINE__."]";
+                        $warningMessage = "No $typeOfSourceAliquotForMsg and sample exist into ATiM for the participant but a Blood sample already exists. A Buffy Coat sample will be created (with no tube) for this Blood and extraction will be linked to this buffy Coat sample. (worksheet : $worksheetName)"." [Validation Message #".__LINE__."]";
                         $warningDetail = "See excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                         recordErrorAndMessage($worksheetName .' :: ' .
                             'Aliquot Source Definition',
@@ -669,9 +672,9 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                                 'initial_specimen_sample_id' => $blood_sample_master_id,
                                 'initial_specimen_sample_type' => 'blood',
                                 'sample_type' => 'blood cell')));
-                        $warningMessage = "No $typeOfSourceAliquotForMsg exists into ATiM for the participant and more than one Blood sample already exists. New collection, blood and buffy coat sample will be created and extraction will be linked to this buffy coat sample. (worksheet : $worksheetName)"." [Message type #".__LINE__."]";
+                        $warningMessage = "No $typeOfSourceAliquotForMsg exists into ATiM for the participant and more than one Blood sample already exists. New collection, blood and buffy coat sample will be created and extraction will be linked to this buffy coat sample. (worksheet : $worksheetName)"." [Validation Message #".__LINE__."]";
                         if(!$bloods) {
-                            $warningMessage = "No $typeOfSourceAliquotForMsg and Blood sample exist into ATiM for the participant. New collection, blood and buffy coat sample will be created and extraction will be linked to this buffy coat sample. (worksheet : $worksheetName)"." [Message type #".__LINE__."]";
+                            $warningMessage = "No $typeOfSourceAliquotForMsg and Blood sample exist into ATiM for the participant. New collection, blood and buffy coat sample will be created and extraction will be linked to this buffy coat sample. (worksheet : $worksheetName)"." [Validation Message #".__LINE__."]";
                         }
                         $warningDetail = "See excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                         recordErrorAndMessage($worksheetName .' :: ' .
@@ -690,7 +693,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                     'Aliquot Source Definition',
                     '@@ERROR@@',
                     $errorTitle,
-                    "See excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter."." [Message type #".__LINE__."]");
+                    "See excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter."." [Validation Message #".__LINE__."]");
                 addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $errorTitle);
                 return null;
             } else {
@@ -730,7 +733,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                             }
                             if(sizeof($selectedAliquotKey) == 1) {
                                 $selectedAliquotKey = $selectedAliquotKey[0];
-                                $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant but one ATiM aliquot label matches approximatively the Excel aliquot information. Data of the line will be migrated and linked to this $typeOfSourceAliquotForMsg but please validate."." [Message type #".__LINE__."]";
+                                $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant but one ATiM aliquot label matches approximatively the Excel aliquot information. Data of the line will be migrated and linked to this $typeOfSourceAliquotForMsg but please validate."." [Validation Message #".__LINE__."]";
                                 $warningDetail = "See ATiM aliquot label [$selectedAliquotKey] and Excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                                 recordErrorAndMessage($worksheetName .' :: ' .
                                     'Aliquot Source Definition',
@@ -740,7 +743,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                                     "See migrated line to validate below.");
                                 addMigratedLineToValidate($excelLineData, $worksheetName, $excelLineCounter, $warningMessage, $warningDetail);
                             } elseif(sizeof($selectedAliquotKey)) {
-                                $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant and the aliquot labels of more than one ATiM aliquot match approximatively the Excel aliquot information. Data of the line will be migrated and linked to the first one $typeOfSourceAliquotForMsg matching excel information but please validate."." [Message type #".__LINE__."]";
+                                $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant and the aliquot labels of more than one ATiM aliquot match approximatively the Excel aliquot information. Data of the line will be migrated and linked to the first one $typeOfSourceAliquotForMsg matching excel information but please validate."." [Validation Message #".__LINE__."]";
                                 $warningDetail = "See ATiM aliquot label [". implode(' & ', $selectedAliquotKey)."] and Excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                                 recordErrorAndMessage($worksheetName .' :: ' .
                                     'Aliquot Source Definition',
@@ -756,7 +759,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                         }
                     } else {
                         $selectedAliquotKey = $tmpAllAliquotLabels[0];
-                        $warningMessage = "Only one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant but the ATiM aliquot label does not match the Excel aliquot information. Data of the line will be migrated and linked to this $typeOfSourceAliquotForMsg but please validate."." [Message type #".__LINE__."]";
+                        $warningMessage = "Only one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant but the ATiM aliquot label does not match the Excel aliquot information. Data of the line will be migrated and linked to this $typeOfSourceAliquotForMsg but please validate."." [Validation Message #".__LINE__."]";
                         $warningDetail = "See ATiM aliquot label [$selectedAliquotKey] and Excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                         recordErrorAndMessage($worksheetName .' :: ' .
                             'Aliquot Source Definition',
@@ -772,7 +775,7 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                     if(!isset($aliquotSources[$selectedAliquotKey])) {
                         die("ERR823798273927");
                     } else if(sizeof($aliquotSources[$selectedAliquotKey]) > 1) {
-                        $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant and match the ATiM aliquot label . Data of the line will be migrated and linked to the first $typeOfSourceAliquotForMsg but please validate."." [Message type #".__LINE__."]";
+                        $warningMessage = "More than one $typeOfSourceAliquotForMsg exists into ATiM for the selected participant and match the ATiM aliquot label . Data of the line will be migrated and linked to the first $typeOfSourceAliquotForMsg but please validate."." [Validation Message #".__LINE__."]";
                         $warningDetail = "See ATiM aliquot label [$selectedAliquotKey] and Excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                         recordErrorAndMessage($worksheetName .' :: ' .
                             'Aliquot Source Definition',
@@ -854,12 +857,12 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
                             "collection_id" => $collectiondIdToLink,
                             "sample_master_id" => $sampleMasterIdToLink,
                             'in_stock' => 'no',
-                            'notes' => 'Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) .'.'),
+                            'notes' => 'Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName' line '$excelLineCounter')."),
                         $atim_controls['aliquot_controls'][$controltype]['detail_tablename'] => $detail_data);
                     $aliquotMasterId = customInsertRecord($aliquot_data);
                     $aliquotSources = array_keys($aliquotSources);
                     $aliquotSources = implode ('</b> & <b>', $aliquotSources);
-                    $warningMessage = $warningTitle." [Message type #".__LINE__."]";
+                    $warningMessage = $warningTitle." [Validation Message #".__LINE__."]";
                     $warningDetail = "See ATiM $typeOfSourceAliquotForMsg aliquot(s) [<b>$aliquotSources</b>] and excel aliquot defined by $excelSourceAliquotInfoForMsg for $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.";
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Aliquot Source Definition',
@@ -889,12 +892,24 @@ function getAtimAliquotSource($excelLineData, $worksheetName, $excelLineCounter,
 
 function addUnmigratedLine($excelLineData, $worksheetName, $excelLineCounter, $error) {
     global $unmigratedData;
-    $unmigratedData[$worksheetName][] = array_merge(array('Line' => $excelLineCounter, 'Error' => $error), $excelLineData);
+    $unmigratedData[$worksheetName][] = array_merge(
+        array(
+            'Line' => $excelLineCounter, 
+            'Validation Message #' => (preg_match('/\[Validation Message\ #([0-9]+)\]/', $error, $matches)? $matches[1] : 'Unk'), 
+            'Error' => $error), 
+        $excelLineData);
 }
 
 function addMigratedLineToValidate($excelLineData, $worksheetName, $excelLineCounter, $warning, $warning_detail = '') {
     global $migratedDataToValidate;
-    $migratedDataToValidate[$worksheetName][] = array_merge(array('Line' => $excelLineCounter, 'Warning' => $warning, 'Warning Details' => str_replace(array('<b>' ,'</b>'), array('', ''), $warning_detail)), $excelLineData);
+    
+    $migratedDataToValidate[$worksheetName][] = array_merge(
+        array(
+            'Line' => $excelLineCounter, 
+            'Validation Message #' => (preg_match('/\[Validation Message\ #([0-9]+)\]/', $warning, $matches)? $matches[1] : 'Unk'), 
+            'Warning' => $warning, 
+            'Warning Details' => str_replace(array('<b>' ,'</b>'), array('', ''), $warning_detail)), 
+        $excelLineData);
 }
 
 function addAliquotSourceQuantityUsed($excelLineData, $worksheetName, $excelLineCounter, $excelParticipantInfoForMsg, $excelSourceAliquotInfoForMsg, $atimSourceAliquot, $sample_type, $extraction_aliquot_label, $creation_datetime, $creation_datetime_accuracy, $typeOfSourceUsed) {
@@ -907,7 +922,7 @@ function addAliquotSourceQuantityUsed($excelLineData, $worksheetName, $excelLine
                 if($atimSourceAliquot['aliquot_master_id']) {
                     $use_code = $excelLineData[$xls_field] . 
                         (($xls_field == 'qte source used (n=cores)' || $typeOfSourceUsed == 'core')? ' cores': ($typeOfSourceUsed == 'slide'? ' slides' : '')) .
-                        " for".(strlen($extraction_aliquot_label)? "' $extraction_aliquot_label'" : '')." $sample_type extraction.";
+                        " for".(strlen($extraction_aliquot_label)? " '$extraction_aliquot_label'" : '')." " . strtoupper($sample_type) . " extraction.";
                     if(strlen($use_code)) {
                         $keyForControl = $atimSourceAliquot['aliquot_master_id'].'||'.$use_code.'||'.$creation_datetime.'||'.$creation_datetime_accuracy;
                         if(!isset($allAliquotSourceQuantityUsedControl[$keyForControl])) {
@@ -946,7 +961,7 @@ function addHAndE($excelLineData, $worksheetName, $excelLineCounter, $excelParti
             $desciption =  $excelLineData['H&E'];
             $storage =  '[box]||['.$excelLineData['H&E Boite'].']';
             $position =  $excelLineData['H&E position'];            
-            if(!isset($allStorages[$storage])) { pr("storage ^$storage^");pr($excelLineData);pr($allStorages);die('ERR4345345345');}
+            if(!isset($allStorages[$storage])) { die('ERR4345345345');}
             $controltype = 'tissue-slide';
             $counterKey = 'tissue slides created';
             $createdRecordsCounter[$counterKey]++;
@@ -959,7 +974,7 @@ function addHAndE($excelLineData, $worksheetName, $excelLineCounter, $excelParti
                     "sample_master_id" => $atimSourceAliquot['sample_master_id'],
                     "storage_master_id" => $allStorages[$storage]['storage_master_id'],
                     'in_stock' => 'yes & available',
-                    'notes' => $desciption.'. Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) .'.'),
+                    'notes' => $desciption.'. Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName' line '$excelLineCounter')."),
                 $atim_controls['aliquot_controls'][$controltype]['detail_tablename'] => array(
                     'immunochemistry' => 'H&E'
                 ));
@@ -1002,7 +1017,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                     $derivative_details['creation_datetime'] = $matches[1].'-01-01';
                     $derivative_details['creation_datetime_accuracy'] = 'm';
                 } else {
-                    list($creationDate, $creationDateACc) = validateAndGetDateAndAccuracy($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    list($creationDate, $creationDateACc) = validateAndGetDateAndAccuracy($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     if($creationDateACc == 'c') $creationDateACc = 'h';
                     if($creationDate) {
                         $derivative_details['creation_datetime'] = $creationDate;
@@ -1017,7 +1032,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                 $arr2 = array('lise chum', 'Cecile', 'doris', 'Véronique', 'Cecile', 'Liliane');
                 $excelLineData[$xls_field] = str_replace($arr1, $arr2, $excelLineData[$xls_field]);
                 if($excelLineData[$xls_field] == 'Lise')$excelLineData[$xls_field] = 'lise chum';
-                $derivative_details['creation_by'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'custom_laboratory_staff', $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $derivative_details['creation_by'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'custom_laboratory_staff', $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             }
         }
         $sample_details = array();
@@ -1029,7 +1044,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                 $arr1 = array();
                 $arr2 = array();
                 $excelLineData[$xls_field] = str_replace($arr1, $arr2, $excelLineData[$xls_field]);
-                $sample_details['qc_tf_extraction_method'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'qc_tf_dna_rna_extraction_methods', $worksheetName .' :: ' .'Extraction creation', "See excel field 'Extraction Method'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $sample_details['qc_tf_extraction_method'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'qc_tf_dna_rna_extraction_methods', $worksheetName .' :: ' .'Extraction creation', "See excel field 'Extraction Method'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             }
         }
         foreach(array("deparafinationMethod", "deparafinization Method") as $xls_field) {
@@ -1041,7 +1056,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                 $arr1 = array();
                 $arr2 = array();
                 $excelLineData[$xls_field] = str_replace($arr1, $arr2, $excelLineData[$xls_field]);
-                $sample_details['qc_tf_deparafinization_method'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'qc_tf_deparafinization_methods', $worksheetName .' :: ' .'Extraction creation', "See excel field 'deparafinization Method'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $sample_details['qc_tf_deparafinization_method'] = validateAndGetStructureDomainValue($excelLineData[$xls_field], 'qc_tf_deparafinization_methods', $worksheetName .' :: ' .'Extraction creation', "See excel field 'deparafinization Method'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             }
         }
         $sampleKey = 
@@ -1099,7 +1114,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                             "collection_id" => $atimSourceAliquot['collection_id'],
                             "sample_master_id" => $atimSourceAliquot['sample_master_id'],
                             'in_stock' => 'no',
-                            'notes' => 'Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) .'.'),
+                            'notes' => 'Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName' line '$excelLineCounter')."),
                         $atim_controls['aliquot_controls'][$controltype]['detail_tablename'] => array());
                     $source_aliquot_master_id = customInsertRecord($aliquot_data);
                     $realiquoting_data = array('realiquotings' => array(
@@ -1131,10 +1146,10 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
         $xls_field = "Availability";
         $in_stock = '';
         if(isset($excelLineData[$xls_field])) {
-            $in_stock = validateAndGetStructureDomainValue(str_replace(array('yes'), array('yes - available'), $excelLineData[$xls_field]), 'aliquot_in_stock_values', $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value will be replaced by 'yes - available'. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+            $in_stock = validateAndGetStructureDomainValue(str_replace(array('yes'), array('yes - available'), $excelLineData[$xls_field]), 'aliquot_in_stock_values', $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value will be replaced by 'yes - available'. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
         }
         if(!$in_stock) $in_stock = 'yes - available';
-        $aliquot_notes = array('Created by script to track DNA/RNA blood from excel on '.substr($import_date, 0,10) .'.');
+        $aliquot_notes = array('Created by script to track DNA/RNA blood from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName' line '$excelLineCounter').");
         foreach(array('Notes 1', 'Notes 2', 'Notes') as $xls_field) {
             if(isset($excelLineData[$xls_field])) {
                 $aliquot_notes[] = "Xls $xls_field : ".$excelLineData[$xls_field].'.';
@@ -1152,12 +1167,12 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
             }
         }
         $qc_tf_storage_solution = implode(' + ', $qc_tf_storage_solution);
-        $qc_tf_storage_solution = validateAndGetStructureDomainValue($qc_tf_storage_solution, 'qc_tf_dna_rna_storage_solutions', $worksheetName .' :: ' .'Extraction creation', "See excel field 'Storage Medium' or 'Buffer'. Value will be replaced by 'yes - available'. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+        $qc_tf_storage_solution = validateAndGetStructureDomainValue($qc_tf_storage_solution, 'qc_tf_dna_rna_storage_solutions', $worksheetName .' :: ' .'Extraction creation', "See excel field 'Storage Medium' or 'Buffer'. Value will be replaced by 'yes - available'. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
         $qc_tf_weight_ug_initial = '';
-        foreach(array('Initial Quantity  (ng)', 'Initial Quantity  (ug)', 'Quantity initial (ug)', 'Quantity (ug) initial') as $xls_field) {
+        foreach(array('Initial Quantity (ng)', 'Initial Quantity (ug)', 'Quantity initial (ug)', 'Quantity (ug) initial') as $xls_field) {
             if(isset($excelLineData[$xls_field])) {
-                $qc_tf_weight_ug_initial = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
-                if($qc_tf_weight_ug_initial && $xls_field == 'Initial Quantity  (ng)') {
+                $qc_tf_weight_ug_initial = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                if($qc_tf_weight_ug_initial && $xls_field == 'Initial Quantity (ng)') {
                     $qc_tf_weight_ug_initial = $qc_tf_weight_ug_initial/1000;
                 }
                 $aliquot_notes[] = "Xls $xls_field : ".$excelLineData[$xls_field].'.';
@@ -1175,11 +1190,11 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Aliquot Storage Definition',
                         '@@WARNING@@',
-                        "Aliquot '$xls_field' is lower than 0. Value will be migrated as equal to 0. Please validate. [Message type #".__LINE__."]",
+                        "Aliquot '$xls_field' is lower than 0. Value will be migrated as equal to 0. Please validate. [Validation Message #".__LINE__."]",
                         "See '$xls_field' euqal to '".$excelLineData[$xls_field]." for aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
                     $qc_tf_weight_ug = '0';
                 } else {
-                    $qc_tf_weight_ug = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $qc_tf_weight_ug = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 }
                 if($qc_tf_weight_ug && $xls_field == 'Quantity Available (ng)' && $qc_tf_weight_ug != '0') {
                     $qc_tf_weight_ug = $qc_tf_weight_ug/1000;
@@ -1187,23 +1202,23 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
             }
         }
         $initial_volume = null;
-        foreach(array('Volume uL', 'volume1 initial  (ul)', 'volume initial uL') as $xls_field) {
+        foreach(array('Volume uL', 'volume1 initial (ul)', 'volume initial uL') as $xls_field) {
             if(isset($excelLineData[$xls_field])) {
-                $initial_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $initial_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 $aliquot_notes[] = "Xls $xls_field : ".$excelLineData[$xls_field].'.';
             }
         }
         $used_volume = null;
         foreach(array('Quantity used (ul)', 'volume used') as $xls_field) {
             if(isset($excelLineData[$xls_field])) {
-                $used_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $used_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 $aliquot_notes[] = "Xls $xls_field : ".$excelLineData[$xls_field].'.';
             }
         }
         $current_volume = null;
-        foreach(array('volume1 restant  (ul)', 'volume left uL', 'Volume available left') as $xls_field) {
+        foreach(array('volume1 restant (ul)', 'volume left uL', 'Volume available left') as $xls_field) {
             if(isset($excelLineData[$xls_field])) {
-                $current_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $current_volume = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 $aliquot_notes[] = "Xls $xls_field : ".$excelLineData[$xls_field].'.';
             }
         }
@@ -1243,7 +1258,7 @@ function createExtraction($excelLineData, $worksheetName, $excelLineCounter, $ex
                 recordErrorAndMessage($worksheetName .' :: ' .
                     'Aliquot Storage Definition',
                     '@@WARNING@@',
-                    "Aliquot defined as not in stock but storage information and positions have been defined for the aliquot. Storage information and position won't be migrated. Please validate. [Message type #".__LINE__."]",
+                    "Aliquot defined as not in stock but storage information and positions have been defined for the aliquot. Storage information and position won't be migrated. Please validate. [Validation Message #".__LINE__."]",
                     "See position information for aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
             } else {
                 $aliquot_data['aliquot_masters']['storage_master_id'] = $storage_master_id;
@@ -1390,7 +1405,7 @@ function getStorageInfo($excelLineData, $worksheetName, $excelLineCounter, $exce
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Aliquot Storage Definition',
                         '@@WARNING@@',
-                        "Wrong position definition for a 'box81 1A-9I'. Position won't be migrated. Please validate. [Message type #".__LINE__."]",
+                        "Wrong position definition for a 'box81 1A-9I'. Position won't be migrated. Please validate. [Validation Message #".__LINE__."]",
                         "See position x=".$storageDataFromExcel['x']."/y=".$storageDataFromExcel['x']." for a aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
                     $storageDataFromExcel['x'] = '';
                     $storageDataFromExcel['y'] = '';
@@ -1412,7 +1427,6 @@ function getStorageInfo($excelLineData, $worksheetName, $excelLineCounter, $exce
         }
         return array($parent_id, $x, $y, $storageDataFromExcel['Temperature']);
     } else if(strlen(trim($storageDataFromExcel['x'].$storageDataFromExcel['y']))) {
-        pr($excelLineData);
         die('ERR2-326387263544487623 6');
     }
     return array(null, null, null, null);
@@ -1465,6 +1479,7 @@ function duplciatedDnaRnaAnalysis() {
 
 function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $excelParticipantInfoForMsg, $excelSourceAliquotInfoForMsg, $extractionSampleAliquotData) {
     global $createdRecordsCounter; 
+    global $import_date;
     
     if($extractionSampleAliquotData) {   
         $allQc = array();
@@ -1472,7 +1487,7 @@ function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $
         // Initial concentration
         $xls_field = 'original concentration (ug/ul)';
         if(isset($excelLineData[$xls_field])) {
-            $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+            $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             if($qcVal) {
                 $allQc[] = array(
                     'notes' => 'Original concentration',
@@ -1506,7 +1521,7 @@ function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $
         foreach($loopData as $type => $allXlsFields) {
             foreach($allXlsFields as $xls_field => $unit) {
                 if(isset($excelLineData[$xls_field])) {
-                    $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     if($qcVal) {
                         $allQc[] = array(
                             'type' => $type,
@@ -1525,7 +1540,7 @@ function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $
         foreach($loopData as $type => $allXlsFields) {
             foreach($allXlsFields as $xls_field => $unit) {
                 if(isset($excelLineData[$xls_field])) {
-                    $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value will be migrated as is but please validate. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $qcVal = validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value will be migrated as is but please validate. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     if(!strlen($qcVal)) {
                         $qcVal = $excelLineData[$xls_field];
                     }
@@ -1543,11 +1558,11 @@ function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $
         if(isset($excelLineData['RIN-MSKCC']) && strlen($excelLineData['RIN-MSKCC']))$notes[] = 'RIN-MSKCC : '.$excelLineData['RIN-MSKCC'].'.';
         $notes = implode(' ' ,$notes);
         $xls_field = 'RIN';
-        $rin = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
-        $xls_field = 'Concentration ug/uL (Bioanalyzer)';
-        $qcConc = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+        $rin = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+        $xls_field = 'Concentration ng/uL (Bioanalyzer)';
+        $qcConc = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
         $xls_field = '28s/18s';
-        $ratios = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+        $ratios = (!isset($excelLineData[$xls_field]))? '' : validateAndGetDecimal($excelLineData[$xls_field], $worksheetName .' :: ' .'Quality Control', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
         if(strlen($qcConc.$rin.$notes.$ratios)) {
             if(strlen($rin)) {
                 $allQc[] = array(
@@ -1585,6 +1600,7 @@ function addQualityControls($excelLineData, $worksheetName, $excelLineCounter, $
             foreach($allQc as $new_qc) {
                 $new_qc['sample_master_id'] = $extractionSampleAliquotData['sample_masters']['id'];
                 $new_qc['aliquot_master_id'] = $extractionSampleAliquotData['aliquot_masters']['id'];
+                $new_qc['notes'] = 'Created by script to track Tissue DNA/RNA from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName' line '$excelLineCounter''). " . (isset($new_qc['notes'])? $new_qc['notes'] : '');
                 customInsertRecord(array('quality_ctrls' => $new_qc));
                 $createdRecordsCounter['QCs created']++;
             }
@@ -1616,7 +1632,7 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
             'shipping_date' => array('shipping date', 'date of shipping'),
             'shipping_contact' => array('Contact person shipping', 'contact shipping'),
             'shipping_project' => array('ProjectID', 'Project#'),
-            'shipping_address' => array('address shipping', 'Address Shipping'),
+            'shipping_address' => array('address shipping', 'adress shipping', 'Address Shipping'),
             'shipping_tracking_number' => array('Fedex#', 'shipper tracking number', 'Fedex shipping #'),
                 'shipping_notes' => array('Shipping courrier'));
         foreach(array('', ' 1', ' 2', ' 3') as $shippping_counter) {
@@ -1626,6 +1642,12 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
             foreach($loop_data as $data_field => $xls_fields) {
                 foreach($xls_fields as $xls_field) {
                     $xls_field_to_work_on = $xls_field .$shippping_counter;
+                    if($worksheetName == 'DNA Normal') {
+                        if(preg_match('/^address shipping/', $xls_field_to_work_on)) $xls_field_to_work_on = $xls_field;
+                        if(preg_match('/^Address Shipping/', $xls_field_to_work_on)) $xls_field_to_work_on = $xls_field;
+                        if(preg_match('/^Shipping courrier/', $xls_field_to_work_on)) $xls_field_to_work_on = $xls_field;
+                        if(preg_match('/^Fedex shipping #/', $xls_field_to_work_on)) $xls_field_to_work_on = $xls_field;
+                    }
                     if(isset($excelLineData[$xls_field_to_work_on]) && strlen($excelLineData[$xls_field_to_work_on])) {
                         $shipping_data_to_migrate[$data_field][$xls_field] = $excelLineData[$xls_field_to_work_on];
                         if(preg_match('/^aliquot/', $data_field)) {
@@ -1635,6 +1657,13 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                         }
                     }
                 }
+            }
+            if($worksheetName == 'DNA Normal' && $shipping_data_to_migrate) {
+                $tmp_shipping_data_to_migrate = $shipping_data_to_migrate;
+                unset($tmp_shipping_data_to_migrate['shipping_notes']);
+                unset($tmp_shipping_data_to_migrate['shipping_address']);
+                unset($tmp_shipping_data_to_migrate['shipping_tracking_number']);
+                if(empty($tmp_shipping_data_to_migrate)) $shipping_data_to_migrate = array();
             }
             if($shipping_data_to_migrate) {
                 //qc_tf_weight_ug
@@ -1665,7 +1694,7 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 $tmpXlsStudyName = '';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
                     $tmpXlsStudyName =  $sorted_data_to_migrate['Order']['study'] = $shipping_data_to_migrate[$tmpKey][$xlsField];
                     preg_match('/(COEUR\-[0-9]+)/', $tmpXlsStudyName, $matches);
@@ -1673,16 +1702,18 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                         $sorted_data_to_migrate['Order']['study'] = $allAtimStudies['complet'][strtolower($sorted_data_to_migrate['Order']['study'])];
                     } elseif($matches && isset($allAtimStudies['partiel'][strtolower($matches[1])])) {
                         $sorted_data_to_migrate['Order']['study'] =$allAtimStudies['partiel'][strtolower($matches[1])][0];
+                        $key = $tmpXlsStudyName."' matching ATIM study '".$allAtimStudies['partiel'][strtolower($matches[1])][1]."'. for field '$xlsField' ";
                         recordErrorAndMessage(
                             $worksheetName .' :: ' .'Shipping creation',
                             '@@WARNING@@',
-                            "Study of the shipping matches approximatively an ATiM study. Order will be linked to this study but please validate. [Message type #".__LINE__."]",
-                            "See study  '".$tmpXlsStudyName."' matching ATIM study '".$allAtimStudies['partiel'][strtolower($matches[1])][1]."'. for field '$xlsField' and $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                            "Study of the shipping matches approximatively an ATiM study. Order will be linked to this study but please validate. [Validation Message #".__LINE__."]",
+                            "See study  '".$tmpXlsStudyName."' matching ATIM study '".$allAtimStudies['partiel'][strtolower($matches[1])][1]."'. for field '$xlsField' and $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter and more... ($worksheetName).",
+                            $key);
                     } else {
                         recordErrorAndMessage(
                             $worksheetName .' :: ' .'Shipping creation',
                             '@@ERROR@@',
-                            "Study of the shipping is unknown. Order won't be linked to this study. [Message type #".__LINE__."]",
+                            "Study of the shipping is unknown. Order won't be linked to this study. [Validation Message #".__LINE__."]",
                             "See study  '".$sorted_data_to_migrate['Order']['study']."' for field '$xlsField' and $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName) and more.",
                             $sorted_data_to_migrate['Order']['study']."//$xlsField//".$worksheetName);
                         $tmpWrongStudy = $sorted_data_to_migrate['Order']['study'];
@@ -1693,24 +1724,24 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 $tmpKey = 'aliquot_concentration';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
-                    $sorted_data_to_migrate['Aliquot']['concentration'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $sorted_data_to_migrate['Aliquot']['concentration'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     $sorted_data_to_migrate['Aliquot']['concentration_unit'] = 'ug/ul';
                 }
                 // aliquot_volume
                 $tmpKey = 'aliquot_volume';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
-                    $sorted_data_to_migrate['Aliquot']['initial_volume'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $sorted_data_to_migrate['Aliquot']['initial_volume'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 }                     
                 // aliquot_weight
                 $tmpKey = 'aliquot_weight';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
                     if(preg_match('/[\ ]*([0-9]+)[\ ]*ng[\ ]*$/', $shipping_data_to_migrate[$tmpKey][$xlsField], $matches)) {
                         $shipping_data_to_migrate[$tmpKey][$xlsField] = ($matches[1])/1000;
@@ -1722,11 +1753,11 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                             recordErrorAndMessage(
                                 $worksheetName .' :: ' .'Shipping creation',
                                 '@@WARNING@@',
-                                "The quantity/wieght of a shipped aliquot has been defined as compltetly shipped (value equal 'all') but the status of this aliquot is defined as available into the Excel file. Please validate and clean up data after the migration. [Message type #".__LINE__."]",
+                                "The quantity/wieght of a shipped aliquot has been defined as compltetly shipped (value equal 'all') but the status of this aliquot is defined as available into the Excel file. Please validate and clean up data after the migration. [Validation Message #".__LINE__."]",
                                 "See Aliquot TFRI# ".$extractionSampleAliquotData['aliquot_masters']['id']." matching $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                         }
                     } else {
-                        $sorted_data_to_migrate['Aliquot']['qc_tf_weight_ug'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                        $sorted_data_to_migrate['Aliquot']['qc_tf_weight_ug'] = validateAndGetDecimal($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 
                     }
                 }
@@ -1734,15 +1765,16 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 $tmpKey = 'shipping_date';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
-                    list($sorted_data_to_migrate['Shipments']['datetime_shipped'], $sorted_data_to_migrate['Shipments']['datetime_shipped_accuracy']) = validateAndGetDateAndAccuracy($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    list($sorted_data_to_migrate['Shipments']['datetime_shipped'], $sorted_data_to_migrate['Shipments']['datetime_shipped_accuracy']) = validateAndGetDateAndAccuracy($shipping_data_to_migrate[$tmpKey][$xlsField], $worksheetName .' :: ' .'Shipping creation', "See excel field '$xlsField'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $sorted_data_to_migrate['Shipments']['datetime_shipped_accuracy'] = 'h';
                 }
                 // recipient
                 $tmpKey = 'shipping_contact';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
                     $sorted_data_to_migrate['Shipments']['recipient'] = substr($shipping_data_to_migrate[$tmpKey][$xlsField], 0, 60);
                 }
@@ -1750,7 +1782,7 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 $tmpKey = 'shipping_address';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
                     $sorted_data_to_migrate['Shipments']['delivery_street_address'] = $shipping_data_to_migrate[$tmpKey][$xlsField];
                 }
@@ -1758,7 +1790,7 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 $tmpKey = 'shipping_tracking_number';
                 if(isset($shipping_data_to_migrate[$tmpKey])) {
                     $xlsField = array_keys($shipping_data_to_migrate[$tmpKey]);
-                    if(sizeof($xlsField) > 1) {pr($tmpKey);pr($shipping_data_to_migrate);pr($excelLineData);pr('ERR2382397239823798 '.__LINE__);}
+                    if(sizeof($xlsField) > 1) {die('ERR2382397239823798 '.__LINE__);}
                     $xlsField = $xlsField[0];
                     $sorted_data_to_migrate['Shipments']['tracking'] = $shipping_data_to_migrate[$tmpKey][$xlsField];
                 }
@@ -1769,7 +1801,7 @@ function addOrderAndShipping($excelLineData, $worksheetName, $excelLineCounter, 
                 if(!$order_key) $order_key = $shipment_key;
                 $allShippingsToCreate[$order_key]['order_data'] = $sorted_data_to_migrate['Order'];
                 $allShippingsToCreate[$order_key]['shipments'][$shipment_key]['shipment_data'] = $sorted_data_to_migrate['Shipments'];
-                $allShippingsToCreate[$order_key]['shipments'][$shipment_key]['order_items'][] = $sorted_data_to_migrate;
+                $allShippingsToCreate[$order_key]['shipments'][$shipment_key]['order_items'][] = $sorted_data_to_migrate;     
             }
         }
     }
@@ -1779,7 +1811,7 @@ function createShipping() {
     global $createdRecordsCounter;
     global $allShippingsToCreate;
     global $import_date;
-
+       
     // Create Order
     $createdRecordsCounter['orders created'] = 0;
     $createdRecordsCounter['shipments created'] = 0;
@@ -1858,11 +1890,11 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
                 recordErrorAndMessage($worksheetName .' :: ' .
                     'Dna Amplification creation',
                     '@@ERROR@@',
-                    "A DNA amplifcation is defined but no DNA extraction has been previously defined into the file. Amplification won't be created. [Message type #".__LINE__."]",
+                    "A DNA amplifcation is defined but no DNA extraction has been previously defined into the file. Amplification won't be created. [Validation Message #".__LINE__."]",
                     "See data for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
                 return;
             }
-            if(sizeof($extractionSampleAliquotDataFromParticipantId[$participantId]) > 1) { pr($extractionSampleAliquotDataFromParticipantId[$participantId]); die('ERR434343444343343'); };
+            if(sizeof($extractionSampleAliquotDataFromParticipantId[$participantId]) > 1) { die('ERR434343444343343'); };
             foreach(array('participantBank#', 'Bank', 'Date received', 'Fedex reception', 'Histopathology', 'extraction date') as $fieldToTest) {
                 if(isset($amplificationExcelLineData[$fieldToTest]) && strlen($amplificationExcelLineData[$fieldToTest])) die('ERR43434344334334343');
             }
@@ -1873,10 +1905,10 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
             $xls_field = "Availability";
             $in_stock = '';
             if(isset($amplificationExcelLineData[$xls_field])) {
-                $in_stock = validateAndGetStructureDomainValue(str_replace(array('yes'), array('yes - available'), $amplificationExcelLineData[$xls_field]), 'aliquot_in_stock_values', $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value will be replaced by 'yes - available'. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                $in_stock = validateAndGetStructureDomainValue(str_replace(array('yes'), array('yes - available'), $amplificationExcelLineData[$xls_field]), 'aliquot_in_stock_values', $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value will be replaced by 'yes - available'. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             }
             if(!$in_stock) $in_stock = 'yes - available';
-            $aliquot_notes = array('Created by script to track DNA/RNA blood from excel on '.substr($import_date, 0,10) .'.');
+            $aliquot_notes = array('Created by script to track DNA/RNA blood from excel on '.substr($import_date, 0,10) ." (Worksheet '.$worksheetName').");
             foreach(array('Notes 1', 'Notes 2', 'Notes') as $xls_field) {
                 if(isset($amplificationExcelLineData[$xls_field])) {
                     $aliquot_notes[] = "Xls $xls_field : ".$amplificationExcelLineData[$xls_field].'.';
@@ -1894,12 +1926,12 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
                 }
             }
             $qc_tf_storage_solution = implode(' + ', $qc_tf_storage_solution);
-            $qc_tf_storage_solution = validateAndGetStructureDomainValue($qc_tf_storage_solution, 'qc_tf_dna_rna_storage_solutions', $worksheetName .' :: ' .'Dna Amplification creation creation', "See excel field 'Storage Medium' or 'Buffer'. Value will be replaced by 'yes - available'. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+            $qc_tf_storage_solution = validateAndGetStructureDomainValue($qc_tf_storage_solution, 'qc_tf_dna_rna_storage_solutions', $worksheetName .' :: ' .'Dna Amplification creation creation', "See excel field 'Storage Medium' or 'Buffer'. Value will be replaced by 'yes - available'. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             $qc_tf_weight_ug_initial = '';
-            foreach(array('Initial Quantity  (ng)', 'Initial Quantity  (ug)', 'Quantity initial (ug)', 'Quantity (ug) initial') as $xls_field) {
+            foreach(array('Initial Quantity (ng)', 'Initial Quantity (ug)', 'Quantity initial (ug)', 'Quantity (ug) initial') as $xls_field) {
                 if(isset($amplificationExcelLineData[$xls_field])) {
-                    $qc_tf_weight_ug_initial = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
-                    if($qc_tf_weight_ug_initial && $xls_field == 'Initial Quantity  (ng)') {
+                    $qc_tf_weight_ug_initial = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    if($qc_tf_weight_ug_initial && $xls_field == 'Initial Quantity (ng)') {
                         $qc_tf_weight_ug_initial = $qc_tf_weight_ug_initial/1000;
                     }
                     $aliquot_notes[] = "Xls $xls_field : ".$amplificationExcelLineData[$xls_field].'.';
@@ -1917,11 +1949,11 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
                         recordErrorAndMessage($worksheetName .' :: ' .
                             'Dna Amplification creation',
                             '@@WARNING@@',
-                            "Aliquot '$xls_field' is lower than 0. Value will be migrated as equal to 0. Please validate. [Message type #".__LINE__."]",
+                            "Aliquot '$xls_field' is lower than 0. Value will be migrated as equal to 0. Please validate. [Validation Message #".__LINE__."]",
                             "See '$xls_field' euqal to '".$amplificationExcelLineData[$xls_field]." for aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
                         $qc_tf_weight_ug = '0';
                     } else {
-                        $qc_tf_weight_ug = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                        $qc_tf_weight_ug = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Extraction creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     }
                     if($qc_tf_weight_ug && $xls_field == 'Quantity Available (ng)' && $qc_tf_weight_ug != '0') {
                         $qc_tf_weight_ug = $qc_tf_weight_ug/1000;
@@ -1929,23 +1961,23 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
                 }
             }
             $initial_volume = null;
-            foreach(array('Volume uL', 'volume1 initial  (ul)', 'volume initial uL') as $xls_field) {
+            foreach(array('Volume uL', 'volume1 initial (ul)', 'volume initial uL') as $xls_field) {
                 if(isset($amplificationExcelLineData[$xls_field])) {
-                    $initial_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $initial_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     $aliquot_notes[] = "Xls $xls_field : ".$amplificationExcelLineData[$xls_field].'.';
                 }
             }
             $used_volume = null;
             foreach(array('Quantity used (ul)', 'volume used') as $xls_field) {
                 if(isset($amplificationExcelLineData[$xls_field])) {
-                    $used_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $used_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     $aliquot_notes[] = "Xls $xls_field : ".$amplificationExcelLineData[$xls_field].'.';
                 }
             }
             $current_volume = null;
-            foreach(array('volume1 restant  (ul)', 'volume left uL', 'Volume available left') as $xls_field) {
+            foreach(array('volume1 restant (ul)', 'volume left uL', 'Volume available left') as $xls_field) {
                 if(isset($amplificationExcelLineData[$xls_field])) {
-                    $current_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                    $current_volume = validateAndGetDecimal($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                     $aliquot_notes[] = "Xls $xls_field : ".$amplificationExcelLineData[$xls_field].'.';
                 }
             }
@@ -1986,7 +2018,7 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
                     recordErrorAndMessage($worksheetName .' :: ' .
                         'Dna Amplification creation',
                         '@@WARNING@@',
-                        "Aliquot defined as not in stock but storage information and positions have been defined for the aliquot. Storage information and position won't be migrated. Please validate. [Message type #".__LINE__."]",
+                        "Aliquot defined as not in stock but storage information and positions have been defined for the aliquot. Storage information and position won't be migrated. Please validate. [Validation Message #".__LINE__."]",
                         "See position information for aliquot defined by $excelSourceAliquotInfoForMsg for participant $excelParticipantInfoForMsg in sheet '$worksheetName' line $excelLineCounter.");
                 } else {
                     $aliquot_data['aliquot_masters']['storage_master_id'] = $storage_master_id;
@@ -2009,15 +2041,15 @@ function addAmplifications($dnaAmplifcations, $worksheetName, $extractionSampleA
             // add amplification info
             
             $xls_field = 'extracted by';
-            $creation_by = validateAndGetStructureDomainValue($amplificationExcelLineData[$xls_field], 'custom_laboratory_staff', $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+            $creation_by = validateAndGetStructureDomainValue($amplificationExcelLineData[$xls_field], 'custom_laboratory_staff', $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
             $amplificationDate = '';
             $amplificationDateAcc = '';
             $xls_field = 'amplification date';
             if(isset($amplificationExcelLineData[$xls_field]) && $amplificationExcelLineData[$xls_field]) {
-                list($amplificationDate, $amplificationDateAcc) = validateAndGetDateAndAccuracy($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Message type #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
+                list($amplificationDate, $amplificationDateAcc) = validateAndGetDateAndAccuracy($amplificationExcelLineData[$xls_field], $worksheetName .' :: ' .'Dna Amplification creation', "See excel field '$xls_field'. Value won't be migrated. [Validation Message #".__LINE__."]", "See data for $excelSourceAliquotInfoForMsg of the $excelParticipantInfoForMsg line $excelLineCounter ($worksheetName).");
                 if($amplificationDate) { $amplificationDateAcc = 'h'; }
             }
-            $amplificationMethode = isset($amplificationExcelLineData['amplification methode']) && strlen($amplificationExcelLineData['amplification methode'])? : 'Unknown';
+            $amplificationMethode = isset($amplificationExcelLineData['amplification methode']) && strlen($amplificationExcelLineData['amplification methode'])? $amplificationExcelLineData['amplification methode'] : 'Unknown';
             $aliquot_internal_use_data = array(
                 'aliquot_internal_uses' => array(
                     'aliquot_master_id' => $amplificationAliquotMasterId,

@@ -11,13 +11,13 @@ $db_pwd			= "";
 $db_schema		= "tfricoeur";
 $db_charset		= "utf8";
 
-$excel_files_paths = 'C:\_NicolasLuc\Server\www\tfri_coeur\dataImporterConfig/';
+$excel_files_paths = 'C:\_NicolasLuc\Server\www\tfri_coeur\dataImporterConfig\DnaRna/';
 
 $is_serveur = false;
 if($is_serveur) {
-    $db_pwd			= "am3-y-4606";
+    $db_pwd			= "";
     $db_schema		= "atimtfricoeurtest";
-    $excel_files_paths = "/ATiM/atim-tfri-coeur/Test/scripts/";
+    $excel_files_paths = "/ATiM/atim-tfri-coeur/dataMigration/dataUpdate/DnaRna/";
 }
 $migration_user_id = 2;
 
@@ -25,5 +25,5 @@ $migration_user_id = 2;
 $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
-    'ARN_ADN_ATiM_CLP_nl_20190319.xls'
+    'ARN_ADN_ATiM_CLP_nl_20190401.xls'
 );

@@ -608,8 +608,8 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 SET @user_id = 2;
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
-("water RNAse free", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("water", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("water RNAse free", "Water RNAse free", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("water", "Water", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("ATE", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("T1E10", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("T1E11", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
