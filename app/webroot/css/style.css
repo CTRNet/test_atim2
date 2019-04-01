@@ -35,6 +35,11 @@ ol, ul {
 	list-style: none;
 }
 
+ol b, ul b{
+    color: #ddd;
+}
+
+
 blockquote, q {
 	quotes: none;
 }
@@ -695,7 +700,9 @@ div.menu ul li.root a {
 }
 
 div.menu.level_1 {
-	display: none;
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s, opacity 0.4s linear;
 	top: 40px;
 	left: 10px;
 	position: absolute;
@@ -712,7 +719,8 @@ div.menu li.count_0 div.menu.level_1 {
 }
 
 div.menu.level_0 li:hover div.menu.level_1 {
-	display: block;
+    visibility: visible;
+    opacity: 1;        
 }
 
 div.menu.level_1 ul {
@@ -729,6 +737,7 @@ div.menu.level_1 li {
 	height: auto;
 	padding: 0;
 	border-top: 1px dotted #999;
+        width: max-content;
 }
 
 div.menu.level_1 li.not_allowed {
@@ -903,17 +912,8 @@ div.error-message {
 }
 
 div.wrapper span.help div {
-	display: none;
-	white-space: normal;
-}
-
-div.wrapper th span.help.right:hover div {
-	left: 10px;
-	border-radius: 0 15px 15px 15px;
-}
-
-div.wrapper span.help:hover div {
-	display: block;
+    /*white-space: normal;*/
+    
 	text-indent: 0;
 	top: 10px;
 	right: 10px;
@@ -928,7 +928,26 @@ div.wrapper span.help:hover div {
 	text-align: left;
 	line-height: 1.3em;
 	border-radius: 15px 0 15px 15px;
-	z-index: 200;
+    
+    
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    z-index: -200;
+    -webkit-transition: visibility .5s, opacity .5s, z-index 1s;
+    transition: visibility .5s, opacity .5s, z-index 1s;
+
+}
+
+div.wrapper th span.help.right div {
+	left: 10px;
+	border-radius: 0 15px 15px 15px;
+}
+
+div.wrapper span.help:hover div {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1000;
 }
 
 div.wrapper span.help div p {
@@ -2504,6 +2523,7 @@ small {
 
 div.pasteDisabledBefore {
 	display: inline-block;
+	display: none;
 	width: 16px;
 	height: 16px;
 	background: url(../img/icons/Paste_Disabled_16x16.png) no-repeat left top;
@@ -2814,6 +2834,10 @@ input[type=number] {
 	width: 6em;
 }
 
+input[type=number].addLineCount {
+	width: 3em;
+}
+
 input[type=number].year {
 	width: 4em;
 }
@@ -2969,4 +2993,51 @@ span.template-label{
 
 span.template-label>div{
     margin-left: 0px!important;
+}
+
+button.fb_is_structure_value_domain_input, button.fb_has_validation{
+    display: none;
+}
+
+.fb_is_structure_value_domain_input, .fb_has_validation{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.user-friendly-data{
+    display: inline-block;
+    width: 100px;
+    overflow: hidden;
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+}
+
+td.paste-cell-fade-out{
+    transition: background-color 1s;
+    -webkit-transition: background-color 1s;
+}
+
+td.copy-cell {
+    background-color: #a0b8d6;
+    transition: background-color 1s;
+    -webkit-transition: background-color 1s;
+}
+
+td.paste-cell {
+    background-color: #97c6ac;
+    transition: background-color 1s;
+    -webkit-transition: background-color 1s;
+}
+
+.form-builder-flash-error{
+    background-color: #fcc;
+    transition: background-color 1s;
+    -webkit-transition: background-color 1s;
+}
+
+.ui-autocomplete{
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 20px;
 }

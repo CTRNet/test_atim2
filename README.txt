@@ -1,4 +1,4 @@
-﻿------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 --                                                                                --
 --                                      ATiM                                      --
 --                   The Advanced Tissue Management Application                   --
@@ -76,4 +76,4 @@ Contact information:
   website: http://crchum.chumontreal.qc.ca
            http://ctrnet.ca/contact
 
-  e-mail: atim.ctrnet@gmail.com
+  e-mail: info@ctrnet.ca

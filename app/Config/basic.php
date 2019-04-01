@@ -336,16 +336,33 @@ function removeEmptyStringArray($value)
     return ($value != "" && $value != array());
 }
 
-function getTotalMemoryCapacity()
-{
+function getTotalMemoryCapacity(&$error = false)
+ {
     $os = substr(PHP_OS, 0, 3);
+    $defaultValue = 4294967296;
     if ($os == "WIN") {
         $totalMemory = array();
         exec('wmic memorychip get capacity', $totalMemory);
-        if (is_numeric($totalMemory[1])) {
-            return round($totalMemory[1] / 1024 / 1024);
-        } else {
-            return - 1;
+        if (isset($totalMemory[1])) {
+            if (is_numeric($totalMemory[1])) {
+                return round($totalMemory[1] / 1024 / 1024);
+            } else {
+                $totalMemory[1] = preg_replace("/[^0-9.]/", "", $totalMemory[1]);
+                if (is_numeric($totalMemory[1])) {
+                    return round($totalMemory[1] / 1024 / 1024);
+                } else {
+                    $error = true;
+                    return round($defaultValue / 1024 / 1024);
+                }
+            }
+        } elseif (isset($totalMemory[0])) {
+            $totalMemory[0] = preg_replace("/[^0-9.]/", "", $totalMemory[0]);
+            if (is_numeric($totalMemory[0])) {
+                return round($totalMemory[0] / 1024 / 1024);
+            } else {
+                $error = true;
+                return round($defaultValue / 1024 / 1024);
+            }
         }
     } elseif ($os == "Lin") {
         $fh = fopen('/proc/meminfo', 'r');

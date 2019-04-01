@@ -119,13 +119,18 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
             // Launch validation
             $submittedDataValidates = true;
             
-            if (! $isIncrementedIdentifier) {
+            if (! $isIncrementedIdentifier && isset($this->request->data['MiscIdentifier']['identifier_value'])) {
                 $this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $controls['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
             }
             
             // ... special validations
+            $saveState = $this->MiscIdentifier->saveValidateState($displayAddForm);
+            
             $this->MiscIdentifier->set($this->request->data);
             $submittedDataValidates = $this->MiscIdentifier->validates() ? $submittedDataValidates : false;
+            
+            $this->MiscIdentifier->restoreValidateState($saveState);
+
             if ($controls['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value'])) {
                 if ($this->MiscIdentifier->find('first', array(
                     'conditions' => array(

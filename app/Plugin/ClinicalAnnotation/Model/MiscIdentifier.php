@@ -251,4 +251,23 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         
         return true;
     }
+    
+    public function saveValidateState($displayAddForm) {
+        $validationRules = $this->validate;
+        if (!$displayAddForm) {
+            if (isset($this->validate["identifier_value"]) && is_array($this->validate["identifier_value"])) {
+                foreach ($this->validate["identifier_value"] as &$value) {
+                    if (isset($value['allowEmpty'])){
+                        $value['allowEmpty'] = true;
+                    }
+                }
+            }
+        }
+        return $validationRules;
+    }
+
+    public function restoreValidateState($saveState) {
+        $this->validate = $saveState;
+    }
+
 }

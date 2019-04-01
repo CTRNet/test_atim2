@@ -80,18 +80,49 @@ $parameters);
         );
         $allStructures = array();
         
+        $validationErrors = array();
+        $models = array();
         foreach ($alias as $aliasUnit) {
             $structUnit = $this->getSingleStructure($aliasUnit);
             
             $allStructures[] = $structUnit;
             
             if ($parameters['set_validation']) {
-                foreach ($structUnit['rules'] as $model => $rules) {
-                    // reset validate for newly loaded structure models
-                    if (! $this->controller->{ $model }) {
-                        $this->controller->{ $model } = new AppModel();
+                if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                    foreach ($structUnit['rules'] as $model => $rules) {
+                        // reset validate for newly loaded structure models
+                        if (!$this->controller->{ $model }) {
+                            $this->controller->{ $model } = new AppModel();
+                        }
+
+                        $models[$model] = $this->controller->{ $model };
+                        $this->controller->{ $model }->validate = array();
+                        foreach ($rules as $field=> $rls){
+                            foreach ($rls as $rule){
+                                if ($rule["rule"] == "notBlank"){
+                                    if ($model =="FunctionManagement"){
+                                        if (!isset($this->controller->data[$model][$field]) || empty($this->controller->data[$model][$field])){
+                                            $validationErrors[$field] = $rule['message'];
+                                        }else{
+                                            if (is_numeric(key($this->controller->data))){
+                                                foreach (current($this->controller->data) as $k=>$data) {
+                                                    if (isset($data[$model][$field]) && empty($data[$model][$field])){
+                                                        $validationErrors[$field] = $rule['message'];
+                                                    }                                                
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (isset(AppModel::$requiredFields[$model])){
+                                        AppModel::$requiredFields[$model][$field] = $rule["message"];
+                                    }else{
+                                        AppModel::$requiredFields[$model] = array($field => $rule["message"]);
+                                    }
+                                }
+                            }
+                            
+                        }
                     }
-                    $this->controller->{ $model }->validate = array();
                 }
                 
                 if (isset($structUnit['structure']['Sfs'])) {
@@ -124,11 +155,22 @@ $parameters);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
             }
         }
+        if (!empty($validationErrors)){
+            foreach ($models as $modelName => $model) {
+                if ($modelName != "FunctionManagement"){
+                    foreach ($validationErrors as $field => $errorMessage){
+                        $this->controller->{ $modelName }->notBlankFields["FunctionManagement"][$field] = $errorMessage;
+                    }
+                }
+            }
+        }
         
         foreach ($allStructures as &$structUnit) {
-            foreach ($structUnit['rules'] as $model => $rules) {
-                // rules are formatted, apply them
-                $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+            if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                foreach ($structUnit['rules'] as $model => $rules) {
+                    // rules are formatted, apply them
+                    $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+                }
             }
         }
         

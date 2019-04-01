@@ -31,7 +31,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-$debug = 2;
+$debug = 0;
 Configure::write('debug', $debug);
 
 /**

@@ -1028,4 +1028,4 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('template init error please contact your administrator', 'An error exists in the field definition. Please contact your administrator.', "Une erreur existe dans la définition du champ. Veuillez contacter votre administrateur.");
 
-UPDATE versions SET trunk_build_number = '7393' WHERE version_number = '2.7.1';
+UPDATE versions SET trunk_build_number = '7370' WHERE version_number = '2.7.1';

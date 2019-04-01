@@ -67,7 +67,7 @@ class DATABASE_CONFIG
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'trunk',
+        'database' => 'atim_z_storage',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306

@@ -94,4 +94,71 @@ class StructureField extends AppModel
         
         return $return;
     }
+    
+    public function validatesFormBuilder($options = array(), &$errors = array()) 
+    {
+        if (empty($errors)){
+            $errors = array("common" => array());
+        }
+        if (isset($options["prefix-common"])) {
+            $dataCommon = isset($this->data[$options["prefix-common"]]) ? $this->data[$options["prefix-common"]] : array();
+            $valid = true;
+            $validationErrors = [];
+            $index = 0;
+            foreach ($dataCommon as $key => $value) {
+                if (is_numeric($key)) {
+                    $this->set($value);
+                    $isValid = parent::validates($options);
+
+                    $valid &= $isValid;
+
+                    $errors["common"][$index] = (isset($errors["common"][$index]))?$errors["common"][$index]:array();
+                    foreach ($this->validationErrors as $field => $errs) {
+                        $errors["common"][$index][] = $field;
+                    }
+                    $this->validationErrors = array_merge($validationErrors, $this->validationErrors);
+                    $validationErrors = $this->validationErrors;
+                    $index++;
+                }
+            }
+            unset($options["prefix-common"]);
+        }
+        return $valid;
+    }
+    
+    public function setDataBeforeSaveFB(&$data, $options = array())
+    {
+        $valueDomainData = json_decode($data["valueDomainData"], true);
+        if (isset($options["prefix-common"])) {
+            $dataCommon = isset($data[$options["prefix-common"]]) ? $data[$options["prefix-common"]] : array();
+            $index = 0;
+            $now = date('Y_m_s_H_i_s');
+            foreach ($dataCommon as $key => &$value) {
+                if (is_numeric($key)) {
+                    $value['FunctionManagement']['is_structure_value_domain'] = "";
+                    if ($value['StructureField']['type']=='select'){
+                        if (isset($valueDomainData[$index]['value']) && !empty($valueDomainData[$index]['value'])){
+                            $value['StructureField']['structure_value_domain'] = $valueDomainData[$index]['id'];
+                            $value['StructureField']['structure_value_domain_value'] = $valueDomainData[$index]['value'];
+                            $value['FunctionManagement']['is_structure_value_domain'] = "OK";
+                        }
+                    }else{
+                        if (isset($valueDomainData[$index]['value']) && !empty($valueDomainData[$index]['value'])){
+                            AppController::addWarningMsg(__("just for the list data type can have the value list"));
+                        }
+                        $value['StructureField']['structure_value_domain'] = null;
+                        $value['FunctionManagement']['is_structure_value_domain'] = "OK";
+                    }
+                    $name = preg_replace('/\s+/', '_', $value['StructureField']['language_label']);
+                    $fieldName = sprintf("%02d", ($index + 1)) . "_" . substr($name, 0, 20)."_".$now;
+
+                    $value["StructureField"]["field"] = $fieldName;
+                    $index++;
+                }
+            }
+            unset ($data["valueDomainData"]);
+            $data[$options["prefix-common"]] = $dataCommon;
+        }
+    }
+
 }

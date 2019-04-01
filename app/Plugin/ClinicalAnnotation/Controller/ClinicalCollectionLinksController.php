@@ -381,6 +381,33 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                     $fields[] = 'collection_protocol_id';
                 }
             }
+
+            $models = array("ConsentMaster", "DiagnosisMaster", "TreatmentMaster", "EventMaster");
+            foreach ($models as $model) {
+                $idField = Inflector::underscore($model)."_id";
+                if (!empty($this->request->data['Collection'][$idField])){
+                    $id = $this->request->data['Collection'][$idField];
+                    $modelInstance = AppModel::getInstance("ClinicalAnnotation", $model);
+
+                    $p = $modelInstance->find('first', array(
+                        'conditions' => array($model.'.id' => $id)
+                    ));
+
+                    if (!isset($p[$model]['participant_id']) || $p[$model]['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the %s is not related to the participant', __(strtolower(str_replace("Master", "", $model)))), 'javascript:history.back();');
+                    }
+                }
+
+            }
+
+            if (!empty($this->request->data['Collection']['event_master_id'])){
+                $this->EventMaster->id = $this->request->data['Collection']['event_master_id'];
+                $result = $this->EventMaster->read();
+                if (!$result || !$result['EventControl']['flag_use_for_ccl']){
+                    $this->atimFlashError(__('the annotation #%s is not for clinical collection link', $this->request->data['Collection']['event_master_id']), 'javascript:history.back();');
+                }
+            }
+            
             $this->request->data['Collection']['participant_id'] = $participantId;
             $this->Collection->id = (isset($this->request->data['Collection']['id']) && $this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null;
             unset($this->request->data['Collection']['id']);
@@ -527,6 +554,33 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             
             $this->Collection->id = $collectionId;
             $this->Collection->addWritableField($fields);
+            
+            $models = array("ConsentMaster", "DiagnosisMaster", "TreatmentMaster", "EventMaster");
+            foreach ($models as $model) {
+                $idField = Inflector::underscore($model)."_id";
+                if (!empty($this->request->data['Collection'][$idField])){
+                    $id = $this->request->data['Collection'][$idField];
+                    $modelInstance = AppModel::getInstance("ClinicalAnnotation", $model);
+
+                    $p = $modelInstance->find('first', array(
+                        'conditions' => array($model.'.id' => $id)
+                    ));
+
+                    if (!isset($p[$model]['participant_id']) || $p[$model]['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the %s is not related to the participant', __(strtolower(str_replace("Master", "", $model)))), 'javascript:history.back();');
+                    }
+                }
+
+            }
+
+            if (!empty($this->request->data['Collection']['event_master_id'])){
+                $this->EventMaster->id = $this->request->data['Collection']['event_master_id'];
+                $result = $this->EventMaster->read();
+                if (!$result || !$result['EventControl']['flag_use_for_ccl']){
+                    $this->atimFlashError(__('the annotation #%s is not for clinical collection link', $this->request->data['Collection']['event_master_id']), 'javascript:history.back();');
+                }
+            }
+
             if ($submittedDataValidates && $this->Collection->save($this->request->data, true, $fields)) {
                 
                 $hookLink = $this->hook('postsave_process');

@@ -9,9 +9,11 @@ var checkedData = [];
 var DEBUG_MODE_JS = 0;
 var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
-//window.alert = function(a){
-//    console.log(a);
-//}
+
+if (window.name !== "ATiM - Advanced Tissue Management"){
+    window.name = "ATiM - Advanced Tissue Management";
+    location.reload(true);
+}
 
 $(document).ready(function () {
     $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
@@ -116,6 +118,12 @@ $(document).ready(function () {
         treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
         findDuplicatedSamples(treeTable);
     }
+    $("a.help_link").each(function(){
+        var $this = $(this);
+        $this.attr("target", "_blank");
+        $this.attr("href", root_url+$this.attr("href"));
+        $this.text(here);
+    });
 });
 
 jQuery.fn.fullWidth = function () {
@@ -130,10 +138,12 @@ if ($("#header div:first").length !== 0) {
 var actionMenuShow = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
-    if (action_popup.length > 0) {
-        //show current menu
-        action_popup.slideDown(100);
-    }
+    slideMenuTimer = setTimeout(function(){
+        if (action_popup.length > 0) {
+            //show current menu
+            action_popup.slideDown(50);
+        }
+    }, 100);
 };
 
 //Slide up (hide) animation for action menu.
@@ -141,6 +151,7 @@ var actionMenuHide = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
     if (action_popup.length > 0) {
+        clearTimeout(slideMenuTimer);
         action_popup.slideUp(100).queue(function () {
             $(this).clearQueue();
         });
@@ -161,7 +172,7 @@ var actionClickUp = function () {
                 {
                     top: '+=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
 
@@ -184,7 +195,7 @@ var actionClickDown = function () {
                 {
                     top: '-=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
     }
@@ -676,10 +687,25 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
                             data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
                             saveSqlLogAjax(ajaxSqlLog);
-                        }                        
-                        response(JSON.parse(data));
+                        }
+                        data = JSON.parse(data);
+                        var temp = [];
+                        data = data.map(function(item){
+                            temp = item.split("|||");
+                            if (temp.length==2){
+                                return {id: temp[1], label: temp[0]};
+                            }else{
+                                return temp[0];
+                            }
+                        });
+                        response(data);
                     });
-            }
+            },
+            select: function( event, ui ) {
+                if (typeof ui.item.id !="undefined"){
+                    $(event.target).data("id", ui.item.id);
+                }
+            }            
         });
     });
 }
@@ -1396,6 +1422,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
     
     $(scope).find("input[type=checkbox]").each(function(){
+        var $requiredYN = false;
+        var $checked = false;
+        var $checkBox;
+        $(this).parent().children('input[type=checkbox]').each(function(){
+            $checkBox = $(this);
+            if ($checkBox.prop('required')){
+                $requiredYN = true;
+            }
+            if ($checkBox.prop('checked')){
+                $checked = true;
+            }
+        });
+        
+        if ($requiredYN && $checked){
+            $(this).parent().children('input[type=checkbox]').each(function(){
+                $checkBox = $(this);
+                if ($checkBox.prop('checked')){
+                    $checkBox.prop('required', true);
+                }else{
+                    $checkBox.prop('required', false);
+                }
+                
+            });
+        }
+                
         $(this).click(function(){
             $currentCheckBox=$(this);            
             $parent=$currentCheckBox.parent();
@@ -1984,6 +2035,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
     flyOverComponents();
     initPostData();
+    if (typeof getI18nVariable !== 'undefined' && getI18nVariable ===true){
+        getI18n();
+    }
 }
 
 function loadClearSearchData()
