@@ -1113,6 +1113,14 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
+function convertRemToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
+function convertPixelsToRem(pixel) {
+    return pixel / parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
 function resizeFloatingBckGrnd(floatingBckGrnd) {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1153,13 +1161,15 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
         width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
         height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        topX = $(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top;
+        left = $(floatingBckGrnd).offset().left - $(firstTh).offset().left;
         if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
             $(floatingBckGrnd).data("onlyDimension", true);
             $(floatingBckGrnd).css({
-                "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
-                "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
-                "width": width + "px",
-                "height": height + "px"
+                "top": convertPixelsToRem(-topX) + "rem",
+                "left": convertPixelsToRem(-left)  + "rem",
+                "width": convertPixelsToRem(width) + "rem",
+                "height": convertPixelsToRem(height) + "rem",
             });
         } else {
             $(floatingBckGrnd).css({
