@@ -140,6 +140,7 @@ $sql_sardo_tables_creations = array(
 		FIGO varchar(255) DEFAULT NULL,
 		CodeTNMG varchar(255) DEFAULT NULL,
 		GradeICDO varchar(255) DEFAULT NULL,
+        StatutMenopause varchar(255) DEFAULT NULL,
 		DateDerniereVisite date DEFAULT NULL,
 		DateDerniereVisite_accuracy char(1) NOT NULL DEFAULT '',
 		Duree varchar(255) DEFAULT NULL,
