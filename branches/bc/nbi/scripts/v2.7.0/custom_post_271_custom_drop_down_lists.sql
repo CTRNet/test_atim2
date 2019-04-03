@@ -5,9 +5,13 @@
 --
 -- -------------------------------------------------------------------------
 
+
 ALTER TABLE structure_permissible_values_customs 
    MODIFY en varchar(300) DEFAULT NULL,
    MODIFY fr varchar(300) DEFAULT NULL;
+
+-- List from "table lookup values" worksheets
+-- -------------------------------------------
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) values ('bc_nbi_bcca_status_at_referral', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'bc_nbi_bcca_status_at_referral\')');INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('bc_nbi_bcca_status_at_referral', 1, 10, 'clinical');SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'bc_nbi_bcca_status_at_referral');
 SET @user_id = 2; INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -1956,9 +1960,6 @@ SET @user_id = 2; INSERT INTO structure_permissible_values_customs (`value`, `en
 ("X", "unknown if initial chemo given", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
 ("Blank", "no recorded", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
-
-
-
 INSERT INTO structure_value_domains (domain_name, override, category, source) values ('bc_nbi_bcca_br_initl_hormreg', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'bc_nbi_bcca_br_initl_hormreg\')');INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('bc_nbi_bcca_br_initl_hormreg', 1, 10, 'clinical');SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'bc_nbi_bcca_br_initl_hormreg');
 SET @user_id = 2; INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
 ("000", "No initial hormonal therapy pre 2010 dx br_initl_horm_type_p00005 = 8", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
@@ -2475,3 +2476,500 @@ SET @user_id = 2; INSERT INTO structure_permissible_values_customs (`value`, `en
 ("77", "Initial nodal procedure performed, positive nodes removed, and unknown if ECE present", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
 ("88", "Not applicable", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
 ("99", "Unknown if initial nodal procedure was performed", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Anterior Tissue Remaining' WHERE name = 'bc_nbi_bcca_br_ant_tiss_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Clips Used' WHERE name = 'bc_nbi_bcca_br_clipmarkingbxcavity_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Close or Pos Margin Type' WHERE name = 'bc_nbi_bcca_br_closeposmargintype_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : HER2 Lab at Recurrence' WHERE name = 'bc_nbi_bcca_br_her2neulabatrecur_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Targ Thx at Init Dx Pre 2010' WHERE name = 'bc_nbi_bcca_br_immunotherapy_p00005';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Initial Chemo Regimen' WHERE name = 'bc_nbi_bcca_br_initl_chemoreg';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Chemo at Init Dx Pre 2010' WHERE name = 'bc_nbi_bcca_br_initl_chemo_type_p00005';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Initial Hormone Regimen' WHERE name = 'bc_nbi_bcca_br_initl_hormreg';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Horm at Init Dx Pre 2010' WHERE name = 'bc_nbi_bcca_br_initl_horm_type_p00005';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Initial Targeted Therapy' WHERE name = 'bc_nbi_bcca_br_initl_targthx';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Multicentric Breast Ca' WHERE name = 'bc_nbi_bcca_br_multicentbrstca_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Multifocal Breast Ca' WHERE name = 'bc_nbi_bcca_br_multifocbrstca_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Overlapping Lesion' WHERE name = 'bc_nbi_bcca_br_overlap_lesion_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Posterior or Deep  Margin' WHERE name = 'bc_nbi_bcca_br_postr_deepmarg_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Radiologic Confirm FWL' WHERE name = 'bc_nbi_bcca_br_radiologicconfirmFWL_onco';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Surg Specimen Oriented' WHERE name = 'bc_nbi_bcca_br_surgspecimenoriented_onco';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Physician pre 2003' WHERE name = 'bc_nbi_bcca_clinic_phys';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Clinical M' WHERE name = 'bc_nbi_bcca_COL_AJCC_M_clin';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Pathologic M' WHERE name = 'bc_nbi_bcca_COL_AJCC_M_path';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Clinical N' WHERE name = 'bc_nbi_bcca_COL_AJCC_N_clin';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Pathologic N' WHERE name = 'bc_nbi_bcca_COL_AJCC_N_path';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Clinical T' WHERE name = 'bc_nbi_bcca_COL_AJCC_T_clin';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Pathologic T' WHERE name = 'bc_nbi_bcca_COL_AJCC_T_path';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS Reg. LN Invol. at I. Dx' WHERE name = 'bc_nbi_bcca_COL_nodes';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS N Cat. Stag. Basis' WHERE name = 'bc_nbi_bcca_COL_nodes_eval';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF3 Pos. Ipsil. ALN' WHERE name = 'bc_nbi_bcca_col_ssf3';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF4 IHC of Reg. LN' WHERE name = 'bc_nbi_bcca_col_ssf4';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF5 MOL Stud. of RLN' WHERE name = 'bc_nbi_bcca_col_ssf5';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF6 Tum. Size-Inv. Comp.' WHERE name = 'bc_nbi_bcca_col_ssf6';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF7 Notting./BR Score/Gr' WHERE name = 'bc_nbi_bcca_col_ssf7';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF8 HER2:  IHC Lab Value' WHERE name = 'bc_nbi_bcca_col_ssf8';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF9 HER2 IHC Test Interp.' WHERE name = 'bc_nbi_bcca_col_ssf9';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF10 HER2 FISH Lab Value' WHERE name = 'bc_nbi_bcca_col_ssf10';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF11 HER2 FISH Test Interp.' WHERE name = 'bc_nbi_bcca_col_ssf11';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF12 HER2 CISH Lab Value' WHERE name = 'bc_nbi_bcca_col_ssf12';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF13 HER2 CISH Test Interp.' WHERE name = 'bc_nbi_bcca_col_ssf13';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF14 HER2 Res (Oth/Unk Test)' WHERE name = 'bc_nbi_bcca_col_ssf14';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF16 ER, PR, and HER2 Results' WHERE name = 'bc_nbi_bcca_col_ssf16';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF19 Ass. of Pos. Ipsil. ALN' WHERE name = 'bc_nbi_bcca_col_ssf19';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF22 Multigene Sig. Method' WHERE name = 'bc_nbi_bcca_col_ssf22';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : CS SSF23 Multigene Sig. Results' WHERE name = 'bc_nbi_bcca_col_ssf23';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Tumoour size' WHERE name = 'bc_nbi_bcca_col_tum_size';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : ECE' WHERE name = 'bc_nbi_bcca_ECE_final';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Family Histories' WHERE name = 'bc_nbi_bcca_family_hx';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : HER2 Lab at Dx' WHERE name = 'bc_nbi_bcca_her2neulab_initdx';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : HER2 Tissue Site' WHERE name = 'bc_nbi_bcca_her2_tissuesite';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Health Authority at Diagnosis' WHERE name = 'bc_nbi_bcca_hlth_auth';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : HSDA at Diagnosis' WHERE name = 'bc_nbi_bcca_hsda';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : RT Boost ' WHERE name = 'bc_nbi_bcca_init_finrt';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Local Health Area at Diagnosis' WHERE name = 'bc_nbi_bcca_local_health_area';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Location at Admit' WHERE name = 'bc_nbi_bcca_loc_at_admit & location';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Metastases' WHERE name = 'bc_nbi_bcca_M_STG';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : # Relatives Br Ca' WHERE name = 'bc_nbi_bcca_num_fst_deg_relatives';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Performance Status' WHERE name = 'bc_nbi_bcca_performance_status';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Specialty of the physician' WHERE name = 'bc_nbi_bcca_phys_specialty';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : # Positive Nodes at Init Dx' WHERE name = 'bc_nbi_bcca_posnodes';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Reconstruction Surgery' WHERE name = 'bc_nbi_bcca_recon_final';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : # of Pos Sentinel LN' WHERE name = 'bc_nbi_bcca_sentnodes';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Tumor Site' WHERE name = 'bc_nbi_bcca_site';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Sentinel Lymph Node Bx' WHERE name = 'bc_nbi_bcca_SLNB';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Status at Referral' WHERE name = 'bc_nbi_bcca_status_at_referral';
+
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : RT Technique' WHERE name = 'bc_nbi_bcca_tech';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : TNM Clinical M Stage' WHERE name = 'bc_nbi_bcca_tnm_clin_m';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : TNM Clinical T Stage' WHERE name = 'bc_nbi_bcca_tnm_clin_t';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : TNM Pathologic M Stage' WHERE name = 'bc_nbi_bcca_tnm_surg_m';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : TNM Pathologic N Stage' WHERE name = 'bc_nbi_bcca_tnm_surg_n';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : TNM Pathologic T Stage' WHERE name = 'bc_nbi_bcca_tnm_surg_t';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : # Total Nodes' WHERE name = 'bc_nbi_bcca_totnodes';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Treatment Region' WHERE name = 'bc_nbi_bcca_trt_region';
+UPDATE structure_permissible_values_custom_controls SET name = 'BCCA Tum. Reg. : Tumour Size' WHERE name = 'bc_nbi_bcca_tum_size';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Anterior Tissue Remaining\')' WHERE domain_name = 'bc_nbi_bcca_br_ant_tiss_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Clips Used\')' WHERE domain_name = 'bc_nbi_bcca_br_clipmarkingbxcavity_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Close or Pos Margin Type\')' WHERE domain_name = 'bc_nbi_bcca_br_closeposmargintype_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : HER2 Lab at Recurrence\')' WHERE domain_name = 'bc_nbi_bcca_br_her2neulabatrecur_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Targ Thx at Init Dx Pre 2010\')' WHERE domain_name = 'bc_nbi_bcca_br_immunotherapy_p00005';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Initial Chemo Regimen\')' WHERE domain_name = 'bc_nbi_bcca_br_initl_chemoreg';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Chemo at Init Dx Pre 2010\')' WHERE domain_name = 'bc_nbi_bcca_br_initl_chemo_type_p00005';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Initial Hormone Regimen\')' WHERE domain_name = 'bc_nbi_bcca_br_initl_hormreg';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Horm at Init Dx Pre 2010\')' WHERE domain_name = 'bc_nbi_bcca_br_initl_horm_type_p00005';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Initial Targeted Therapy\')' WHERE domain_name = 'bc_nbi_bcca_br_initl_targthx';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Multicentric Breast Ca\')' WHERE domain_name = 'bc_nbi_bcca_br_multicentbrstca_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Multifocal Breast Ca\')' WHERE domain_name = 'bc_nbi_bcca_br_multifocbrstca_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Overlapping Lesion\')' WHERE domain_name = 'bc_nbi_bcca_br_overlap_lesion_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Posterior or Deep  Margin\')' WHERE domain_name = 'bc_nbi_bcca_br_postr_deepmarg_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Radiologic Confirm FWL\')' WHERE domain_name = 'bc_nbi_bcca_br_radiologicconfirmFWL_onco';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Surg Specimen Oriented\')' WHERE domain_name = 'bc_nbi_bcca_br_surgspecimenoriented_onco';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Physician pre 2003\')' WHERE domain_name = 'bc_nbi_bcca_clinic_phys';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Clinical M\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_M_clin';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Pathologic M\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_M_path';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Clinical N\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_N_clin';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Pathologic N\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_N_path';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Clinical T\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_T_clin';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Pathologic T\')' WHERE domain_name = 'bc_nbi_bcca_COL_AJCC_T_path';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS Reg. LN Invol. at I. Dx\')' WHERE domain_name = 'bc_nbi_bcca_COL_nodes';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS N Cat. Stag. Basis\')' WHERE domain_name = 'bc_nbi_bcca_COL_nodes_eval';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF3 Pos. Ipsil. ALN\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf3';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF4 IHC of Reg. LN\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf4';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF5 MOL Stud. of RLN\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf5';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF6 Tum. Size-Inv. Comp.\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf6';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF7 Notting./BR Score/Gr\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf7';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF8 HER2:  IHC Lab Value\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf8';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF9 HER2 IHC Test Interp.\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf9';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF10 HER2 FISH Lab Value\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf10';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF11 HER2 FISH Test Interp.\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf11';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF12 HER2 CISH Lab Value\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf12';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF13 HER2 CISH Test Interp.\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf13';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF14 HER2 Res (Oth/Unk Test)\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf14';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF16 ER, PR, and HER2 Results\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf16';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF19 Ass. of Pos. Ipsil. ALN\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf19';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF22 Multigene Sig. Method\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf22';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : CS SSF23 Multigene Sig. Results\')' WHERE domain_name = 'bc_nbi_bcca_col_ssf23';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumoour size\')' WHERE domain_name = 'bc_nbi_bcca_col_tum_size';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : ECE\')' WHERE domain_name = 'bc_nbi_bcca_ECE_final';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Family Histories\')' WHERE domain_name = 'bc_nbi_bcca_family_hx';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : HER2 Lab at Dx\')' WHERE domain_name = 'bc_nbi_bcca_her2neulab_initdx';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : HER2 Tissue Site\')' WHERE domain_name = 'bc_nbi_bcca_her2_tissuesite';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Health Authority at Diagnosis\')' WHERE domain_name = 'bc_nbi_bcca_hlth_auth';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : HSDA at Diagnosis\')' WHERE domain_name = 'bc_nbi_bcca_hsda';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : RT Boost \')' WHERE domain_name = 'bc_nbi_bcca_init_finrt';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Local Health Area at Diagnosis\')' WHERE domain_name = 'bc_nbi_bcca_local_health_area';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Location at Admit\')' WHERE domain_name = 'bc_nbi_bcca_loc_at_admit & location';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Metastases\')' WHERE domain_name = 'bc_nbi_bcca_M_STG';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : # Relatives Br Ca\')' WHERE domain_name = 'bc_nbi_bcca_num_fst_deg_relatives';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Performance Status\')' WHERE domain_name = 'bc_nbi_bcca_performance_status';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Specialty of the physician\')' WHERE domain_name = 'bc_nbi_bcca_phys_specialty';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : # Positive Nodes at Init Dx\')' WHERE domain_name = 'bc_nbi_bcca_posnodes';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Reconstruction Surgery\')' WHERE domain_name = 'bc_nbi_bcca_recon_final';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : # of Pos Sentinel LN\')' WHERE domain_name = 'bc_nbi_bcca_sentnodes';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumor Site\')' WHERE domain_name = 'bc_nbi_bcca_site';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Sentinel Lymph Node Bx\')' WHERE domain_name = 'bc_nbi_bcca_SLNB';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Status at Referral\')' WHERE domain_name = 'bc_nbi_bcca_status_at_referral';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : RT Technique\')' WHERE domain_name = 'bc_nbi_bcca_tech';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : TNM Clinical M Stage\')' WHERE domain_name = 'bc_nbi_bcca_tnm_clin_m';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : TNM Clinical T Stage\')' WHERE domain_name = 'bc_nbi_bcca_tnm_clin_t';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : TNM Pathologic M Stage\')' WHERE domain_name = 'bc_nbi_bcca_tnm_surg_m';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : TNM Pathologic N Stage\')' WHERE domain_name = 'bc_nbi_bcca_tnm_surg_n';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : TNM Pathologic T Stage\')' WHERE domain_name = 'bc_nbi_bcca_tnm_surg_t';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : # Total Nodes\')' WHERE domain_name = 'bc_nbi_bcca_totnodes';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Treatment Region\')' WHERE domain_name = 'bc_nbi_bcca_trt_region';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumour Size\')' WHERE domain_name = 'bc_nbi_bcca_tum_size';
+
+-- List from "Main" worksheets
+-- -------------------------------------------
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_ref', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Referred Case\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Referred Case', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Referred Case');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "on referred", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "Referred", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_dataset', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : NHA Case\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : NHA Case', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : NHA Case');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("1", "NHA", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "VCC", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_registry_group', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Province of Residence\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Province of Residence', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Province of Residence');
+SET @user_id = 2; INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("B", "B.C.", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("Y", "Yukon", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("Blank", "Other", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_diag_type', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Coding Status\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Coding Status', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Coding Status');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("1", "amended (discont. 1/1/2010)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "final referred", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "provisional (referred or non-referred)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("4", "final non-referred", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_loc_at_diag', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Postal Code at Diagnosis\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Postal Code at Diagnosis', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Postal Code at Diagnosis');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("5900", "BC", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_cancer_center', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Cancer Center\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Cancer Center', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Cancer Center');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("AC", "Abbotsford", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("CN", "Center for the North", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("FV", "Fraser Valley", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("SI", "Southern Interior", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("VA", "Vancouver", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("VI", "Vancouver Island", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("??", "Unknown, postal code boundaries have changed", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_laterality', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Laterality\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Laterality', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Laterality');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("01", "right", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("02", "left", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("09", "unknown", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_tumour_behavior', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumour Behaviour\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Tumour Behaviour', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Tumour Behaviour');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("2", "in situ", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "Invasive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_tumour_grade', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumour Grade\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Tumour Grade', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Tumour Grade');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("01", "Grade I Well Differentiated/Differentiated", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("02", "Grade II Moderately Diff / Mod Well Diff", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("03", "Grade III Poorly Differentiated", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("04", "Grade IV Undifferentiated, Anaplastic", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("09", "Grade/differentiations unknown, not stated, or not applicable", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_br_grade_type', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Tumour Grade Type\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Tumour Grade Type', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Tumour Grade Type');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("1", "Nuclear", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "Histologic", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("8", "N/A (Grade Unknown)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_UICC_TNM_staging_system', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : UICC TNM staging system\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : UICC TNM staging system', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : UICC TNM staging system');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("74", "1974 (2nd edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("78", "1978 (3rd edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("87", "1987 (4th edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("97", "1997 (5th edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("02", "2002 (6th edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("09", "2009 (7th edition)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("Blank", "not recorded", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("bc_nbi_bcca_neg_pos_unknown", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("0", "negative"),("1", "positive"),("9", "unknown");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="negative"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="positive"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("bc_nbi_bcca_neg_pos_close_unknown", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("0", "negative"),("1", "positive"),("2", "close"), ("9", "unknown");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="negative"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="positive"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="close"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_nodestat', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Nodal Status\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Nodal Status', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Nodal Status');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "node negative", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "node positive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_SLNB_yes_no
+', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : SLN Bx (Y/N)\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : SLN Bx (Y/N)', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : SLN Bx (Y/N)');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "no SLNBx", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "SLNBx", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("8", "SLNBx abandoned/unkn", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_er_status', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : ER Status\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : ER Status', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : ER Status');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("1", "high positive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "moderately positive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "low positive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("4", "positive, unspecified", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("5", "negative", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "unknown", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_not_treated', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : No Initial Treatment\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : No Initial Treatment', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : No Initial Treatment');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("1", "Patient refused treatment", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "Malignancy or condition too advanced", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "Patient referred elsewhere", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("4", "other", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("99", "Not Applicable (Patient had Treatment)", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_localtx', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Local Treatment\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Local Treatment', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Local Treatment');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "no breast surgery", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "mastectomy +/- any RT", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "BCS + any RT", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "BCS alone", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+	
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_systx', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Systemic Therapy\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Systemic Therapy', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Systemic Therapy');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "no chemo or HT", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "HT, no chemo", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("2", "chemo, no HT", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("3", "HT & chemo", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "unknown", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+	
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_init_chemo', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Chemo: Y/N at Init Dx	\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Chemo: Y/N at Init Dx	', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Chemo: Y/N at Init Dx	');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES("0", "no chemotherapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "initial chemotherapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "unknown if initial chemo", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+	
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_init_horm', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Horm Ther  Y/N at Init Dx\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Horm Ther  Y/N at Init Dx', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Horm Ther  Y/N at Init Dx');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "no initial hormonal therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "initial hormonal therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "unknown if pt received initial hormonal therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_M1atDx', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : M1 at Dx\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : M1 at Dx', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : M1 at Dx');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("0", "No mets at diagnosis", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "Mets at diagnosis", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "Unknown if M1 at dx", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);		
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_loc_type', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Local Rec Type\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Local Rec Type', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Local Rec Type');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES("V", "invasive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("N", "insitu", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("L", "unknown", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+values
+('bc_nbi_bcca_br_initl_targthx_yn', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : Initial Targ, Ther. Y/N\')');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('BCCA Tum. Reg. : Initial Targ, Ther. Y/N', 1, 10, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'BCCA Tum. Reg. : Initial Targ, Ther. Y/N');
+SET @user_id = 2; 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES("V", "invasive", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("0", "no initial targeted therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("1", "initial targeted therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
+("9", "unknown if pt received initial targeted therapy", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);	
