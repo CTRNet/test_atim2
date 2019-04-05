@@ -85,6 +85,7 @@ class ReportsControllerCustom extends ReportsController
                         'participant_identifier' => $newIdent['Participant']['participant_identifier'],
                         'first_name' => $newIdent['Participant']['first_name'],
                         'last_name' => $newIdent['Participant']['last_name'],
+                        'qc_nd_sardo_rec_number' => $newIdent['Participant']['qc_nd_sardo_rec_number'],
                         'date_of_birth' => $newIdent['Participant']['date_of_birth'],
                         'date_of_birth_accuracy' => $newIdent['Participant']['date_of_birth_accuracy']
                     ),
