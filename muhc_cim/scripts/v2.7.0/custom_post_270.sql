@@ -723,13 +723,9 @@ ALTER TABLE aliquot_internal_uses_revs
   ADD COLUMN `cusm_cim_datetime_remove_from_storage_accuracy` char(1) NOT NULL DEFAULT '',
   ADD COLUMN `cusm_cim_time_packaged` time DEFAULT NULL;
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date (event/shipping)' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('date (event/shipping)', 'Date (Event/Shipping)', 'Date (Evenement/Livraison)');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_datetime_remove_from_storage', 'datetime',  NULL , '0', '', '', '', 'removed from freezer', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='removed from freezer' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_datetime_remove_from_storage', 'datetime',  NULL , '0', '', '', '', 'removed from freezer', ''), 
 ('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'cusm_cim_time_packaged', 'time',  NULL , '0', '', '', '', 'time packaged', '');
@@ -769,6 +765,18 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date (event/shipping)' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='use_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='cusm_cim_datetime_remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquotUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'ViewAliquot' AND label = 'add to order';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'OrderItem' AND label = 'defined as returned';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '0' WHERE fct.datamart_structure_id = str.id AND str.model = 'OrderItem' AND label = 'edit';
+
+UPDATE structure_permissible_values SET `value` = 'G', language_alias = 'G' WHERE `value` = 'Gys' AND language_alias = 'Gys';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("G", "G", "G");
+
+
 -- -----------------------------------------------------------------------------------------------
 
 INSERT INTO structure_permissible_values_customs_revs (`id`, `value`, `en`, `fr`, `use_as_input`, `control_id`, `modified_by`, `version_created`)
@@ -779,15 +787,16 @@ UPDATE versions SET branch_build_number = '9999' WHERE version_number = '2.7.0';
 
 
 
+Some have barcode. Some have just labels (free text). To manage.
+Material and freezer: Both material user guide and certification.
+Rapports to create.
 
 
 
 
 
 
-
-
-
+SELECT 'SOME DEMO DATA ARE INSERTED' AS '### WARNING ###';
 
 -- -----------------------------------------------------------------------------------------------
 -- For demo

@@ -74,7 +74,7 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
     // SERUM, PLASMA, PBMC, Buffy coat
     // --------------------------------------------------------------------------------
     
-    $procureSampleTypes = ($sampleControlData['SampleControl']['sample_type'] == 'serum') ? array('serum') : array('plasma','buffy coat','pbmc');
+    $procureSampleTypes = array('plasma','serum','pbmc','buffy coat');
     $sampleControlIds = $this->SampleControl->find('list', array(
         'conditions' => array(
             'sample_type' => $procureSampleTypes
@@ -98,6 +98,8 @@ if ($sampleControlData['SampleControl']['sample_type'] == 'blood') {
         $this->request->data['SampleMaster']['cusm_cim_material_id_4'] = $collectionBoodDerivatives['SampleMaster']['cusm_cim_material_id_4'];
         $this->request->data['SampleMaster']['cusm_cim_material_id_5'] = $collectionBoodDerivatives['SampleMaster']['cusm_cim_material_id_5'];
         $this->request->data['SampleMaster']['cusm_cim_centrifuge_duration_mn'] = $collectionBoodDerivatives['SampleMaster']['cusm_cim_centrifuge_duration_mn'];
+        $this->request->data['SampleMaster']['cusm_cim_centrifuge_speed'] = $collectionBoodDerivatives['SampleMaster']['cusm_cim_centrifuge_speed'];
+        $this->request->data['SampleMaster']['cusm_cim_centrifuge_speed_unit'] = $collectionBoodDerivatives['SampleMaster']['cusm_cim_centrifuge_speed_unit'];
         $this->request->data['DerivativeDetail']['creation_datetime'] = $collectionBoodDerivatives['DerivativeDetail']['creation_datetime'];
         $this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $collectionBoodDerivatives['DerivativeDetail']['creation_datetime_accuracy'];
         $this->request->data['DerivativeDetail']['creation_site'] = $collectionBoodDerivatives['DerivativeDetail']['creation_site'];

@@ -1,4 +1,15 @@
 <?php
+/** **********************************************************************
+ * CUSM-CIM Project.
+ * ***********************************************************************
+ *
+ * InventoryManagement plugin custom code
+ *
+ * Class ViewAliquotUseCustom
+ *
+ * @author N. Luc - CTRNet (nicolas.luc@gmail.com)
+ * @since 2018-02-21
+ */
 
 class ViewAliquotUseCustom extends ViewAliquotUse
 {
@@ -125,5 +136,42 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 		WHERE Realiquoting.deleted <> 1 %%WHERE%%";
+    
+    
+    
+    /**
+     * Get all use type available for search. 
+     * Override function to hidde unused type.
+     * 
+     * @return array
+     */
+    public function getUseDefinitions()
+    {
+        $result = array(
+            'realiquoted to' => __('realiquoted to')
+        );
+    
+        // Add custom uses
+        $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+        $structurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+        $useAndEventTypes = $structurePermissibleValuesCustom->find('all', array(
+            'conditions' => array(
+                'StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types'
+            )
+        ));
+        foreach ($useAndEventTypes as $newType)
+            $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang]) ? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
+    
+        // Develop sample derivative creation
+        $this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+        $sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+        foreach ($sampleControls as $samplControlId => $sampleType) {
+            $result['sample derivative creation#' . $samplControlId] = __('sample derivative creation#') . $sampleType;
+        }
+    
+        natcasesort($result);
+        
+        return $result;
+    }
     
 }
