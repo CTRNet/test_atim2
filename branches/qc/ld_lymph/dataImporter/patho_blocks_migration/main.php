@@ -3,8 +3,8 @@
 //First Line of any main.php file
 require_once 'system.php';
 
-$excel_file_name = 'HD Block Nicola 25-08-2017_nl_revised.xls';
-$worksheet_name = 'HD BLOCKS 25-08-2017';
+$excel_file_name = 'BLOCK DLBCL NOV2017_nl_revised.xls';
+$worksheet_name = 'MigratedData';
 
 displayMigrationTitle('ATiM - LD LYMPHOMA - Blocks and slides migration', array($excel_file_name));
 
@@ -120,7 +120,30 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 			$atim_event_master_id = $atim_event_data[0]['id'];
 			recordErrorAndMessage('Collection', '@@MESSAGE@@', "Linked collection to an existing biopsy.", $biopsy_msg);
 		} else if(!$atim_event_data) {
-			recordErrorAndMessage('Collection', '@@WARNING@@', "No participant biopsy matches both the date, the 'Path #' and the site of the tissue colelction. A new participant biopsy will be created then linked to the created collection into ATim. Please review ATiM data and validate migration.", $biopsy_msg);
+		    $query = "SELECT EventMaster.id, EventMaster.event_date, EventMaster.event_date_accuracy, EventDetail.path_nbr, EventDetail.site
+                FROM event_masters EventMaster
+                INNER JOIN ".$atim_controls['event_controls']['biopsy']['detail_tablename']." EventDetail ON EventMaster.id = EventDetail.event_master_id
+    			WHERE EventMaster.deleted <> 1
+    			AND EventMaster.participant_id = $atim_participant_id
+    			AND EventMaster.event_control_id = ".$atim_controls['event_controls']['biopsy']['id']."
+    			AND EventMaster.event_date = '$excel_event_date'";
+		    $atim_unmatching_event_data = getSelectQueryResult($query);
+		    $other_sites_in_atim = array();
+		    foreach($atim_unmatching_event_data as $new_unmatching_event_data) {
+		        $other_sites_in_atim[$atim_event_data[0]['site']] = $atim_event_data[0]['site'];
+		    }
+		    $other_sites_in_atim = implode(' & ', $other_sites_in_atim);
+		    if($other_sites_in_atim) {
+    			recordErrorAndMessage('Collection', 
+    			    '@@WARNING@@', 
+    			    "No participant biopsy matches both the date, the 'Path #' and the site of the tissue collection but some biopsy on different site(s) exist into ATiM on this date. A new participant biopsy will be created then linked to the created collection into ATim. Please review ATiM data and validate migration.", 
+    			    "Ohter biopsy : $other_sites_in_atim. $biopsy_msg");
+		    } else {
+    			recordErrorAndMessage('Collection', 
+    			    '@@WARNING@@', 
+    			    "No participant biopsy matches both the date, the 'Path #' and the site of the tissue collection. A new participant biopsy will be created then linked to the created collection into ATim. Please review ATiM data and validate migration.", 
+    			    $biopsy_msg);
+		    }
 			$biopsy_data = array(
 				'event_masters' => array(
 					'participant_id' => $atim_participant_id,

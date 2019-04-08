@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
@@ -428,7 +428,7 @@ Configure::write('password_validity_period_month', null);
  * Set the limit of records that could either be displayed in the databrowser results 
  * form or into a report.
  */
-Configure::write('databrowser_and_report_results_display_limit', 1000);
+Configure::write('databrowser_and_report_results_display_limit', 2000);
 
 /**
  * Set the limit of items that could be processed in batch
