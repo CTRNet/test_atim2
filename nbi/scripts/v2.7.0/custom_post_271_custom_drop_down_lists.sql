@@ -2809,10 +2809,10 @@ INSERT INTO structure_value_domains (domain_name, override, category, source) VA
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("0", "negative"),("1", "positive"),("2", "close"), ("9", "unknown");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
 VALUES 
-((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="negative"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="positive"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="close"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_unknown"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="unknown"), "3", "1");
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_close_unknown"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="negative"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_close_unknown"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="positive"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_close_unknown"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="close"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="bc_nbi_bcca_neg_pos_close_unknown"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="unknown"), "3", "1");
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 values
@@ -2829,8 +2829,7 @@ VALUES
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 values
-('bc_nbi_bcca_SLNB_yes_no
-', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : SLN Bx (Y/N)\')');
+('bc_nbi_bcca_SLNB_yes_no', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'BCCA Tum. Reg. : SLN Bx (Y/N)\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
 ('BCCA Tum. Reg. : SLN Bx (Y/N)', 1, 10, 'clinical');

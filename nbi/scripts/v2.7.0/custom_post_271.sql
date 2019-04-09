@@ -89,7 +89,7 @@ INSERT INTO structure_permissible_values_customs
 VALUES
 ("participant", "Participant", "Participant", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("family", "Family", "Famille", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("physician", "Physician", "Médecin", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("physician", "Physician", "MÃ©decin", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("treatment centre", "Treatment Centre", "Centre de traitement", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("other", "Other", "Autre", "4", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 UPDATE structure_permissible_values_custom_controls 
@@ -130,27 +130,27 @@ INSERT INTO structure_permissible_values_customs
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
 ("aunt", "Aunt", "Tante", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("cousin", "Cousin", "Cousin", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("mother", "Mother", "Mère", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("grandfather", "Grandfather", "Grand-père", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("mother", "Mother", "MÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("grandfather", "Grandfather", "Grand-pÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("other", "Other", "Autre", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("father", "Father", "Père", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("grandmother", "Grandmother", "Grand-mère", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("father", "Father", "PÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("grandmother", "Grandmother", "Grand-mÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("nephew", "Nephew", "Neveu", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("brother", "Brother", "Frère", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("brother", "Brother", "FrÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("son", "Son", "Fils", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("niece", "Niece", "Nièce", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("niece", "Niece", "NiÃ¨ce", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("sister", "Sister", "Soeur", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("daughter", "Daughter", "Fille", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("uncle", "Uncle", "Oncle", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("friend", "Friend", "Ami(e)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("husband", "Husband", "Mari", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("wife", "Wife", "Femme (mariée)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("wife", "Wife", "Femme (mariÃ©e)", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("common-law partner", "Common-Law Partner", "Conjoint de fait", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("father-in-law", "Father-in-law", "Beau père", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("mother-in-law", "Mother-in-law", "Belle mère", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("brother-in-law", "Brother-in-law", "Beau frère", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("father-in-law", "Father-in-law", "Beau pÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("mother-in-law", "Mother-in-law", "Belle mÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("brother-in-law", "Brother-in-law", "Beau frÃ¨re", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("sister-in-law", "Sister-in-law", "Belle soeur", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("household", "Household", "Ménage", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("household", "Household", "MÃ©nage", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("other family member", "Other family member", "Autre membre de la famille", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 UPDATE structure_permissible_values_custom_controls 
  SET values_used_as_input_counter = 24, values_counter = 24 WHERE name = 'Participant Contacts Relationships';
@@ -329,7 +329,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_death_cause_original_icd_89_desc' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='description'), '3', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-("bc_nbi_help_death_cause_original", "The patient’s primary or underlying cause of death as determined by the Division of Vital Statistics  or another province/country’s vital statistics department", ""),
+("bc_nbi_help_death_cause_original", "The patientâ€™s primary or underlying cause of death as determined by the Division of Vital Statistics  or another province/countryâ€™s vital statistics department", ""),
 ("underlying cause of death (icd8/9)", "Underlying (ICD-8/9)", ""),
 ("underlying cause of death (icd10)", "Underlying (ICD-10)", "");
 INSERT INTO structure_validations(structure_field_id, rule, language_message) 
@@ -352,7 +352,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_nbi_death_sec_cause_89_desc' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='description'), '3', '26', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-("bc_nbi_help_death_sec_cause", "The secondary cause of the patient’s death as determined by the Division of Vital Statistics or another province /country’s vital statistics. The ICD code is entered without the decimal.", ""),
+("bc_nbi_help_death_sec_cause", "The secondary cause of the patientâ€™s death as determined by the Division of Vital Statistics or another province /countryâ€™s vital statistics. The ICD code is entered without the decimal.", ""),
 ("alternate cause of death (icd8/9)", "Alternate (ICD-8/9)", ""),
 ("alternate cause of death (icd10)", "Alternate (ICD-10)", ""); 
 
@@ -728,6 +728,9 @@ CREATE TABLE `bc_nbi_txe_surgeries_revs` (
   `treatment_extend_master_id` int(11) NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `bc_nbi_txe_surgeries_revs`
+  ADD PRIMARY KEY (`version_id`),
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
 INSERT INTO structures(`alias`) VALUES ('bc_nbi_txe_surgeries');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentExtendDetail', 'bc_nbi_txe_surgeries', 'surgery_code', 'input',  NULL , '0', 'size=5', '', 'bc_nbi_help_txe_surgery_code', 'surgery code', ''), 
@@ -1194,8 +1197,9 @@ VALUES
 -- Diagnosis
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE diagnosis_controls SET flag_active = 0;
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
-(null, 'primary', 'bcca tumor registery', 1, 'dx_primary,bc_nbi_bcca_diagnosis', 'bc_nbi_bcca_diagnosis', 0, 'primary|bcca tumor registery', 0);
+(null, 'primary', 'bcca tumor registry', 1, 'dx_primary,bc_nbi_bcca_diagnosis', 'bc_nbi_bcca_diagnosis', 0, 'primary|bcca tumor registry', 0);
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary');
 UPDATE structure_fields SET  `language_help`='help_memo' WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
 UPDATE structure_formats SET `flag_override_help`='0', `language_help`='', `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1552,28 +1556,11 @@ CREATE TABLE `bc_nbi_bcca_diagnosis_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `bc_nbi_bcca_diagnosis`
   ADD CONSTRAINT `bc_nbi_bcca_diagnosis_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
-
+ALTER TABLE `bc_nbi_bcca_diagnosis_revs`
+  ADD PRIMARY KEY (`version_id`),
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+  
 INSERT INTO structures(`alias`) VALUES ('bc_nbi_bcca_diagnosis');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) 
 VALUES
@@ -1931,7 +1918,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='bc_nbi_bcca_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '57', '', '0', '1', 'tumor site', '0', '', '1', 'bc_nbi_bcca_help_tumor_site', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('bc_nbi_bcca_help_tumor_site', "An International Classification of Diseases for Oncology Third Edition (ICD-O) code which indicates the point of origin from which the primary cancer has arisen.  (Breast sites – C500- C509 with 4th digit BCCA modification).  Breast primary site is determined from the following sources, in the order indicated:  mammogram, staging diagram, surgeon’s consultation report/breast questionnaire operative report/chart notes.", '');
+('bc_nbi_bcca_help_tumor_site', "An International Classification of Diseases for Oncology Third Edition (ICD-O) code which indicates the point of origin from which the primary cancer has arisen.  (Breast sites â€“ C500- C509 with 4th digit BCCA modification).  Breast primary site is determined from the following sources, in the order indicated:  mammogram, staging diagram, surgeonâ€™s consultation report/breast questionnaire operative report/chart notes.", '');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_bcca_tumour_grade') , '0', '', '', 'bc_nbi_bcca_help_tumour_grade', 'tumour grade', '');
@@ -1940,8 +1927,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='bc_nbi_bcca_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_nbi_bcca_tumour_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='bc_nbi_bcca_help_tumour_grade' AND `language_label`='tumour grade' AND `language_tag`=''), '1', '87', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('bc_nbi_bcca_help_age_at_dx', "The patient’s age at the time the breast cancer was diagnosed. A computer-generated calculated field.", ''),
-('bc_nbi_bcca_help_tumour_grade', "The code that describes the system used to identify the Type of grade/differentiation/cell indicator. Invasive grade is recorded when there is a discrepancy between invasive & in-situ.  Where invasive grade is not commented on and only the in-situ component is graded, “9” (unknown) is recorded.", '');
+('bc_nbi_bcca_help_age_at_dx', "The patientâ€™s age at the time the breast cancer was diagnosed. A computer-generated calculated field.", ''),
+('bc_nbi_bcca_help_tumour_grade', "The code that describes the system used to identify the Type of grade/differentiation/cell indicator. Invasive grade is recorded when there is a discrepancy between invasive & in-situ.  Where invasive grade is not commented on and only the in-situ component is graded, â€œ9â€� (unknown) is recorded.", '');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('treatment at diagnosis', 'Treatment at Diagnosis', ''),
@@ -2130,7 +2117,7 @@ VALUES
 -Referred = Patient must be seen by a BCCA physician (oncologist or clinic associate) for assessment, follow-up or receive treatment at any one of the agency's clinics or centres.", ''),
 ('bc_nbi_help_bcca_dataset' , "A number assigned to identify NHA or VCC case", ''),
 ('bc_nbi_help_bcca_site_admit_date' , "The date the patient was fully admitted for a malignancy/condition (referred cases).", ''),
-('bc_nbi_help_bcca_status_at_referral' , "Indicates the status of the patient’s malignancy/condition at time of referral to BCCA for initial management.", ''),
+('bc_nbi_help_bcca_status_at_referral' , "Indicates the status of the patientâ€™s malignancy/condition at time of referral to BCCA for initial management.", ''),
 ('bc_nbi_help_bcca_status_at_referral_desc' , "The narrative description of the patient status at referral.", '');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
@@ -2140,21 +2127,21 @@ VALUES
 ('bc_nbi_help_bcca_loc_at_admit' , "The BCCA Clinic where the patient was first seen by a BCCA Oncologist/clinic associate for a particular condition/malignancy", ''),
 ('bc_nbi_help_bcca_loc_at_admit_desc' , "The narrative description of the BCCA center/clinic where the patient was first admitted.", ''),
 ('bc_nbi_help_bcca_loc_at_diag' , "Indicates the postal, province, or country code of the patient's permanent address at the time the cancer was diagnosed", ''),
-('bc_nbi_help_bcca_loc_at_diag_desc' , "The narrative description of the geographic location of the patient at the  time of diagnosis (based on the patient’s BC postal code)  ", ''),
-('bc_nbi_help_bcca_dx_hlth_auth' , "The health authority in which the patient resided at the time of diagnosis (based on the patient’s BC postal code).", ''),
-('bc_nbi_help_bcca_dx_hlth_auth_desc' , "The narrative description of the health authority in which the patient resided at the time of diagnosis (based on the patient’s BC postal code).", ''),
-('bc_nbi_help_bcca_dx_hsda' , "The health service delivery area in which the patient resided at the time of diagnosis (based on the patient’s BC postal code).", ''),
-('bc_nbi_help_bcca_dx_hsda_desc' , "The narrative description of the health service delivery area in which the patient resided at the time of diagnosis (based on the patient’s BC postal code).", ''),
+('bc_nbi_help_bcca_loc_at_diag_desc' , "The narrative description of the geographic location of the patient at the  time of diagnosis (based on the patientâ€™s BC postal code)  ", ''),
+('bc_nbi_help_bcca_dx_hlth_auth' , "The health authority in which the patient resided at the time of diagnosis (based on the patientâ€™s BC postal code).", ''),
+('bc_nbi_help_bcca_dx_hlth_auth_desc' , "The narrative description of the health authority in which the patient resided at the time of diagnosis (based on the patientâ€™s BC postal code).", ''),
+('bc_nbi_help_bcca_dx_hsda' , "The health service delivery area in which the patient resided at the time of diagnosis (based on the patientâ€™s BC postal code).", ''),
+('bc_nbi_help_bcca_dx_hsda_desc' , "The narrative description of the health service delivery area in which the patient resided at the time of diagnosis (based on the patientâ€™s BC postal code).", ''),
 ('bc_nbi_help_bcca_dx_hsda_cc' , "The Cancer Center catchment area for the health service delivery area in which the patient resided at the time of diagnosis. ", '');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('bc_nbi_help_bcca_dx_local_health_area' , "The local health area of the patient’s BC postal code at the time of diagnosis.", ''),
-('bc_nbi_help_bcca_dx_lha_desc' , "The narrative description of the local health area of the patient at the time of diagnosis (based on the patient’s BC postal code)", ''),
+('bc_nbi_help_bcca_dx_local_health_area' , "The local health area of the patientâ€™s BC postal code at the time of diagnosis.", ''),
+('bc_nbi_help_bcca_dx_lha_desc' , "The narrative description of the local health area of the patient at the time of diagnosis (based on the patientâ€™s BC postal code)", ''),
 ('bc_nbi_help_bcca_dx_lha_cc' , "Indicates the catchment centre associated with the local health area in which the patient resided at time of diagnosis", ''),
-('bc_nbi_help_bcca_dx_post_code' , "The patient’s home address postal code at time of diagnosis", ''),
+('bc_nbi_help_bcca_dx_post_code' , "The patientâ€™s home address postal code at time of diagnosis", ''),
 ('bc_nbi_help_bcca_number_fst_deg_relatives' , "Indicates the number of first degree relatives with a hx of breast cancer. Calculated variable from pre- and post 2010 variables.", ''),
-('bc_nbi_help_bcca_performance_status' , "A code denoting the patient’s functional ability. This indicates the performance rating given to the patient within one month before or after admission to BCCA according to the ECOG (Eastern Cooperative Oncology Group) scale. ", ''),
-('bc_nbi_help_bcca_performance_status_desc' , "The narrative description of the code denoting the patient’s functional ability. ", ''),
+('bc_nbi_help_bcca_performance_status' , "A code denoting the patientâ€™s functional ability. This indicates the performance rating given to the patient within one month before or after admission to BCCA according to the ECOG (Eastern Cooperative Oncology Group) scale. ", ''),
+('bc_nbi_help_bcca_performance_status_desc' , "The narrative description of the code denoting the patientâ€™s functional ability. ", ''),
 ('bc_nbi_help_bcca_laterality' , "The involved side of the primary site.   There should only be 1 primary cancer per laterality. ", ''),
 ('bc_nbi_help_bcca_laterality_desc' , "The narrative description of the involved side of the primary site.", ''),
 ('bc_nbi_help_bcca_site_desc' , "Narrative description of ICD-O (3rd edition) site code.", ''),
@@ -2268,7 +2255,7 @@ VALUES
 ('bc_nbi_help_bcca_pgrposneg' , "PR status at initial dx, collapsed as negative/positive/unknown - Calculated variable from PR fields", '');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('bc_nbi_help_bcca_her2_date' , "The date of the operative report from which the specimen was taken for her2 testing.  If more than one her2 testing method was performed, FISH/CISH takes precedence over IHC and FISH takes precedence over CISH.  If testing was done at time of diagnosis and at relapse, the “most positive” result is captured.  If the results from initial diagnosis and relapse are identical, the site and date from the specimen from initial diagnosis are captured. Variable collected for cases diagnosed from 1/12003 - 12/31/2009.", ''),
+('bc_nbi_help_bcca_her2_date' , "The date of the operative report from which the specimen was taken for her2 testing.  If more than one her2 testing method was performed, FISH/CISH takes precedence over IHC and FISH takes precedence over CISH.  If testing was done at time of diagnosis and at relapse, the â€œmost positiveâ€� result is captured.  If the results from initial diagnosis and relapse are identical, the site and date from the specimen from initial diagnosis are captured. Variable collected for cases diagnosed from 1/12003 - 12/31/2009.", ''),
 ('bc_nbi_help_bcca_her2_final' , "HER2 status at initial dx - Calculated variable from pre- and post 2010 HER2 fields", ''),
 ('bc_nbi_help_bcca_her2tissuesite' , "indicates the specimen site(s) from which the most definitive HER2 testing was performed. Calculated variable based on pre and post 2010 variables.", ''),
 ('bc_nbi_help_bcca_her2lab_initdx' , "Indicates the lab where the Her2 testing at initial dx was performed - collapsed from pre & post 2010 variables", ''),
@@ -2361,7 +2348,7 @@ VALUES
 
 Retrospective Vs Prospective Participants Business Rules
 
-No data into the database are encrypted. All rules are managed at the ATiM controller’s level.
+No data into the database are encrypted. All rules are managed at the ATiM controllerâ€™s level.
 
 A participant can be flagged as part of the 'Retropsective Bank' or 'Prospective Bank'. In the futur installation, we can validate that only the 'Prospective Bank' option can be selected.
 
@@ -2393,7 +2380,7 @@ When a participant is flagged as 'Retrospective Bank' participant, only users of
 - Date of Birth
 
 When the users of the other users groups are looking for participants based on criteria linked to the fields listed above, then the system will limit the results to the 
-participants of the ‘Prospective Bank’ only.
+participants of the â€˜Prospective Bankâ€™ only.
 
 4- Participant profile modification
 
@@ -2403,11 +2390,11 @@ When a participant is flagged as 'Retrospective Bank' participant, only users of
 
 No control is in place to block duplication of PHN or BCCA numbers but when user is displaying the profile of a participant a warning message is displayed when:
 -	The user is part of the 'Administrators' users group and the number is duplaiceted.
--	The user is not part of the 'Administrators' users group, the displayed participant is not a participant of the ‘Retrospective Bank’ and at least two participants of the ‘Prospective Bank’ have the same number.
+-	The user is not part of the 'Administrators' users group, the displayed participant is not a participant of the â€˜Retrospective Bankâ€™ and at least two participants of the â€˜Prospective Bankâ€™ have the same number.
 
 6- Participant Contact
 
-Only users of the 'Administrators' users group can access confidential participant contacts for participants of the ‘Retrospective Bank’.
+Only users of the 'Administrators' users group can access confidential participant contacts for participants of the â€˜Retrospective Bankâ€™.
 
 
 
