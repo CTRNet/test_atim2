@@ -16,10 +16,8 @@ $db_charset		= "";
 
 $migration_user_id = null;
 
-global $files_path;
-$files_path = "";
-global $excel_files_names;
-$excel_files_names = array();
+global $excel_files_path;
+$excel_files_path = "";
 
 // Serial number of 1 January 2001 in Excel: 36526 (Windows) / 35064 (MAC)
 $windows_xls_offset = 36526;
@@ -159,6 +157,7 @@ $modified_database_tables_list = array();
 //==================================================================================================================================================================================
 
 function migrationDie($error_messages) {
+    global $db_connection;
 	if(is_array($error_messages)) {
 		foreach($error_messages as $msg) pr($msg);
 	} else {
@@ -170,6 +169,8 @@ function migrationDie($error_messages) {
 		$counter++;
 		pr("$counter- Function ".$debug_data['function']."() [File: ".$debug_data['file']." - Line: ".$debug_data['line']."]");
 	}
+	mysqli_rollback($db_connection);
+	mysqli_close($db_connection);
 	die('Please contact your administrator');	
 }
 
@@ -193,14 +194,14 @@ $import_summary = array();
 function displayMigrationTitle($title, $display_file_names = false) {
 	global $import_date;
 	global $migration_process_version;
-	global $excel_files_paths;
+	global $excel_files_path;
 	echo "<br><FONT COLOR=\"blue\">=====================================================================<br>
 		<b>ATiM DATA MIGRATION PROCESS</b></FONT><br>
 		<b><FONT COLOR=\"blue\">Processus : </FONT>$title</b><br>
 		<b><FONT COLOR=\"blue\">Version : </FONT>$migration_process_version</b><br>
 		<b><FONT COLOR=\"blue\">Date : </FONT>$import_date</b><br>
 		<FONT COLOR=\"blue\">=====================================================================</FONT><br>";
-	if($display_file_names && !empty($display_file_names)) {
+	if($display_file_names && !empty($excel_files_path)) {
 		foreach($display_file_names as $file_name) {
 			echo "<FONT COLOR=\"blue\" >File : </FONT>".$file_name."<br>";		
 		}
@@ -242,12 +243,12 @@ function recordErrorAndMessage($summary_section_title, $summary_type, $summary_t
  * 
  * @param boolean $commit Commit all sql statements.
  */
-function dislayErrorAndMessage($commit = false) {
+function dislayErrorAndMessage($commit = false, $title = 'Migration Summary', $close_connection = true) {
 	global $import_summary;
 	global $db_connection;
 	echo "<br><FONT COLOR=\"blue\">
 		=====================================================================<br>
-		<b>Migration Summary</b><br>
+		<b>$title</b><br>
 		=====================================================================</FONT><br>";
 	$err_counter = 0;
 	foreach($import_summary as $summary_section_title => $data1) {
@@ -291,12 +292,17 @@ function dislayErrorAndMessage($commit = false) {
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
-		$ccl = 'But Not Commited';
+		$ccl = '</FONT><FONT COLOR=\"red\"><b>But Not Commited</b></FONT><FONT COLOR=\"blue\">';
 	}
 	echo "<br><FONT COLOR=\"blue\">
 		=====================================================================<br>
-		<b>Migration Done $ccl</b><br>
+		<b>$title Done $ccl</b><br>
 		=====================================================================</FONT><br>";
+	if($close_connection) {
+	    mysqli_rollback($db_connection);
+	    mysqli_close($db_connection);
+	}
+	
 }
 
 // ---- QUERY FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -368,19 +374,33 @@ function customInsertRecord($tables_data) {
 	$record_id = null;
 	$main_table_data = array();
 	$details_tables_data = array();
-//TODO: Add control on detail table based on _control_id	
+//TODO: Add control on detail table based on _control_id
+	foreach($tables_data as &$sub_table) {
+	    $sub_table = array_filter($sub_table, function($var){
+	        return (!($var == '' || is_null($var)));
+	    });
+	}
+	array_filter($tables_data);
 	if($tables_data) {
+		$tables_data_keys = array_keys($tables_data);
+		//Flush empty field
+		//Should be done above
+		//foreach($tables_data as $table_name => $table_fields_and_data) {
+		//	foreach($table_fields_and_data as $field => $data) {
+		//		if(!strlen($data)) unset($tables_data[$table_name][$field]);
+		//	}
+		//}
 		//--1-- Check data
 		switch(sizeof($tables_data)) {
 			case '1':
-				$tables_data_keys = array_keys($tables_data);
-				$table_name = array_shift($tables_data_keys);
+				$tmp_tables_data_keys = $tables_data_keys;
+				$table_name = array_shift($tmp_tables_data_keys);
 				if(preg_match('/_masters$/', $table_name)) migrationDie("ERR_FUNCTION_customInsertRecord(): Detail table is missing to record data into $table_name");
 				$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
 				break;
 			case '3':
 				$details_table_name = '';
-				foreach(array_keys($tables_data) as $table_name) {
+				foreach($tables_data_keys as $table_name) {
 					if(in_array($table_name, array('specimen_details', 'derivative_details'))) {
 						$details_tables_data[] = array('name' => $table_name, 'data' => $tables_data[$table_name]);
 						unset($tables_data[$table_name]);
@@ -391,16 +411,16 @@ function customInsertRecord($tables_data) {
 						$details_table_name = $table_name;
 					}
 				}
-				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table sample_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(empty($details_tables_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details' or 'derivative_details' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 3 tables names for a new sample (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table sample_masters is missing (See table names: ".implode(' & ', $tables_data_keys).")");
+				if(empty($details_tables_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details' or 'derivative_details' is missing (See table names: ".implode(' & ', $tables_data_keys).")");
+				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 3 tables names for a new sample (See table names: ".implode(' & ', $tables_data_keys).")");
 				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
 				break;
 			case '2':
 				$details_table_name = '';
-				foreach(array_keys($tables_data) as $table_name) {
+				foreach($tables_data_keys as $table_name) {
 					if(in_array($table_name, array('specimen_details', 'derivative_details', 'sample_masters'))) {
-						migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'sample_masters', 'specimen_details' or 'derivative_details' defined for a record different than Sample or wrong tables definition for a sample creation (See table names: ".implode(' & ', array_keys($tables_data)).")");
+						migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'sample_masters', 'specimen_details' or 'derivative_details' defined for a record different than Sample or wrong tables definition for a sample creation (See table names: ".implode(' & ', $tables_data_keys).")");
 						exit;
 					} else if(preg_match('/_masters$/', $table_name)) {
 						$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
@@ -409,12 +429,12 @@ function customInsertRecord($tables_data) {
 						$details_table_name = $table_name;
 					}
 				}
-				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table %%_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 2 tables names for a master/detail model record (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table %%_masters is missing (See table names: ".implode(' & ', $tables_data_keys).")");
+				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 2 tables names for a master/detail model record (See table names: ".implode(' & ', $tables_data_keys).")");
 				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
 				break;
 			default:
-				migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables passed in arguments: ".implode(', ',$tables_data_keys).".");
 		}
 		//-- 2 -- Main or master table record
 		if(isset($main_table_data['data']['sample_control_id'])) {
@@ -455,9 +475,9 @@ function customInsertRecord($tables_data) {
 		}			
 		//-- 3 -- Details tables record
 		if(isset($main_table_data['data']['sample_control_id'])) {
-			if(sizeof($details_tables_data) != 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details', 'derivative_details' or 'SampleDetail' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+			if(sizeof($details_tables_data) != 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details', 'derivative_details' or 'SampleDetail' is missing (See table names: ".implode(' & ', $tables_data_keys).")");
 		} else {
-			if(sizeof($details_tables_data) > 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables are declared (>2) (See table names: ".implode(' & ', array_keys($tables_data)).")");
+			if(sizeof($details_tables_data) > 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables are declared (>2) (See table names: ".implode(' & ', $tables_data_keys).")");
 		}
 		$tmp_detail_tablename = null;
 		if($details_tables_data) {
@@ -485,28 +505,36 @@ function updateTableData($id, $tables_data) {
 	global $import_date;
 	global $imported_by;
 	if($tables_data) {
+		$tables_data_keys = array_keys($tables_data);
 		$to_update = false;
+		//Flush empty field
+		//Should not be done in case we want to erase a data
+		//foreach($tables_data as $table_name => $table_fields_and_data) {
+		//	foreach($table_fields_and_data as $field => $data) {
+		//		if(!strlen($data)) unset($tables_data[$table_name][$field]);
+		//	}
+		//}
 		//Check data passed in args
 		$main_or_master_tablename = null;
 		switch(sizeof($tables_data)) {
 			case '1':
-				$mp_array_keys = array_keys($tables_data);
-				$main_or_master_tablename = array_shift($mp_array_keys);
+				$tmp_tables_data_keys = $tables_data_keys;
+				$main_or_master_tablename = array_shift($tmp_tables_data_keys);
 				if(!empty($tables_data[$main_or_master_tablename])) $to_update = true;
 				break;
 			case '2':
 			case '3':
-				foreach(array_keys($tables_data) as $table_name) {
+				foreach($tables_data_keys as $table_name) {
 					if(preg_match('/_masters$/', $table_name)) {
-						if(!is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): 2 Master tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+						if(!is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): 2 Master tables passed in arguments: ".implode(', ',$tables_data_keys).".");
 						$main_or_master_tablename = $table_name;
 					}
 					if(!empty($tables_data[$table_name])) $to_update = true;
 				}
-				if(is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): Master table not passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				if(is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): Master table not passed in arguments: ".implode(', ',$tables_data_keys).".");
 				break;
 			default:
-				migrationDie("ERR_FUNCTION_updateTableData(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				migrationDie("ERR_FUNCTION_updateTableData(): Too many tables passed in arguments: ".implode(', ',$tables_data_keys).".");
 		}
 		if($to_update) {
 			//Master/Main Table Update
@@ -514,7 +542,15 @@ function updateTableData($id, $tables_data) {
 			$table_data = $tables_data[$main_or_master_tablename];
 			unset($tables_data[$main_or_master_tablename]);
 			$set_sql_strings = array();
-			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
+			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) {
+			    if(!is_null($value) && strlen($value)) {
+			        $set_sql_strings[] = "`$key` = \"$value\"";
+			    } elseif(!is_null($value)) {
+			        $set_sql_strings[] = "`$key` = ''";
+			    } else {
+			        $set_sql_strings[] = "`$key` = NULL";
+			    }
+			}
 			$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `id` = $id;";
 			customQuery($query);
 			//Detail or SpecimenDetail/DerivativeDetail Table Update
@@ -523,7 +559,15 @@ function updateTableData($id, $tables_data) {
 			foreach($tables_data as $table_name => $table_data) {
 				if(!empty($table_data)) {
 					$set_sql_strings = array();
-					foreach($table_data  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
+					foreach($table_data  as $key => $value) {
+					    if(!is_null($value) && strlen($value)) {
+					        $set_sql_strings[] = "`$key` = \"$value\"";
+					    } elseif(!is_null($value)) {
+        			        $set_sql_strings[] = "`$key` = ''";
+        			    } else {
+        			        $set_sql_strings[] = "`$key` = NULL";
+        			    }
+					}
 					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";
 					customQuery($query);
 					if(!in_array($table_name, array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $table_name;
@@ -684,7 +728,11 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 		if(array_key_exists(strtolower($value), $domains_values[$domain_name])) {
 			$value = $domains_values[$domain_name][strtolower($value)];	//To set the right case
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+		    $domain_name_values = "<br><i>Allowed Values : [".implode("] & [", $domains_values[$domain_name])."]";
+		    $str_limit = 300;
+		    if(strlen($domain_name_values) > $str_limit) $domain_name_values = substr($domain_name_values, 0, $str_limit).'...';
+		    $domain_name_values.= "</i>";
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in).$domain_name_values, "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
 			$value = '';
 		}
 	}
@@ -709,7 +757,8 @@ function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower
 		if(array_key_exists($value, $values_matches)) {
 			$value = $values_matches[$value];
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Excel Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a supported eexcel value. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Excel Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a supported excel value. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
+			$value = '';
 		}
 	}
 	return $value;
@@ -718,7 +767,7 @@ function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower
 // ---- DATE & DATETIME ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 global $empty_date_time_values;
-$empty_date_time_values = array('-', 'n/a', 'x', '??', 'nd');
+$empty_date_time_values = array('-', 'n/a', 'x', '??', 'nd', 'na');
 
 /**
  * Test excel value is a date and return the formatted date for database and the accuracy.
@@ -737,21 +786,22 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	$date = str_replace(' ', '', $date);
 	if(empty($date) || in_array(strtolower($date), $empty_date_time_values)) {
 		return array('', '');
-	} else if(preg_match('/^((19[1-9]{2})|(20[0-1][0-9]))$/', $date, $matches)) {
-		return array($date.'-01-01', 'm');
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
 		//format excel date integer representation
 		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-		$date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
-		return array($date, 'c');
+		$formated_date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
+		if(preg_match('/^(19|20)([0-9]{2})$/',$date)) {
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The excel date value '$date' is considered by the migration process as an Excel formated date 'xxxx-xx-xx' but please validate it's not just the four digits of a year. Migrated date will be '$formated_date'.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+		}
+		return array($formated_date, 'c');
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date,$matches)) {
 		return array($date, 'c');
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/',$date,$matches)) {
 		return array($date.'-01', 'd');
-	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((unk)-([a-z]{2}))$/',$date,$matches)) {
+	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((xx)|(unk))$/',$date,$matches)) {
 		return array($matches[1].'-01', 'd');
-	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date,$matches)) {
-		return array($date.'-01-01', 'm');
+	} else if(preg_match('/^((19|20)([0-9]{2}))\-((xx)|(unk))\-((xx)|(unk))$/',$date,$matches)) {
+		return array($matches[1].'-01-01', 'm');
 	} else if(preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
 		return array($matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'c');
 	} else if(preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/',$date,$matches)) {
@@ -779,16 +829,13 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 	$date = str_replace(' ', '', $date);
 	$time = str_replace(' ', '', $time);
 	//** Get Date **
-	$tmp_date_and_accuracy = array();
-	list($tmp_date_and_accuracy['date'], $tmp_date_and_accuracy['accuracy']) = validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in);
-	if(!$tmp_date_and_accuracy['date']) {
+	list($formatted_date, $formatted_date_accuracy) = validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in);
+	if(!$formatted_date) {
 		if(!empty($time) && !in_array(strtolower($time), $empty_date_time_values)) {
 			recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'DateTime Format Error: Date Is Missing'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the datetime '$date $time' is not supported! The datetime will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		}
 		return array('', '');
 	} else {
-		$formatted_date = $tmp_date_and_accuracy['date'];
-		$formatted_date_accuracy = $tmp_date_and_accuracy['accuracy'];
 		//Combine date and time
 		if(empty($time) || in_array(strtolower($time), $empty_date_time_values)) {
 			return array($formatted_date.' 00:00', str_replace('c', 'h', $formatted_date_accuracy));
@@ -873,7 +920,7 @@ function validateAndGetDecimal($decimal_value, $summary_section_title, $summary_
 	global $import_summary;
 	global $empty_number_values;
 	$decimal_value = str_replace(array(' ', ','), array('', '.'), $decimal_value);
-	if(strlen($decimal_value)) {
+	if(strlen($decimal_value) && !preg_match('/^((na)|(u)|(unknown))$/i', $decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return $decimal_value;
 		} else {
@@ -899,7 +946,7 @@ function validateAndGetInteger($integer_value, $summary_section_title, $summary_
 	global $import_summary;
 	global $empty_number_values;
 	$integer_value = str_replace(array(' '), array(''), $integer_value);
-	if(strlen($integer_value)) {
+	if(strlen($integer_value) && !preg_match('/^((na)|(u)|(unknown))$/i', $integer_value)) {
 		if(preg_match('/^[0-9]+$/', $integer_value)) {
 			return $integer_value;
 		} else {
@@ -922,15 +969,15 @@ function validateAndGetInteger($integer_value, $summary_section_title, $summary_
  */
 function testExcelFile($file_names) {
 	global $import_summary;
-	global $files_path;
+	global $excel_files_path;
 	$validated = true;
 	foreach($file_names as $excel_file_name) {	
-		if(!file_exists($files_path.$excel_file_name)) {
-			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent File", "File '$excel_file_name' in directory ($files_path) does not exist. File won't be parsed.", $excel_file_name);
+		if(!file_exists($excel_files_path.$excel_file_name)) {
+			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent File", "File '$excel_file_name' in directory ($excel_files_path) does not exist. File won't be parsed.", $excel_file_name);
 			$validated = false;
 		}
 		if(!preg_match('/\.xls$/', $excel_file_name)) {
-			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Wrong File Extension", "File '$excel_file_name' in directory ($files_path) is not a '.xls' file. File won't be parsed.", $excel_file_name);
+			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Wrong File Extension", "File '$excel_file_name' in directory ($excel_files_path) is not a '.xls' file. File won't be parsed.", $excel_file_name);
 			$validated = false;
 		}
 	}
@@ -954,7 +1001,7 @@ function testExcelFile($file_names) {
 function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_nbr = 1, $file_xls_offset = '36526') {
 	global $import_summary;
 	global $XlsReader;
-	global $files_path;
+	global $excel_files_path;
 	global $studied_excel_file_name_properties;
 	global $xls_offset;
 	
@@ -966,17 +1013,17 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 		if(!testExcelFile(array($excel_file_name))) return false;
 		//Load Excel Data
 		$XlsReader = new Spreadsheet_Excel_Reader();	
-		$XlsReader->read($files_path.$excel_file_name);
+		$XlsReader->read($excel_files_path.$excel_file_name);
 		//Set studied_excel_file_name_properties
 		$studied_excel_file_name_properties = array('file_name' => $excel_file_name, 'file_worksheets' => array());
 		foreach($XlsReader->boundsheets as $key => $tmp) $studied_excel_file_name_properties['file_worksheets'][$tmp['name']] = $key;
 	}
-	
+
 	// ** SET NEW WOKRSHEET DATA **
 
 	if(!array_key_exists('worksheet_name', $studied_excel_file_name_properties) || $studied_excel_file_name_properties['worksheet_name'] != $worksheet_name) {
 		if(!array_key_exists($worksheet_name, $studied_excel_file_name_properties['file_worksheets'])) {
-			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent Worksheet", "Worksheet '$worksheet_name' is not a worksheet of file '$excel_file_name'. Worksheet won't be parsed.".($studied_excel_file_name_properties['file_worksheets']? ' Worksheets of the file : ['.implode('], [', array_keys($studied_excel_file_name_properties['file_worksheets'])).'].' : ' No worksheets found int the file.'));
+			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent Worksheet", "Worksheet '$worksheet_name' is not a worksheet of file '$excel_file_name'. Worksheet won't be parsed.");
 			return false;
 		} else if(!isset($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells']) || empty($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells'])) {
 			//Empty worksheet
@@ -1053,7 +1100,7 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 			$data_found = false;
 			foreach($studied_excel_file_name_properties['headers'] as $key => $field) {
 				if(isset($new_excel_line_data[$key])) {
-					$formatted_new_line_data[trim(utf8_encode($field))] = trim(utf8_encode($new_excel_line_data[$key]));
+					$formatted_new_line_data[trim(utf8_encode($field))] = trim(utf8_encode(str_replace('"', "'", $new_excel_line_data[$key])));
 					$data_found = true;
 				} else {
 					$formatted_new_line_data[trim(utf8_encode($field))] = '';
