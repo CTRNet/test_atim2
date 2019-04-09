@@ -2,21 +2,29 @@
 
 require_once __DIR__.'/system.php';
 
-//Set test version
-$is_test_import_process = false;
-$is_test_message_process = false;
+// In prod
+$view_update = false;
+$permissions_regenerated_to_zero = true;
+$insert_into_revs = true;
+$commit_at_the_end = true;
 
+// If test
 if(isset($argv[1])) {
     if($argv[1] == 'test_import') {
-        $is_test_import_process = true;   //Load in db + commit + truncate data imported the today
+        truncate();
+        $view_update = true;
+        $permissions_regenerated_to_zero = false;
+        $insert_into_revs = true;
+        $commit_at_the_end = true;
     } else if($argv[1] == 'test_message') {
-        $is_test_message_process = true;    //Just run script and display message - No commit
+        $view_update = false;
+        $permissions_regenerated_to_zero = false;
+        $insert_into_revs = false;
+        $commit_at_the_end = false;
     } else {
         die('ERR ARG : '.$argv[1].' (should be test_import or test_message)');
     }
 }
-
-if($is_test_import_process) truncate();
 
 //==============================================================================================
 // Main Code
@@ -66,6 +74,26 @@ $excel_participants_names_and_ramq_controls = array();
 $excel_collection_data_to_atim_sardo_treatment = array();
 $excel_collection_data_to_atim_collection = array();
 
+// Array to display unmigratted lines
+
+$blocks_not_migrated = array();
+$expected_headers = array(
+    'Nom',
+    'Prénom',
+    'No de dossier',
+    'RAMQ',
+    'Traitement description',
+    'Date du prélèvement',
+    'No Patho',
+    'Lieu du Prélèvement ND, SL, HD',
+    'Note de collection',
+    'Enumeration des blocs',
+    'Chambre',
+    'Section',
+    'Tablette',
+    'Boite',
+    'Tiroir');
+
 foreach($excel_file_names as $excel_file_name => $file_info) {
     
     echo "<br><br><br><FONT COLOR=\"green\" ><b>************************************************************************************************************************************************************<br>";
@@ -89,29 +117,15 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
 			    $line_number_check = 0;
 			}
 			
+			$block_has_been_created = false;
+			
 			// *** NEW STEP **************************************************************************************************************************************************************
 			//	Check File Headers
 			// ***************************************************************************************************************************************************************************
 			
 			if(!$header_check_done) {
-				$headers = array(		
-					'Nom',
-					'Prénom',
-					'No de dossier',
-					'RAMQ',
-					'Traitement description',
-					'Date du prélèvement',
-					'No Patho',
-					'Lieu du Prélèvement ND, SL, HD',
-				    'Note de collection',
-					'Enumeration des blocs',
-					'Chambre',
-					'Section',
-					'Tablette',
-					'Boite',
-					'Tiroir');
 				$missing_header = false;
-				foreach($headers as $new_header) {
+				foreach($expected_headers as $new_header) {
 					if(!array_key_exists($new_header, $excel_line_data)) {
 						$missing_header = true;
 						recordErrorAndMessage('File Check'." [FILE : $excel_file_name]", '@@ERROR@@', "#".__LINE__." - File header missing. No file data will be migrated into ATiM.", "Check header '$new_header' in the Excel file '$excel_file_name_for_summary'.");
@@ -120,7 +134,8 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
 				if($missing_header) break;
 				$header_check_done = true;
 			}
-			
+//TODO
+//if($excel_line_data['No de dossier'] != 'H1058953') continue;			
 			$duplicated_excel_line_check_key = $excel_line_data['No de dossier'].$excel_line_data['RAMQ'].$excel_line_data['Date du prélèvement'].$excel_line_data['No Patho'].$excel_line_data['Enumeration des blocs'];
 			if(array_key_exists($duplicated_excel_line_check_key, $duplicated_excel_line_check)) {
 			    recordErrorAndMessage('Block Definition'." [FILE : $excel_file_name]", 
@@ -789,6 +804,7 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
             							setStorageData($aliquot_data, $excel_line_data, $created_excel_block_aliquot_label, $summary_label_participant_excel_nominal_data, $excel_file_name);					
             							$created_excel_block_aliquot_master_id = customInsertRecord($aliquot_data);
             							$created_blocks++;
+            							$block_has_been_created = true;
             							
             							// *** NEW STEP **************************************************************************************************************************************************************
             							//	Check if block matches an exiting block into ATiM that has been created for the TMA block migration, then link all cores to the created block and delete the previous block. 
@@ -1055,7 +1071,16 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
     				}
     			}
     		}
-		}
+    		
+    		if(!$block_has_been_created) {
+    		    $data_to_display = array('file' => $excel_file_name, 'line' => $line_number);
+    		    foreach($expected_headers as $new_header) {
+    		        $data_to_display[$new_header] = $excel_line_data[$new_header];
+    		    }
+    		    $blocks_not_migrated[] = $data_to_display;
+    		}
+    		
+		} // End of new line
 	}
 	
 	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($matching_collections - $previous_file_matching_collections)." ATiM collections used");
@@ -1078,7 +1103,7 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
 	$previous_file_atim_tissue_linked_to_tma_creation_deleted = $atim_tissue_linked_to_tma_creation_deleted;
 	$previous_file_created_storages = $created_storages;
 	
-	dislayErrorAndMessage();
+	dislayErrorAndMessage(false, 'Migration Summary :: ' . $excel_file_name, false);
 	$import_summary = array();
 }
 
@@ -1162,22 +1187,38 @@ $final_queries = array(
 		AND Collection.created = '".$import_date."';"
 );
 
-$commit_or_not_commit = true;
-if($is_test_message_process) {
-    $commit_or_not_commit = false;
-} else if($is_test_import_process) {
-    $commit_or_not_commit = true;
-    addViewUpdate($final_queries);
-} else {
-    $commit_or_not_commit = true;
-    $final_queries[] = "UPDATE versions SET permissions_regenerated = 0;";
-}
+if($view_update) addViewUpdate($final_queries);
+if($permissions_regenerated_to_zero) $final_queries[] = "UPDATE versions SET permissions_regenerated = 0;";
+if($insert_into_revs) insertIntoRevsBasedOnModifiedValues();
 
 foreach($final_queries as $new_query) customQuery($new_query);
 
-if(!$is_test_message_process) insertIntoRevsBasedOnModifiedValues();
+dislayErrorAndMessage($commit_at_the_end);
 
-dislayErrorAndMessage($commit_or_not_commit);
+echo "<br><br><FONT COLOR=\"RED\" >
+==========================================================================================================================================<br><br>
+<b> Unmigrated blocks</b> <br><br>
+==========================================================================================================================================</FONT><br>";
+
+if(!$blocks_not_migrated) {
+    echo "<br><FONT COLOR=\"BLACK\" >None!</FONT><br>";
+} else {
+    $firstRecord = true;
+    foreach($blocks_not_migrated as $lineData) {
+        if($firstRecord) {
+            $newLineToDisplay = "\"";
+            $headers = array_keys($lineData);
+            $newLineToDisplay .= implode("\";\"", $headers);
+            $newLineToDisplay .= "\"<br>";
+            echo $newLineToDisplay;
+        }
+        $firstRecord = false;
+        $newLineToDisplay = "\"";
+        $newLineToDisplay .= implode("\";\"", $lineData);
+        $newLineToDisplay .= "\"<br>";
+        echo $newLineToDisplay;
+    }
+}
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
@@ -1320,7 +1361,7 @@ function addViewUpdate(&$final_queries) {
     $final_queries[] = "DELETE FROM view_collections WHERE collection_id IN (SELECT id FROM collections WHERE modified_by = $migration_user_id AND modified LIKE  '$truncate_date_limit%' AND deleted = 1);";
 	
     $final_queries[] = "INSERT INTO view_collections (
- SELECT
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -1329,6 +1370,7 @@ function addViewUpdate(&$final_queries) {
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
+		Collection.collection_protocol_id AS collection_protocol_id,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -1349,24 +1391,25 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
-			WHERE Collection.deleted <> 1
+        WHERE Collection.deleted <> 1
 			AND Collection.created = '$import_date' AND Collection.created_by = '$migration_user_id'
 );";
 
     $final_queries[] = 'INSERT INTO view_samples (
-SELECT SampleMaster.id AS sample_master_id,
+		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-	
+    
 		Collection.bank_id,
 		Collection.sop_master_id,
 		Collection.participant_id,
-	
+		Collection.collection_protocol_id AS collection_protocol_id,
+    
 		Participant.participant_identifier,
-	
+    
 		Collection.acquisition_label,
-	
+    
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -1375,7 +1418,7 @@ SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-	
+    
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
@@ -1393,7 +1436,7 @@ Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
-	
+    
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -1408,14 +1451,12 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 		WHERE SampleMaster.deleted != 1 
-
 AND SampleMaster.created = "'.$import_date.'" AND SampleMaster.created_by = "'.$migration_user_id.'"
 );';
 
     $final_queries[] = '
  INSERT INTO view_aliquots (
- 
- SELECT
+SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
@@ -1426,6 +1467,7 @@ AND SampleMaster.created = "'.$import_date.'" AND SampleMaster.created_by = "'.$
 			Participant.participant_identifier,
 		
 			Collection.acquisition_label,
+            Collection.collection_protocol_id AS collection_protocol_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -1468,7 +1510,7 @@ AND SampleMaster.created = "'.$import_date.'" AND SampleMaster.created_by = "'.$
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-	
+    
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
 		
 MiscIdentifier.identifier_value AS identifier_value,
@@ -1494,8 +1536,7 @@ SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-			WHERE AliquotMaster.deleted != 1 
- 
+			WHERE  AliquotMaster.deleted != 1 
  AND AliquotMaster.created = "'.$import_date.'" AND AliquotMaster.created_by = "'.$migration_user_id.'"
 );';
     
@@ -1503,31 +1544,30 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
     
 $final_queries[] = "
     INSERT INTO view_aliquot_uses (
-        SELECT CONCAT(Realiquoting.id ,2) AS id,
-        AliquotMaster.id AS aliquot_master_id,
-        'realiquoted to' AS use_definition,
-        --		AliquotMasterChild.barcode AS use_code,
-        CONCAT(AliquotMasterChild.aliquot_label,' [',AliquotMasterChild.barcode,']') AS use_code,
-        '' AS use_details,
-        Realiquoting.parent_used_volume AS used_volume,
-        AliquotControl.volume_unit AS aliquot_volume_unit,
-        Realiquoting.realiquoting_datetime AS use_datetime,
-        Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-        NULL AS duration,
-        '' AS duration_unit,
-        Realiquoting.realiquoted_by AS used_by,
-        Realiquoting.created AS created,
-        CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
-        SampleMaster.id AS sample_master_id,
-        SampleMaster.collection_id AS collection_id,
-        NULL AS study_summary_id,
-        '' AS study_title
-        FROM realiquotings AS Realiquoting
-        JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
-        JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-        JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
-        JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-        WHERE Realiquoting.deleted <> 1
+		SELECT CONCAT(Realiquoting.id ,2) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'realiquoted to' AS use_definition,
+CONCAT(AliquotMasterChild.aliquot_label,' [',AliquotMasterChild.barcode,']') AS use_code,
+		'' AS use_details,
+		Realiquoting.parent_used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		Realiquoting.realiquoting_datetime AS use_datetime,
+		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		Realiquoting.realiquoted_by AS used_by,
+		Realiquoting.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		NULL AS study_summary_id,
+		'' AS study_title
+		FROM realiquotings AS Realiquoting
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE Realiquoting.deleted <> 1
         AND AliquotMaster.created = '".$import_date."' AND AliquotMaster.created_by = '".$migration_user_id."'
     );";         
 }

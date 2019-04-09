@@ -30,15 +30,15 @@ if(!testExcelFile(array($excel_file_name))) {
 }
 
 
-if(true) {
+if(false) {
     $sqls = array(
         "DELETE FROM collections WHERE bank_id = (SELECT id FROM banks WHERE name = 'Adrenal/Surrénal' AND deleted <> 1)",
-        "DELETE FROM misc_identifiers WHERE created LIKE '2018-11-21%'",
-        "DELETE FROM cd_icm_generics WHERE consent_master_id IN (SELECT id FROM consent_masters WHERE created LIKE '2018-11-21%')",
-        "DELETE FROM consent_masters WHERE created LIKE '2018-11-21%'",
-        "DELETE FROM participants WHERE created LIKE '2018-11-21%'");
+        "DELETE FROM misc_identifiers WHERE created LIKE '2018-11-21 13:49%'",
+        "DELETE FROM cd_icm_generics WHERE consent_master_id IN (SELECT id FROM consent_masters WHERE created LIKE '2018-11-21 13:49%')",
+        "DELETE FROM consent_masters WHERE created LIKE '2018-11-21 13:49%'",
+        "DELETE FROM participants WHERE created LIKE '2018-11-21 13:49%'");
     foreach($sqls as $newSql) {
-        customQuery($newSql);       
+     //   customQuery($newSql);       
     }
 }
 
@@ -340,16 +340,24 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
                 $atim_controls['consent_controls']['chum - adrenal']['detail_tablename'] => array());
             $consent_master_id = customInsertRecord($consent_data);
             
-            $collectionData = array(             
-                'acquisition_label' => "Surrénal B-$bank_no_labo $surgery_date",
-                'bank_id' => $data_bank_id,
-                'participant_id' => $participant_id,
-                'consent_master_id' => $consent_master_id,
-                'collection_datetime' => $surgery_date,
-                'collection_datetime_accuracy' => 'h',
-                'collection_property' => 'participant collection',
-                'qc_nd_pathology_nbr' => $patho_nbr);
-            customInsertRecord(array('collections' => $collectionData));
+            if(empty($surgery_date)) {
+                recordErrorAndMessage(
+                    'Collection',
+                    '@@MESSAGE@@',
+                    "Surgery date bot defined. No collection will be created and pathology number won't be tracked..",
+                    "See patho nbr [$patho_nbr] for $excel_data_references.");
+            } else {
+                $collectionData = array(             
+                    'acquisition_label' => "Surrénal B-$bank_no_labo $surgery_date",
+                    'bank_id' => $data_bank_id,
+                    'participant_id' => $participant_id,
+                    'consent_master_id' => $consent_master_id,
+                    'collection_datetime' => $surgery_date,
+                    'collection_datetime_accuracy' => 'h',
+                    'collection_property' => 'participant collection',
+                    'qc_nd_pathology_nbr' => $patho_nbr);
+                customInsertRecord(array('collections' => $collectionData));
+            }
         }
     }
 }
