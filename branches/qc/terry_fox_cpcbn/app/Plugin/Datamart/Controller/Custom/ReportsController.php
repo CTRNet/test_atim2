@@ -172,6 +172,12 @@ class ReportsControllerCustom extends ReportsController
 				Participant.qc_tf_last_contact,
 				Participant.qc_tf_last_contact_accuracy,
 				Participant.qc_tf_death_from_prostate_cancer,
+
+				Participant.qc_tf_last_ct_ov_dept_visited,
+				Participant.qc_tf_last_pc_rel_date,
+				Participant.qc_tf_last_pc_rel_reason_for_visit,
+
+				Participant.notes as participant_notes,
 				
 				DiagnosisMaster.id AS primary_id,
 				DiagnosisMaster.dx_date,
@@ -183,9 +189,12 @@ class ReportsControllerCustom extends ReportsController
 				DiagnosisDetail.ctnm,
 				DiagnosisDetail.gleason_score_biopsy_turp,
 				DiagnosisDetail.gleason_score_rp,
+
+				DiagnosisMaster.notes as diagnosis_notes,
 			
 				TreatmentMaster.start_date ,
 				TreatmentMaster.start_date_accuracy,
+				TreatmentMaster.notes as treatment_notes,
 				
 				TreatmentDetail.qc_tf_lymph_node_invasion ,
 				TreatmentDetail.qc_tf_capsular_penetration,
@@ -241,6 +250,11 @@ class ReportsControllerCustom extends ReportsController
             if (! empty($newParticipant['DiagnosisMaster']['primary_id']))
                 $primaryIds[] = $newParticipant['DiagnosisMaster']['primary_id'];
             $newParticipant['Generated']['qc_tf_gleason_grade_rp'] = $newParticipant['TreatmentDetail']['qc_tf_gleason_grade'];
+            $newParticipant['Generated']['qc_tf_all_participant_notes'] = array(
+                strlen($newParticipant['Participant']['participant_notes']) ? 'Profile : ' . $newParticipant['Participant']['participant_notes'] : ''
+            );
+            $newParticipant['Generated']['qc_tf_all_participant_notes'][] = strlen($newParticipant['DiagnosisMaster']['diagnosis_notes']) ? 'Diagnosis : ' . $newParticipant['DiagnosisMaster']['diagnosis_notes'] : '';
+            $newParticipant['Generated']['qc_tf_all_participant_notes'][] = strlen($newParticipant['TreatmentMaster']['treatment_notes']) ? 'Treatment : ' . $newParticipant['TreatmentMaster']['treatment_notes'] : '';
             if ($displayCoresPositions) {
                 // Manage tma block confidential information
                 $setToConfidential = ($_SESSION['Auth']['User']['group_id'] != '1' && (! isset($newParticipant['StorageMaster']['qc_tf_bank_id']) || $newParticipant['StorageMaster']['qc_tf_bank_id'] != $userBankId)) ? true : false;
@@ -461,6 +475,45 @@ class ReportsControllerCustom extends ReportsController
                 }
             }
         }
+        // *********** Get Last BMI ***********
+        
+        $lastBmiFromParticipantId = array();
+        if ($participantIds) {
+            $sql = "SELECT DISTINCT
+					BmiEventMaster.participant_id,
+					BmiEventMaster.event_date AS bmi_event_date,
+					BmiEventMaster.event_date_accuracy AS bmi_event_date_accuracy,
+					BmiEventDetail.bmi
+					
+				FROM event_masters AS BmiEventMaster
+				INNER JOIN qc_tf_ed_clinical_bmis AS BmiEventDetail ON BmiEventDetail.event_master_id = BmiEventMaster.id
+				WHERE BmiEventMaster.deleted <> 1 AND BmiEventMaster.event_control_id = 56 AND  BmiEventMaster.participant_id IN (" . implode(',', $participantIds) . ")
+				ORDER BY BmiEventMaster.event_date DESC;";
+
+            $lastBmiResults = $this->Report->tryCatchQuery($sql);
+
+            $tmpNewParticipantId = '';
+            foreach ($lastBmiResults as $newRes) {
+                $studiedParticipantId = $newRes['BmiEventMaster']['participant_id'];
+
+                $studiedData = array(
+                    'BmiEventMaster' => array(
+                        'qc_tf_last_bmi_event_date' => $this->formatReportDateForDisplay($newRes['BmiEventMaster']['bmi_event_date'], $newRes['BmiEventMaster']['bmi_event_date_accuracy']),
+                        'qc_tf_last_bmi_event_date_accuracy' => $newRes['BmiEventMaster']['bmi_event_date_accuracy']
+                    ),
+                    'BmiEventDetail' => array(
+                        'bmi' => $newRes['BmiEventDetail']['bmi']
+                    )
+                );
+
+                if ($tmpNewParticipantId != $studiedParticipantId) {
+                    $tmpNewParticipantId = $studiedParticipantId;
+                    $lastBmiFromParticipantId[$studiedParticipantId] = $studiedData;
+                } else if (empty($lastBmiFromParticipantId[$studiedParticipantId]['BmiEventMaster']['qc_tf_last_bmi_event_date']) && ! empty($studiedData['BmiEventMaster']['qc_tf_last_bmi_event_date'])) {
+                    $lastBmiFromParticipantId[$studiedParticipantId] = $studiedData;
+                }
+            }
+        }
         
         // *********** Get Metastasis ***********
         
@@ -661,7 +714,18 @@ class ReportsControllerCustom extends ReportsController
                 'first_bcr_type' => ''
             )
         );
+        $lastBmiTemplate = array(
+            'BmiEventMaster' => array(
+                'qc_tf_last_bmi_event_date' => '',
+                'qc_tf_last_bmi_event_date_accuracy' => ''
+            ),
+            'BmiEventDetail' => array(
+                'bmi' => ''
+            )
+        );
         foreach ($mainResults as &$newParticipant) {
+            $newParticipant['Generated']['qc_tf_all_participant_notes'] = array_filter($newParticipant['Generated']['qc_tf_all_participant_notes']);
+            $newParticipant['Generated']['qc_tf_all_participant_notes'] = implode(' & ', $newParticipant['Generated']['qc_tf_all_participant_notes']);
             if (isset($dfsStartResultsFromPrimaryId[$newParticipant['DiagnosisMaster']['primary_id']])) {
                 $newParticipant = array_merge_recursive($newParticipant, $dfsStartResultsFromPrimaryId[$newParticipant['DiagnosisMaster']['primary_id']]);
             } else {
@@ -702,6 +766,11 @@ class ReportsControllerCustom extends ReportsController
                     )
                 ));
             }
+            if (isset($lastBmiFromParticipantId[$newParticipant['Participant']['id']])) {
+                $newParticipant = array_merge_recursive($newParticipant, $lastBmiFromParticipantId[$newParticipant['Participant']['id']]);
+            } else {
+                $newParticipant = array_merge_recursive($newParticipant, $lastBmiTemplate);
+            }
             $dateDiffDef = array(
                 'Participant.qc_tf_last_contact' => 'Generated.qc_tf_rp_to_last_contact',
                 'Metastasis.qc_tf_first_bone_metastasis_date' => 'Generated.qc_tf_rp_to_bone_met',
@@ -715,6 +784,11 @@ class ReportsControllerCustom extends ReportsController
                 if ($newParticipant[$modelData][$fieldData . '_accuracy'] . $newParticipant['TreatmentMaster']['start_date_accuracy'] != 'cc' && $newParticipant[$modelData][$fieldData] && $newParticipant['TreatmentMaster']['start_date'])
                     $warnings[] = __('intervals from rp have been calculated with at least one inaccuracy date');
             }
+            list ($modelData, $fieldData) = explode('.', $modelFieldData);
+            list ($modelCalculated, $fieldCalculated) = explode('.', $modelFieldCalculated);
+            $newParticipant['Generated']['qc_tf_last_psa_to_last_contact_ov'] = $this->getDateDiffInMonths($newParticipant['PsaEventMaster']['qc_tf_last_psa_event_date'], $newParticipant['Participant']['qc_tf_last_contact']);
+            if ($newParticipant['PsaEventMaster']['qc_tf_last_psa_event_date_accuracy'] . $newParticipant['Participant']['qc_tf_last_contact_accuracy'] != 'cc' && $newParticipant['PsaEventMaster']['qc_tf_last_psa_event_date'] && $newParticipant['Participant']['qc_tf_last_contact'])
+                $warnings[] = __('intervals from last PSA to last contact have been calculated with at least one inaccuracy date');
             if (! is_null($participantIdsToRevisedGrades)) {
                 if (array_key_exists($newParticipant['Participant']['id'], $participantIdsToRevisedGrades)) {
                     $newParticipant['Generated']['qc_tf_participant_reviewed_grades'] = $participantIdsToRevisedGrades[$newParticipant['Participant']['id']];
