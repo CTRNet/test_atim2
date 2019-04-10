@@ -66,4 +66,21 @@ class AliquotMasterCustom extends AliquotMaster
         $this->tryCatchQuery($queryToUpdate);
         $this->tryCatchQuery(str_replace("aliquot_masters", "aliquot_masters_revs", $queryToUpdate));
     }
+
+    public function getUserList()
+    {
+        $UserModel = AppModel::getInstance('', 'User', true);
+        $usersList = array();
+        $userConditions = array(
+            'User.deleted' => array(
+                '0',
+                '1'
+            )
+        );
+        foreach ($UserModel->find('all', array('conditions' => $userConditions)) as $newUser) {
+            $usersList[$newUser['User']['id']] = str_replace('administrator', 'System', $newUser['User']['username']);
+        }
+        return $usersList;
+    }
+    
 }

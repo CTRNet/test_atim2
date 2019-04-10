@@ -727,11 +727,18 @@ INSERT INTO structure_permissible_values_customs
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
 ("AE", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
+-- --------------------------------------------------------------------------------
+-- 2019-04-10
+-- --------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_tf_aliquot_created_by_list', 'InventoryManagement.AliquotMaster::getUserList');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'created_by', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_aliquot_created_by_list') , '0', '', '', 'help_created', '', 'by');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_aliquot_created_by_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_created' AND `language_label`='' AND `language_tag`='by'), '1', '1202', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('by', 'By', 'Par');
+UPDATE `versions` SET branch_build_number = '7630' WHERE version_number = '2.7.1';
