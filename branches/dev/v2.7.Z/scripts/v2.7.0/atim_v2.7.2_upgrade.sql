@@ -19,7 +19,6 @@ VALUES 	(
 'La mémoire allouée à vos requêtes est basse ou non définie à partir de vos données systèmes. Veuillez contacter votre administrateur du système pour optimiser votre outil.'
 );
 
-
 -- -------------------------------------------------------------------------------------
 --	Check if the diagnosisMaster is related to the correct participant
 -- -------------------------------------------------------------------------------------
@@ -32,9 +31,8 @@ VALUES 	(
 'Le diagnostic n\'est pas lié au participant.'
 );
 
-
 -- -------------------------------------------------------------------------------------
---	In CCL, check if the annotation can be add
+--  In CCL, check if the annotation can be add
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
@@ -44,8 +42,6 @@ VALUES 	(
 'The annotation #%s is not for Clinical Collection Link.',
 'L\'annotation #%s ne concerne pas le lien de collecte clinique.'
 );
-
-
 
 -- -------------------------------------------------------------------------------------
 --	Add link for value domain help message
@@ -57,7 +53,6 @@ VALUES
     ('for customising the <b>%s</b> list click <b>%s</b>', 'For customising the "<b>%s</b>" list click <b>%s</b>', 'Pour personnaliser la "<b>%s</b>" liste, cliquez <b>%s</b>'),
     ('here', 'here', 'ici');
 
-
 -- -------------------------------------------------------------------------------------
 --	List validation error message
 -- -------------------------------------------------------------------------------------
@@ -67,9 +62,9 @@ i18n (id,en,fr)
 VALUES 	
     ('the value is not part of the list [%s]', 'The value is not part of the list [%s].', 'La valeur ne fait pas partie de la liste [%s].');
 
-
 -- -------------------------------------------------------------------------------------
---	contacts information in order
+--	Issue #3609 : Change the pop-up layout of Manage contacts
+--  Contacts information in order
 -- -------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO 
@@ -78,7 +73,7 @@ VALUES
     ('contacts information', 'Contacts information.', 'Informations des contacts.');
 
 -- -------------------------------------------------------------------------------------
---	Race to ethnicity
+--	Issue #3676 : Race to ethnicity
 -- -------------------------------------------------------------------------------------
 
 DELETE FROM i18n
@@ -88,10 +83,10 @@ INSERT IGNORE INTO
 i18n (id,en,fr)
 VALUES 	
     ('help_race', "The participant's self declared ethnic origination.", "L'origine ethnique, telle que déclarée par le participant lui-même."),
-    ('race', 'Ethnicity', 'Ethnique');
+    ('race', 'Ethnicity', 'Éthnique');
 
 -- -------------------------------------------------------------------------------------
---	password_format_error_msg_4
+--	Issue #3644 : Missing password_format_error_msg_[1234] messages
 -- -------------------------------------------------------------------------------------
 
 DELETE FROM i18n
@@ -107,19 +102,44 @@ VALUES
     ('password_format_error_msg_4', 'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters, numbers and special characters.', 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.');
 
 -- -------------------------------------------------------------------------------------
---	save old recoreds of user_logs into a file
+--  Issue#3615 : Delete old records in user_logs table (or other table if exists)
+--	Save old recoreds of user_logs into a file
 -- -------------------------------------------------------------------------------------
+
 INSERT IGNORE INTO 
 i18n (id,en,fr)
 VALUES 	
 ("the log directory does not exist: %s", "The log directory does not exist: %s.", "Le répertoire du journal n'existe pas: %s."),
 ("unable to create the backup file for users log", "Unable to create the backup file for users log.", "Impossible de créer le fichier de sauvegarde pour le journal des utilisateurs.");
+
 -- -------------------------------------------------------------------------------------
+--	Issue#3585: Change the Active icon according to the status
+-- -------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO 
+i18n (id,en,fr)
+VALUES 	
+('activate', 'Activate', 'Activer'),
+('deactivate', 'Deactivate', 'Désactiver');
+
+-- -------------------------------------------------------------------------------------
+--	
+-- -------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+-- -------------------------------------------------------------------------------------
+-- -------------------------------------------------------------------------------------
+
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.7.2', NOW(),'XXXX','n/a');
-
-
-UPDATE versions SET trunk_build_number = 'YYYY' WHERE version_number = '2.7.2';
+('2.7.2', NOW(),'TODEFINE','n/a');

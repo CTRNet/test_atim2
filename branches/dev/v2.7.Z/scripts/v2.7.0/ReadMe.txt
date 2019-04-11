@@ -415,3 +415,23 @@
    See files:
 	   - \app\Plugin\InventoryManagement\Controller\Hook\AliquotMasters_add_initial_display.php
 	   - \app\Plugin\InventoryManagement\Controller\Hook\SampleMasters_add_initial_display.php
+
+
+
+-- -------------------------------------------------------------------------------------------------------------------
+-- v2.7.2
+--   See ATiM Version Release Notes 
+--      (http://www.ctrnet.ca/mediawiki/index.php/Version_Release_Notes#v2.7.2)
+-- -------------------------------------------------------------------------------------------------------------------
+
+   ### 1 # ...
+   -----------------------------------------------------------
+ 
+      ...
+   
+      TODO :  
+   
+      ...
+ 
+   ### 2 # ...
+   -----------------------------------------------------------

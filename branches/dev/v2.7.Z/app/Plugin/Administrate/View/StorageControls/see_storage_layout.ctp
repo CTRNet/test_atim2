@@ -38,7 +38,7 @@ if ($storageControlData['StorageCtrl']['flag_active'] == 0){
                 'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
                 'icon' => 'duplicate'
             ),
-            'desactivate' => array(
+            'deactivate' => array(
                 'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
                 'icon' => 'confirm'
             ),
