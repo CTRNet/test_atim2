@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class ReportsController
@@ -1506,6 +1521,87 @@ class ReportsController extends DatamartAppController
             'error_msg' => null
         );
     }
+    
+
+    /**
+     *
+     * @param $parameters
+     * @return array
+     */
+    public function participantIdentifiersWithCollectionDateSummary($parameters)
+    {
+        if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        if (! AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
+            $this->atimFlashError(__('you need privileges to access this page'), Router::url(null, true));
+        }
+        
+        $header = null;
+        $conditions = array();
+        $participantIdentifiersWithCollectionDate['data'] = array();
+        
+        $participantIdentifiers = $this->participantIdentifiersSummary($parameters);
+        
+        $inventoryManagementCollectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        
+        $startDateForSql = AppController::getFormatedDatetimeSQL($parameters['Collection']['collection_datetime_start'], 'start');
+        $endDateForSql = AppController::getFormatedDatetimeSQL($parameters['Collection']['collection_datetime_end'], 'end');
+        
+        foreach($participantIdentifiers['data'] as $key=>$participantIdentifier){
+            $conditions = array(
+                'Collection.participant_id' => $participantIdentifiers['data'][$key]['Participant']['id'],
+                'Collection.collection_datetime BETWEEN ? AND ?' => array($startDateForSql, $endDateForSql)
+            );
+        
+            $collectionForParticipantId = $inventoryManagementCollectionModel->find('all', array(
+                'conditions' => $conditions
+            ));
+            
+            $infos = '';
+            foreach($collectionForParticipantId as $keyCollection=>$collection){
+                $dateCollection = $collection['Collection']['collection_datetime'];
+                $dateCollectionAccuracy = $collection['Collection']['collection_datetime_accuracy'];
+                
+                $participantIdentifiersWithCollectionDate['data'][$key.'-'.$keyCollection] = array(
+                    'Participant' => array(
+                        'id' => $participantIdentifiers['data'][$key]['Participant']['id'],
+                        'participant_identifier' => $participantIdentifiers['data'][$key]['Participant']['participant_identifier'],
+                        'first_name' => $participantIdentifiers['data'][$key]['Participant']['first_name'],
+                        'last_name' => $participantIdentifiers['data'][$key]['Participant']['last_name'],
+                    ),
+                    'Collection' => array(
+                        'collection_datetime' => $dateCollection,
+                        'collection_datetime_accuracy' => $dateCollectionAccuracy
+                    ),
+                    '0' => array(
+                        'BR_Nbr' => $participantIdentifiers['data'][$key][0]['BR_Nbr'],
+                        'PR_Nbr' => $participantIdentifiers['data'][$key][0]['PR_Nbr'],
+                        'hospital_number' => $participantIdentifiers['data'][$key][0]['hospital_number']
+                    )
+                );
+                
+            }
+        
+        }
+        
+        AppController::addWarningMsg(__('all searches are considered as exact searches'));
+        
+        return array(
+            'header' => $participantIdentifiers['header'],
+            'data' => $participantIdentifiersWithCollectionDate['data'],
+            'columns_names' => null,
+            'error_msg' => null
+        );
+    }
+     
+        
+
+    
+    
 
     /**
      *
