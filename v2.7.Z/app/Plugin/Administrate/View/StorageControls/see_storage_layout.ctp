@@ -1,18 +1,53 @@
 <?php
-$structureLinks = array(
-    'bottom' => array(
-        'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-        'copy for new storage control' => array(
-            'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
-            'icon' => 'duplicate'
-        ),
-        'change active status' => array(
-            'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
-            'icon' => 'confirm'
-        ),
-        'delete' => '/Administrate/StorageControls/delete/' . $atimMenuVariables['StorageCtrl.id'] . '/'
-    )
-);
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
+
+if ($storageControlData['StorageCtrl']['flag_active'] == 0){
+    $structureLinks = array(
+        'bottom' => array(
+            'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+            'copy for new storage control' => array(
+                'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+                'icon' => 'duplicate'
+            ),
+            'activate' => array(
+                'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
+                'icon' => 'confirm'
+            ),
+            'delete' => '/Administrate/StorageControls/delete/' . $atimMenuVariables['StorageCtrl.id'] . '/'
+        )
+    );  
+} else {
+    $structureLinks = array(
+        'bottom' => array(
+            'edit' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+            'copy for new storage control' => array(
+                'link' => '/Administrate/StorageControls/add/0/' . $atimMenuVariables['StorageCtrl.id'] . '/',
+                'icon' => 'duplicate'
+            ),
+            'desactivate' => array(
+                'link' => '/Administrate/StorageControls/changeActiveStatus/' . $atimMenuVariables['StorageCtrl.id'] . '/seeStorageLayout/',
+                'icon' => 'confirm'
+            ),
+            'delete' => '/Administrate/StorageControls/delete/' . $atimMenuVariables['StorageCtrl.id'] . '/'
+        )
+    );
+
+}
+
 
 // 1 ** DISPLAY STORAGE CONTROL DATA **
 
