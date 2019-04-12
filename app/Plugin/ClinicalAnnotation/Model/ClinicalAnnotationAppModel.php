@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class ClinicalAnnotationAppModel
@@ -138,5 +153,58 @@ class ClinicalAnnotationAppModel extends AppModel
             }
         }
         parent::afterSave($created);
+    }
+    
+    public function getCCLsList()
+    {
+        $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
+        $query = "SELECT id1, id2, ceil((flag_active_1_to_2 + flag_active_2_to_1)/2) active , ds2.`model` model, ds2.`plugin` plugin " .
+                "FROM `datamart_browsing_controls` dbc " .
+                "JOIN `datamart_structures` ds ON ds.id = dbc.id1 " .
+                "JOIN `datamart_structures` ds2 ON ds2.id = dbc.id2 " .
+                "where ds.model = 'ViewCollection' and ds.plugin = 'InventoryManagement' " .
+                "union " .
+                "SELECT id1, id2, ceil((flag_active_1_to_2 + flag_active_2_to_1)/2) active, ds.`model` model, ds.`plugin` plugin " .
+                "FROM `datamart_browsing_controls` dbc " .
+                "JOIN `datamart_structures` ds2 ON ds2.id = dbc.id2 " .
+                "JOIN `datamart_structures` ds ON ds.id = dbc.id1 " .
+                "where ds2.model = 'ViewCollection' and ds2.plugin = 'InventoryManagement' ";
+        $result = $datamartStructureModel->query($query);
+        foreach ($result as $k=>$v){
+            $result[$v[0]['model']] = $v[0];
+            unset ($result[$k]);
+        }
+        return $result;
+    }
+    
+    public function deleteFromStructuresDeactiveCCLs($cclDatamartData)
+    {
+        $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
+        $result = array();
+        foreach ($cclDatamartData as $item) {
+            if (in_array($item['model'], array('ConsentMaster', 'DiagnosisMaster', 'TreatmentMaster', 'EventMaster')) !== false && $item['plugin'] == 'ClinicalAnnotation' && $item['active'] == '0') {
+                $controlModel = str_replace("Master", "Control", $item['model']);
+                $query = "UPDATE `structure_formats` sf1 " .
+                        "SET " .
+                        "sf1.flag_add ='0', sf1.flag_add_readonly ='0', sf1. flag_edit ='0', sf1. flag_edit_readonly ='0', sf1. flag_search ='0', sf1. flag_search_readonly ='0',  " .
+                        "sf1. flag_addgrid ='0', sf1. flag_addgrid_readonly ='0', sf1. flag_editgrid ='0', sf1. flag_editgrid_readonly ='0', sf1. flag_summary ='0',  " .
+                        "sf1. flag_batchedit ='0', sf1. flag_batchedit_readonly ='0', sf1. flag_index ='0', sf1. flag_detail ='0', sf1. flag_float = '0' " .
+                        "where sf1.id in ( " .
+                        "select id from ( " .
+                        "SELECT sf.id " .
+                        "from `structure_fields`  " .
+                        "JOIN `structure_formats` sf " .
+                        "ON sf.structure_field_id = `structure_fields`.id " .
+                        "where  " .
+                        "sf.structure_id  = (select id from `structures` where alias = 'clinicalcollectionlinks') and " .
+                        "`structure_fields`.model = '" . $item['model'] . "' and `structure_fields`.plugin= '" . $item['plugin'] . "'  " .
+                        "OR " .
+                        "`structure_fields`.model = '" . $controlModel . "' and `structure_fields`.plugin= '" . $item['plugin'] . "'  " .
+                        ") TEMPJOIN) ; ";
+
+                $result [] = $datamartStructureModel->query($query);
+            }
+        }
+        return $result;
     }
 }

@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class TreatmentMastersController
@@ -246,6 +261,21 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 $this->TreatmentMaster->addWritableField(array(
                     'diagnosis_master_id'
                 ));
+                
+                if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                    $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                    $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                    $p = $diagnosisMasterModel->find('first', array(
+                        'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                    ));
+
+                    if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                        $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                    }
+
+                }
+
                 if ($this->TreatmentMaster->save($this->request->data)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
@@ -362,6 +392,20 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 }
                 
                 if ($submittedDataValidates) {
+                    if (!empty($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
+                        $diagnosisMasterId = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+                        $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster");
+
+                        $p = $diagnosisMasterModel->find('first', array(
+                            'conditions' => array('DiagnosisMaster.id' => $diagnosisMasterId)
+                        ));
+
+                        if (!isset($p['DiagnosisMaster']['participant_id']) || $p['DiagnosisMaster']['participant_id']!=$participantId){
+                            $this->atimFlashError(__('the diagnosis is not related to the participant'), 'javascript:history.back();');
+                        }
+
+                    }
+
                     if ($this->TreatmentMaster->save($this->request->data)) {
                         $treatmentMasterId = $this->TreatmentMaster->getLastInsertId();
                         $urlToFlash = '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $treatmentMasterId;

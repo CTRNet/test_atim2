@@ -1,3 +1,19 @@
+/**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
+
 var toolTarget = null;
 var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
 var submitData = new Object();
@@ -9,9 +25,11 @@ var checkedData = [];
 var DEBUG_MODE_JS = 0;
 var sessionId = "";
 columnLarge = (typeof columnLarge!=='undefined')?columnLarge:false;
-//window.alert = function(a){
-//    console.log(a);
-//}
+
+if (window.name !== "ATiM - Advanced Tissue Management"){
+    window.name = "ATiM - Advanced Tissue Management";
+    location.reload(true);
+}
 
 $(document).ready(function () {
     $("#authMessage").prepend('<span class="icon16 delete mr5px"></span>');
@@ -102,11 +120,6 @@ $(document).ready(function () {
         }
 
         var errorFunction = function (jqXHR, textStatus, errorThrown) {
-            //$(document).remove('#popupError');
-            //var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            //popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-            //$(document).append(popupError);
-//        $(popupError).popup();
             if (DEBUG_MODE_JS > 0) {
                 console.log (jqXHR);
             }
@@ -116,6 +129,12 @@ $(document).ready(function () {
         treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
         findDuplicatedSamples(treeTable);
     }
+    $("a.help_link").each(function(){
+        var $this = $(this);
+        $this.attr("target", "_blank");
+        $this.attr("href", root_url+$this.attr("href"));
+        $this.text(here);
+    });
 });
 
 jQuery.fn.fullWidth = function () {
@@ -130,10 +149,12 @@ if ($("#header div:first").length !== 0) {
 var actionMenuShow = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
-    if (action_popup.length > 0) {
-        //show current menu
-        action_popup.slideDown(100);
-    }
+    slideMenuTimer = setTimeout(function(){
+        if (action_popup.length > 0) {
+            //show current menu
+            action_popup.slideDown(50);
+        }
+    }, 100);
 };
 
 //Slide up (hide) animation for action menu.
@@ -141,6 +162,7 @@ var actionMenuHide = function () {
     var action_hover = $(this);
     var action_popup = action_hover.find('div.filter_menu');
     if (action_popup.length > 0) {
+        clearTimeout(slideMenuTimer);
         action_popup.slideUp(100).queue(function () {
             $(this).clearQueue();
         });
@@ -161,7 +183,7 @@ var actionClickUp = function () {
                 {
                     top: '+=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
 
@@ -184,7 +206,7 @@ var actionClickDown = function () {
                 {
                     top: '-=' + menuMoveDistance
                 },
-                150,
+                250,
                 'linear'
                 );
     }
@@ -598,7 +620,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
 //            var name = $(cell).find("input:last").prop("name");
             var name = $(this).prop("name");
-            name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            if (name.substr(name.length-3,name.length-1)=="][]"){
+                name = name.substr(0, name.length - 3) + "_with_file_upload]";
+            }else{
+                name = name.substr(0, name.length - 1) + "_with_file_upload]";
+            }
             $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 
         });
@@ -1103,6 +1129,14 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
+function convertRemToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
+function convertPixelsToRem(pixel) {
+    return pixel / parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
 function resizeFloatingBckGrnd(floatingBckGrnd) {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1143,13 +1177,15 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
         width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
         height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        topX = $(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top;
+        left = $(floatingBckGrnd).offset().left - $(firstTh).offset().left;
         if ($(floatingBckGrnd).data("onlyDimension") == undefined) {
             $(floatingBckGrnd).data("onlyDimension", true);
             $(floatingBckGrnd).css({
-                "top": "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
-                "left": "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
-                "width": width + "px",
-                "height": height + "px"
+                "top": convertPixelsToRem(-topX) + "rem",
+                "left": convertPixelsToRem(-left)  + "rem",
+                "width": convertPixelsToRem(width) + "rem",
+                "height": convertPixelsToRem(height) + "rem",
             });
         } else {
             $(floatingBckGrnd).css({
@@ -1396,6 +1432,31 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
     
     $(scope).find("input[type=checkbox]").each(function(){
+        var $requiredYN = false;
+        var $checked = false;
+        var $checkBox;
+        $(this).parent().children('input[type=checkbox]').each(function(){
+            $checkBox = $(this);
+            if ($checkBox.prop('required')){
+                $requiredYN = true;
+            }
+            if ($checkBox.prop('checked')){
+                $checked = true;
+            }
+        });
+        
+        if ($requiredYN && $checked){
+            $(this).parent().children('input[type=checkbox]').each(function(){
+                $checkBox = $(this);
+                if ($checkBox.prop('checked')){
+                    $checkBox.prop('required', true);
+                }else{
+                    $checkBox.prop('required', false);
+                }
+                
+            });
+        }
+                
         $(this).click(function(){
             $currentCheckBox=$(this);            
             $parent=$currentCheckBox.parent();
@@ -2432,6 +2493,17 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.rightPart:first").addClass("at");
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
+
+
+    topFrame = $li.offset().top - $li.closest("table").offset().top;
+    heightTable = $li.closest("table").height();
+    heightFrame = $("#frame").height();
+    if (topFrame + heightFrame > heightTable){
+        $li.closest("table").closest("td").height(topFrame + heightFrame);
+    }
+    $("#frame").css({"position": "relative", "top": topFrame});
+
+    
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
         if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
             var ajaxSqlLog={'sqlLog': [$(data.substring (data.lastIndexOf('<div id="ajaxSqlLog"'))).html()]};
@@ -2441,6 +2513,14 @@ function set_at_state_in_tree_root(new_at_li, json) {
         
         $("#frame").html(data);
         initActions();
+        
+        topFrame = $li.offset().top - $li.closest("table").offset().top;
+        heightTable = $li.closest("table").height();
+        heightFrame = $("#frame").height();
+        if (topFrame + heightFrame > heightTable){
+            $li.closest("table").closest("td").height(topFrame + heightFrame);
+        }
+        $("#frame").css({"position": "relative", "top": topFrame});
     });
 }
 

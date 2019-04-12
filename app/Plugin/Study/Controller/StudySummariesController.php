@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class StudySummariesController
@@ -225,52 +240,60 @@ class StudySummariesController extends StudyAppController
                 'ClinicalAnnotation.MiscIdentifier.study_summary_id',
                 '/ClinicalAnnotation/MiscIdentifiers/listall/',
                 'miscidentifiers_for_participant_search',
-                '/ClinicalAnnotation/Participants/profile/%%Participant.id%%'
+                '/ClinicalAnnotation/Participants/profile/%%Participant.id%%',
+                'MiscIdentifier'
             ),
             'consents' => array(
                 'ClinicalAnnotation.ConsentMaster.study_summary_id',
                 '/ClinicalAnnotation/ConsentMasters/listall/',
                 'consent_masters,consent_masters_study',
-                '/ClinicalAnnotation/ConsentMasters/detail/%%ConsentMaster.participant_id%%/%%ConsentMaster.id%%'
+                '/ClinicalAnnotation/ConsentMasters/detail/%%ConsentMaster.participant_id%%/%%ConsentMaster.id%%',
+                'ConsentMaster'
             ),
             'aliquots' => array(
                 'InventoryManagement.AliquotMaster.study_summary_id',
                 '/InventoryManagement/AliquotMasters/detail/',
                 'view_aliquot_joined_to_sample_and_collection',
-                '/InventoryManagement/AliquotMasters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%'
+                '/InventoryManagement/AliquotMasters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%',
+                'ViewAliquot'
             ),
             'aliquot uses' => array(
                 'InventoryManagement.AliquotInternalUse.study_summary_id',
                 '/InventoryManagement/AliquotMasters/detail/',
                 'aliquotinternaluses',
-                '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%'
+                '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+                'ViewAliquotUse'
             ),
             'orders' => array(
                 'Order.Order.default_study_summary_id',
                 '/Order/Orders/detail/',
                 'orders',
-                '/Order/Orders/detail/%%Order.id%%'
+                '/Order/Orders/detail/%%Order.id%%',
+                'Order'
             ),
             'order lines' => array(
                 'Order.OrderLine.study_summary_id',
                 '/Order/Orders/detail/',
                 'orders,orderlines',
-                '/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%'
+                '/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%',
+                'OrderLine'
             ),
             'tma slides' => array(
                 'StorageLayout.TmaSlide.study_summary_id',
                 '/StorageLayout/TmaSlides/detail/',
                 'tma_slides,tma_blocks_for_slide_creation',
-                '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%'
+                '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%',
+                'TmaSlide'
             ),
             'tma slide uses' => array(
                 'StorageLayout.TmaSlideUse.study_summary_id',
                 '/StorageLayout/TmaSlideUses/listAll/',
                 'tma_slide_uses,tma_slides_for_use_creation',
-                '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%'
+                '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%',
+                'TmaSlideUse'
             )
         );
-        
+
         $hookLink = $this->hook('format_properties');
         if ($hookLink) {
             require ($hookLink);
@@ -280,6 +303,9 @@ class StudySummariesController extends StudyAppController
             
             // Manage All Lists Display
             $this->set('linkedRecordsHeaders', array_keys($linkedRecordsProperties));
+            $this->set('linkedRecordsProperties', $linkedRecordsProperties);
+            $this->set('studyLLData', $this->StudySummary->getSLLs());
+            $this->Structures->set('empty', 'emptyStructure');
         } else {
             
             // Manage Display Of A Specific List

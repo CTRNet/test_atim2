@@ -7,20 +7,17 @@
 
   This file is part of ATiM.
 
--- Copyright (c) 2002-2017
+-- Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
 ------------------------------------------------------------------------------------
 
+  Peter Geary                 - CTRNet, Winnipeg
   Nicolas Luc                 - CTRNet and CRCHUM, Montreal
   François-Michel L'Heureux   - CTRNet and CRCHUM, Montreal
-  Yaser Naderi                - CTRNet and CRCHUM, Montreal
   Aaron Suggitt               - CTRNet, Winnipeg
+  Yaser Naderi                - CTRNet and CRCHUM, Montreal
   Simon Dee                   - CTRNet and UBC, Vancouver
-  Wil Alambre                 - Visual Lizard, Winnipeg 
-  Julian Moffatt              - Visual Lizard, Winnipeg 
-  Doug Ross                   - Visual Lizard, Winnipeg 
-  Peter Geary                 - CTRNet, Winnipeg
   
--- Authors
+-- Principal Investigators
 ------------------------------------------------------------------------------------
 
   - Dr Anne-Marie Mes-Masson, CTRNet and CRCHUM, Montreal
@@ -59,4 +56,5 @@ Contact information:
   website: http://crchum.chumontreal.qc.ca
            http://ctrnet.ca/contact
 
-  e-mail: atim.ctrnet@gmail.com
+  e-mail: info@ctrnet.ca
+

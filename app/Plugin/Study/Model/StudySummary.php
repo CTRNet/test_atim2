@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class StudySummary
@@ -340,5 +355,26 @@ class StudySummary extends StudyAppModel
             'allow_deletion' => true,
             'msg' => ''
         );
+    }
+    
+    public function getSLLs()
+    {
+        $query = "SELECT id1, id2, ceil((flag_active_1_to_2 + flag_active_2_to_1)/2) active , ds2.`model` model, ds2.`plugin` plugin " .
+                "FROM `datamart_browsing_controls` dbc " .
+                "JOIN `datamart_structures` ds ON ds.id = dbc.id1 " .
+                "JOIN `datamart_structures` ds2 ON ds2.id = dbc.id2 " .
+                "where ds.model = 'StudySummary' and ds.plugin = 'Study' " .
+                "union " .
+                "SELECT id1, id2, ceil((flag_active_1_to_2 + flag_active_2_to_1)/2) active, ds.`model` model, ds.`plugin` plugin " .
+                "FROM `datamart_browsing_controls` dbc " .
+                "JOIN `datamart_structures` ds2 ON ds2.id = dbc.id2 " .
+                "JOIN `datamart_structures` ds ON ds.id = dbc.id1 " .
+                "where ds2.model = 'StudySummary' and ds2.plugin = 'Study' ";
+        $result = $this->query($query);
+        foreach ($result as $k=>$v){
+            $result[$v[0]['model']] = $v[0];
+            unset ($result[$k]);
+        }
+        return $result;
     }
 }

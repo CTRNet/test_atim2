@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class AtimDebug
@@ -336,16 +351,33 @@ function removeEmptyStringArray($value)
     return ($value != "" && $value != array());
 }
 
-function getTotalMemoryCapacity()
-{
+function getTotalMemoryCapacity(&$error = false)
+ {
     $os = substr(PHP_OS, 0, 3);
+    $defaultValue = 4294967296;
     if ($os == "WIN") {
         $totalMemory = array();
         exec('wmic memorychip get capacity', $totalMemory);
-        if (is_numeric($totalMemory[1])) {
-            return round($totalMemory[1] / 1024 / 1024);
-        } else {
-            return - 1;
+        if (isset($totalMemory[1])) {
+            if (is_numeric($totalMemory[1])) {
+                return round($totalMemory[1] / 1024 / 1024);
+            } else {
+                $totalMemory[1] = preg_replace("/[^0-9.]/", "", $totalMemory[1]);
+                if (is_numeric($totalMemory[1])) {
+                    return round($totalMemory[1] / 1024 / 1024);
+                } else {
+                    $error = true;
+                    return round($defaultValue / 1024 / 1024);
+                }
+            }
+        } elseif (isset($totalMemory[0])) {
+            $totalMemory[0] = preg_replace("/[^0-9.]/", "", $totalMemory[0]);
+            if (is_numeric($totalMemory[0])) {
+                return round($totalMemory[0] / 1024 / 1024);
+            } else {
+                $error = true;
+                return round($defaultValue / 1024 / 1024);
+            }
         }
     } elseif ($os == "Lin") {
         $fh = fopen('/proc/meminfo', 'r');
