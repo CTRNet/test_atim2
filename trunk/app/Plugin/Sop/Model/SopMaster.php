@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class SopMaster
@@ -123,14 +138,40 @@ class SopMaster extends SopAppModel
     public function getAllSopPermissibleValues()
     {
         $result = array();
+        $resultInactif = array();
+        
+        $sops = $this->find('all', array(
+            'order' => 'SopMaster.title',
+            'conditions' => array(
+                "OR" => array(
+                    'expiry_date >' => date("Y-m-d"),
+                    "expiry_date" => null),
+                "status" => "activated"
+        )));
+        
+        $sopsInactif = $this->find('all', array(
+            'order' => 'SopMaster.title',
+            'conditions' => array(
+                "OR" => array(
+                    'expiry_date <' => date("Y-m-d"),
+                    "status" => "deactivated"),
+        )));
         
         // Build tmp array to sort according translation
-        foreach ($this->find('all', array(
-            'order' => 'SopMaster.title'
-        )) as $sop) {
+        foreach ($sops as $sop) {
             
             $result[$sop['SopMaster']['id']] = (empty($sop['SopMaster']['title']) ? __('unknown') : $sop['SopMaster']['title']) . ' [' . $sop['SopMaster']['code'] . ' - ' . $sop['SopMaster']['version'] . ']';
         }
+        
+        
+        // Build tmp array to sort according translation
+        foreach ($sopsInactif as $sop) {
+            
+            $resultInactif[$sop['SopMaster']['id']] = (empty($sop['SopMaster']['title']) ? __('unknown') : $sop['SopMaster']['title']) . ' [' . $sop['SopMaster']['code'] . ' - ' . $sop['SopMaster']['version'] . ']';
+        }
+        
+        $result["defined"] = $result;
+        $result["previously_defined"] = $resultInactif;
         
         return $result;
     }

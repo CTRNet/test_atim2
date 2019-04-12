@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 App::uses('Helper', 'View');
 
 /**
@@ -7,6 +22,9 @@ App::uses('Helper', 'View');
 class StructuresHelper extends AppHelper
 {
 
+    public $structureAliasFinal = array();
+    private $structureAliasFinaltable = null;
+    
     public $helpers = array(
         'Csv',
         'Html',
@@ -26,7 +44,7 @@ class StructuresHelper extends AppHelper
         "datetime",
         "time",
         "integer",
-        "interger_positive",
+        "integer_positive",
         "float",
         "float_positive",
         "tetarea",
@@ -205,7 +223,9 @@ class StructuresHelper extends AppHelper
         parent::__construct($view, $settings);
         
         App::uses('StructureValueDomain', 'Model');
+        App::uses('StructurePermissibleValuesCustomControl', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();
+        $this->sPVCC = new StructurePermissibleValuesCustomControl();
     }
 
     /**
@@ -331,9 +351,7 @@ class StructuresHelper extends AppHelper
      */
     public function getStructureAlias()
     {
-        if (isset($this->structureAliasFinal) && is_array($this->structureAliasFinal) && count($this->structureAliasFinal) > 0) {
-            return $this->putInTable($this->structureAliasFinal);
-        }
+        return $this->structureAliasFinaltable;
     }
 
     /**
@@ -341,36 +359,41 @@ class StructuresHelper extends AppHelper
      * @param $sfs
      * @param $unimportantFields
      */
-    private function remove(&$sfs, $unimportantFields)
+    private function remove(&$sfs, $unimportantFields, $alias)
     {
-        foreach ($sfs as &$sf) {
-            foreach ($unimportantFields as $field) {
-                unset($sf[$field]);
+        foreach ($sfs as $k => &$sf) {
+            if ($alias == $sf["structure_alias"]){
+                foreach ($unimportantFields as $field) {
+                    unset($sf[$field]);
+                }
+            }else{
+                unset($sfs[$k]);
             }
         }
+        $sfs = array_values($sfs);
     }
 
     /**
      *
-     * @param $tmp
+     * @param $structureAlias
      * @return string
      */
-    private function putInTable($tmp)
+    private function putInTable($structureAlias)
     {
         $htmlResult = "";
         $temp = array();
-        foreach ($tmp as $key => &$values) {
+        foreach ($structureAlias as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
                     $temp[$alias] = $structures;
                 }
             }
         }
-        $tmp = $temp;
+        $structureAlias = $temp;
         unset($temp);
         
         $uniqueStructureAlias = array();
-        foreach ($tmp as $alias => $structures) {
+        foreach ($structureAlias as $alias => $structures) {
             $uniqueStructureAlias[] = $alias;
             $htmlResult .= "<h3 class='expandable'>" . $alias . "</h3>\n";
             $htmlResult .= "<table class='debugkit_structure_table'>\n";
@@ -411,75 +434,33 @@ class StructuresHelper extends AppHelper
             'StructureValidation'
         );
         if (Configure::read('debug')) {
-            // $tmp = array($atimStructure);
-            $tmp = array();
+            $samplifiedAliasStructure = array();
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
-                        $tmp[$struct['alias']] = $atimStructure['Sfs'];
-                        $this->remove($tmp[$struct['alias']], $unimportantFields);
+                        $samplifiedAliasStructure[$struct['alias']] = $atimStructure['Sfs'];
+                        $this->remove($samplifiedAliasStructure[$struct['alias']], $unimportantFields, $struct['alias']);
                     }
                 }
             } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias']) && isset($atimStructure['Sfs'])) {
-                $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
-                $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
-            } else {
-                $possible = array(
-                    "Collection",
-                    "DiagnosisMaster",
-                    "TreatmentMaster",
-                    "EventMaster",
-                    "TmaBlock",
-                    "TmaSlide",
-                    "Generated",
-                    "StorageMaster",
-                    "AliquotMaster",
-                    "SampleMaster"
-                );
-                $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
-                // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
-                // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
+                $samplifiedAliasStructure[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
+                $this->remove($samplifiedAliasStructure[$atimStructure['Structure']['alias']], $unimportantFields, $atimStructure['Structure']['alias']);
             }
         }
-        return $tmp;
+        return $samplifiedAliasStructure;
     }
 
-    /**
-     *
-     * @param $atimStructure
-     * @param $possibles
-     * @param array $unimportantFields
-     * @return array
-     */
-    private function getStructure($atimStructure, $possibles, $unimportantFields = array())
+    private function checkRequiredField (array $atimStructure = array(), array $options = array())
     {
-        $tmp = array();
-        foreach ($possibles as $possible) {
-            if (isset($atimStructure[$possible]['Structure']['alias'])) {
-                $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
-                $this->remove($tmp[$atimStructure[$possible]['Structure']['alias']], $unimportantFields);
+        $type = $options['type'];
+        $alias = isset($atimStructure["Sfs"][0]['structure_alias'])?$atimStructure["Sfs"][0]['structure_alias']:"";
+        if (in_array($type, array("add", "edit", "addgrid", "editgrid"))!==false){
+            if (!empty($alias)){
+                $_SESSION["aliases"][$alias]["type"] = $type;
             }
         }
-        return $tmp;
     }
-
-    /**
-     *
-     * @param $atimStructure
-     * @param $possibles
-     * @return array
-     */
-    private function getIndexStructure($atimStructure, $possibles)
-    {
-        $tmp = array();
-        foreach ($possibles as $possible) {
-            if (isset($atimStructure[$possible]['Structure']['alias'])) {
-                $tmp[] = $atimStructure[$possible]['Structure']['alias'];
-            }
-        }
-        return $tmp;
-    }
-
+    
     /**
      * Builds a structure
      *
@@ -489,38 +470,9 @@ class StructuresHelper extends AppHelper
      */
     public function build(array $atimStructure = array(), array $options = array())
     {
-        if (Configure::read('debug')) {
-            $tmp = array();
-            if (count($atimStructure) != 0) {
-                if (isset($atimStructure['Structure'][0])) {
-                    foreach ($atimStructure['Structure'] as $struct) {
-                        if (isset($struct['alias'])) {
-                            $tmp[] = $struct['alias'];
-                        }
-                    }
-                } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias'])) {
-                    $tmp[] = $atimStructure['Structure']['alias'];
-                } elseif ($atimStructure) {
-                    $possible = array(
-                        "Collection",
-                        "DiagnosisMaster",
-                        "TreatmentMaster",
-                        "EventMaster",
-                        "TmaBlock",
-                        "TmaSlide",
-                        "Generated",
-                        "StorageMaster",
-                        "AliquotMaster",
-                        "SampleMaster"
-                    );
-                    $tmp = $this->getIndexStructure($atimStructure, $possible);
-                }
-                // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
-                
-                $test = $this->structureAliasFinal;
-                $test[] = $this->simplifyStructureTable($atimStructure);
-                $this->structureAliasFinal = $test;
-            }
+        if (Configure::read('debug') && count($atimStructure) != 0) {
+            $this->structureAliasFinal[] = $this->simplifyStructureTable($atimStructure);
+            $this->structureAliasFinaltable = $this->putInTable($this->structureAliasFinal);
         }
         
         // DEFAULT set of options, overridden by PASSED options
@@ -530,6 +482,9 @@ class StructuresHelper extends AppHelper
         }
         
         $data = $this->request->data;
+        
+        $this->checkRequiredField($atimStructure, $options);
+
         if (is_array($options['data'])) {
             $data = $options['data'];
         }
@@ -874,7 +829,7 @@ class StructuresHelper extends AppHelper
                 $tableRowCount = 0;
                 $newLine = true;
                 $endOfLine = "";
-                $display = "";
+                $display = array();
                 $help = null; // keeps the help if hidden fields are in the way
                 foreach ($tableColumn as $tableRow) {
                     foreach ($tableRow as $tableRowPart) {
@@ -900,6 +855,11 @@ class StructuresHelper extends AppHelper
                             }
                             $help = null;
                             $margin = '';
+                            
+                            if (in_array($options["type"], array("add", "edit"))!==false && isset($tableRowPart["settings"]["required"])&& $tableRowPart["settings"]["required"]=="required"){
+                            $tableRowPart['label'].=" *";
+                            }
+                            
                             if ($tableRowPart['margin'] > 0) {
                                 $margin = 'style="padding-left: ' . ($tableRowPart['margin'] * 10 + 10) . 'px"';
                             }
@@ -2250,6 +2210,10 @@ class StructuresHelper extends AppHelper
                                 }
                             } else {
                                 $returnString .= $tableRowPart['label'];
+
+                                if (in_array($options["type"], array("addgrid", "editgrid"))!==false && isset($tableRowPart["settings"]["required"])&& $tableRowPart["settings"]["required"]=="required"){
+                                    $returnString .= " *";
+                                }
                             }
                             
                             if (SHOW_HELP) {
@@ -2410,7 +2374,7 @@ class StructuresHelper extends AppHelper
                         "type" => $sfs['type'],
                         "help" => strlen($sfs['language_help']) > 0 ? sprintf($helpBullet, __($sfs['language_help'])) : $emptyHelpBullet,
                         "setting" => $sfs['setting'], // required for icd10 magic
-                        "default" => $sfs['default'],
+                        "default" => ($options['type']!=='search')?$sfs['default']:"",
                         "sortable" => array_key_exists('sortable', $sfs)? $sfs['sortable'] : 0,
                         "flag_confidential" => $sfs['flag_confidential'],
                         "flag_float" => $sfs['flag_float'],
@@ -2584,7 +2548,6 @@ class StructuresHelper extends AppHelper
                             ), $settings));
                         }
                         
-                        $current['default'] = $sfs['default'];
                         $current['settings'] = $settings;
                     } else {
                         $current["format"] = "";
@@ -2625,6 +2588,16 @@ class StructuresHelper extends AppHelper
                             $dropdownResult['defined'] = $options['dropdown_options'][$modelDotField];
                         } elseif (count($sfs['StructureValueDomain']) > 0) {
                             $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdownResult);
+                            $sPVCCLink = $this->sPVCC->getLink($sfs['StructureValueDomain']);
+                            if (!empty($sPVCCLink)){
+                                $aLink = "<a class= \"help_link\" href=\"{$sPVCCLink["link"]}\">link</a>";
+                                $a = __("for customising the <b>%s</b> list click <b>%s</b>",$sPVCCLink["text"], $aLink);
+                                if ($current['help'] == $emptyHelpBullet){
+                                    $current['help'] = sprintf($helpBullet, $a);
+                                }else{
+                                    $current['help'] = sprintf($helpBullet, __($sfs['language_help'])."<br><br>".$a);
+                                }
+                            }
                         } elseif ($sfs['type'] == "checkbox") {
                             // provide yes/no as default for checkboxes
                             $dropdownResult['defined'] = array(

@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class ShipmentsController
@@ -730,15 +745,13 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    public function manageContact()
+    public function manageContact($searchId = false)
     {
         $this->Structures->set('shipment_recipients');
-        // layout = ajax to avoid printing layout
-        $this->layout = 'ajax';
-        // debug = 0 to avoid printing debug queries that would break the javascript array
-        Configure::write('debug', 0);
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
-        $this->request->data = $contactsModel->find('all');
+
+        $this->set('searchId', $searchId);
+        $this->searchHandler($searchId, $contactsModel, 'shipment_recipients', '/InventoryManagement/Shipments/manageContact');
     }
 
     public function saveContact()

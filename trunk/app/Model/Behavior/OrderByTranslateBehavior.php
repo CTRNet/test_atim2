@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 App::uses('ModelBehavior', 'Model');
 App::uses('I18n', 'I18n');
 App::uses('I18nModel', 'Model');
@@ -51,7 +66,7 @@ class OrderByTranslateBehavior extends ModelBehavior
             return $query;
         }
         assert($c == 1) or die("Only supports a single order by");
-        $value = is_array($query['order'][0]) ? $query['order'][0] : $query['order'];
+        $value = isset($query['order'][0]) && is_array($query['order'][0]) ? $query['order'][0] : $query['order'];
         foreach ($value as $key => $direction) {
             if (is_int($key)) {
                 if (strpos($direction, " ") !== false) {

@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 /**
  * Application model for CakePHP.
  *
@@ -45,7 +60,12 @@ class AppModel extends Model
     
     // tablename -> accuracy fields
     public static $writableFields = array();
+
+    public static $listValues;
     
+    public static $requiredFields = array();
+    public $notBlankFields=array();
+
     // tablename -> flag suffix -> fields
     public $checkWritableFields = true;
     
@@ -134,7 +154,9 @@ class AppModel extends Model
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
         $thisDataTmpBackup = $this->data;
         
+        $validationErrors = $this->validationErrors;
         $prevData = $this->id ? $this->read() : null;
+        $this->validationErrors = $validationErrors;
         $dir = Configure::read('uploadDirectory');
         foreach ($data as $modelName => $fields) {
             if (! is_array($fields)) {
@@ -239,6 +261,63 @@ class AppModel extends Model
         }
     }
 
+    private function checkRequiredFields($data)
+    {
+        $conditions = array();
+        if (empty($this->id)){
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $fields = array();
+                foreach ($rules as $field => $rule) {
+                    $fields[] = $field;
+                }
+                $conditions[] = array(
+                    "model" => explode("||", $modelALias)[0],
+                    "structure_alias" => explode("||", $modelALias)[1],
+                    "field" => $fields
+                );
+            }
+            
+            if (!empty($conditions)){
+                App::uses('Sfs', 'Model');
+                $Sfs = new Sfs();
+                $sfsData = $Sfs->find("all", array(
+                    "conditions" => array('OR' => $conditions)
+                ));
+                if (!empty($sfsData)){
+                    foreach ($sfsData as $sfs) {
+                        $alias = strtolower($sfs["Sfs"]["structure_alias"]);
+                        $model = $sfs["Sfs"]["model"];
+                        $field = $sfs["Sfs"]["field"];
+                        $type = isset($_SESSION["aliases"][$alias]["type"])?$_SESSION["aliases"][$alias]["type"]:"";
+                        if (!empty($alias) && !empty($type)){
+                            $flag = isset($sfs["Sfs"]["flag_" . $type])?$sfs["Sfs"]["flag_" . $type]:1;
+                            if (empty($flag)){
+                                unset(self::$requiredFields["{$model}||{$alias}"]["{$field}"]);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            foreach (self::$requiredFields as $modelALias => $rules) {
+                $model = explode("||", $modelALias)[0];
+                $alias = explode("||", $modelALias)[1];
+                foreach ($rules as $field => $rule) {
+                    if ($this->name == $model || $model == 'FunctionManagement'){
+                        if (isset($data[$model])){
+                            if (!isset($data[$model][$field])){
+                                $data[$model][$field] = "";
+                            }
+                        }else{
+                            $data[$model] = array($field => "");
+                        }
+                    }
+                }
+            }
+        }
+        return $data;
+    }
+    
     /**
      * Override to prevent saving id directly with the array to avoid hacks
      *
@@ -935,6 +1014,7 @@ class AppModel extends Model
      */
     public function validates($options = array())
     {
+        $this->data = $this->checkRequiredFields($this->data);
         if (! $this->_schema) {
             $this->schema();
         }
@@ -1010,6 +1090,7 @@ class AppModel extends Model
                     }
                     
                     $detailClassInstance->validate = AppController::getInstance()->{$detailClass}->validate;
+
                     foreach (self::$autoValidation[$autoValidationName] as $fieldName => $rules) {
                         if (! isset($detailClassInstance->validate[$fieldName])) {
                             $detailClassInstance->validate[$fieldName] = array();
@@ -1017,7 +1098,18 @@ class AppModel extends Model
                         $detailClassInstance->validate[$fieldName] = array_merge($detailClassInstance->validate[$fieldName], $rules);
                     }
                     $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
+
+                    $detailClassInstance->primaryKey = $settings['master_foreign'];
+                    if (isset($associated[$detailClass][$detailClassInstance->primaryKey])){
+                        $detailClassInstance->id = $associated[$detailClass][$detailClassInstance->primaryKey];
+                    }
+
+                    $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
+
                     $validDetailClass = $detailClassInstance->validates();
+                    
+                    $this->checkMasterDetailRequiredFields($this, $detailClassInstance);
+
                     if ($detailClassInstance->data) {
                         $this->data = array_merge($this->data, $detailClassInstance->data);
                     }
@@ -1031,14 +1123,86 @@ class AppModel extends Model
         
         $this->checkFloats();
         
+        $this->checkList();
+        
         parent::validates($options);
+        
+        if (!empty($this->notBlankFields)){
+            $modelTemp = "FunctionManagement";
+            foreach ($this->notBlankFields[$modelTemp] as $field => $message) {
+                if (isset($this->data[$modelTemp][$field]) && empty($this->data[$modelTemp][$field])){
+                    if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                        $this->validationErrors[$field][]= $message;
+                    }
+                }
+            }
+        }
+        
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
             return true;
         }
         return false;
     }
+    
+    private function checkList()
+    {
+        $name = $this->name;
+        $data = $this->data;
+        if (isset (self::$listValues[$name])){
+            $lists = self::$listValues[$name];
+            foreach ($lists as $fieldLabel => $list) {
+                $field = explode("||", $fieldLabel)[0];
+                $label = explode("||", $fieldLabel)[1];
+                if (isset($data[$name][$field]) && !empty($data[$name][$field])){
+                    if (!isset($list[$data[$name][$field]])){
+                        $message = __('the value is not part of the list [%s]', $label);
+                        if (!isset($this->validationErrors[$field]) || in_array($message, $this->validationErrors[$field])===false){
+                            $this->validationErrors[$field][]= $message;
+                        }elseif (isset($this->validationErrors[$field])){
+                            $this->validationErrors[$field][]= $message;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    private function checkMasterDetailRequiredFields(&$master, &$detail)
+    {
+        if (!empty(self::$requiredFields['FunctionManagement'])) {
+            foreach (self::$requiredFields['FunctionManagement']as $field => $message) {
+                if (!isset($master->notBlankFields['FunctionManagement'][$field])) {
+                    if (isset($master->notBlankFields['FunctionManagement'])) {
+                        $master->notBlankFields['FunctionManagement'][$field] = $message;
+                    } else {
+                        $master->notBlankFields['FunctionManagement'] = array($field, $message);
+                    }
+                }
+
+                if (isset($detail->data['FunctionManagement'][$field])) {
+                    if (empty($master->data['FunctionManagement'][$field]) && !$master->id) {
+                        if (isset($master->data['FunctionManagement'][$field])) {
+                            $master->data['FunctionManagement'][$field] = $detail->data['FunctionManagement'][$field];
+                        } else {
+                            $master->data['FunctionManagement'] = array($field, $detail->data['FunctionManagement'][$field]);
+                        }
+                    }
+                }
+
+                unset($detail->notBlankFields['FunctionManagement'][$field]);
+                unset($detail->data['FunctionManagement'][$field]);
+            }
+            if (empty($detail->notBlankFields['FunctionManagement'])) {
+                unset($detail->notBlankFields['FunctionManagement']);
+            }
+
+            if (empty($detail->data['FunctionManagement'])) {
+                unset($detail->data['FunctionManagement']);
+            }
+        }
+    }
+    
     /**
      *
      * @param $pluginName

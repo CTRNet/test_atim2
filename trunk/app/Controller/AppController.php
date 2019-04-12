@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 /**
  * Application level Controller
  *
@@ -227,25 +242,33 @@ class AppController extends Controller
         
         // record URL in logs file
         
-        if (Configure::read('atim_user_log_output_path')) {
-            $userLogFileHandle = fopen(Configure::read('atim_user_log_output_path') . '/user_logs.txt', "a");
-            if ($userLogFileHandle) {
-                $userLogStrg = '[' . $logActivityData['UserLog']['visited'] . '] ' . '{IP: ' . AppModel::getRemoteIPAddress() . ' || user_id: ' . (strlen($logActivityData['UserLog']['user_id']) ? $logActivityData['UserLog']['user_id'] : 'NULL') . '} ' . $logActivityData['UserLog']['url'] . ' (allowed:' . $logActivityData['UserLog']['allowed'] . ')';
-                fwrite($userLogFileHandle, "$userLogStrg\n");
-                fclose($userLogFileHandle);
-            } else {
-                $logDirectory = Configure::read('atim_user_log_output_path');
-                $permission = substr(sprintf('%o', fileperms($logDirectory)), - 4);
-                $debug = Configure::read("debug");
-                if ($debug > 0) {
-                    if ($permission != '0777') {
-                        AppController::addWarningMsg(__('the permission of "log" directory is not correct.'));
-                    } else {
-                        AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+        $logPath = Configure::read('atim_user_log_output_path');
+        $debug = Configure::read("debug");
+        if (!empty($logPath)) {
+            if (is_dir($logPath)){
+                $userLogFileHandle = fopen($logPath . '/user_logs.txt', "a");
+                if ($userLogFileHandle) {
+                    $userLogStrg = '[' . $logActivityData['UserLog']['visited'] . '] ' . '{IP: ' . AppModel::getRemoteIPAddress() . ' || user_id: ' . (strlen($logActivityData['UserLog']['user_id']) ? $logActivityData['UserLog']['user_id'] : 'NULL') . '} ' . $logActivityData['UserLog']['url'] . ' (allowed:' . $logActivityData['UserLog']['allowed'] . ')';
+                    fwrite($userLogFileHandle, "$userLogStrg\n");
+                    fclose($userLogFileHandle);
+                } else {
+                    $logDirectory = $logPath;
+                    $permission = substr(sprintf('%o', fileperms($logDirectory)), - 4);
+                    if ($debug > 0) {
+                        if ($permission != '0777') {
+                            AppController::addWarningMsg(__('the permission of "log" directory is not correct.'));
+                        } else {
+                            AppController::addWarningMsg(__("unable to write user log data into 'user_logs.txt' file"));
+                        }
                     }
+                }
+            }else{
+                if ($debug > 0) {
+                    AppController::addWarningMsg(__('the log directory does not exist: %s', $logPath));
                 }
             }
         }
+        
         
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
@@ -286,6 +309,84 @@ class AppController extends Controller
         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
         $this->Auth->authError = __('You are not authorized to access that location.');
+    }
+
+    protected function checkUserLogsFile()
+    {
+        $logPath = Configure::read('atim_user_log_output_path');
+        $debug = Configure::read("debug");
+        if (!empty($logPath)) {
+            if (is_dir($logPath)) {
+                $now = date("Y-m-d");
+                $y = date("Y");
+                $m = date("m");
+                $d = date("d");
+                $lastYear = ($y - 1) . '-' . $m . '-' . $d;
+                $last6Month = (($m > 6) ? $y . '-' . ($m - 6) : ($y - 1) . '-' . ($m + 6) ) . '-' . $d;
+
+                $logFile = $logPath . '/' . $now . '_user_logs.tmp';
+                $lockFile = $logPath . '/' . $now . '_lock.lock';
+                if (!file_exists($lockFile)) {
+                    $lockFileVariable = fopen($lockFile, "a");
+                    fclose($lockFileVariable);
+                    if (file_exists($lockFile)) {
+                        $userLogFileHandleBackup6Month = fopen($logFile, "a");
+
+                        if ($userLogFileHandleBackup6Month) {
+                            fclose($userLogFileHandleBackup6Month);
+                            $userLogModel = AppModel::getInstance('', "UserLog", false);
+                            $userLogs = $userLogModel->find('all', array(
+                                'conditions' => array(
+                                    'UserLog.visited <=' => $lastYear
+                                ),
+                                'order' => array(
+                                    'UserLog.id'
+                                )
+                            ));
+                            $outPutContent = array();
+                            if (!empty($userLogs)) {
+                                $userLogs = $userLogModel->find('all', array(
+                                    'conditions' => array(
+                                        'UserLog.visited <=' => $last6Month
+                                    ),
+                                    'order' => array(
+                                        'UserLog.id'
+                                    )
+                                ));
+
+                                $outPutContent[] = implode(';', array_keys($userLogs[0]['UserLog']));
+                                foreach ($userLogs as $value) {
+                                    $outPutContent[] = implode(';', array_values($value['UserLog']));
+                                }
+                                $outPutContent = implode("\n", $outPutContent);
+                                file_put_contents($logFile, $outPutContent, FILE_APPEND);
+                                if (file_exists($logFile) && filesize($logFile) > 0) {
+                                    $userLogModel->deleteAll(array('UserLog.visited <=' => $last6Month), false);
+                                    rename($logFile, $logPath . '/' . $now . '_user_logs.csv');
+                                }
+                            }else{
+                                unlink($logFile);
+                            }
+                            unlink($lockFile);
+                        }
+                    } else {
+                        if (Configure . read('debug') > 0) {
+                            $permission = substr(sprintf('%o', fileperms($logPath)), - 4);
+                            if ($permission != '0777') {
+                                AppController::addWarningMsg(__('the permission of "log" directory is not correct.'));
+                            } else {
+                                AppController::addWarningMsg(__("unable to create the backup file for users log"));
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ($debug > 0) {
+                    AppController::addWarningMsg(__('the log directory does not exist: %s', $logPath));
+                }
+            }
+        }
+
     }
 
     private function checkIfDownloadFile()
@@ -1233,7 +1334,7 @@ class AppController extends Controller
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
                 self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                $this->redirect('/menus');
+                $this->redirect('/Menus');
                 exit();
             }
             
@@ -2192,6 +2293,12 @@ class AppController extends Controller
         }
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
+        // ------------------------------------------------------------------------------------------------------------------------------------------
+         
+        // *** 14 *** Update the structure format for ccl
+        $cclModel = AppModel::getInstance('ClinicalAnnotation', 'ClinicalAnnotationAppModel', true);
+        $cclDatamartData = $cclModel->getCCLsList();
+        $result = $cclModel->deleteFromStructuresDeactiveCCLs($cclDatamartData);
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // update the permissions_regenerated flag and redirect

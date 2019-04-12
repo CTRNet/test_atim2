@@ -1,10 +1,27 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class StructuresComponent
  */
 class StructuresComponent extends Component
 {
+
+    public $StructureValueDomain;
 
     public $controller;
 
@@ -80,18 +97,50 @@ $parameters);
         );
         $allStructures = array();
         
+        $validationErrors = array();
+        $models = array();
         foreach ($alias as $aliasUnit) {
             $structUnit = $this->getSingleStructure($aliasUnit);
             
             $allStructures[] = $structUnit;
             
             if ($parameters['set_validation']) {
-                foreach ($structUnit['rules'] as $model => $rules) {
-                    // reset validate for newly loaded structure models
-                    if (! $this->controller->{ $model }) {
-                        $this->controller->{ $model } = new AppModel();
+                if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                    foreach ($structUnit['rules'] as $model => $rules) {
+                        // reset validate for newly loaded structure models
+                        if (!$this->controller->{ $model }) {
+                            $this->controller->{ $model } = new AppModel();
+                        }
+
+                        $models[$model] = $this->controller->{ $model };
+                        $this->controller->{ $model }->validate = array();
+                        foreach ($rules as $field=> $rls){
+                            foreach ($rls as $rule){
+                                if ($rule["rule"] == "notBlank"){
+                                    if ($model =="FunctionManagement"){
+                                        if (!isset($this->controller->data[$model][$field]) || empty($this->controller->data[$model][$field])){
+                                            $validationErrors[$field] = $rule['message'];
+                                        }else{
+                                            if (is_numeric(key($this->controller->data))){
+                                                foreach (current($this->controller->data) as $k=>$data) {
+                                                    if (isset($data[$model][$field]) && empty($data[$model][$field])){
+                                                        $validationErrors[$field] = $rule['message'];
+                                                    }                                                
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $aliasTemp = strtolower($aliasUnit ? trim($aliasUnit) : str_replace('_', '', $this->controller->params['controller']));
+                                    if (isset(AppModel::$requiredFields[$model."||".$aliasTemp])){
+                                        AppModel::$requiredFields[$model."||".$aliasTemp][$field] = $rule["message"];
+                                    }else{
+                                        AppModel::$requiredFields[$model."||".$aliasTemp] = array($field => $rule["message"]);
+                                    }
+                                }
+                            }
+                            
+                        }
                     }
-                    $this->controller->{ $model }->validate = array();
                 }
                 
                 if (isset($structUnit['structure']['Sfs'])) {
@@ -123,12 +172,37 @@ $parameters);
                 $structure['Accuracy'] = array_merge_recursive($structUnit['structure']['Accuracy'], $structure['Accuracy']);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
             }
+
+            if (isset($structUnit['structure']['Sfs']) && is_array($structUnit['structure']['Sfs'])) {
+                App::uses('StructureValueDomain', 'Model');
+                $this->StructureValueDomain = new StructureValueDomain();
+                foreach ($structUnit['structure']['Sfs'] as $sfs) {
+                    if (!empty($sfs['StructureValueDomain'])) {
+                        $dropdownResult = array('defined' => array(""=>""), 'previously_defined' => array());
+                        $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdownResult);
+                        foreach ($dropdownResult['defined'] as $key => $value) {
+                            AppModel::$listValues[$sfs['model']][$sfs['field'] . "||" . $sfs['language_label']][$key] = $value;
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($validationErrors)){
+            foreach ($models as $modelName => $model) {
+                if ($modelName != "FunctionManagement"){
+                    foreach ($validationErrors as $field => $errorMessage){
+                        $this->controller->{ $modelName }->notBlankFields["FunctionManagement"][$field] = $errorMessage;
+                    }
+                }
+            }
         }
         
         foreach ($allStructures as &$structUnit) {
-            foreach ($structUnit['rules'] as $model => $rules) {
-                // rules are formatted, apply them
-                $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+            if (isset($structUnit['rules']) && is_array($structUnit['rules'])) {
+                foreach ($structUnit['rules'] as $model => $rules) {
+                    // rules are formatted, apply them
+                    $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+                }
             }
         }
         
@@ -487,13 +561,20 @@ $parameters);
                                 if (! preg_match('/((\.txt)|(\.csv))$/', $this->controller->data[$model][$key . '_with_file_upload']['name'])) {
                                     $this->controller->redirect('/Pages/err_submitted_file_extension', null, true);
                                 } else {
+                                    $filename = $this->controller->data[$model][$key . '_with_file_upload']['tmp_name'];
+                                    $fileContents = file_get_contents($filename);
+                                    $fileContents = preg_replace('/(\x00|\xFE|\xFF)/', '', $fileContents);
+                                    file_put_contents($filename, $fileContents);
+
                                     // set $DATA array based on contents of uploaded FILE
                                     $handle = fopen($this->controller->data[$model][$key . '_with_file_upload']['tmp_name'], "r");
                                     if ($handle) {
                                         unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
                                         // in each LINE, get FIRST csv value, and attach to DATA array
                                         while (($csvData = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== false) {
-                                            $data[] = $csvData[0];
+                                            if (isset($csvData[0])){
+                                                $data[] = $csvData[0];
+                                            }
                                         }
                                         fclose($handle);
                                     } else {

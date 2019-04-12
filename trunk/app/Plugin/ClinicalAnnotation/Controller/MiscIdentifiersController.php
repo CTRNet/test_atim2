@@ -1,4 +1,19 @@
 <?php
+ /**
+ *
+ * ATiM - Advanced Tissue Management Application
+ * Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ *
+ * Licensed under GNU General Public License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author        Canadian Tissue Repository Network <info@ctrnet.ca>
+ * @copyright     Copyright (c) Canadian Tissue Repository Network (http://www.ctrnet.ca)
+ * @link          http://www.ctrnet.ca
+ * @since         ATiM v 2
+ * @license       http://www.gnu.org/licenses  GNU General Public License
+ */
 
 /**
  * Class MiscIdentifiersController
@@ -119,13 +134,18 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
             // Launch validation
             $submittedDataValidates = true;
             
-            if (! $isIncrementedIdentifier) {
+            if (! $isIncrementedIdentifier && isset($this->request->data['MiscIdentifier']['identifier_value'])) {
                 $this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $controls['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
             }
             
             // ... special validations
+            $saveState = $this->MiscIdentifier->saveValidateState($displayAddForm);
+            
             $this->MiscIdentifier->set($this->request->data);
             $submittedDataValidates = $this->MiscIdentifier->validates() ? $submittedDataValidates : false;
+            
+            $this->MiscIdentifier->restoreValidateState($saveState);
+
             if ($controls['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value'])) {
                 if ($this->MiscIdentifier->find('first', array(
                     'conditions' => array(

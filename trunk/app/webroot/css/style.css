@@ -695,7 +695,9 @@ div.menu ul li.root a {
 }
 
 div.menu.level_1 {
-	display: none;
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s, opacity 0.4s linear;
 	top: 40px;
 	left: 10px;
 	position: absolute;
@@ -712,7 +714,8 @@ div.menu li.count_0 div.menu.level_1 {
 }
 
 div.menu.level_0 li:hover div.menu.level_1 {
-	display: block;
+    visibility: visible;
+    opacity: 1;        
 }
 
 div.menu.level_1 ul {
