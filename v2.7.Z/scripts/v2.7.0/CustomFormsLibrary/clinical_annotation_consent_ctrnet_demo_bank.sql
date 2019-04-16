@@ -62,7 +62,7 @@ VALUES
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) 
 VALUES
-(null, 'ctrnet demo consent bank', 1, 'ctrnet_demo_cd_bank', 'ctrnet_demo_cd_banks', 0, 'ctrnet demo consent bank');
+(null, 'ctrnet demo - consent bank', 1, 'ctrnet_demo_cd_bank', 'ctrnet_demo_cd_banks', 0, 'ctrnet demo - consent bank');
 
 DROP TABLE IF EXISTS `ctrnet_demo_cd_banks`;
 CREATE TABLE `ctrnet_demo_cd_banks` (
@@ -182,7 +182,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-("ctrnet demo consent bank", "CTRNet Demo - Bank Consent", "CTRNet Démo - Consentement des banques"),
+("ctrnet demo - consent bank", "CTRNet Demo - Bank Consent", "CTRNet Démo - Consentement des banques"),
 ("acces to medical records", "Acces to Medical Records", "Accès au dossier médical"),
 ("agreements", "Agreements", "Autorisations"),
 ("allow questionnaire", "Allow Questionnaire", "Autorise questionnaire"),

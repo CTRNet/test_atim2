@@ -25,20 +25,20 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='MiscId
 
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) 
 VALUES
-(1, 'BR_Nbr', 1, 1, 'br', 'BR%%key_increment%%', 0, 0, 1, 0, '', ''),
-(2, 'PR_Nbr', 1, 2, 'pr', 'PR%%key_increment%%', 0, 0, 1, 0, '', ''),
-(4, 'Ovary Bank Nbr', 1, 3, 'ov_key', 'OV-Bk-%%key_increment%%', 0, 0, 1, 0, '', '');
+(1, 'ctrnet demo - br nbr', 1, 1, 'ctrnet demo - br', 'BR%%key_increment%%', 0, 0, 1, 0, '', ''),
+(2, 'ctrnet demo - pr nbr', 1, 2, 'ctrnet demo - pr', 'PR%%key_increment%%', 0, 0, 1, 0, '', ''),
+(4, 'ctrnet demo - ovary bank nbr', 1, 3, 'ctrnet demo - ov key', 'OV-Bk-%%key_increment%%', 0, 0, 1, 0, '', '');
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-('BR_Nbr', 'Breast - Bank#', 'Sein - Banque #'),
-('PR_Nbr', 'Prostate - Bank#', 'Prostate - Banque #'),
-('Ovary Bank Nbr', 'Ovary - Bank#', 'Ovaire - Banque #');
+('ctrnet demo - br nbr', 'Breast - Bank#', 'Sein - Banque #'),
+('ctrnet demo - pr nbr', 'Prostate - Bank#', 'Prostate - Banque #'),
+('ctrnet demo - ovary bank nbr', 'Ovary - Bank#', 'Ovaire - Banque #');
 
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('br', 124),
-('ov_key', 1457),
-('pr', 5943);
+('ctrnet demo - br', 124),
+('ctrnet demo - ov key', 1457),
+('ctrnet demo - pr', 5943);
 
 -- --------------------------------------------------------------------------------
 -- Create unique 'Participant Identifier' as hospital number, health card number,
@@ -49,16 +49,17 @@ INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) 
 VALUES
-(3, 'hospital number', 1, 4, '', '', 1, 1, 1, 0, '', ''),
-(6, 'health card', 1, 5, '', '', 1, 1, 1, 0, '', ''),
-(7, 'care card', 1, 7, '', '', 1, 1, 1, 0, '', '');
+(3, 'ctrnet demo - hospital number', 1, 4, '', '', 1, 1, 1, 0, '', ''),
+(6, 'ctrnet demo - health card', 1, 5, '', '', 1, 1, 1, 0, '', ''),
+(7, 'ctrnet demo - care card', 1, 6, '', '', 1, 1, 1, 0, '', ''),
+(8, 'ctrnet demo - ramq', 1, 7, '', '', 1, 1, 1, 0, '', '');
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-('RAMQ', 'RAMQ', 'RAMQ'),
-('health card', 'Health Card', 'Carte Santé'),
-('care card', 'CareCard', '');
-
+('ctrnet demo - ramq', 'RAMQ', 'RAMQ'),
+('ctrnet demo - health card', 'Health Card', 'Carte Santé'),
+('ctrnet demo - hospital number', 'Hospital Number', "Numéro d'hôpital"),
+('ctrnet demo - care card', 'CareCard', '');
 
 -- --------------------------------------------------------------------------------
 -- Create a 'Study Participant Identifier'
@@ -70,11 +71,11 @@ VALUES
 
 INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`, flag_link_to_study) 
 VALUES
-('patient study id', 1, '', '', 0, 0, 0, 0, '', '', '1');
+('ctrnet demo - patient study id', 1, '', '', 0, 0, 0, 0, '', '', '1');
 
 INSERT INTO i18n (id,en,fr) 
 VALUES 
-('patient study id', 'Patient Study ID', 'ID Patient - Étude');
+('ctrnet demo - patient study id', 'Patient Study ID', 'ID Patient - Étude');
 
 -- --------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------
