@@ -325,7 +325,7 @@ class AppController extends Controller
                 $last6Month = (($m > 6) ? $y . '-' . ($m - 6) : ($y - 1) . '-' . ($m + 6) ) . '-' . $d;
 
                 $logFile = $logPath . '/' . $now . '_user_logs.tmp';
-                $lockFile = $logPath . '/' . $now . '_lock.lock';
+                $lockFile = $logPath . '/log_lock.lock';
                 if (!file_exists($lockFile)) {
                     $lockFileVariable = fopen($lockFile, "a");
                     fclose($lockFileVariable);

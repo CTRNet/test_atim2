@@ -875,4 +875,10 @@ class BrowserController extends DatamartAppController
         // done, render the proper node.
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
     }
+    
+    public function getDataMartDiagram()
+    {
+        $this->set('dataMartDiagram', $this->Browser->getDataMartDiagram());
+        $this->Structures->set('empty', 'emptyStructure');
+    }
 }
