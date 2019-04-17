@@ -185,6 +185,12 @@ $this->Structures->build($atimStructure, array(
         stroke-linecap: round;
     }
 
+    #data-mart line.thick-invisible-line{
+        stroke: rgba(196,196,196, 0);
+        stroke-linecap: round;
+        stroke-width: 20;
+    }
+
     #data-mart{
         height: 600px!important;
         width: 100%!important;
@@ -428,7 +434,11 @@ function drawDataMartDiagram(dms, dmbc)
         if (id1 != id2) {
             var line2 = $(document.createElementNS('http://www.w3.org/2000/svg', 'line')).attr({
                     id: 'line-' + i, x1: x1, y1: y1, x2: x2, y2: y2, class: activeClass, id1: id1, id2: id2
-                }).css("stroke-width", "4").off('mouseover').on('mouseover', function(){
+                }).css("stroke-width", "4");
+                        
+            var line3 = $(document.createElementNS('http://www.w3.org/2000/svg', 'line')).attr({
+                    id: 'tick-line-' + i, x1: x1, y1: y1, x2: x2, y2: y2, class: 'thick-invisible-line', id1: id1, id2: id2
+                }).off('mouseover').on('mouseover', function(){
                 var index1 = $(this).attr("id1");
                 var index2 = $(this).attr("id2");
                 var tdIndex1 = $("#guide-table td[data-index="+index1+"]");
@@ -448,6 +458,7 @@ function drawDataMartDiagram(dms, dmbc)
                 tdIndex2.removeClass("node-highlight");
             });
             svg.append(line2);
+            svg.append(line3);
         } 
     }
     
