@@ -92,7 +92,7 @@ jQuery.fn.popup = function(options){
 		
 		fmPopup.popupOuter.find(":tabbable").unbind('keydown', fmPopup.retainFocus).keydown(fmPopup, fmPopup.retainFocus);
                 if (fmPopup.movable){
-                    $(this).closest(".popup_container").draggable({ cancel: 'td,tr,input,a,.popup_close', cursor: "all-scroll"});
+                    $(this).closest(".popup_container").draggable({ cancel: 'td,tr,input,a,.popup_close,select', cursor: "all-scroll"});
                 }
 	}
 	

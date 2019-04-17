@@ -2158,4 +2158,45 @@ $browsingFilter['attribute']);
             }
         }
     }
+    
+    public function getDataMartDiagram()
+    {
+        $query = "SELECT id , model, display_name, plugin FROM `datamart_structures` ORDER BY id";
+
+        $datamartStructures = $this->query($query);
+        $idModel = array();
+        if (!empty($datamartStructures)) {
+            foreach ($datamartStructures as $ds) {
+                $tempDs = $ds['datamart_structures'];
+                $idModel[] = array('id' => $tempDs['id'], 'plugin' => $tempDs['plugin'], 'model' => $tempDs['model'], 'name' => $tempDs['display_name']);
+            }
+        }
+
+        $query = 
+                "SELECT id1, id2 , flag_active_1_to_2 active , " .
+                "DS1.model model1, DS1.plugin plugin1, " .
+                "DS2.model model2, DS2.plugin plugin2 " .
+                "FROM `datamart_browsing_controls` DBC " .
+                "JOIN `datamart_structures`  DS1 ON DS1.id = DBC.id1 " .
+                "JOIN `datamart_structures`  DS2 ON DS2.id = DBC.id2 " .
+                "ORDER BY id1";
+        
+        $datamartBrowsingControls = $this->query($query);
+        
+        $dmbc = array();
+        if (!empty($datamartBrowsingControls)){
+            foreach ($datamartBrowsingControls as $sbc) {
+                $dmbc [] = array(
+                    'id1' => $sbc['DBC']['id1'], 
+                    'id2' => $sbc['DBC']['id2'], 
+                    'isActive' => $sbc['DBC']['active'], 
+                    'model1' => $sbc['DS1']['model1'], 
+                    'plugin1' => $sbc['DS1']['plugin1'], 
+                    'model2' => $sbc['DS2']['model2'], 
+                    'plugin2' => $sbc['DS2']['plugin2']);
+            }
+        }
+
+        return array('idModel' => $idModel, 'dmbc' => $dmbc);
+    }
 }
