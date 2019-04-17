@@ -127,8 +127,7 @@ class Config extends AppModel
                 'bank_id'
             ));
         }
-        
-        // fixes a cakePHP 2.0 issue with integer enums
-        $requestData['Config']['define_time_format'] = $requestData['Config']['define_time_format'] == 24 ? 2 : 1;
+        AppModel::$listValues['Config']['define_time_format||time format'] = array('' => '' , '1' =>'1', '2' => '2');
+        $requestData['Config']['define_time_format'] = $requestData['Config']['define_time_format'] == 24 ? '2' : '1';
     }
 }
