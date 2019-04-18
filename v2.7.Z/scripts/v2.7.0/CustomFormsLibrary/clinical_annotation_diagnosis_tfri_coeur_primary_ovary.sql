@@ -17,7 +17,7 @@ SET @user_id = (SELECT id FROM users WHERE username LIKE '%' AND id LIKE '1');
 
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) 
 VALUES
-(null, 'primary', 'tfri coeur - ovary', 1, 'tfri_coeur_dxd_ovaries', 'tfri_coeur_dxd_ovaries', 0, 'primarytfri coeur - ovary', 0);
+(null, 'primary', 'tfri coeur - ovary', 1, 'tfri_coeur_dxd_ovaries', 'tfri_coeur_dxd_ovaries', 0, 'primary|tfri coeur - ovary', 0);
 
 DROP TABLE IF EXISTS `tfri_coeur_dxd_ovaries`;
 CREATE TABLE IF NOT EXISTS `tfri_coeur_dxd_ovaries` (
@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS `tfri_coeur_dxd_ovaries` (
   `follow_up_from_ovarectomy_in_months` int(10) DEFAULT NULL,
   KEY `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 DROP TABLE IF EXISTS `tfri_coeur_dxd_ovaries_revs`;
 CREATE TABLE IF NOT EXISTS `tfri_coeur_dxd_ovaries_revs` (
   `diagnosis_master_id` int(11) NOT NULL,
@@ -54,6 +53,8 @@ CREATE TABLE IF NOT EXISTS `tfri_coeur_dxd_ovaries_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `tfri_coeur_dxd_ovaries`
+  ADD CONSTRAINT `FK_tfri_coeur_dxd_ovaries_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
  
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("bilateral", "bilateral");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
@@ -66,7 +67,7 @@ VALUES
 ('tfri_coeur_fallopian_tube_lesions', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Fallopian Tube Lesions\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Fallopian Tube Lesions', 1, 50, 'xxxxxxx');
+('TFRI COEUR : Fallopian Tube Lesions', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Fallopian Tube Lesions');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -82,7 +83,7 @@ VALUES
 ('tfri_coeur_presence_of_precursor_of_benign_lesions', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Presence Precursor of Benign Lesions\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Presence Precursor of Benign Lesions', 1, 50, 'xxxx');
+('TFRI COEUR : Presence Precursor of Benign Lesions', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Presence Precursor of Benign Lesions');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -98,7 +99,7 @@ VALUES
 ('tfri_coeur_histopathology', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Histopathology\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Histopathology', 1, 50, 'xxxx');
+('TFRI COEUR : Histopathology', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Histopathology');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -114,7 +115,7 @@ VALUES
 ('tfri_coeur_grades', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Grades\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Grades', 1, 150, 'xxxxx');
+('TFRI COEUR : Grades', 1, 150, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Grades');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -130,7 +131,7 @@ VALUES
 ('tfri_coeur_figo', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Figo\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Figo', 1, 50, 'xxxx');
+('TFRI COEUR : Figo', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Figo');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -154,7 +155,7 @@ VALUES
 ('tfri_coeur_residual_diseases', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Residual Diseases\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI COEUR : Residual Diseases', 1, 50, 'xxxx');
+('TFRI COEUR : Residual Diseases', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Residual Diseases');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
@@ -173,7 +174,7 @@ VALUES
 ('tfri_coeur_progression_status', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI COEUR : Progression Status\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category)
 VALUES
-('TFRI COEUR : Progression Status', 1, 0, '');
+('TFRI COEUR : Progression Status', 1, 0, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Progression Status');
 INSERT INTO structure_permissible_values_customs 
 (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES

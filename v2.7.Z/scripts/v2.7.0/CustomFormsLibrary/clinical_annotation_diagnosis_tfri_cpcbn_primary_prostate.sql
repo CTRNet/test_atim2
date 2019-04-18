@@ -3,7 +3,7 @@
 -- version: 2.7.2
 -- ------------------------------------------------------
 
--- user id to define
+-- user_id (To Define)
 
 SET @user_id = (SELECT id FROM users WHERE username LIKE '%' AND id LIKE '1');
 
@@ -69,7 +69,7 @@ VALUES
 ('tfri_cpcbn_gleason_values', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(\'TFRI CPCBN: Gleason Values\')');
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES
-('TFRI CPCBN: Gleason Values', 1, 10, 'clinical annotation');
+('TFRI CPCBN: Gleason Values', 1, 10, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI CPCBN: Gleason Values');
 INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
 VALUES
