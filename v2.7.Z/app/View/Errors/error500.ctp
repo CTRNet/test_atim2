@@ -24,9 +24,11 @@ if (Configure::read('debug') > 0 && isset($name)) {
 } elseif (strpos($message, 'bytes exhausted') > - 1) {
     $errorMessage = __('out of memory error');
 } elseif ($this->params['plugin'] == 'Datamart' && $this->params['action'] == 'browse' && $this->params['controller'] == 'Browser') {
-    $errorMessage = __('out of memory error');
+//    $errorMessage = __('out of memory error');
+    $errorMessage = __('a system error has been detected');
 } elseif ($this->params['plugin'] == 'Datamart' && $this->params['action'] == 'csv' && $this->params['controller'] == 'Browser') {
-    $errorMessage = __('Maximum execution time exceeded');
+//    $errorMessage = __('Maximum execution time exceeded');
+    $errorMessage = __('a system error has been detected');
     die();
 }
 

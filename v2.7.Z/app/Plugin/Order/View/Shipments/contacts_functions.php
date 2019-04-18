@@ -122,7 +122,8 @@ function searchContactsForm() {
             globalInit($("#manageContactPopup"));
 
             container = $("#manageContactPopup").find("div").closest('.popup_container').eq(0);
-            container.css({"max-height": $(window).height(), 'overflow-y': 'auto', 'overflow-x': 'hidden'});
+            // fix issue #3685: Manage recipients : Issue linked to the icon to close the contact information pop-up
+            container.css({"max-height": $(window).height()});
 
             $("#manageContactPopup a.cancel").closest("div.bottom_button").click(function () {
                 $("#manageContactPopup").popup('close');
