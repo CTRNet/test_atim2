@@ -15,7 +15,6 @@
  * @license       http://www.gnu.org/licenses  GNU General Public License
  */
 // used by browser
-header('Content-Type: application/csv');
 $csv = $this->Csv;
 
 if ($csvHeader) {

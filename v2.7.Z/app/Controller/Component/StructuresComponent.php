@@ -573,7 +573,7 @@ $parameters);
                                         // in each LINE, get FIRST csv value, and attach to DATA array
                                         while (($csvData = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== false) {
                                             if (isset($csvData[0])){
-                                                $data[] = $csvData[0];
+                                                $data[] = iconv("Windows-1252", "UTF-8", $csvData[0]);
                                             }
                                         }
                                         fclose($handle);
