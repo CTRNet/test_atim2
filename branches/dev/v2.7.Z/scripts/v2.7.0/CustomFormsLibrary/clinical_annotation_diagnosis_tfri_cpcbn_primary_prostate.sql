@@ -92,8 +92,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI CPCBN: cTNM', 1, 5, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI CPCBN: cTNM');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("2", "", "", "10", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("2a", "", "", "11", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("2b", "", "", "12", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
@@ -174,10 +174,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='tfri_cpcbn_dxd_prostates'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_cpcbn_ctnm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ctnm' AND `language_tag`=''), 
-'2', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+'2', '6', 'staging', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='tfri_cpcbn_dxd_prostates'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_cpcbn_ptnm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ptnm' AND `language_tag`=''), 
-'2', '6', 'staging', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+'2', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='tfri_cpcbn_dxd_prostates'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 
 '1', '13', 'survival and bcr', '0', '0', '', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');

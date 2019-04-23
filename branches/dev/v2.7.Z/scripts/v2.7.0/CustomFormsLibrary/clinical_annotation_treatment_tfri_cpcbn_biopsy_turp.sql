@@ -89,8 +89,8 @@ VALUES
 -- VALUES
 -- ('TFRI CPCBN: cTNM', 1, 5, 'clinical - diagnosis');
 -- SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI CPCBN: cTNM');
--- INSERT INTO structure_permissible_values_customs 
--- (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+-- INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+-- VALUES
 -- ("2", "", "", "10", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 -- ("2a", "", "", "11", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 -- ("2b", "", "", "12", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 

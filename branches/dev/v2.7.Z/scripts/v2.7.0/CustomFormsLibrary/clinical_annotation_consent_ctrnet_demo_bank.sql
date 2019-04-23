@@ -148,7 +148,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='acces_to_medical_records' AND `type`='yes_no'), 
-'2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+'2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),  
+((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='research_other_disease' AND `type`='yes_no'), 
+'2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='allow_questionnaire' AND `type`='yes_no'), 
 '2', '20', 'questionnaire', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
@@ -173,10 +176,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='inform_significant_discovery' AND `type`='yes_no'), 
 '2', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='research_other_disease' AND `type`='yes_no'), 
-'2', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'), 
+((SELECT id FROM structures WHERE alias='ctrnet_demo_cd_bank'),
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='ctrnet_demo_cd_banks' AND `field`='inform_discovery_on_other_disease' AND `type`='yes_no'), 
 '2', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
