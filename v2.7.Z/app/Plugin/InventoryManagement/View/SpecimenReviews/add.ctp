@@ -69,8 +69,6 @@ if ($isAliquotReviewDefined) {
         'form_top' => false
     );
     
-    $dropdownOptions['AliquotReviewMaster.aliquot_master_id'] = $aliquotList;
-    
     $finalAtimStructure = $aliquotReviewStructure;
     $finalOptions = array(
         'links' => $structureLinks,

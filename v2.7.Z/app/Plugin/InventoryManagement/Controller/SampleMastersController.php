@@ -577,6 +577,14 @@ class SampleMastersController extends InventoryManagementAppController
             $this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquot_source_struct');
         }
         
+        $parentSampleDataForDisplay = $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleData);
+        $dropdownOptions = array(
+            'SampleMaster.parent_id' => (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
+                '' => ''
+            )
+        );
+        $this->Structures->setDropdownOptions($dropdownOptions);
+
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
@@ -682,6 +690,19 @@ class SampleMastersController extends InventoryManagementAppController
                 'SampleDetail' => $sampleControlData['SampleControl']['detail_tablename']
             )
         ));
+
+        $parentSampleDataForDisplay = $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleData);
+        $sampleParentId = (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
+            '' => ''
+        );
+        $dropdownOptions = array(
+            'SampleMaster.parent_id' => $sampleParentId,
+            'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
+                '' => ''
+            )
+        );
+        $this->Structures->setDropdownOptions($dropdownOptions);
+
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
@@ -1005,6 +1026,17 @@ class SampleMastersController extends InventoryManagementAppController
                 'SampleDetail' => $sampleData['SampleControl']['detail_tablename']
             )
         ));
+
+        $parentSampleDataForDisplay = $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleData);
+        $dropdownOptions = array(
+            'SampleMaster.parent_id' => (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
+                '' => ''
+            ),
+            'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
+                '' => ''
+            )
+        );        
+        $this->Structures->setDropdownOptions($dropdownOptions);
         
         // MANAGE DATA RECORD
         
@@ -1527,6 +1559,7 @@ class SampleMastersController extends InventoryManagementAppController
                 }
             }
             $this->set('parentSampleDataForDisplay', $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleDataForDisplay));
+            $parentSampleDataForDisplay = $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleDataForDisplay);
             
             $hookLink = $this->hook('initial_display');
             if ($hookLink) {
@@ -1664,6 +1697,7 @@ class SampleMastersController extends InventoryManagementAppController
                 $parentSampleDataForDisplay[] = $parent;
             }
             $this->set('parentSampleDataForDisplay', $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleDataForDisplay));
+            $parentSampleDataForDisplay = $this->SampleMaster->formatParentSampleDataForDisplay($parentSampleDataForDisplay);
             
             $this->SourceAliquot->validationErrors = null;
             
@@ -1821,5 +1855,23 @@ class SampleMastersController extends InventoryManagementAppController
         
         $this->set('displayBatchProcessAliqStorageAndInStockDetails', $displayBatchProcessAliqStorageAndInStockDetails);
         $this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
+        
+        $dropdownInitialOptions = array(
+            'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
+                '' => ''
+            )
+        );
+        $this->Structures->setDropdownOptions($dropdownInitialOptions, 'dropdownOptionInitialValues');
+        
+        $dropdownOptions = array(
+            'SampleMaster.parent_id' => (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
+                '' => ''
+            ),
+            'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
+                '' => ''
+            )
+        );
+        $this->Structures->setDropdownOptions($dropdownOptions);
+
     }
 }

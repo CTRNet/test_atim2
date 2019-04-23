@@ -85,21 +85,8 @@ $optionsChildren = array_merge($options, array(
         'section_end' => true
     ),
     "override" => $createdSampleStructureOverride,
-    "dropdown_options" => array(
-        'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
-            '' => ''
-        )
-    )
+    "dropdown_options" => $dropdownOptionInitialValues
 ));
-
-$dropdownOptions = array(
-    'SampleMaster.parent_id' => (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
-        '' => ''
-    ),
-    'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
-        '' => ''
-    )
-);
 
 $hookLink = $this->Structures->hook();
 if ($hookLink) {
@@ -157,7 +144,7 @@ while ($data = array_shift($this->request->data)) {
     
     $finalOptionsChildren['settings']['name_prefix'] = $prefix;
     $finalOptionsChildren['data'] = $data['children'];
-    $finalOptionsChildren['dropdown_options'] = $dropdownOptions;
+    $finalOptionsChildren['dropdown_options'] = $dropdownOptionValues;
     $finalOptionsChildren['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
     if (isset($parent['AliquotMaster']) && ! empty($parent['AliquotControl']['volume_unit'])) {
         $finalOptionsChildren['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];

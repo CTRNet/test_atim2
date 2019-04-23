@@ -146,6 +146,9 @@ class SpecimenReviewsController extends InventoryManagementAppController
         // Set available aliquot
         if ($isAliquotReviewDefined) {
             $this->set('aliquotList', $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($reviewControlData['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $reviewControlData['AliquotReviewControl']['aliquot_type_restriction'])));
+            $aliquotList = $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($reviewControlData['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $reviewControlData['AliquotReviewControl']['aliquot_type_restriction']));
+            $dropdownOptions = array('AliquotReviewMaster.aliquot_master_id' => $aliquotList);
+            $this->Structures->setDropdownOptions($dropdownOptions, 'dropdownOptions');
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -431,6 +434,9 @@ class SpecimenReviewsController extends InventoryManagementAppController
             
             // Set available aliquot
             $this->set('aliquotList', $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'])));
+            $aliquotList = $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction']));
+            $dropdownOptions = array('AliquotReviewMaster.aliquot_master_id' => $aliquotList);
+            $this->Structures->setDropdownOptions($dropdownOptions, 'dropdownOptions');
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS

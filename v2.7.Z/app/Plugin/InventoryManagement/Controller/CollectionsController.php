@@ -107,6 +107,12 @@ class CollectionsController extends InventoryManagementAppController
         $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
         if ($isCclAjax) {
             $this->set('isCclAjax', $isCclAjax);
+            
+            $dropdown['ViewCollection.collection_property'] = array(
+                "participant collection" => __("participant collection")
+            );
+            $this->Structures->setDropdownOptions($dropdown, 'dropdown');
+            
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
