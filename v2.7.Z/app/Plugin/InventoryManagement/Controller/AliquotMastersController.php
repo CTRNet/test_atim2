@@ -2140,7 +2140,17 @@ class AliquotMastersController extends InventoryManagementAppController
             $this->setAliquotMenu($aliquots[0]);
         }
         
-        $this->set('skipLabBookSelectionStep', true);
+        $criteria = array(
+            'ParentAliquotControl.sample_control_id' => $sampleCtrlId,
+            'ParentAliquotControl.id' => $aliquotCtrlId,
+            'ParentAliquotControl.flag_active' => '1',
+            'RealiquotingControl.flag_active' => '1',
+            'RealiquotingControl.lab_book_control_id IS NOT NULL'
+        );
+        $LabBookDefined = $this->RealiquotingControl->find('count', array(
+            'conditions' => $criteria
+        ));
+        $this->set('skipLabBookSelectionStep', $LabBookDefined ? false : true);
         
         // Hook Call
         

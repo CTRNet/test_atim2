@@ -51,6 +51,9 @@ class LabBookAppModel extends AppModel
                 'name' => "LabBookDetail",
                 'alias' => "LabBookDetail"
             ));
+            if (!isset($detailModel->_schema) || empty($detailModel->_schema)) {
+                $detailModel->schema();
+            }
             $fields = array_keys($detailModel->_schema);
             return array_diff($fields, array(
                 "id",

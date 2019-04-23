@@ -39,8 +39,8 @@ class LabBookMastersController extends LabBookAppController
     public $components = array();
 
     public $uses = array(
-        'Labbook.LabBookMaster',
-        'Labbook.LabBookControl',
+        'LabBook.LabBookMaster',
+        'LabBook.LabBookControl',
         
         'InventoryManagement.SampleMaster',
         'InventoryManagement.Realiquoting',
@@ -64,8 +64,8 @@ class LabBookMastersController extends LabBookAppController
      */
     public function search($searchId = 0)
     {
-        $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/search/'));
-        $this->searchHandler($searchId, $this->LabBookMaster, 'labbookmasters', '/labbook/LabBookMasters/search');
+        $this->set('atimMenu', $this->Menus->get('/LabBook/LabBookMasters/search/'));
+        $this->searchHandler($searchId, $this->LabBookMaster, 'labbookmasters', '/LabBook/LabBookMasters/search');
         
         // find all lab_book data control types to build add button
         $this->set('labBookControlsList', $this->LabBookControl->find('all', array(
@@ -105,7 +105,7 @@ class LabBookMastersController extends LabBookAppController
         $labBook = $this->LabBookMaster->getOrRedirect($labBookMasterId);
         $this->request->data = $labBook;
         
-        $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'));
+        $this->set('atimMenu', $this->Menus->get('/LabBook/LabBookMasters/detail/%%LabBookMaster.id%%'));
         $this->set('atimMenuVariables', array(
             'LabBookMaster.id' => $labBookMasterId
         ));
@@ -159,7 +159,7 @@ class LabBookMastersController extends LabBookAppController
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         // Set menu
-        $atimMenu = $this->Menus->get(isset($_SESSION['batch_process_data']['lab_book_menu']) ? $_SESSION['batch_process_data']['lab_book_menu'] : '/labbook/LabBookMasters/index/');
+        $atimMenu = $this->Menus->get(isset($_SESSION['batch_process_data']['lab_book_menu']) ? $_SESSION['batch_process_data']['lab_book_menu'] : '/LabBook/LabBookMasters/search/');
         $this->set('atimMenu', $atimMenu);
         
         $this->set('atimMenuVariables', array(
@@ -182,6 +182,9 @@ class LabBookMastersController extends LabBookAppController
             // Validates and set additional data
             $submittedDataValidates = true;
             
+            $this->request->data['LabBookMaster']['lab_book_control_id'] = $controlId;
+            $this->LabBookMaster->addWritableField('lab_book_control_id');
+            
             $this->LabBookMaster->set($this->request->data);
             if (! $this->LabBookMaster->validates()) {
                 $submittedDataValidates = false;
@@ -199,12 +202,13 @@ class LabBookMastersController extends LabBookAppController
                 $boolSaveDone = true;
                 
                 $this->LabBookMaster->id = null;
+                
                 if ($this->LabBookMaster->save($this->request->data, false)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
                         require ($hookLink);
                     }
-                    $urlToRedirect = '/labbook/LabBookMasters/detail/' . $this->LabBookMaster->id;
+                    $urlToRedirect = '/LabBook/LabBookMasters/detail/' . $this->LabBookMaster->id;
                     if (isset($_SESSION['batch_process_data']['lab_book_next_step'])) {
                         $urlToRedirect = $_SESSION['batch_process_data']['lab_book_next_step'];
                     }
@@ -237,7 +241,7 @@ class LabBookMastersController extends LabBookAppController
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         // Set menu
-        $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'));
+        $this->set('atimMenu', $this->Menus->get('/LabBook/LabBookMasters/detail/%%LabBookMaster.id%%'));
         $this->set('atimMenuVariables', array(
             'LabBookMaster.id' => $labBookMasterId
         ));
@@ -265,15 +269,20 @@ class LabBookMastersController extends LabBookAppController
                 require ($hookLink);
             }
             
+            $this->LabBookMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
+            $this->LabBookMaster->set($this->request->data);
+            $submittedDataValidates = $this->LabBookMaster->validates();
+            
             if ($submittedDataValidates) {
+                $this->request->data = $this->LabBookMaster->data;
                 $this->LabBookMaster->id = $labBookMasterId;
-                if ($this->LabBookMaster->save($this->request->data)) {
+                if ($this->LabBookMaster->save($this->request->data, false)) {
                     $hookLink = $this->hook('postsave_process');
                     if ($hookLink) {
                         require ($hookLink);
                     }
-                    $this->LabBookMaster->synchLabbookRecords($labBookMasterId, $this->request->data['LabBookDetail']);
-                    $this->atimFlash(__('your data has been updated'), '/labbook/LabBookMasters/detail/' . $labBookMasterId);
+                    $this->LabBookMaster->synchLabBookRecords($labBookMasterId, $this->request->data['LabBookDetail']);
+                    $this->atimFlash(__('your data has been updated'), '/LabBook/LabBookMasters/detail/' . $labBookMasterId);
                 }
             }
         }
@@ -297,7 +306,7 @@ class LabBookMastersController extends LabBookAppController
         $this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
         $this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
         
-        $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'));
+        $this->set('atimMenu', $this->Menus->get('/LabBook/LabBookMasters/detail/%%LabBookMaster.id%%'));
         $this->set('atimMenuVariables', array(
             'LabBookMaster.id' => $labBookMasterId
         ));
@@ -322,22 +331,6 @@ class LabBookMastersController extends LabBookAppController
             // Validates and set additional data
             $submittedDataValidates = true;
             
-            if (isset($this->request->data['derivative'])) {
-                foreach ($this->request->data['derivative'] as $newRecord) {
-                    $this->DerivativeDetail->set($newRecord);
-                    if (! $this->DerivativeDetail->validates())
-                        $submittedDataValidates = false;
-                }
-            }
-            
-            if (isset($this->request->data['realiquoting'])) {
-                foreach ($this->request->data['realiquoting'] as $newRecord) {
-                    $this->Realiquoting->set($newRecord);
-                    if (! $this->Realiquoting->validates())
-                        $submittedDataValidates = false;
-                }
-            }
-            
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
             $hookLink = $this->hook('presave_process');
@@ -347,12 +340,19 @@ class LabBookMastersController extends LabBookAppController
             
             if ($submittedDataValidates) {
                 if (isset($this->request->data['derivative'])) {
+                    $this->DerivativeDetail->addWritableField(array(
+                        'sync_with_lab_book',
+                    ));
                     $hookLinkDerivative = $this->hook('postsave_process_derivative');
-                    foreach ($this->request->data['derivative'] as $newRecord) {
-                        $this->DerivativeDetail->id = $newRecord['DerivativeDetail']['id'];
+                    foreach ($this->request->data['derivative'] as $newRecord) {pr($newRecord);
+                        $this->DerivativeDetail->id = $newRecord['DerivativeDetail']['sample_master_id'];
+                        $this->DerivativeDetail->data = null;
                         if (! $this->DerivativeDetail->save(array(
-                            'DerivativeDetail' => $newRecord['DerivativeDetail']
-                        ), false)) {
+                            'DerivativeDetail' => array(
+                                'sample_master_id' => $newRecord['DerivativeDetail']['sample_master_id'],
+                                'sync_with_lab_book' => $newRecord['DerivativeDetail']['sync_with_lab_book']
+                                )
+                        ), true)) {
                             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                         if ($hookLinkDerivative) {
@@ -362,12 +362,19 @@ class LabBookMastersController extends LabBookAppController
                 }
                 
                 if (isset($this->request->data['realiquoting'])) {
+                    $this->DerivativeDetail->addWritableField(array(
+                        'sync_with_lab_book',
+                    ));
                     $hookLinkRealiquoting = $this->hook('postsave_process_realiquoting');
                     foreach ($this->request->data['realiquoting'] as $newRecord) {
                         $this->Realiquoting->id = $newRecord['Realiquoting']['id'];
+                        $this->Realiquoting->data = null;
                         if (! $this->Realiquoting->save(array(
-                            'Realiquoting' => $newRecord['Realiquoting']
-                        ), false)) {
+                            'Realiquoting' => array(
+                                'id' => $newRecord['Realiquoting']['id'],
+                                'sync_with_lab_book' => $newRecord['Realiquoting']['sync_with_lab_book']
+                            )
+                        ), true)) {
                             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                         if ($hookLinkRealiquoting) {
@@ -376,9 +383,9 @@ class LabBookMastersController extends LabBookAppController
                     }
                 }
                 
-                $this->LabBookMaster->synchLabbookRecords($labBookMasterId, $labBook['LabBookDetail']);
+                $this->LabBookMaster->synchLabBookRecords($labBookMasterId, $labBook['LabBookDetail']);
                 
-                $this->atimFlash(__('your data has been updated'), '/labbook/LabBookMasters/detail/' . $labBookMasterId);
+                $this->atimFlash(__('your data has been updated'), '/LabBook/LabBookMasters/detail/' . $labBookMasterId);
             }
         }
     }
@@ -407,12 +414,12 @@ class LabBookMastersController extends LabBookAppController
         
         if ($arrAllowDeletion['allow_deletion']) {
             if ($this->LabBookMaster->atimDelete($labBookMasterId, true)) {
-                $this->atimFlash(__('your data has been deleted'), '/labbook/LabBookMasters/index/');
+                $this->atimFlash(__('your data has been deleted'), '/LabBook/LabBookMasters/index/');
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/labbook/LabBookMasters/index/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/LabBook/LabBookMasters/index/');
             }
         } else {
-            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/labbook/LabBookMasters/detail/' . $labBookMasterId);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/LabBook/LabBookMasters/detail/' . $labBookMasterId);
         }
     }
 

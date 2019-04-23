@@ -38,11 +38,11 @@ if ($isAjax) {
         'description' => $bookType
     );
 } else {
-    $bottomButtons['cancel'] = '/labbook/LabBookMasters/index/';
+    $bottomButtons['cancel'] = '/LabBook/LabBookMasters/search/';
 }
 
 $structureLinks = array(
-    'top' => '/labbook/LabBookMasters/add/' . $atimMenuVariables['LabBookControl.id'] . '/' . $isAjax,
+    'top' => '/LabBook/LabBookMasters/add/' . $atimMenuVariables['LabBookControl.id'] . '/' . $isAjax,
     'bottom' => $bottomButtons
 );
 
