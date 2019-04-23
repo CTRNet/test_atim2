@@ -32,13 +32,13 @@
 $addLinks = array();
 
 foreach ($labBookControlsList as $control) {
-    $addLinks[__($control['LabBookControl']['book_type'])] = '/labbook/LabBookMasters/add/' . $control['LabBookControl']['id'];
+    $addLinks[__($control['LabBookControl']['book_type'])] = '/LabBook/LabBookMasters/add/' . $control['LabBookControl']['id'];
 }
 ksort($addLinks);
 
 $structureLinks = array(
     'index' => array(
-        'detail' => '/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'
+        'detail' => '/LabBook/LabBookMasters/detail/%%LabBookMaster.id%%'
     ),
     'bottom' => array(
         'add' => $addLinks

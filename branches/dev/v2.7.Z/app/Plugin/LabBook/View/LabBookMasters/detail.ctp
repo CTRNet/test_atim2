@@ -31,8 +31,8 @@
  */
 $structureLinks = array(
     'bottom' => array(
-        'edit' => '/labbook/LabBookMasters/edit/' . $atimMenuVariables['LabBookMaster.id'],
-        'delete' => '/labbook/LabBookMasters/delete/' . $atimMenuVariables['LabBookMaster.id']
+        'edit' => '/LabBook/LabBookMasters/edit/' . $atimMenuVariables['LabBookMaster.id'],
+        'delete' => '/LabBook/LabBookMasters/delete/' . $atimMenuVariables['LabBookMaster.id']
     )
 );
 $structureOverride = array();
@@ -41,7 +41,7 @@ $settings = array();
 if ($fullDetailScreen) {
     $settings['actions'] = false;
     $structureLinks['bottom'] = array_merge(array(
-        'edit synchronization option' => '/labbook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id']
+        'edit synchronization option' => '/LabBook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id']
     ), $structureLinks['bottom']);
 }
 

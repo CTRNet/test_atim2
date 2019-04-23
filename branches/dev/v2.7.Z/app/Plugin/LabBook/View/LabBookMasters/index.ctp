@@ -36,7 +36,7 @@ $settings = array(
 $addLinks = array();
 
 foreach ($labBookControlsList as $control) {
-    $addLinks[__($control['LabBookControl']['book_type'])] = '/labbook/LabBookMasters/add/' . $control['LabBookControl']['id'];
+    $addLinks[__($control['LabBookControl']['book_type'])] = '/LabBook/LabBookMasters/add/' . $control['LabBookControl']['id'];
 }
 ksort($addLinks);
 $structureLinks['bottom'] = array(
@@ -48,7 +48,7 @@ $finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => array(
-            'search' => '/labbook/LabBookMasters/search/' . AppController::getNewSearchId()
+            'search' => '/LabBook/LabBookMasters/search/' . AppController::getNewSearchId()
         )
     ),
     'settings' => $settings

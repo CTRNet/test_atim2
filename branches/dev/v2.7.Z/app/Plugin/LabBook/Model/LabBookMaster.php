@@ -38,7 +38,7 @@ class LabBookMaster extends LabBookAppModel
 
     public $belongsTo = array(
         'LabBookControl' => array(
-            'className' => 'Labbook.LabBookControl',
+            'className' => 'LabBook.LabBookControl',
             'foreignKey' => 'lab_book_control_id'
         )
     );
@@ -317,7 +317,7 @@ class LabBookMaster extends LabBookAppModel
      * @param $labBookMasterId
      * @param null $labBookDetail
      */
-    public function synchLabbookRecords($labBookMasterId, $labBookDetail = null)
+    public function synchLabBookRecords($labBookMasterId, $labBookDetail = null)
     {
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
@@ -357,8 +357,14 @@ class LabBookMaster extends LabBookAppModel
             )
         ));
         
+        
+        $fieldsToUpdate = array_keys($labBookDetail);
+        
+        $sampleMasterModel->addWritableField($fieldsToUpdate);
+        $derivativeDetailModel->addWritableField($fieldsToUpdate);
         foreach ($derivativesList as $sampleToUpdate) {
             $sampleMasterModel->id = $sampleToUpdate['SampleMaster']['id'];
+            $sampleMasterModel->data = null;
             if (! $sampleMasterModel->save(array(
                 'SampleMaster' => $labBookDetail,
                 'SampleDetail' => $labBookDetail
@@ -366,7 +372,8 @@ class LabBookMaster extends LabBookAppModel
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
-            $derivativeDetailModel->id = $sampleToUpdate['DerivativeDetail']['id'];
+            $derivativeDetailModel->id = $sampleToUpdate['DerivativeDetail']['sample_master_id'];
+            $derivativeDetailModel->data = null;
             if (! $derivativeDetailModel->save(array(
                 'DerivativeDetail' => $labBookDetail
             ), false)) {
@@ -382,6 +389,7 @@ class LabBookMaster extends LabBookAppModel
                 'Realiquoting.sync_with_lab_book' => '1'
             )
         ));
+        $realiquotingModel->addWritableField($fieldsToUpdate);
         foreach ($realiquotingModelsList as $realiquotingModelToUpdate) {
             $realiquotingModel->id = $realiquotingModelToUpdate['Realiquoting']['id'];
             if (! $realiquotingModel->save(array(

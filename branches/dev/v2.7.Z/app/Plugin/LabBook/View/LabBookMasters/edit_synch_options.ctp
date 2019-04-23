@@ -30,9 +30,9 @@
  * @license       http://www.gnu.org/licenses  GNU General Public License
  */
 $structureLinks = array(
-    "top" => '/labbook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id'],
+    "top" => '/LabBook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id'],
     'bottom' => array(
-        'cancel' => '/labbook/LabBookMasters/detail/' . $atimMenuVariables['LabBookMaster.id']
+        'cancel' => '/LabBook/LabBookMasters/detail/' . $atimMenuVariables['LabBookMaster.id']
     )
 );
 

@@ -1327,7 +1327,15 @@ class SampleMastersController extends InventoryManagementAppController
             ));
         $this->set('parentSampleControlId', $initData['control_id']);
         
-        $this->set('skipLabBookSelectionStep', true);
+        $criteria = array(
+            'ParentToDerivativeSampleControl.parent_sample_control_id' => $initData['control_id'],
+            'ParentToDerivativeSampleControl.flag_active' => '1',
+            'ParentToDerivativeSampleControl.lab_book_control_id IS NOT NULL'
+        );
+        $LabBookDefined = $this->ParentToDerivativeSampleControl->find('count', array(
+            'conditions' => $criteria
+        ));
+        $this->set('skipLabBookSelectionStep', $LabBookDefined ? false : true);
         
         $hookLink = $this->hook('format');
         if ($hookLink) {
