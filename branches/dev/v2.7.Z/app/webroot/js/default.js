@@ -1567,6 +1567,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         $(".floatingBckGrnd .left").css("opacity", 0);
     }
     $(".floatingBckGrnd .right div").css("opacity", Math.min(15, scrollLeft) * 0.03);
+
+    $(".floatingBckGrnd").css("opacity", Math.min(15, scrollLeft) * 0.06);
     $(".testScroll").css("left", scrollLeft);
 }
 

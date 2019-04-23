@@ -33,12 +33,6 @@ if ($isAjax) {
 $sampleParentId = (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
     '' => ''
 );
-$dropdownOptions = array(
-    'SampleMaster.parent_id' => $sampleParentId,
-    'DerivativeDetail.lab_book_master_id' => (isset($labBooksList) && (! empty($labBooksList))) ? $labBooksList : array(
-        '' => ''
-    )
-);
 
 $structureOverride = array();
 if (isset($templateNodeDefaultValues)) {
@@ -65,7 +59,7 @@ $finalAtimStructure = $atimStructure;
 $finalOptions = array(
     'links' => $structureLinks,
     'override' => $structureOverride,
-    'dropdown_options' => $dropdownOptions
+    'dropdown_options' => $dropdownOptionValues
 );
 
 // CUSTOM CODE

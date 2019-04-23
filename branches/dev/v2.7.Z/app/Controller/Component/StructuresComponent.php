@@ -212,8 +212,25 @@ $parameters);
             $structure['Structure'] = $structure['Structure'][0];
         }
         $structureName = Inflector::variable($structureName);
-        // $structureName = AppController::snakeToCamel($structureName);
+
         $this->controller->set($structureName, $structure);
+    }
+    
+//    fix issue #3688: Move the dropdown_options to controller
+    public function setDropdownOptions(array $dropdownOptions, string $dropdownOptionName = "dropdownOptionValues")
+    {
+        foreach ($dropdownOptions as $modelDotField => $listValue) {
+            list($model, $field) = explode(".", $modelDotField);
+            if (!empty(AppModel::$listValues[$model])){
+                $keyList = array_keys(AppModel::$listValues[$model]);
+                foreach ($keyList as $value) {
+                    if (explode("||", $value)[0]==$field){
+                        AppModel::$listValues[$model][$value] = $listValue;
+                    }
+                }
+            }
+        }
+        $this->controller->set($dropdownOptionName, $dropdownOptions);
     }
 
     /**

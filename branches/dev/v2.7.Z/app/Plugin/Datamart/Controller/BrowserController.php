@@ -878,7 +878,11 @@ class BrowserController extends DatamartAppController
     
     public function getDataMartDiagram()
     {
-        $this->set('dataMartDiagram', $this->Browser->getDataMartDiagram());
-        $this->Structures->set('empty', 'emptyStructure');
+        if ($this->request->is('ajax')){
+            $this->set('dataMartDiagram', $this->Browser->getDataMartDiagram());
+            $this->Structures->set('empty', 'emptyStructure');
+        }else{
+            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+        }
     }
 }

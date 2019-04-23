@@ -80,20 +80,13 @@ if ($isFromTreeView) {
     $sampleSettings['header'] = __('sample', null);
 }
 
-// Set override
-$dropdownOptions = array(
-    'SampleMaster.parent_id' => (isset($parentSampleDataForDisplay) && (! empty($parentSampleDataForDisplay))) ? $parentSampleDataForDisplay : array(
-        '' => ''
-    )
-);
-
 // ** 1 - SAMPLE DETAIL **
 
 $sampleSettings['actions'] = $isFromTreeView ? true : false;
 
 $finalAtimStructure = $atimStructure;
 $finalOptions = array(
-    'dropdown_options' => $dropdownOptions,
+    'dropdown_options' => $dropdownOptionValues,
     'links' => $structureLinks,
     'settings' => $sampleSettings,
     'data' => $sampleMasterData
@@ -129,7 +122,7 @@ if (! $isFromTreeView) {
             $finalOptions = array(
                 'type' => 'index',
                 'links' => $structureLinks,
-                'dropdown_options' => $dropdownOptions,
+                'dropdown_options' => $dropdownOptionValues,
                 'data' => $aliquots,
                 'settings' => array(
                     'language_heading' => __($aliquots[0]['AliquotControl']['aliquot_type']),
