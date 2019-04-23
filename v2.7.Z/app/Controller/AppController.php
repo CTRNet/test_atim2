@@ -1609,10 +1609,12 @@ class AppController extends Controller
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // *** 1 *** regen permissions
+        
         $this->PermissionManager->buildAcl();
         AppController::addWarningMsg(__('permissions have been regenerated'));
         
         // *** 1.5 *** Check the upload, temp and local directory permission
+        
         $uploadDirectory = Configure::read('uploadDirectory');
         $permission = substr(sprintf('%o', fileperms($uploadDirectory)), - 4);
         if ($permission != '0777') {
@@ -1620,6 +1622,7 @@ class AppController extends Controller
         }
         
         // *** 2 *** update the i18n string for version
+        
         $storageControlModel = AppModel::getInstance('StorageLayout', 'StorageControl', true);
         $isTmaBlock = $storageControlModel->find('count', array(
             'condition' => array(
@@ -1783,18 +1786,6 @@ class AppController extends Controller
                 }
             }
             $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
-            /*
-             * $database = new DATABASE_CONFIG();
-             * $database = $database->default['database'];
-             * $columns = $this->Version->query("SELECT column_name FROM information_schema.columns WHERE table_name = '".$viewModel->table."' && TABLE_SCHEMA='".$database."' order by column_name ;");
-             * foreach($columns as $column){
-             * $c= $column['columns']['column_name'];
-             * try {
-             * $this->Version->query("ALTER TABLE ".$viewModel->table." ADD INDEX (".$c.");");
-             * } catch (Exception $exc) {
-             * }
-             * }
-             */
         }
         
         AppController::addWarningMsg(__('views have been rebuilt'));
@@ -2293,12 +2284,67 @@ class AppController extends Controller
         }
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
-        // ------------------------------------------------------------------------------------------------------------------------------------------
-         
         // *** 14 *** Update the structure format for ccl
+        
         $cclModel = AppModel::getInstance('ClinicalAnnotation', 'ClinicalAnnotationAppModel', true);
         $cclDatamartData = $cclModel->getCCLsList();
         $result = $cclModel->deleteFromStructuresDeactiveCCLs($cclDatamartData);
+
+        // *** 15 *** Update structure_formats and datamart_browsing_controls when at least one misc identifier control is defined as linkable to a study
+        
+        $miscIdentifierControlModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifierControl', true);
+        $doStudyMiscIdentifierExist = $miscIdentifierControlModel->find('count', array(
+            'condition' => array(
+                'MiscIdentifierControl.flag_active' => '1',
+                'MiscIdentifierControl.flag_link_to_study' => '1'
+            )
+        ));
+        if ($doStudyMiscIdentifierExist) {
+            $structureFormatsQueries = array(
+                "UPDATE structure_formats SET `flag_search`='1', `flag_index`='1'
+                WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search')
+                AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",
+
+                "UPDATE structure_formats SET `flag_detail`='1', `flag_index`='1'
+                WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers')
+                AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",
+
+                "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
+                WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier')
+                AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');"
+            );
+            foreach ($structureFormatsQueries as $tmpSql) {pr($tmpSql);
+                $miscIdentifierControlModel->query($tmpSql);
+            }
+            AppController::addWarningMsg(__("structures 'miscidentifiers', 'miscidentifiers_for_participant_search' and 'datamart_browsing_controls' have been updated to let people to create 'Study Participant Identifier' and search on this field."));
+        }
+
+        // *** 16 *** Update structure_formats and datamart_browsing_controls when at least one misc identifier control is defined as linkable to a study
+        
+        $consentControlModel = AppModel::getInstance('ClinicalAnnotation', 'ConsentControl', true);
+        $doStudyConsentExist = $consentControlModel->find('count', array(
+            'condition' => array(
+                'ConsentControl.flag_active' => '1',
+                'ConsentControl.flag_link_to_study' => '1'
+            )
+        ));
+        if ($doStudyConsentExist) {
+            $structureFormatsQueries = array(
+                "UPDATE structure_formats SET `flag_index`='1'
+                WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters')
+                AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",
+
+                "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
+                WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster')
+                AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');"
+            );
+            foreach ($structureFormatsQueries as $tmpSql) {
+                pr($tmpSql);
+                $miscIdentifierControlModel->query($tmpSql);
+            }
+            AppController::addWarningMsg(__("structure 'consent_masters' and 'datamart_browsing_controls' have been updated to let people to create 'Study Consent' and search on this field."));
+        }
+        
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
         // update the permissions_regenerated flag and redirect

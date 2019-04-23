@@ -67,8 +67,7 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('CTRNet Demo : Breast Diagnosis Nature', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'CTRNet Demo : Breast Diagnosis Nature');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
 VALUES
 ("normal", "Normal", "Normal", "5", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("benign", "Benign", "Bénin", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 

@@ -69,14 +69,14 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Fallopian Tube Lesions', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Fallopian Tube Lesions');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("benign tumors", "Benign Tumors", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("malignant tumors", "Malignant Tumors", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("no", "No", "Non", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("malignant tumors", "Malignant Tumors", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id),
 ("salpingitis", "Salpingitis", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("unknown", "Unknown", "Inconnu", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("yes", "Yes", "Oui", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+("yes", "Yes", "Oui", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id),  
+("no", "No", "Non", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("unknown", "Unknown", "Inconnu", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES
@@ -85,13 +85,13 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Presence Precursor of Benign Lesions', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Presence Precursor of Benign Lesions');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("benign or borderline tumours", "Benign or Borderline Tumours", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("endometriosis", "Endometriosis", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("endosalpingiosis", "Endosalpingiosis", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("no", "No", "Non", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("ovarian cysts", "Ovarian Cysts", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("no", "No", "Non", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("unknown", "Unknown", "Inconnu", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
@@ -101,14 +101,19 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Histopathology', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Histopathology');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
-("benign or borderline tumours", "Benign or Borderline Tumours", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("endometriosis", "Endometriosis", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("endosalpingiosis", "Endosalpingiosis", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("no", "No", "Non", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("ovarian cysts", "Ovarian Cysts", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
-("unknown", "Unknown", "Inconnu", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
+("clear cells", "Clear Cells", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("endometrioid", "Endometrioid", "Endométrioïde", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("high grade serous", "High Grade Serous", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("low grade serous", "Low Grade Serous", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("mixed", "Mixed", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("mucinous", "Mucinous", "Mucineux", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("undifferentiated", "Undifferentiated", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("serous", "Serous", "Séreux", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("other", "Other", "Autre", "100", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("non applicable", "Non Applicable", "", "101", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
+("unknown", "Unknown", "Inconnu", "102", "1", @control_id, NOW(), NOW(), @user_id, @user_id);
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES
@@ -117,8 +122,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Grades', 1, 150, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Grades');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("0", "", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("1", "", "", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("2", "", "", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
@@ -133,8 +138,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Figo', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Figo');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("Ia", "Ia", "", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("Ib", "Ib", "", "2", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("Ic", "Ic", "", "3", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
@@ -157,8 +162,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Residual Diseases', 1, 50, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Residual Diseases');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("1-2cm", "", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("<1cm", "", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 (">2cm", "", "", "0", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
@@ -176,8 +181,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES
 ('TFRI COEUR : Progression Status', 1, 0, 'clinical - diagnosis');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TFRI COEUR : Progression Status');
-INSERT INTO structure_permissible_values_customs 
-(`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `display_order`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES
 ("no", "No", "Non", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("yes", "Yes", "Oui", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
 ("progressive disease", "Progressive Disease", "Maladie progressive", "1", "1", @control_id, NOW(), NOW(), @user_id, @user_id), 
